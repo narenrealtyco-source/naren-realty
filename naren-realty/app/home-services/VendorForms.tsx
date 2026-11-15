@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import LocalityAutocomplete from "../components/LocalityAutocomplete";
 import type { MarketplaceCategory } from "../lib/vendor-marketplace";
 import { applyAsVendor, enquireVendor, type VendorState } from "./vendor-actions";
 
@@ -23,8 +24,8 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
     <label className={label}>Category<select name="category_id" className={input} required defaultValue=""><option value="" disabled>Choose a category</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
     <label className={label}>Services offered<input name="services" className={input} maxLength={500} required /></label>
     <label className={label}>Description<textarea name="description" className={input} maxLength={2000} rows={4} required /></label>
-    <label className={label}>City<input name="city" className={input} maxLength={100} required /></label>
-    <label className={label}>Locality<input name="locality" className={input} maxLength={100} required /></label>
+    <label className={label}>City<input name="city" className={input} maxLength={100} defaultValue="Pune" required /></label>
+    <label className={label}>Locality<LocalityAutocomplete name="locality" className={input} maxLength={100} placeholder="Start typing locality" required /></label>
     <label className={label}>Business address<input name="address" className={input} maxLength={500} required /></label>
     <label className={label}>Proposed commission arrangement (optional)<textarea name="commission_terms" className={input} maxLength={1000} rows={3} /></label>
     <p className="text-sm text-slate-600">Portfolio uploads are not available yet. A customer account is required. <Link className="underline" href="/account#login">Sign in</Link></p>
