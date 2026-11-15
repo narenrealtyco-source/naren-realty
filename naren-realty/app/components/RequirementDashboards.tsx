@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LocalityAutocomplete from "./LocalityAutocomplete";
 import type { PropertyListing } from "../lib/properties";
 import { matchesRequirement, type MatchRequirement } from "../lib/requirements";
 import PropertyCard from "./PropertyCard";
@@ -17,7 +18,7 @@ export function MatchDashboard({ requirements, properties, visitsReady }: { requ
     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
       <label className="text-sm">Purpose<select className={input} value={purpose} onChange={(e) => setPurpose(e.target.value)}><option value="">All</option><option>Buy</option><option>Rent</option></select></label>
       <label className="text-sm">Category<select className={input} value={category} onChange={(e) => setCategory(e.target.value)}><option value="">All</option><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
-      <label className="text-sm">Location<input className={input} value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} /></label>
+      <label className="text-sm">Location<LocalityAutocomplete className={input} value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} placeholder="Start typing locality" /></label>
       <label className="text-sm">Maximum budget<input className={input} type="number" min="0" value={budget} onChange={(e) => setBudget(e.target.value)} /></label>
     </div>
     {!filtered.length && <p className="mt-3">{requirements.length ? "No requirements match these filters." : "No requirements yet."}</p>}
