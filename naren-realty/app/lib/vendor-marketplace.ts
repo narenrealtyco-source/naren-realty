@@ -31,14 +31,18 @@ export function uuid(value: string): boolean {
 }
 
 export function validateVendorApplication(form: FormData) {
-  const category_id = field(form, "category_id", "Category", 36);
-  if (!uuid(category_id)) throw new Error("Choose a valid category.");
+  const rawCategoryIds = field(form, "category_ids", "Service categories", 1000);
+  let category_ids: string[];
+  try { category_ids = JSON.parse(rawCategoryIds); } catch { throw new Error("Select at least one valid service category."); }
+  if (!Array.isArray(category_ids) || category_ids.length < 1 || category_ids.length > 16 || category_ids.some((id) => typeof id !== "string" || !uuid(id)) || new Set(category_ids).size !== category_ids.length) {
+    throw new Error("Select between 1 and 16 valid service categories.");
+  }
   const mobile = field(form, "mobile", "Mobile", 13);
   if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
   const email = field(form, "email", "Email", 254, false);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
   return {
-    category_id, mobile, email,
+    category_ids, mobile, email,
     business_name: field(form, "business_name", "Business name", 120),
     public_name: field(form, "public_name", "Public provider name", 120),
     contact_person: field(form, "contact_person", "Contact person", 120),
