@@ -18,7 +18,7 @@ async function Content() {
   const [categoryResult, applicationResult, vendorResult, enquiryResult] = await Promise.all([
     supabase.from("service_categories").select("id,name,slug,active").order("name"),
     supabase.from("service_vendor_applications").select("id,business_name,public_name,category_id,contact_person,mobile,email,services,description,city,locality,address,admin_notes,status").order("created_at", { ascending: false }).limit(100),
-    supabase.from("service_vendors").select("id,active").limit(1000),
+    supabase.from("service_vendors").select("id,application_id,active").limit(1000),
     supabase.from("vendor_enquiries").select("id,vendor_id,customer_name,locality,message,status,payment_status,payment_reference,created_at").order("created_at", { ascending: false }).limit(100),
   ]);
   const errors = [categoryResult.error, applicationResult.error, vendorResult.error, enquiryResult.error].filter(Boolean);
@@ -35,7 +35,7 @@ async function Content() {
     <section className="mt-6 rounded-xl border bg-white p-4"><h2 className="text-xl font-bold">Categories</h2><div className="mt-4 max-w-md"><CategoryForm /></div><div className="mt-5 space-y-3">{categories.map((c) => <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 border-t pt-3"><span>{c.name} ({c.active ? "active" : "inactive"})</span><CategoryToggle key={`${c.id}-${c.active}-${c.name}`} id={c.id} active={c.active} name={c.name} /></div>)}</div></section>
     <section className="mt-6"><h2 className="text-xl font-bold">Applications</h2>{applications.length === 0 && <p className="mt-3">No applications yet.</p>}
       <div className="mt-3 space-y-3">{applications.map((a) => <article key={a.id} className="rounded-xl border bg-white p-4 [overflow-wrap:anywhere]">
-        <h3 className="font-bold">{a.public_name} · {a.business_name}</h3><p className="mt-1 text-sm">{categories.find((c) => c.id === a.category_id)?.name ?? "Category unavailable"} · {a.status}{a.status === "approved" && ` · ${vendors.find((v) => v.id === a.id)?.active ? "active" : "inactive"}`}</p>
+        <h3 className="font-bold">{a.public_name} · {a.business_name}</h3><p className="mt-1 text-sm">{categories.find((c) => c.id === a.category_id)?.name ?? "Category unavailable"} · {a.status}{a.status === "approved" && ` · ${vendors.find((v) => v.application_id === a.id)?.active ? "active" : "inactive"}`}</p>
         <p className="mt-2 text-sm"><strong>Contact:</strong> {a.contact_person} · {a.mobile}{a.email && ` · ${a.email}`}</p>
         <p className="mt-2 text-sm"><strong>Location:</strong> {a.locality}, {a.city}</p><p className="mt-2 text-sm"><strong>Services:</strong> {a.services}</p><p className="mt-2 whitespace-pre-wrap text-sm">{a.description}</p>
         <ReviewForm key={`${a.id}-${a.status}-${a.admin_notes}`} id={a.id} status={a.status} notes={a.admin_notes ?? ""} />
