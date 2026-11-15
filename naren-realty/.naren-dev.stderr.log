@@ -1,0 +1,27 @@
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\SHARM\OneDrive\Desktop\naren-realty\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\SHARM\OneDrive\Desktop\naren-realty\naren-realty\package-lock.json
+
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:14:17.142Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:14:29.584Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:14:41.043Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:15:56.342Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:16:18.134Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase.ts:6:37)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:16:20.699Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:16:53.998Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\SHARM\OneDrive\Desktop\naren-realty\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\SHARM\OneDrive\Desktop\naren-realty\naren-realty\package-lock.json
+
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:17:55.470Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:17:59.733Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:18:26.932Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:18:37.118Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)
+[browser] GoTrueClient@sb-eyvyszvvujvytdvppaoj-auth-token:1 (2.119.0) 2026-11-13T17:19:58.753Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (app/lib/supabase-browser.ts:4:29)

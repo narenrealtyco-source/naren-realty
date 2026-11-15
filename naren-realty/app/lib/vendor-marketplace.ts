@@ -1,0 +1,63 @@
+export type MarketplaceCategory = { id: string; name: string; slug: string; active: boolean };
+export type PublicVendor = {
+  id: string;
+  category_id: string;
+  business_name: string;
+  public_name: string;
+  services: string;
+  description: string;
+  city: string;
+  locality: string;
+};
+
+// Keep disabled until the proposal, RLS, role protection and storage have been verified.
+export function vendorMarketplaceReady(): boolean {
+  return false;
+}
+
+function field(form: FormData, name: string, label: string, max: number, required = true): string {
+  const raw = form.get(name);
+  if (typeof raw !== "string") throw new Error(`Enter ${label}.`);
+  const value = raw.trim();
+  if ((required && !value) || value.length > max || value.includes("\0")) {
+    throw new Error(`${label} must ${required ? "be provided and " : ""}be at most ${max} characters.`);
+  }
+  return value;
+}
+
+export function uuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+export function validateVendorApplication(form: FormData) {
+  const category_id = field(form, "category_id", "Category", 36);
+  if (!uuid(category_id)) throw new Error("Choose a valid category.");
+  const mobile = field(form, "mobile", "Mobile", 13);
+  if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
+  const email = field(form, "email", "Email", 254, false);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
+  return {
+    category_id, mobile, email,
+    business_name: field(form, "business_name", "Business name", 120),
+    public_name: field(form, "public_name", "Public provider name", 120),
+    contact_person: field(form, "contact_person", "Contact person", 120),
+    services: field(form, "services", "Services offered", 500),
+    description: field(form, "description", "Description", 2000),
+    city: field(form, "city", "City", 100),
+    locality: field(form, "locality", "Locality", 100),
+    address: field(form, "address", "Address", 500),
+    commission_terms: field(form, "commission_terms", "Commission arrangement", 1000, false),
+  };
+}
+
+export function validateVendorEnquiry(form: FormData) {
+  const vendor_id = field(form, "vendor_id", "Vendor", 36);
+  if (!uuid(vendor_id)) throw new Error("Choose a valid vendor.");
+  const mobile = field(form, "mobile", "Mobile", 13);
+  if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
+  return {
+    vendor_id, mobile,
+    customer_name: field(form, "customer_name", "Name", 120),
+    message: field(form, "message", "Requirement", 2000),
+  };
+}
