@@ -13,11 +13,6 @@ function cleanError(value: unknown): string {
   return value instanceof Error ? value.message.slice(0, 500) : "Instagram publishing failed.";
 }
 
-function publicImageUrl(supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"], path: string) {
-  const { data } = supabase.storage.from("property-photos").getPublicUrl(path);
-  return data.publicUrl;
-}
-
 export async function createInstagramPreview(propertyId: string): Promise<PostRow> {
   const { supabase, user } = await requireAdmin();
   const journal = createSupabaseServiceClient();
