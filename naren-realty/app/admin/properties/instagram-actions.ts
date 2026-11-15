@@ -87,7 +87,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     let containerId = post.container_id as string | null;
     if (!containerId) {
       const form = new URLSearchParams({
-        image_url: `${(process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\\/$/, "")}/api/instagram/media/${post.id}?token=${encodeURIComponent(post.media_token)}`,
+        image_url: \`\${(process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\/$/, "")}/api/instagram/media/\${post.id}?token=\${encodeURIComponent(post.media_token)}\`,
         caption,
         access_token: token,
       });
