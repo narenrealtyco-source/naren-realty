@@ -80,7 +80,7 @@ declare
   v_status text;
 begin
   if auth.uid() is null then raise exception 'Sign in is required.'; end if;
-  if p_decision not in ('accept','decline') then raise exception 'Invalid response.'; end if;
+  if p_decision is null or p_decision not in ('accept','decline') then raise exception 'Invalid response.'; end if;
 
   update public.vendor_enquiries e
   set status = case when p_decision='accept' then 'accepted' else 'declined' end,
@@ -110,7 +110,7 @@ begin
   join public.service_vendors v on v.id=e.vendor_id
   where e.id=p_enquiry_id and v.user_id=auth.uid();
 
-  if v_status='not_accepted' then raise exception 'The 60-second response window has expired.'; end if;
+  if v_status='not_accepted' then return v_status; end if;
   if v_status is null then raise exception 'Request not found for your vendor account.'; end if;
   raise exception 'This request has already been responded to.';
 end;
