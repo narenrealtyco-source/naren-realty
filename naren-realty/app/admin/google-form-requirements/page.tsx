@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "../../lib/supabase-server";
 
-export const dynamic = "force-dynamic";
-
 export default async function GoogleFormRequirementsPage() {
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
   try { ({ supabase } = await requireAdmin()); }
