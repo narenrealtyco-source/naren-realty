@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "../../../lib/supabase-server";
-import { uuid, validateVendorApplication, vendorMarketplaceReady } from "../../../lib/vendor-marketplace";
+import { uuid, vendorMarketplaceReady } from "../../../lib/vendor-marketplace";
 import type { VendorState } from "../../../home-services/vendor-actions";
 
 export async function manageMarketplace(_state: VendorState, form: FormData): Promise<VendorState> {
@@ -10,8 +10,10 @@ export async function manageMarketplace(_state: VendorState, form: FormData): Pr
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
   try { ({ supabase } = await requireAdmin()); }
   catch { return { status: "error", message: "Admin authorization is required." }; }
+
   const action = form.get("action");
   let error: { code?: string } | null = null;
+
   if (action === "add-category") {
     const name = form.get("name");
     const slug = form.get("slug");
@@ -22,7 +24,7 @@ export async function manageMarketplace(_state: VendorState, form: FormData): Pr
     if (typeof id !== "string" || !uuid(id)) return { status: "error", message: "Invalid category." };
     const result = await supabase.from("service_categories").delete().eq("id", id).select("id").maybeSingle();
     error = result.error;
-    if (error?.code === "23503") return { status: "error", message: "This category is in use. Deactivate it instead to preserve provider and enquiry records." };
+    if (error?.code === "23503") return { status: "error", message: "This category is in use. Deactivate it instead." };
     if (!error && !result.data) return { status: "error", message: "Category was not removed." };
   } else if (action === "enable-category" || action === "disable-category" || action === "rename-category") {
     const id = form.get("id");
@@ -33,25 +35,29 @@ export async function manageMarketplace(_state: VendorState, form: FormData): Pr
     const result = await supabase.from("service_categories").update(update).eq("id", id).select("id").maybeSingle();
     error = result.error;
     if (!error && !result.data) return { status: "error", message: "Category was not updated." };
-  } else if (action === "edit-vendor") {
+  } else if (action === "approve" || action === "reject") {
     const id = form.get("id");
-    if (typeof id !== "string" || !uuid(id)) return { status: "error", message: "Invalid provider." };
-    let data;
-    try { data = validateVendorApplication(form); }
-    catch (validationError) { return { status: "error", message: validationError instanceof Error ? validationError.message : "Invalid provider details." }; }
-    ({ error } = await supabase.rpc("admin_edit_service_vendor", { p_id: id, p_data: data }));
-  } else if (typeof action === "string" && ["approve", "reject", "activate", "deactivate"].includes(action)) {
+    const notes = form.get("notes");
+    if (typeof id !== "string" || !uuid(id) || typeof notes !== "string" || notes.length > 1000 || notes.includes("\0")) return { status: "error", message: "Invalid application review details." };
+    const result = await supabase.rpc("admin_review_service_vendor_application", {
+      p_application_id: id,
+      p_decision: action === "approve" ? "approved" : "rejected",
+      p_admin_notes: notes.trim() || null,
+    });
+    error = result.error;
+  } else if (action === "mark-lead-paid") {
     const id = form.get("id");
-    const terms = form.get("terms");
-    if (typeof id !== "string" || !uuid(id) || typeof terms !== "string" || terms.length > 1000 || terms.includes("\0")) return { status: "error", message: "Invalid review or commission terms." };
-    ({ error } = await supabase.rpc("review_service_vendor", { p_id: id, p_action: action, p_terms: terms.trim() }));
-  } else if (action === "update-enquiry") {
-    const id = form.get("id");
-    const status = form.get("status");
-    const remarks = form.get("remarks");
-    if (typeof id !== "string" || !uuid(id) || typeof status !== "string" || !["pending", "contacted", "completed", "cancelled"].includes(status) || typeof remarks !== "string" || remarks.length > 2000 || remarks.includes("\0")) return { status: "error", message: "Invalid enquiry status or follow-up." };
-    ({ error } = await supabase.rpc("admin_update_vendor_enquiry", { p_id: id, p_status: status, p_remarks: remarks.trim() }));
-  } else return { status: "error", message: "Invalid marketplace action." };
+    const reference = form.get("payment_reference");
+    if (typeof id !== "string" || !uuid(id) || typeof reference !== "string" || reference.length > 120 || reference.includes("\0")) return { status: "error", message: "Invalid lead payment details." };
+    const result = await supabase.rpc("admin_mark_vendor_lead_paid", {
+      p_enquiry_id: id,
+      p_payment_reference: reference.trim() || null,
+    });
+    error = result.error;
+  } else {
+    return { status: "error", message: "This marketplace action is not available in the current database workflow." };
+  }
+
   if (error) {
     console.error("[vendor] Admin update failed", { code: error.code });
     return { status: "error", message: "The change could not be saved." };
