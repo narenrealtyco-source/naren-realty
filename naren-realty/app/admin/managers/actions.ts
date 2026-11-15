@@ -8,9 +8,17 @@ export async function createManager(_state:ManagerActionState,form:FormData):Pro
  const service=createSupabaseServiceClient();
  const{data,error}=await service.auth.admin.createUser({email,password,phone,email_confirm:true,user_metadata:{full_name:fullName,phone}});
  if(error||!data.user)return{status:"error",message:error?.message??"Manager account could not be created."};
- const{error:profileError}=await service.from("profiles").update({full_name:fullName,phone,role:"manager",manager_active:true,manager_area:area||null,manager_email:email}).eq("id",data.user.id);
- if(profileError){await service.auth.admin.deleteUser(data.user.id);return{status:"error",message:"Manager profile could not be created. Account creation was rolled back."};}
- revalidatePath("/admin/managers");return{status:"success",message:"Manager account created. Share the email/password securely; mobile OTP requires SMS provider setup."};
+ const{data:profile,error:profileError}=await service.from("profiles").upsert({
+  id:data.user.id,full_name:fullName,phone,role:"manager",manager_active:true,
+  manager_area:area||null,manager_email:email,
+ },{onConflict:"id"}).select("id,role").single();
+ if(profileError||!profile||profile.id!==data.user.id||profile.role!=="manager"){
+  await service.auth.admin.deleteUser(data.user.id);
+  console.error("[manager] Profile upsert failed",{code:profileError?.code??"profile_verification_failed"});
+  return{status:"error",message:"Manager profile could not be verified. Account creation was rolled back."};
+ }
+ revalidatePath("/admin");revalidatePath("/admin/managers");revalidatePath("/admin/visits");
+ return{status:"success",message:"Manager account and profile created and verified. Share the email/password securely; mobile OTP requires SMS provider setup."};
 }
 export async function setManagerActive(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
