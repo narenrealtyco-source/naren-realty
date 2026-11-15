@@ -2,9 +2,6 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { createSupabaseServiceClient } from "../../../../lib/supabase-service";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function GET(request: Request, context: { params: Promise<{ postId: string }> }) {
   const { postId } = await context.params;
   const token = new URL(request.url).searchParams.get("token");
