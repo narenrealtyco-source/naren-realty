@@ -7,6 +7,7 @@ import { categoryLabel } from "../../list-property/additional-fields";
 import { SUBMISSION_CATEGORIES } from "../../lib/property-submission-validation";
 import type { SubmissionDetails } from "../../lib/submission-details";
 import { saveDirectProperty, type DirectState } from "./direct-actions";
+import LocalityAutocomplete from "../../components/LocalityAutocomplete";
 
 export type EditProperty = {
   id: string; title: string; category: string; locality: string; price: number;
@@ -26,7 +27,7 @@ export default function PropertyForm({ property }: { property?: EditProperty }) 
     <div className="grid min-w-0 gap-4 sm:grid-cols-2">
       <label className="font-semibold">Category<select name="category" value={category} onChange={(event) => setCategory(event.target.value)} required className={input}><option value="">Select category</option>{SUBMISSION_CATEGORIES.map((item) => <option value={item} key={item}>{categoryLabel(item)}</option>)}</select></label>
       <label className="font-semibold">Property title<input name="title" defaultValue={property?.title} maxLength={120} required className={input} /></label>
-      <label className="font-semibold">Locality<input name="locality" defaultValue={property?.locality} maxLength={120} required className={input} /></label>
+      <label className="font-semibold">Locality<LocalityAutocomplete name="locality" defaultValue={property?.locality} maxLength={120} required className={input} placeholder="Start typing locality" /></label>
       <label className="font-semibold">Price (INR)<input name="price" type="number" step="any" min="0.01" max="1000000000000" defaultValue={property?.price} required className={input} /></label>
       <label className="font-semibold">Carpet area (sq. ft.)<input name="area" type="number" step="any" min="0.01" max="10000000" defaultValue={property?.area} required className={input} /></label>
       <label className="font-semibold sm:col-span-2">Public address<textarea name="address" defaultValue={property?.address} maxLength={500} required className={input} /></label>
