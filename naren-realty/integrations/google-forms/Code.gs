@@ -127,26 +127,30 @@ function onFormSubmit(e) {
       (property.locality ? " (" + property.locality + ")" : "") +
       (property.price ? " | ₹" + Number(property.price).toLocaleString("en-IN") : "")
     );
+    const websiteUrl = "https://naren-realty-fw7y.vercel.app/";
     const subject = matches.length
-      ? "NAREN REALTY: Properties matching your requirement"
-      : "NAREN REALTY: We received your property requirement";
+      ? "Welcome to NAREN REALTY — Your property matches are here"
+      : "Welcome to NAREN REALTY — Requirement received";
     const body = [
-      "Dear " + payload.name + ",",
+      "Welcome to NAREN REALTY, " + payload.name + "!",
       "",
-      "Thank you for submitting your property requirement to NAREN REALTY.",
-      "Your requirement has been registered successfully.",
-      "Reference: " + result.requirementId,
+      "Thanks for submitting your requirement. We have received it successfully.",
+      "Your Requirement ID: " + result.requirementId,
       "",
       matches.length
-        ? "We found " + matches.length + " potential matching approved listing(s):"
-        : "Our team is checking suitable properties and will contact you when an option is available.",
+        ? "Here is your match — potential properties matching your requirement:"
+        : "We are checking suitable properties for you. Our team will share matching options as soon as they are available.",
       "",
-      matchLines.join("\n"),
+      matches.length ? matchLines.join("\n") : "",
+      "",
+      "Visit our website for more property options and updates:",
+      websiteUrl,
       "",
       "Our team will verify availability and details before arranging a visit.",
       "",
+      "Thank you for choosing NAREN REALTY.",
       "Regards,",
-      "NAREN REALTY"
+      "Team NAREN REALTY"
     ].join("\n");
     GmailApp.sendEmail(payload.email, subject, body, { name: "NAREN REALTY" });
   }
