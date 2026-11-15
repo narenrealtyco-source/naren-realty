@@ -30,8 +30,8 @@ function numeric(value: unknown): number | null {
 }
 function normalizePurpose(value: string): "rent" | "buy" | null {
   const v = value.toLowerCase();
-  if (["rent", "rental", "tenant", "lease"].includes(v)) return "rent";
-  if (["buy", "purchase", "resale", "new"].includes(v)) return "buy";
+  if (["rent", "rental", "tenant", "lease", "rental flat", "flat on rent", "rent a flat"].includes(v)) return "rent";
+  if (["buy", "purchase", "resale", "new", "resale flat", "new flat", "purchase flat", "buy a flat"].includes(v)) return "buy";
   return null;
 }
 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
   const customerEmail = clean(body.email, 254).toLowerCase();
   const purpose = normalizePurpose(clean(body.purpose, 30));
   const location = clean(body.location, 180);
-  const categoryInput = clean(body.category, 40).toLowerCase();
+  const categoryInput = clean(body.category, 40).toLowerCase() || "flat";
   const category = ["flat", "flats", "apartment", "apartments"].includes(categoryInput) ? "flat" : categoryInput;
   const bhk = numeric(body.bhk);
   const minBudget = numeric(body.minBudget);
