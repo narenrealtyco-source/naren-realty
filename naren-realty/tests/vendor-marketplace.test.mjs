@@ -106,14 +106,14 @@ test("admin review requires authorization and reports database errors", async ()
     data.set("id", id); data.set("action", "approve"); data.set("notes", "Checked");
     assert.equal((await exports.manageMarketplace({}, data)).status, expected);
     assert.equal(calls.length, count);
-    if (count) assert.equal(calls[0].name, "review_service_vendor");
+    if (count) assert.equal(calls[0].name, "admin_review_service_vendor_application");
   }
 });
 
-test("admin provider edits and enquiry followups require admin and report failures", async () => {
+test("unsupported legacy provider-edit and enquiry-followup actions are rejected", async () => {
   const file = await readFile(new URL("../app/admin/services/vendors/actions.ts", import.meta.url), "utf8");
   const script = ts.transpileModule(file, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-  for (const [admin, error, expected] of [[false, null, "error"], [true, { code: "42501" }, "error"], [true, null, "success"]]) {
+  for (const [admin, error, expected] of [[false, null, "error"], [true, { code: "42501" }, "error"], [true, null, "error"]]) {
     const calls = [];
     const exports = {};
     vm.runInNewContext(script, { exports, console: { error() {} }, require(name) {
@@ -129,7 +129,7 @@ test("admin provider edits and enquiry followups require admin and report failur
     const followup = new FormData(); followup.set("id", id); followup.set("action", "update-enquiry"); followup.set("status", "contacted"); followup.set("remarks", "Call back");
     assert.equal((await exports.manageMarketplace({}, edit)).status, expected);
     assert.equal((await exports.manageMarketplace({}, followup)).status, expected);
-    assert.deepEqual(calls.map((call) => call.name), admin ? ["admin_edit_service_vendor", "admin_update_vendor_enquiry"] : []);
+    assert.deepEqual(calls.map((call) => call.name), []);
   }
 });
 
