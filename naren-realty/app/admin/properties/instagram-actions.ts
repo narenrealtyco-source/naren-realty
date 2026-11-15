@@ -41,14 +41,13 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
   const { data: existing, error: existingError } = await journal.from("instagram_property_posts")
     .select("*").eq("property_id", id).maybeSingle();
   if (existingError) throw new Error("Instagram post storage is not ready. Apply the Instagram post migration first.");
-  if (existing && existing.status === "published") throw new Error("This property has already been published to Instagram.");
-  if (existing && existing.status !== "failed" && existing.status !== "cancelled") return existing as PostRow;
+  if (existing && !["failed", "cancelled"].includes(existing.status)) return existing as PostRow;
 
   const payload = { property_id: id, created_by: user.id, status: "preview_ready", caption, image_path: imagePath, container_id: null, permalink: null, last_error: null };
   const query = existing
     ? journal.from("instagram_property_posts").update(payload).eq("id", existing.id)
     : journal.from("instagram_property_posts").insert(payload);
-  const { data: post, error: saveError } = await query.select("*").single();
+  const { data: post, error: saveError } = await query.select("id,property_id,status,caption,image_path,container_id,permalink,last_error").single();
   if (saveError || !post) throw new Error("Could not save Instagram preview. Verify the migration and Admin database permissions.");
   revalidatePath("/admin/properties");
   return post as PostRow;
@@ -83,6 +82,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     .in("status", ["preview_ready", "failed"]).select("id").maybeSingle();
   if (lockError || !locked) throw new Error("Could not reserve this post for publishing. Refresh and try again.");
   const base = `https://graph.instagram.com/${version}`;
+  let confirmedMediaId: string | null = null;
   try {
     let containerId = post.container_id as string | null;
     if (!containerId) {
