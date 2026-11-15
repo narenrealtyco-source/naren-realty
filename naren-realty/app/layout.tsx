@@ -15,8 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Naren Realty",
-  description: "Find properties and accommodation in Pune with Naren Realty.",
+  title: "NAREN REALTY",
+  description: "Find properties and accommodation with NAREN REALTY.",
+  applicationName: "NAREN REALTY",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "NAREN REALTY",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
