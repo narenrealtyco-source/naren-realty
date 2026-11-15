@@ -200,6 +200,7 @@ export default function AdminDashboardPage() {
             <Link href="/admin/properties" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Properties</Link>
             <Link href="/admin/enquiries" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Enquiries</Link>
             <Link href="/admin/visits" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Visit Requests</Link>
+            <Link href="/admin/managers" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-amber-300/50 bg-amber-400/10 px-3 font-semibold text-amber-200 transition hover:bg-amber-400/20">Managers</Link>
             <Link href="/admin/submissions" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Submissions</Link>
             <Link href="/admin/services" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Home Services</Link>
             <Link href="/admin/requirements" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Requirements</Link>
