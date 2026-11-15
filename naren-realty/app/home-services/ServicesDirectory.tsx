@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import LocalityAutocomplete from "../components/LocalityAutocomplete";
 
 type Category = { slug: string; name: string; image: string; description: string };
 
@@ -63,7 +64,7 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
           </label>
           <label className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0 text-slate-500"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <input aria-label="Search locality" value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Enter locality (e.g. Wakad)" className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-slate-400" />
+            <LocalityAutocomplete aria-label="Search locality" value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Enter locality (e.g. Wakad)" className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-slate-400" />
           </label>
         </div>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
