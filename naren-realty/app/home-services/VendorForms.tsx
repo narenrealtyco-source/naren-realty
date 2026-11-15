@@ -37,14 +37,19 @@ function servicesFor(categoryName: string, slug: string) {
 
 export function VendorApplicationForm({ categories, ready }: { categories: MarketplaceCategory[]; ready: boolean }) {
   const [state, action, pending] = useActionState(applyAsVendor, initial);
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [otherService, setOtherService] = useState("");
   const [locality, setLocality] = useState("");
-  const activeCategory = categories.find((category) => category.id === categoryId);
-  const serviceOptions = useMemo(() => servicesFor(activeCategory?.name ?? "", activeCategory?.slug ?? ""), [activeCategory?.name, activeCategory?.slug]);
+  const selectedCategories = categories.filter((category) => categoryIds.includes(category.id));
+  const serviceOptions = useMemo(() => Array.from(new Set(selectedCategories.flatMap((category) => servicesFor(category.name, category.slug)))), [categoryIds.join("|"), categories]);
   const servicesValue = [...selectedServices, ...(otherService.trim() ? [otherService.trim()] : [])].join(", ");
 
+  function toggleCategory(id: string) {
+    setCategoryIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    setSelectedServices([]);
+    setOtherService("");
+  }
   function toggleService(service: string) {
     setSelectedServices((current) => current.includes(service) ? current.filter((item) => item !== service) : [...current, service]);
   }
@@ -77,8 +82,15 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F0E7] text-sm font-bold text-[#8A6A37]">02</span>
           <div><h3 className="font-bold text-[#10243A]">Services & Specialisations</h3><p className="text-xs text-slate-500">Choose your primary category and the services you offer.</p></div>
         </div>
-        <label className={label}>Primary Service Category<select name="category_id" className={input} required value={categoryId} onChange={(event) => { setCategoryId(event.target.value); setSelectedServices([]); setOtherService(""); }}><option value="" disabled>Select a category</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
-        {activeCategory ? <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+        <p className="mb-3 text-sm font-semibold text-[#26394D]">Service Categories <span className="font-normal text-slate-500">(Select all that apply)</span></p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {categories.map((category) => <label key={category.id} className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-3 text-sm transition ${categoryIds.includes(category.id) ? "border-[#B9955B] bg-[#FBF8F2] text-[#10243A]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+            <input type="checkbox" checked={categoryIds.includes(category.id)} onChange={() => toggleCategory(category.id)} className="accent-[#10243A]" />
+            <span>{category.name}</span>
+          </label>)}
+        </div>
+        <input type="hidden" name="category_ids" value={JSON.stringify(categoryIds)} />
+        {selectedCategories.length > 0 ? <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
           <p className="mb-3 text-sm font-semibold text-slate-700">Services Offered <span className="font-normal text-slate-500">(Select all that apply)</span></p>
           <div className="grid gap-2 sm:grid-cols-2">
             {serviceOptions.map((service) => <label key={service} className={`flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition ${selectedServices.includes(service) ? "border-[#B9955B] bg-[#FBF8F2] text-[#10243A]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
@@ -89,7 +101,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
           <label className={`${label} mt-4`}>Additional Service <span className="font-normal text-slate-400">(optional)</span><input value={otherService} onChange={(event) => setOtherService(event.target.value)} className={input} maxLength={200} placeholder="Enter another service" /></label>
           <input type="hidden" name="services" value={servicesValue} />
           <p className="mt-2 text-xs text-slate-500">{selectedServices.length + (otherService.trim() ? 1 : 0)} service(s) selected</p>
-        </div> : <p className="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500">Choose a category to see relevant services.</p>}
+        </div> : <p className="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500">Choose one or more categories to see relevant services.</p>}
         <input type="hidden" name="description" value="Service partner application" />
       </section>
 
@@ -128,7 +140,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
       </div>
       {!ready && <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Online applications are temporarily unavailable while the secure vendor database is being configured. Your information will not be submitted or stored.</p>}
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">{state.message}</p>}
-      <button disabled={!ready || pending || state.status === "success" || !servicesValue.trim() || !locality.trim()} className={button}>{pending ? "Submitting application..." : "Submit Application"}</button>
+      <button disabled={!ready || pending || state.status === "success" || categoryIds.length === 0 || !servicesValue.trim() || !locality.trim()} className={button}>{pending ? "Submitting application..." : "Submit Application"}</button>
       <p className="text-center text-[11px] text-slate-400">By submitting this form, you authorise NAREN REALTY to contact you for business verification and onboarding.</p>
     </div>
   </form>;
