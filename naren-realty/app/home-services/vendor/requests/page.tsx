@@ -1,2 +1,2 @@
-import { VendorRequestsDashboard } from "../VendorRequestsDashboard";
+import { VendorRequestsDashboard } from "../../VendorRequestsDashboard";
 export default function VendorRequestsPage(){return <VendorRequestsDashboard/>;}
