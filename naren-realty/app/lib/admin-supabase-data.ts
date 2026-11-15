@@ -5,7 +5,6 @@ import { propertySubmissionsEnabled } from "./property-submission-config";
 import { indiaCalendarDate } from "./property-marketing";
 import { requirementsReady } from "./requirements";
 import { visitStatuses } from "./visit-requests";
-import { vendorMarketplaceReady } from "./vendor-marketplace";
 
 const PROPERTY_COLUMNS = [
   "id",
@@ -296,22 +295,22 @@ export async function getAdminDashboardStatsFromSupabase(): Promise<AdminDashboa
         };
       })
       : Promise.resolve(unavailableMetrics<ServiceRequestDashboardMetrics>(secureSetupUnavailable)),
-    vendorMarketplaceReady()
-      ? loadMetricSection("Vendor management", async () => {
-        const [applications, totalVendors] = await Promise.all([
-          readDashboardRows(supabase, "service_vendor_applications"),
-          countDashboardRows(supabase, "service_vendors"),
-        ]);
-        assertKnownStatuses(applications, "vendor application", ["pending", "approved", "rejected"]);
-        const statuses = applications.map(normalizedStatus);
-        return {
-          totalVendors,
-          pendingVendors: statuses.filter((status) => status === "pending").length,
-          approvedVendors: statuses.filter((status) => status === "approved").length,
-          rejectedVendors: statuses.filter((status) => status === "rejected").length,
-        };
-      })
-      : Promise.resolve(unavailableMetrics<VendorDashboardMetrics>(secureSetupUnavailable)),
+    loadMetricSection("Vendor management", async () => {
+      // This runs only after requireAdmin() has verified the signed-in admin.
+      // RLS policies on both tables explicitly allow admins to read all rows.
+      const [applications, totalVendors] = await Promise.all([
+        readDashboardRows(supabase, "service_vendor_applications"),
+        countDashboardRows(supabase, "service_vendors"),
+      ]);
+      assertKnownStatuses(applications, "vendor application", ["pending", "approved", "rejected"]);
+      const statuses = applications.map(normalizedStatus);
+      return {
+        totalVendors,
+        pendingVendors: statuses.filter((status) => status === "pending").length,
+        approvedVendors: statuses.filter((status) => status === "approved").length,
+        rejectedVendors: statuses.filter((status) => status === "rejected").length,
+      };
+    }),
     requirementsReady()
       ? loadMetricSection("Customer requirements", async () => {
         const [propertyRequirements, loanRequirements] = await Promise.all([
