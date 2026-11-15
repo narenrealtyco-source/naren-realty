@@ -1,44 +1,116 @@
+"use client";
+
 import Link from "next/link";
-import type { MarketplaceCategory, PublicVendor } from "../lib/vendor-marketplace";
+import { useMemo, useState } from "react";
 
-const icons: Record<string, string> = {
-  electrician: "M13 2 5 13h6l-1 9 9-12h-6z",
-  "key-maker-locksmith": "M14 8a4 4 0 1 1-3 6l-6 6H2v-3l7-7a4 4 0 0 1 5-2zm1 2h.01",
-  "modular-kitchen": "M3 9h18v11H3zM3 6h18M8 9v11m8-11v11m-6-8h1m6 0h1",
-  painting: "M4 3h12v5H4zM10 8v3h8v3h-5v7h-3v-7",
-  plumber: "M4 5h8v3H9v4h7v4h3v3h-6v-4H6V8H4z",
-  "carpenter-furniture": "M4 20h16M6 20v-8h12v8M4 9l8-6 8 6M8 12V9h8v3",
-  "home-cleaning": "M14 3 8 12m3-2 5 4-5 7H3l6-9m4-8 3-2 2 3",
-  "ac-repair-service": "M3 5h18v11H3zM6 9h12M7 19l-1 2m6-2v2m5-2 1 2",
-  "appliance-repair": "M5 3h14v18H5zM8 7h8m-8 4h8m-8 4h8",
-  "civil-work": "M3 20h18M5 20V9l7-5 7 5v11M9 20v-6h6v6",
-  waterproofing: "M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11zm-3 12c.5 2 2 3 4 3",
-  "pest-control": "M8 9h8v7a4 4 0 0 1-8 0V9zm1 0V7a3 3 0 0 1 6 0v2m-7 3H4m12 0h4m-12 3H4m12 0h4",
-  "packers-movers": "M3 6h12v11H3zM15 10h4l2 3v4h-6zM7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm11 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z",
-  "interior-designer": "M4 20V4h16v16zM4 13h16M10 4v9m4 0v7",
-  "home-loan-assistance": "M3 11 12 4l9 7M5 10v10h14V10m-9 3h4m-4 3h4",
-  "legal-services": "M12 3v17M5 7h14M5 7l-3 7h6L5 7zm14 0-3 7h6l-3-7zM8 21h8",
-  "home-renovation": "M3 11 12 4l9 7M5 10v10h14V10m-9 10v-6h4v6",
-  "other-home-services": "M4 20h16M6 20v-9l6-5 6 5v9M10 20v-5h4v5M3 11l9-8 9 8",
-};
-const defaultIcon = "M12 3v18M3 12h18";
+type Category = { slug: string; name: string; image: string; description: string };
 
-export default function ServicesDirectory({ categories, selected, providers, hasMore }: { categories: MarketplaceCategory[]; selected: MarketplaceCategory; providers: PublicVendor[]; hasMore: boolean }) {
-  return <div className="mt-5 grid grid-cols-[minmax(7rem,35%)_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[15rem_minmax(0,1fr)] sm:gap-5">
-    <nav aria-label="Service categories" tabIndex={0} className="max-h-[min(70vh,40rem)] space-y-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
-      {categories.map((category) => <Link key={category.id} href={`/home-services?category=${encodeURIComponent(category.id)}`} aria-current={category.id === selected.id ? "page" : undefined} className={`flex min-h-12 items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold sm:text-sm ${category.id === selected.id ? "bg-[#10243A] text-white" : "text-[#10243A] hover:bg-amber-50"}`}>
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0"><path d={icons[category.slug] ?? defaultIcon} /></svg><span className="break-words">{category.name}</span>
-      </Link>)}
-    </nav>
-    <section aria-labelledby="selected-service" className="min-w-0"><h2 id="selected-service" className="text-lg font-bold text-[#10243A] sm:text-xl">{selected.name}</h2>
-      {providers.length === 0 ? <p className="mt-3 rounded-xl border bg-white p-4 text-sm text-slate-600">No approved providers are available in this category right now.</p> :
-        <div className="mt-3 space-y-3">{providers.map((provider) => <article key={provider.id} className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5 [overflow-wrap:anywhere]">
-          <h3 className="font-bold text-[#10243A]">{provider.public_name}</h3><p className="mt-1 text-sm font-semibold">{provider.business_name}</p><p className="mt-1 text-xs font-semibold text-amber-800">{selected.name}</p>
-          <p className="mt-2 flex items-center gap-1 text-sm text-slate-600"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-4 shrink-0"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12Z" /><circle cx="12" cy="9" r="2" /></svg>{provider.city}, {provider.locality}</p>
-          <p className="mt-3 whitespace-pre-wrap text-sm"><strong>Services: </strong>{provider.services}</p><p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">{provider.description}</p>
-          <Link href={`/home-services/vendors/${encodeURIComponent(provider.id)}`} className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-[#10243A] px-4 text-sm font-bold text-white">Send Enquiry</Link>
-        </article>)}</div>}
-      {hasMore && <p className="mt-3 text-sm text-slate-600">Showing the first 100 providers.</p>}
-    </section>
-  </div>;
+const categories: Category[] = [
+  { slug: "plumbing", name: "Plumbing", image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=700&q=80", description: "Tap, pipe, leakage and bathroom repairs" },
+  { slug: "electrical", name: "Electrical", image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=700&q=80", description: "Wiring, switches, fans and fittings" },
+  { slug: "painting", name: "Painting", image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=700&q=80", description: "Interior and exterior painting" },
+  { slug: "carpentry-furniture", name: "Carpentry & Furniture", image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=700&q=80", description: "Furniture repair and custom woodwork" },
+  { slug: "home-cleaning", name: "Home Cleaning", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=700&q=80", description: "Deep cleaning and regular home cleaning" },
+  { slug: "housekeeping-maid", name: "Housekeeping / Maid", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=700&q=80", description: "Maid, cook and housekeeping help" },
+  { slug: "interior-design", name: "Interior Design", image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=700&q=80", description: "Home interiors and space planning" },
+  { slug: "pest-control", name: "Pest Control", image: "https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=700&q=80", description: "Cockroach, termite and pest treatment" },
+  { slug: "civil-renovation", name: "Civil Work & Renovation", image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=700&q=80", description: "Repairs, renovation and civil work" },
+  { slug: "ac-installation", name: "AC Installation", image: "https://images.unsplash.com/photo-1631545806609-1c75d8b8a4b8?auto=format&fit=crop&w=700&q=80", description: "New AC fitting and shifting" },
+  { slug: "packers-movers", name: "Packers & Movers", image: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=700&q=80", description: "House shifting and packing" },
+  { slug: "appliance-repair", name: "Appliance Repair", image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=700&q=80", description: "Washing machine and home appliances" },
+  { slug: "waterproofing", name: "Waterproofing", image: "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&w=700&q=80", description: "Terrace, bathroom and wall leakage" },
+  { slug: "pet-services", name: "Pet Services", image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=700&q=80", description: "Pet grooming, walking and pet care" },
+  { slug: "ac-cleaning-repair", name: "AC Cleaning & Repair", image: "https://images.unsplash.com/photo-1631545806609-1c75d8b8a4b8?auto=format&fit=crop&w=700&q=80", description: "AC servicing, cleaning and repair" },
+  { slug: "kitchen-services", name: "Kitchen Services", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=700&q=80", description: "Gas stove, hob, chimney and kitchen repair" },
+];
+
+type Vendor = { id: string; public_name: string; business_name: string; category: string; city: string; locality: string };
+
+export default function ServicesDirectory({ initialCategory }: { initialCategory: string }) {
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [locality, setLocality] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const selected = categories.find((item) => item.slug === selectedCategory);
+  // Approved vendor records will be connected after the secure vendor database is enabled.
+  const vendors: Vendor[] = [];
+  const filteredVendors = useMemo(() => vendors.filter((vendor) => {
+    const matchesName = `${vendor.public_name} ${vendor.business_name}`.toLowerCase().includes(vendorSearch.toLowerCase());
+    const matchesArea = `${vendor.locality} ${vendor.city}`.toLowerCase().includes(locality.toLowerCase());
+    const matchesCategory = !selected || vendor.category === selected.name;
+    return matchesName && matchesArea && matchesCategory;
+  }), [vendorSearch, locality, selected]);
+
+  return (
+    <div className="space-y-7">
+      <header className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">NAREN REALTY</p>
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#10243A] sm:text-3xl">Home Services</h1>
+            <p className="mt-1 hidden text-sm text-slate-600 sm:block">Find trusted professionals for your home.</p>
+          </div>
+          <Link href="/home-services/register" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#176B45] px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#125638] sm:px-5 sm:text-sm">
+            <span aria-hidden="true">＋</span><span className="hidden sm:inline">Apply as Service Provider</span><span className="sm:hidden">Apply</span>
+          </Link>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0 text-slate-500"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input aria-label="Search vendor name" value={vendorSearch} onChange={(event) => setVendorSearch(event.target.value)} placeholder="Search vendor name..." className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-slate-400" />
+          </label>
+          <label className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0 text-slate-500"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <input aria-label="Search locality" value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Enter locality (e.g. Wakad)" className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-slate-400" />
+          </label>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <span>Search by vendor name and locality</span>
+          <button type="button" onClick={() => { setVendorSearch(""); setLocality(""); setSelectedCategory(""); }} className="font-semibold text-emerald-800 hover:underline">Clear search & filters</button>
+        </div>
+      </header>
+
+      <section aria-labelledby="service-categories">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div><h2 id="service-categories" className="text-xl font-extrabold text-[#10243A] sm:text-2xl">Browse Services</h2><p className="mt-1 text-sm text-slate-600">Choose a category to find the right professional.</p></div>
+          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">16 Categories</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {categories.map((category) => {
+            const active = selectedCategory === category.slug;
+            return (
+              <button type="button" key={category.slug} onClick={() => setSelectedCategory(active ? "" : category.slug)} aria-pressed={active} className={`group min-w-0 overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${active ? "border-emerald-600 ring-2 ring-emerald-100" : "border-slate-200"}`}>
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                  <img src={category.image} alt={category.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                  <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#10243A]">{active ? "Selected" : "Explore"}</span>
+                </div>
+                <div className="p-3">
+                  <h3 className="text-sm font-bold leading-snug text-[#10243A]">{category.name}</h3>
+                  <p className="mt-1 hidden text-xs leading-relaxed text-slate-500 sm:block">{category.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section aria-labelledby="providers-heading" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><h2 id="providers-heading" className="text-xl font-extrabold text-[#10243A]">{selected ? selected.name : "Popular Service Providers"}</h2><p className="mt-1 text-sm text-slate-600">{locality ? `Showing providers for ${locality}` : "Approved professionals will appear here."}</p></div>
+          {selected && <button type="button" onClick={() => setSelectedCategory("")} className="text-sm font-semibold text-emerald-800 hover:underline">View all categories</button>}
+        </div>
+        {filteredVendors.length === 0 ? (
+          <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-50 text-2xl" aria-hidden="true">⌂</div>
+            <h3 className="mt-3 font-bold text-[#10243A]">Service providers are being onboarded</h3>
+            <p className="mx-auto mt-1 max-w-lg text-sm leading-relaxed text-slate-600">Verified vendor profiles will appear here after NAREN REALTY admin approval. You can browse all service categories or apply to join as a provider.</p>
+            <Link href="/home-services/register" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#176B45] px-5 text-sm font-bold text-white hover:bg-[#125638]">Apply as Service Provider</Link>
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">{filteredVendors.map((vendor) => <article key={vendor.id} className="rounded-xl border border-slate-200 p-4"><h3 className="font-bold">{vendor.public_name}</h3><p className="text-sm text-slate-600">{vendor.business_name} · {vendor.locality}, {vendor.city}</p></article>)}</div>
+        )}
+      </section>
+      <p className="pb-2 text-center text-xs text-slate-500">Only vendors approved by NAREN REALTY will be displayed.</p>
+    </div>
+  );
 }
