@@ -66,7 +66,9 @@ export async function updateRequirement(_state: RequirementState, form: FormData
   const id = form.get("id"), kind = form.get("kind"), status = form.get("status"), remarks = form.get("remarks"), assigned = form.get("assigned_to");
   const statuses = kind === "match" ? ["New", "Contacted", "Closed"] : ["New", "Contacted", "Documents Pending", "Under Process", "Approved", "Rejected", "Closed"];
   if (typeof id !== "string" || !validUuid(id) || (kind !== "match" && kind !== "loan") || typeof status !== "string" || !statuses.includes(status) || typeof remarks !== "string" || remarks.length > 2000 || remarks.includes("\0") || typeof assigned !== "string" || (assigned && !validUuid(assigned))) return { status: "error", message: "Invalid status or follow-up." };
-  const { error } = await supabase.rpc("admin_update_requirement", { p_kind: kind, p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null });
+  const { error } = kind === "loan"
+    ? await supabase.rpc("admin_update_loan_requirement", { p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null })
+    : await supabase.rpc("admin_update_requirement", { p_kind: kind, p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null });
   if (error) { console.error("[requirements] Admin update failed", { code: error.code }); return { status: "error", message: "The requirement could not be updated." }; }
   revalidatePath("/admin/requirements");
   return { status: "success", message: "Requirement updated." };
