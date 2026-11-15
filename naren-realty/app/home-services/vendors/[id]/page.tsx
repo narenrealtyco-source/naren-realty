@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 import { uuid, vendorMarketplaceReady } from "../../../lib/vendor-marketplace";
-import { VendorEnquiryForm } from "../../VendorForms";
+import { VendorEnquiryFlow } from "../../VendorEnquiryFlow";
 
 export default function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   if (!vendorMarketplaceReady()) return <main className="p-5"><Link href="/home-services/vendors" className="underline">Provider directory</Link><p className="mt-4" role="status">The provider directory is not available yet.</p></main>;
@@ -21,6 +21,6 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
     <h1 className="mt-5 text-3xl font-bold text-[#10243A]">{data.public_name}</h1><p className="mt-1 font-semibold">{data.business_name}</p>
     <p className="mt-2 text-slate-600">{data.locality}, {data.city}</p>
     <p className="mt-4 font-semibold">{data.services}</p><p className="mb-6 mt-3 whitespace-pre-wrap text-slate-700">{data.description}</p>
-    <VendorEnquiryForm vendorId={data.id} ready />
+    <VendorEnquiryFlow vendorId={data.id} initialLocality={data.locality} />
   </div></main>;
 }
