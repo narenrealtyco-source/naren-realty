@@ -82,8 +82,8 @@ async function LoansContent({ selectedSlug }: { selectedSlug: string }) {
     "lap": ["loan against property", "lap"],
     "plot-land-loan": ["plot loan", "land loan", "plot/land loan"],
     "commercial-property-loan": ["commercial property loan"],
-    "balance-transfer": ["balance transfer"],
-    "top-up-loan": ["top-up loan", "top up loan"],
+    "balance-transfer": ["home loan balance transfer", "balance transfer"],
+    "top-up-loan": ["home loan top-up", "home loan top up", "top-up loan", "top up loan"],
   };
   const wanted = aliases[selectedSlug] ?? [];
   const selectedTypeId = types?.find((type) => wanted.includes(type.name.trim().toLowerCase()))?.id;
