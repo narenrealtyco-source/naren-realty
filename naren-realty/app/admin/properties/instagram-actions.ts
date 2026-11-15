@@ -49,8 +49,8 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
 
   const payload = { property_id: id, created_by: user.id, status: "preview_ready", caption, image_path: imagePath, container_id: null, permalink: null, last_error: null };
   const query = existing
-    ? supabase.from("instagram_property_posts").update(payload).eq("id", existing.id)
-    : supabase.from("instagram_property_posts").insert(payload);
+    ? journal.from("instagram_property_posts").update(payload).eq("id", existing.id)
+    : journal.from("instagram_property_posts").insert(payload);
   const { data: post, error: saveError } = await query.select("*").single();
   if (saveError || !post) throw new Error("Could not save Instagram preview. Verify the migration and Admin database permissions.");
   revalidatePath("/admin/properties");
@@ -81,10 +81,10 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     throw new Error("Only currently approved sale properties can be published.");
   }
 
-  const { error: lockError } = await journal.from("instagram_property_posts")
+  const { data: locked, error: lockError } = await journal.from("instagram_property_posts")
     .update({ status: "publishing", caption, last_error: null }).eq("id", postId)
-    .in("status", ["preview_ready", "failed"]);
-  if (lockError) throw new Error("Could not reserve this post for publishing. Refresh and try again.");
+    .in("status", ["preview_ready", "failed"]).select("id").maybeSingle();
+  if (lockError || !locked) throw new Error("Could not reserve this post for publishing. Refresh and try again.");
   const base = `https://graph.instagram.com/${version}`;
   try {
     let containerId = post.container_id as string | null;
@@ -98,7 +98,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
       const created = await createResponse.json() as { id?: string; error?: { message?: string } };
       if (!createResponse.ok || !created.id) throw new Error(created.error?.message || "Instagram media container could not be created.");
       containerId = created.id;
-      const { error: containerSaveError } = await supabase.from("instagram_property_posts")
+      const { error: containerSaveError } = await journal.from("instagram_property_posts")
         .update({ container_id: containerId }).eq("id", postId);
       if (containerSaveError) throw new Error("Instagram container was created but could not be saved. Contact support before retrying.");
     }
