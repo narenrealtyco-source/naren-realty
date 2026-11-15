@@ -6,7 +6,7 @@ import { createSupabaseServiceClient } from "../../lib/supabase-service";
 
 type PostRow = {
   id: string; property_id: string; status: string; caption: string; image_path: string;
-  container_id: string | null; permalink: string | null; last_error: string | null;
+  container_id: string | null; permalink: string | null; last_error: string | null; media_token: string;
 };
 
 function cleanError(value: unknown): string {
@@ -33,11 +33,13 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
   if (!Array.isArray(property.photos) || typeof property.photos[0] !== "string") throw new Error("This property has no approved public photo.");
 
   const imagePath = property.photos[0] as string;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\\/$/, "");
   const caption = [
     property.title,
     property.locality,
     `Price: ₹${Number(property.price).toLocaleString("en-IN")}`,
     "For details and enquiries, visit our website.",
+    `${siteUrl}/properties/${id}`,
     `#NarenRealty #PropertyForSale #RealEstate #${String(property.locality).replace(/[^a-z0-9]/gi, "")}`,
   ].join("\n\n").slice(0, 2200);
 
@@ -90,7 +92,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     let containerId = post.container_id as string | null;
     if (!containerId) {
       const form = new URLSearchParams({
-        image_url: publicImageUrl(supabase, post.image_path),
+        image_url: `${(process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\\/$/, "")}/api/instagram/media/${post.id}?token=${encodeURIComponent(post.media_token)}`,
         caption,
         access_token: token,
       });
