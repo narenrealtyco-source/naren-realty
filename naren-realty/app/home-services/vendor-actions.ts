@@ -13,12 +13,16 @@ export async function applyAsVendor(_state: VendorState, form: FormData): Promis
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Please sign in to apply." };
-  const { error } = await supabase.from("service_vendor_applications").insert(input);
-  if (error) {
-    console.error("[vendor] Application failed", { code: error.code });
-    return { status: "error", message: error.code === "23505" ? "An application for this business and category already exists." : "Your application could not be saved. Please try again." };
+  const { category_ids, ...application } = input;
+  const { data, error } = await supabase.rpc("submit_service_vendor_applications", {
+    p_category_ids: category_ids,
+    p_application: application,
+  });
+  if (error || !data?.length) {
+    console.error("[vendor] Application failed", { code: error?.code ?? "empty_result" });
+    return { status: "error", message: error?.code === "23505" ? "An application for this business and one of the selected categories already exists." : "Your application could not be saved. Please try again." };
   }
-  return { status: "success", message: "Application received. Our team will review it before it appears publicly." };
+  return { status: "success", message: "Application received for all selected categories. Our team will review it before it appears publicly." };
 }
 
 export async function enquireVendor(_state: VendorState, form: FormData): Promise<VendorState> {
