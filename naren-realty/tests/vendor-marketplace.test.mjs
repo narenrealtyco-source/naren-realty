@@ -11,7 +11,7 @@ const id = "11aa1111-1111-4111-8111-111111111111";
 
 function application() {
   const form = new FormData();
-  for (const [key, value] of Object.entries({ category_id: id, business_name: "Business", public_name: "Provider", contact_person: "Contact", mobile: "9876543210", email: "", services: "Repairs", description: "Repairs", city: "Pune", locality: "Area", address: "Address", commission_terms: "", applicant_id: "forged", status: "approved" })) form.set(key, value);
+  for (const [key, value] of Object.entries({ category_ids: JSON.stringify([id]), business_name: "Business", public_name: "Provider", contact_person: "Contact", mobile: "9876543210", email: "", services: "Repairs", description: "Repairs", city: "Pune", locality: "Area", address: "Address", commission_terms: "", applicant_id: "forged", status: "approved" })) form.set(key, value);
   return form;
 }
 function enquiry() {
@@ -27,6 +27,7 @@ function actions({ ready = true, user = { id: "verified" }, error = null } = {})
     if (name === "../lib/supabase-server") return { createSupabaseServerClient: async () => ({
       auth: { getUser: async () => ({ data: { user }, error: null }) },
       from(table) { return { insert: async (payload) => { calls.push({ table, payload }); return { error }; } }; },
+      rpc: async (name, args) => { calls.push({ name, args }); return { data: error ? null : [id], error }; },
     }) };
     throw new Error(`Unexpected dependency ${name}`);
   } });
@@ -35,7 +36,8 @@ function actions({ ready = true, user = { id: "verified" }, error = null } = {})
 
 test("vendor application validates categories, contact information and bounds", () => {
   assert.equal(marketplace.validateVendorApplication(application()).business_name, "Business");
-  for (const [key, value] of [["category_id", "forged"], ["mobile", "123"], ["email", "bad"], ["address", " "], ["services", "x".repeat(501)]]) {
+  assert.deepEqual(marketplace.validateVendorApplication(application()).category_ids, [id]);
+  for (const [key, value] of [["category_ids", "forged"], ["mobile", "123"], ["email", "bad"], ["address", " "], ["services", "x".repeat(501)]]) {
     const form = application(); form.set(key, value);
     assert.throws(() => marketplace.validateVendorApplication(form));
   }
@@ -54,11 +56,13 @@ test("writes omit forged identity and status; database errors never return succe
   const service = actions();
   assert.equal((await service.applyAsVendor({}, application())).status, "success");
   assert.equal((await service.enquireVendor({}, enquiry())).status, "success");
-  for (const call of service.calls) {
-    assert.equal(Object.hasOwn(call.payload, "applicant_id"), false);
-    assert.equal(Object.hasOwn(call.payload, "customer_id"), false);
-    assert.equal(Object.hasOwn(call.payload, "status"), false);
-  }
+  const submission = service.calls.find((call) => call.name === "submit_service_vendor_applications");
+  assert.deepEqual(submission.args.p_category_ids, [id]);
+  assert.equal(Object.hasOwn(submission.args.p_application, "user_id"), false);
+  assert.equal(Object.hasOwn(submission.args.p_application, "status"), false);
+  const enquiryWrite = service.calls.find((call) => call.table === "vendor_enquiries");
+  assert.equal(Object.hasOwn(enquiryWrite.payload, "customer_id"), false);
+  assert.equal(Object.hasOwn(enquiryWrite.payload, "status"), false);
   for (const error of [{ code: "23505" }, { code: "42501" }]) {
     const failing = actions({ error });
     assert.equal((await failing.applyAsVendor({}, application())).status, "error");
@@ -99,7 +103,7 @@ test("admin review requires authorization and reports database errors", async ()
       throw new Error(`Unexpected dependency ${name}`);
     } });
     const data = new FormData();
-    data.set("id", id); data.set("action", "approve"); data.set("terms", "Agreed");
+    data.set("id", id); data.set("action", "approve"); data.set("notes", "Checked");
     assert.equal((await exports.manageMarketplace({}, data)).status, expected);
     assert.equal(calls.length, count);
     if (count) assert.equal(calls[0].name, "review_service_vendor");
