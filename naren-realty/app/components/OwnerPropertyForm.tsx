@@ -6,7 +6,6 @@ import {
   AIRBNB_AMENITIES,
   createDefaultCategoryDetails,
   FLAT_AMENITIES,
-  getPropertyLocalities,
   PG_AMENITIES,
   PROPERTY_CATEGORIES,
   type FlatBhk,
@@ -90,7 +89,6 @@ export default function OwnerPropertyForm({
   });
   const [error, setError] = useState("");
   const categoryDetails = draft.categoryDetails ?? createDefaultCategoryDetails(draft.type, draft.price, draft.bedrooms);
-  const localities = getPropertyLocalities();
 
   function updateCategory(field: string, value: unknown) {
     setDraft((current) => ({
