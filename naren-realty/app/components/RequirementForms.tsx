@@ -30,11 +30,11 @@ export function MatchForm({ ready }: { ready: boolean }) {
     <ContactFields /><Result state={state} /><button disabled={!ready || pending || state.status === "success"} className={button}>{pending ? "Saving..." : "Submit requirement"}</button>
   </form>;
 }
-export function LoanForm({ ready, types }: { ready: boolean; types: { id: string; name: string }[] }) {
+export function LoanForm({ ready, types, defaultTypeId }: { ready: boolean; types: { id: string; name: string }[]; defaultTypeId?: string }) {
   const [state, action, pending] = useActionState(submitRequirement.bind(null, "loan"), initial);
   return <form action={action} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
     <h2 className="text-xl font-bold text-[#10243A]">Create loan requirement</h2><Notice ready={ready} /><ContactFields email />
-    <label className={label}>Loan type<select name="loan_type_id" className={input} defaultValue="" required><option value="" disabled>Choose loan type</option>{types.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}</select></label>
+    <label className={label}>Loan type<select name="loan_type_id" className={input} defaultValue={defaultTypeId ?? ""} required><option value="" disabled>Choose loan type</option>{types.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}</select></label>
     <label className={label}>Required loan amount (INR)<input name="amount" className={input} type="number" min="0.01" step="0.01" required /></label>
     <label className={label}>Property location (optional)<LocalityAutocomplete name="property_location" className={input} maxLength={120} placeholder="Start typing locality" /></label>
     <label className={label}>Property value (optional)<input name="property_value" className={input} type="number" min="0.01" step="0.01" /></label>
