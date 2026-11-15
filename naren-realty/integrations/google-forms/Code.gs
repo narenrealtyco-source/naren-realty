@@ -56,7 +56,7 @@ function onFormSubmit(e) {
 
   const budgetRaw = isRental
     ? get(["Monthly Rental Budget", "Budget"])
-    : get(["Purchase budget"]);
+    : get(["Purchase budget", "Budget"]);
   const budget = parseBudget(budgetRaw);
   const bhk = getSectionValue(["Preferred BHK"], section);
   const furnishing = getSectionValue(["Furnishing Requirement", "Furnishing"], section);
