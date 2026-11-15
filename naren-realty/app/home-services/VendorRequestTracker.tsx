@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { createSupabaseBrowserClient } from "../lib/supabase-browser";
 
 type StatusRow={enquiry_id:string;status:string;response_deadline_at:string;vendor_id:string;category_id:string;locality:string;city:string};
 type Alternative={id:string;public_name:string;business_name:string;services:string;locality:string;city:string};
@@ -29,8 +29,8 @@ export function VendorRequestTracker({enquiryId}:{enquiryId:string}) {
       .order("locality").limit(30);
     if(active&&!vendorError){
       const list=(vendors??[]) as Alternative[];
-      const sameArea=list.filter(v=>v.locality.toLowerCase()===current.locality.toLowerCase());
-      setAlternatives(sameArea.length?sameArea:list);
+      const sameArea=list.filter(v=>v.locality.trim().toLowerCase()===current.locality.trim().toLowerCase());
+      setAlternatives(sameArea);
     }
    }
   }
