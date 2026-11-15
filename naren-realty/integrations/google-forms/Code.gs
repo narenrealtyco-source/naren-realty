@@ -37,13 +37,11 @@ function onFormSubmit(e) {
     return found ? found.value : "";
   };
   // Google Forms repeats headings for separate Rental and Purchase sections.
-  // Select by occurrence, rather than accidentally reading the first section twice.
+  // Preserve blanks in one section; never borrow the other section's answer.
   const getSectionValue = (aliases, occurrence) => {
     const matches = valuesFor(aliases);
     const selected = matches[occurrence];
-    if (selected && selected.value) return selected.value;
-    const fallback = matches.find(column => column.value);
-    return fallback ? fallback.value : "";
+    return selected ? selected.value : "";
   };
 
   const purposeRaw = get(["Requirement Type"]);
