@@ -7,7 +7,7 @@ export function createSupabaseServiceClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Owner activation is not configured on the server.");
+    throw new Error("Privileged server actions are not configured on the server.");
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {
