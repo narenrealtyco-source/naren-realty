@@ -203,6 +203,7 @@ export default function AdminDashboardPage() {
             <Link href="/admin/submissions" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Submissions</Link>
             <Link href="/admin/services" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Home Services</Link>
             <Link href="/admin/requirements" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Requirements</Link>
+            <Link href="/admin/loans" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Loan Requests</Link>
             <Link href="/admin/policies" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Policies</Link>
             <Link href="/" className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10">Website</Link>
             <AdminLogoutButton className="inline-flex h-10 shrink-0 items-center rounded-lg border border-white/25 px-3 font-semibold text-white transition hover:bg-white/10 hover:text-white" />
