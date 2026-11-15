@@ -86,8 +86,22 @@ export type AirbnbDetails = {
 export type PropertyCategoryDetails = FlatRentalDetails | FlatResaleDetails | PgDetails | AirbnbDetails;
 
 export const PUNE_LOCALITIES = [
-  "Wakad", "Hinjewadi", "Baner", "Balewadi", "Aundh", "Pimple Saudagar", "Kharadi", "Viman Nagar",
-  "Wagholi", "Kothrud", "Bavdhan", "Ravet", "Punawale", "Tathawade", "Hadapsar",
+  "Akurdi", "Alandi", "Amanora Park Town", "Ambegaon Budruk", "Ambegaon Khurd", "Anand Nagar",
+  "Aundh", "Aundh Road", "Balewadi", "Baner", "Baner-Pashan Link Road", "Bavdhan", "Bavdhan Budruk",
+  "Bavdhan Khurd", "Bhugaon", "Bhosari", "Bibwewadi", "Boat Club Road", "Budhwar Peth", "Camp",
+  "Chakan", "Charholi", "Chikhali", "Chinchwad", "Dapodi", "Deccan Gymkhana", "Dehu Road",
+  "Dhanori", "Dhayari", "Erandwane", "Fursungi", "Ganesh Peth", "Ghorpadi", "Gokhalenagar",
+  "Hadapsar", "Handewadi", "Hinjewadi", "Hinjewadi Phase 1", "Hinjewadi Phase 2", "Hinjewadi Phase 3",
+  "Ideal Colony", "Kalyani Nagar", "Karve Nagar", "Kasarwadi", "Katraj", "Keshav Nagar",
+  "Khadki", "Kharadi", "Kondhwa", "Kondhwa Budruk", "Kondhwa Khurd", "Koregaon Park",
+  "Kothrud", "Lohegaon", "Lulla Nagar", "Magarpatta City", "Mahalunge", "Mamurdi", "Market Yard",
+  "Moshi", "Mundhwa", "NIBM Road", "Narhe", "Nigdi", "Pashan", "Pashan-Sus Road",
+  "Pimple Gurav", "Pimple Nilakh", "Pimple Saudagar", "Pimpri", "Pisoli", "Prabhat Road",
+  "Punawale", "Rahatani", "Rasta Peth", "Ravet", "Sadashiv Peth", "Salisbury Park",
+  "Sangvi", "Shivajinagar", "Shukrawar Peth", "Sinhagad Road", "Somatane", "Sus",
+  "Swargate", "Tathawade", "Thergaon", "Undri", "Uruli Devachi", "Vadgaon Budruk",
+  "Viman Nagar", "Vishrantwadi", "Wadgaon Sheri", "Wagholi", "Wanowrie", "Warje",
+  "Wakad", "Yerawada",
 ] as const;
 
 export const FLAT_AMENITIES = [
