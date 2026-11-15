@@ -79,8 +79,8 @@ test("proposal isolates private data and restricts review and publication", asyn
   assert.doesNotMatch(sql, /grant (?:insert|update|delete).*on public\.service_vendors to authenticated/i);
 });
 
-test("marketplace remains disabled pending real security verification", () => {
-  assert.equal(marketplace.vendorMarketplaceReady(), false);
+test("marketplace is enabled after database schema, RLS and admin review verification", () => {
+  assert.equal(marketplace.vendorMarketplaceReady(), true);
 });
 
 test("admin review requires authorization and reports database errors", async () => {
