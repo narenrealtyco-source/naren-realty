@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
   const { data: listings, error: listingError } = await supabase
     .from("properties")
     .select("id,title,category,locality,price,details,status")
-    .eq("status", "approved")
+    .eq("status", "Approved")
     .limit(500);
 
   let matchedProperties: Array<{ title: string; locality: string | null; price: number | null }> = [];
