@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Category = { slug: string; name: string; image: string; description: string };
 
@@ -27,6 +28,7 @@ const categories: Category[] = [
 type Vendor = { id: string; public_name: string; business_name: string; category: string; city: string; locality: string };
 
 export default function ServicesDirectory({ initialCategory }: { initialCategory: string }) {
+  const router = useRouter();
   const [vendorSearch, setVendorSearch] = useState("");
   const [locality, setLocality] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -79,7 +81,7 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
           {categories.map((category) => {
             const active = selectedCategory === category.slug;
             return (
-              <button type="button" key={category.slug} onClick={() => setSelectedCategory(active ? "" : category.slug)} aria-pressed={active} className={`group min-w-0 overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${active ? "border-emerald-600 ring-2 ring-emerald-100" : "border-slate-200"}`}>
+              <button type="button" key={category.slug} onClick={() => router.push(`/home-services/vendors?category=${encodeURIComponent(category.slug)}`)} aria-label={`View ${category.name} service providers`} className={`group min-w-0 overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${active ? "border-emerald-600 ring-2 ring-emerald-100" : "border-slate-200"}`}>
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                   <img src={category.image} alt={category.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#10243A]">{active ? "Selected" : "Explore"}</span>
