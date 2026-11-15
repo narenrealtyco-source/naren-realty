@@ -1,11 +1,11 @@
 /**
  * NAREN REALTY - Tenant Google Form -> Website integration
  *
- * Install this script in the Google Form RESPONSE SPREADSHEET:
+ * Install in the Google Form response spreadsheet:
  * Extensions -> Apps Script -> paste this file.
- * Project Settings -> Script Properties:
- *   NAREN_WEBHOOK_SECRET = the same secret configured on Vercel
- * Then Triggers -> Add Trigger:
+ * Script Properties:
+ *   NAREN_WEBHOOK_SECRET = the same rotated secret configured on Vercel
+ * Trigger:
  *   onFormSubmit | From spreadsheet | On form submit
  */
 const NAREN_WEBHOOK_URL = "https://naren-realty-fw7y.vercel.app/api/integrations/google-form";
@@ -21,44 +21,69 @@ function onFormSubmit(e) {
   const headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
   const row = sheet.getRange(rowNumber, 1, 1, lastColumn).getDisplayValues()[0];
   const normalize = value => String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const columns = headers.map((header, index) => ({ key: normalize(header), value: String(row[index] || "").trim(), header }));
+  const columns = headers.map((header, index) => ({
+    key: normalize(header),
+    value: String(row[index] || "").trim(),
+    header: String(header || "").trim(),
+    index
+  }));
 
-  // Return the first non-empty value from any matching column. This handles
-  // repeated Google Form headings such as Preferred BHK and Preferred Location.
-  const get = aliases => {
+  const valuesFor = aliases => {
     const keys = aliases.map(normalize);
-    const found = columns.find(column => keys.includes(column.key) && column.value);
+    return columns.filter(column => keys.includes(column.key));
+  };
+  const get = aliases => {
+    const found = valuesFor(aliases).find(column => column.value);
     return found ? found.value : "";
+  };
+  // Google Forms repeats headings for separate Rental and Purchase sections.
+  // Select by occurrence, rather than accidentally reading the first section twice.
+  const getSectionValue = (aliases, occurrence) => {
+    const matches = valuesFor(aliases);
+    const selected = matches[occurrence];
+    if (selected && selected.value) return selected.value;
+    const fallback = matches.find(column => column.value);
+    return fallback ? fallback.value : "";
   };
 
   const purposeRaw = get(["Requirement Type"]);
   const purposeText = purposeRaw.toLowerCase();
   const isRental = /rent|rental|tenant|lease/.test(purposeText);
   const isPurchase = /buy|purchase|resale|new flat/.test(purposeText);
-  const purpose = isRental ? "Rent" : (isPurchase ? "Buy" : purposeRaw);
-  const budgetRaw = isRental
-    ? get(["Monthly Rental Budget"])
-    : get(["Purchase budget", "Budget"]);
-  const budget = parseBudget(budgetRaw);
-  const bhk = isRental
-    ? get(["Preferred BHK"])
-    : get(["Preferred BHK"]);
-  const furnishing = isRental
-    ? get(["Furnishing Requirement"])
-    : get(["Furnishing"]);
-  const timeline = isRental
-    ? get(["Requirement Timeline"])
-    : get(["Requirement Timeline"]);
-  const location = get(["Preferred Location"]);
-  const contactMethod = get(["Preferred Contact Method"]);
-  const consent = get(["Do you agree to be contacted by Naren Realty regarding your rental property requirement and suitable property options, and to pay brokerage equivalent to one month’s rent upon successful completion of the rental transaction and execution of the Rent / Leave & License Agreement?"]);
+  if (!isRental && !isPurchase) {
+    throw new Error("Unrecognized Requirement Type: " + purposeRaw);
+  }
+  const purpose = isRental ? "Rent" : "Buy";
+  const section = isRental ? 0 : 1;
 
+  const budgetRaw = isRental
+    ? get(["Monthly Rental Budget", "Budget"])
+    : get(["Purchase budget"]);
+  const budget = parseBudget(budgetRaw);
+  const bhk = getSectionValue(["Preferred BHK"], section);
+  const furnishing = getSectionValue(["Furnishing Requirement", "Furnishing"], section);
+  const timeline = getSectionValue(["Requirement Timeline"], section);
+  const location = getSectionValue(["Preferred Location"], section);
+  const contactMethod = get(["Preferred Contact Method"]);
+  const consentColumn = columns.find(column =>
+    column.key.startsWith("doyouagreetobecontactedbynarenrealty")
+  );
+  const consent = consentColumn ? consentColumn.value : "";
+
+  // Rental brokerage consent is mandatory before registering a rental lead.
   if (isRental && !/^(agree|yes|i agree)$/i.test(consent)) {
     console.log("Rental submission skipped: rental brokerage/contact consent not accepted.");
     return;
   }
 
   const responseId = [e.source.getId(), sheet.getSheetId(), rowNumber].join(":");
+  const raw = {};
+  columns.forEach(column => {
+    const base = column.header || ("Column " + (column.index + 1));
+    const key = raw[base] === undefined ? base : base + " #" + (column.index + 1);
+    raw[key] = column.value;
+  });
+
   const payload = {
     responseId,
     name: get(["Full Name"]),
@@ -76,7 +101,7 @@ function onFormSubmit(e) {
       contactMethod ? "Preferred contact method: " + contactMethod : "",
       consent ? "Rental consent: " + consent : ""
     ].filter(Boolean).join("\n"),
-    raw: Object.fromEntries(columns.map((column, index) => [headers[index] || ("Column " + (index + 1)), row[index]]))
+    raw
   };
 
   const secret = PropertiesService.getScriptProperties().getProperty("NAREN_WEBHOOK_SECRET");
@@ -144,6 +169,5 @@ function parseBudget(value) {
   const parsed = numbers.map(number => Number(number) * multiplier).filter(Number.isFinite);
   if (!parsed.length) return { min: null, max: null };
   if (parsed.length >= 2) return { min: Math.min(...parsed), max: Math.max(...parsed) };
-  // A single selected budget is treated as a maximum budget.
   return { min: null, max: parsed[0] };
 }
