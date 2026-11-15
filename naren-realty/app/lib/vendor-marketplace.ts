@@ -10,9 +10,10 @@ export type PublicVendor = {
   locality: string;
 };
 
-// Keep disabled until the proposal, RLS, role protection and storage have been verified.
+// Vendor application submission is enabled: authenticated-only INSERT, applicant ownership,
+// pending-only status, public category reads, and admin-only approval are verified in Supabase.
 export function vendorMarketplaceReady(): boolean {
-  return false;
+  return true;
 }
 
 function field(form: FormData, name: string, label: string, max: number, required = true): string {
