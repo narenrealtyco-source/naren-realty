@@ -13,7 +13,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!uuid(id)) notFound();
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.from("service_vendors").select("id,public_name,business_name,services,description,city,locality,service_categories!inner(name,active)").eq("id", id).eq("active", true).eq("service_categories.active", true).neq("service_categories.slug", "new-builder-projects").neq("service_categories.slug", "builder-projects").not("service_categories.name", "ilike", "New Builder Projects").maybeSingle();
+  const { data, error } = await supabase.from("service_vendors").select("id,public_name,business_name,services,description,city,locality,service_categories!inner(name,active)").eq("id", id).eq("active", true).eq("verified", true).eq("service_categories.active", true).neq("service_categories.slug", "new-builder-projects").neq("service_categories.slug", "builder-projects").not("service_categories.name", "ilike", "New Builder Projects").maybeSingle();
   if (error) { console.error("[vendor] Provider lookup failed", { code: error.code }); return <main className="p-5"><p role="alert">Provider details could not be loaded.</p></main>; }
   if (!data) notFound();
   return <main className="min-h-screen bg-slate-50 p-4 sm:p-8"><div className="mx-auto max-w-3xl">
