@@ -1,47 +1,86 @@
 /**
- * NAREN REALTY - Google Forms tenant requirement bridge
- * Install an installable "On form submit" trigger on the response spreadsheet.
+ * NAREN REALTY - Tenant Google Form -> Website integration
  *
- * Setup:
- * 1) Open the Google Form response spreadsheet -> Extensions -> Apps Script.
- * 2) Paste this file.
- * 3) In Project Settings -> Script properties, add NAREN_WEBHOOK_SECRET.
- * 4) Create trigger: onFormSubmit -> From spreadsheet -> On form submit.
- * 5) Ensure the form collects email and the header names match one of the aliases below.
+ * Install this script in the Google Form RESPONSE SPREADSHEET:
+ * Extensions -> Apps Script -> paste this file.
+ * Project Settings -> Script Properties:
+ *   NAREN_WEBHOOK_SECRET = the same secret configured on Vercel
+ * Then Triggers -> Add Trigger:
+ *   onFormSubmit | From spreadsheet | On form submit
  */
 const NAREN_WEBHOOK_URL = "https://naren-realty-fw7y.vercel.app/api/integrations/google-form";
 
 function onFormSubmit(e) {
-  if (!e || !e.namedValues || !e.range) throw new Error("Install this as a spreadsheet form-submit trigger.");
-  const values = e.namedValues;
-  const get = (aliases) => {
-    const wanted = aliases.map(normalizeHeader);
-    const key = Object.keys(values).find((header) => wanted.includes(normalizeHeader(header)));
-    return key ? String((values[key] || [""])[0] || "").trim() : "";
-  };
-  const row = e.range.getRow();
-  const sheet = e.range.getSheet();
-  const spreadsheetId = e.source.getId();
-  const responseId = [spreadsheetId, sheet.getSheetId(), row].join(":");
+  if (!e || !e.range || !e.source) {
+    throw new Error("Install an On form submit trigger on the response spreadsheet.");
+  }
 
+  const sheet = e.range.getSheet();
+  const rowNumber = e.range.getRow();
+  const lastColumn = sheet.getLastColumn();
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+  const row = sheet.getRange(rowNumber, 1, 1, lastColumn).getDisplayValues()[0];
+  const normalize = value => String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const columns = headers.map((header, index) => ({ key: normalize(header), value: String(row[index] || "").trim(), header }));
+
+  // Return the first non-empty value from any matching column. This handles
+  // repeated Google Form headings such as Preferred BHK and Preferred Location.
+  const get = aliases => {
+    const keys = aliases.map(normalize);
+    const found = columns.find(column => keys.includes(column.key) && column.value);
+    return found ? found.value : "";
+  };
+
+  const purposeRaw = get(["Requirement Type"]);
+  const purposeText = purposeRaw.toLowerCase();
+  const isRental = /rent|rental|tenant|lease/.test(purposeText);
+  const isPurchase = /buy|purchase|resale|new flat/.test(purposeText);
+  const purpose = isRental ? "Rent" : (isPurchase ? "Buy" : purposeRaw);
+  const budgetRaw = isRental
+    ? get(["Monthly Rental Budget"])
+    : get(["Purchase budget", "Budget"]);
+  const budget = parseBudget(budgetRaw);
+  const bhk = isRental
+    ? get(["Preferred BHK"])
+    : get(["Preferred BHK"]);
+  const furnishing = isRental
+    ? get(["Furnishing Requirement"])
+    : get(["Furnishing"]);
+  const timeline = isRental
+    ? get(["Requirement Timeline"])
+    : get(["Requirement Timeline"]);
+  const location = get(["Preferred Location"]);
+  const contactMethod = get(["Preferred Contact Method"]);
+  const consent = get(["Do you agree to be contacted by Naren Realty regarding your rental property requirement and suitable property options, and to pay brokerage equivalent to one month’s rent upon successful completion of the rental transaction and execution of the Rent / Leave & License Agreement?"]);
+
+  if (isRental && !/^(agree|yes|i agree)$/i.test(consent)) {
+    console.log("Rental submission skipped: rental brokerage/contact consent not accepted.");
+    return;
+  }
+
+  const responseId = [e.source.getId(), sheet.getSheetId(), rowNumber].join(":");
   const payload = {
     responseId,
-    name: get(["Name", "Full Name", "Tenant Name", "Customer Name", "Your Name"]),
-    phone: get(["Mobile", "Mobile Number", "Phone", "Phone Number", "Contact Number", "WhatsApp Number"]),
-    email: get(["Email", "Email Address", "E-mail", "Your Email"]),
-    purpose: get(["Requirement Type", "Purpose", "Looking For", "I Want To", "Property Requirement"]),
-    category: get(["Property Type", "Category", "Property Category", "Type"]),
-    location: get(["Preferred Location", "Location", "Preferred Area", "Area", "Locality", "Preferred Locality"]),
-    bhk: get(["BHK", "Configuration", "Bedroom", "Bedrooms"]),
-    minBudget: get(["Minimum Budget", "Min Budget", "Budget From"]),
-    maxBudget: get(["Maximum Budget", "Max Budget", "Budget", "Monthly Budget", "Expected Budget"]),
-    moveInDate: get(["Move In Date", "Possession Date", "Required From"]),
-    details: get(["Additional Requirements", "Other Requirements", "Remarks", "Message"]),
-    raw: values
+    name: get(["Full Name"]),
+    phone: get(["Mobile / WhatsApp Number"]),
+    email: get(["Email address"]),
+    purpose,
+    category: "flat",
+    location,
+    bhk: parseBhk(bhk),
+    minBudget: budget.min,
+    maxBudget: budget.max,
+    details: [
+      furnishing ? "Furnishing: " + furnishing : "",
+      timeline ? "Requirement timeline: " + timeline : "",
+      contactMethod ? "Preferred contact method: " + contactMethod : "",
+      consent ? "Rental consent: " + consent : ""
+    ].filter(Boolean).join("\n"),
+    raw: Object.fromEntries(columns.map((column, index) => [headers[index] || ("Column " + (index + 1)), row[index]]))
   };
 
   const secret = PropertiesService.getScriptProperties().getProperty("NAREN_WEBHOOK_SECRET");
-  if (!secret) throw new Error("Set Script Property NAREN_WEBHOOK_SECRET before enabling the trigger.");
+  if (!secret) throw new Error("Missing Script Property NAREN_WEBHOOK_SECRET.");
 
   const response = UrlFetchApp.fetch(NAREN_WEBHOOK_URL, {
     method: "post",
@@ -51,16 +90,21 @@ function onFormSubmit(e) {
     muteHttpExceptions: true
   });
   const status = response.getResponseCode();
-  const result = JSON.parse(response.getContentText() || "{}");
-  if (status < 200 || status >= 300) throw new Error("NAREN REALTY webhook failed (" + status + "): " + (result.error || "Unknown error"));
+  let result = {};
+  try { result = JSON.parse(response.getContentText() || "{}"); } catch (_) {}
+  if (status < 200 || status >= 300) {
+    throw new Error("NAREN REALTY webhook failed (" + status + "): " + (result.error || "Unknown error"));
+  }
   if (result.duplicate) return;
 
   if (payload.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-    const matchLines = (result.matches || []).map((p) =>
-      "- " + p.title + (p.locality ? " (" + p.locality + ")" : "") +
-      (p.price ? " | ₹" + Number(p.price).toLocaleString("en-IN") : "")
+    const matches = result.matches || [];
+    const matchLines = matches.map(property =>
+      "- " + property.title +
+      (property.locality ? " (" + property.locality + ")" : "") +
+      (property.price ? " | ₹" + Number(property.price).toLocaleString("en-IN") : "")
     );
-    const subject = result.matchCount > 0
+    const subject = matches.length
       ? "NAREN REALTY: Properties matching your requirement"
       : "NAREN REALTY: We received your property requirement";
     const body = [
@@ -68,11 +112,11 @@ function onFormSubmit(e) {
       "",
       "Thank you for submitting your property requirement to NAREN REALTY.",
       "Your requirement has been registered successfully.",
-      "Requirement reference: " + result.requirementId,
+      "Reference: " + result.requirementId,
       "",
-      result.matchCount > 0
-        ? "We found " + result.matchCount + " potential matching listing(s):"
-        : "We are checking our approved property inventory. Our team will contact you when a suitable property is available.",
+      matches.length
+        ? "We found " + matches.length + " potential matching approved listing(s):"
+        : "Our team is checking suitable properties and will contact you when an option is available.",
       "",
       matchLines.join("\n"),
       "",
@@ -85,6 +129,21 @@ function onFormSubmit(e) {
   }
 }
 
-function normalizeHeader(value) {
-  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+function parseBhk(value) {
+  const match = String(value || "").match(/[1-5]/);
+  return match ? Number(match[0]) : null;
+}
+
+function parseBudget(value) {
+  const text = String(value || "").toLowerCase().replace(/,/g, "").trim();
+  if (!text) return { min: null, max: null };
+  const numbers = text.match(/\d+(?:\.\d+)?/g);
+  if (!numbers || !numbers.length) return { min: null, max: null };
+  const multiplier = /crore|cr\b/.test(text) ? 10000000 :
+    /lakh|lac|l\b/.test(text) ? 100000 : 1;
+  const parsed = numbers.map(number => Number(number) * multiplier).filter(Number.isFinite);
+  if (!parsed.length) return { min: null, max: null };
+  if (parsed.length >= 2) return { min: Math.min(...parsed), max: Math.max(...parsed) };
+  // A single selected budget is treated as a maximum budget.
+  return { min: null, max: parsed[0] };
 }
