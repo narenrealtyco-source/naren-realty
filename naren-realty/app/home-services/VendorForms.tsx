@@ -11,7 +11,7 @@ const input = "mt-2 w-full min-w-0 rounded-xl border border-slate-200 bg-white p
 const label = "block text-sm font-semibold text-slate-700";
 const button = "min-h-12 w-full rounded-xl bg-[#10243A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-[#1a3552] disabled:cursor-not-allowed disabled:opacity-50";
 const serviceCatalog: Record<string, string[]> = {
-  plumbing: ["Tap and faucet repair", "Pipe leakage repair", "Bathroom fitting", "Drain and blockage cleaning", "Water tank cleaning", "Water pump repair", " geyser installation and repair"],
+  plumbing: ["Tap and faucet repair", "Pipe leakage repair", "Bathroom fitting", "Drain and blockage cleaning", "Water tank cleaning", "Water pump repair", "Geyser installation and repair"],
   electrical: ["Wiring and rewiring", "Switch and socket repair", "Fan and light installation", "MCB and distribution board", "Inverter installation", "Electrical fault finding"],
   cleaning: ["Home deep cleaning", "Bathroom cleaning", "Kitchen cleaning", "Sofa and carpet cleaning", "Move-in / move-out cleaning", "Water tank cleaning"],
   painting: ["Interior painting", "Exterior painting", "Waterproofing", "Texture painting", "Wall putty and polishing"],
@@ -33,6 +33,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
   const [categoryId, setCategoryId] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [otherService, setOtherService] = useState("");
+  const [locality, setLocality] = useState("");
   const activeCategory = categories.find((category) => category.id === categoryId);
   const serviceOptions = useMemo(() => servicesFor(activeCategory?.name ?? ""), [activeCategory?.name]);
   const servicesValue = [...selectedServices, ...(otherService.trim() ? [otherService.trim()] : [])].join(", ");
@@ -95,7 +96,8 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F0E7] text-sm font-bold text-[#8A6A37]">03</span>
           <div><h3 className="font-bold text-[#10243A]">Service location</h3><p className="text-xs text-slate-500">Customer ko sirf aapki locality show hogi</p></div>
         </div>
-        <label className={label}>Locality / area<LocalityAutocomplete name="locality" className={input} maxLength={100} placeholder="Search your service area, e.g. Wakad" required /></label>
+        <label className={label}>Locality / area<LocalityAutocomplete name="locality" className={input} maxLength={100} placeholder="Search your service area, e.g. Wakad" value={locality} onChange={(event) => setLocality(event.target.value)} required />
+        <input type="hidden" name="address" value={locality} /></label>
         <p className="mt-2 rounded-xl bg-[#F8F6F1] px-4 py-3 text-xs leading-5 text-slate-600"><strong className="text-[#10243A]">Privacy:</strong> Public vendor listing par sirf locality dikhegi. Full street address collect nahi kiya ja raha.</p>
       </section>
 
@@ -114,7 +116,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
       </div>
       {!ready && <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Applications are temporarily unavailable while secure database setup is pending. Nothing will be saved yet.</p>}
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">{state.message}</p>}
-      <button disabled={!ready || pending || state.status === "success"} className={button}>{pending ? "Submitting application..." : "Submit partner application"}</button>
+      <button disabled={!ready || pending || state.status === "success" || !servicesValue.trim() || !locality.trim()} className={button}>{pending ? "Submitting application..." : "Submit partner application"}</button>
       <p className="text-center text-[11px] text-slate-400">By submitting, you agree that Naren Realty may contact you to verify your business details.</p>
     </div>
   </form>;
