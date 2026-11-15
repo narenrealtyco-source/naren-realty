@@ -5,6 +5,7 @@ import { resubmitProperty, type SubmissionState } from "./actions";
 import { SUBMISSION_CATEGORIES } from "../lib/property-submission-validation";
 import { validateSubmissionDetails, type SubmissionDetails } from "../lib/submission-details";
 import AdditionalDetails from "./AdditionalDetails";
+import LocalityAutocomplete from "../components/LocalityAutocomplete";
 import { validatePropertyOwnerDetails, type PropertyOwnerDetails } from "../lib/property-submission-owner-validation";
 
 type OwnerValues = Omit<PropertyOwnerDetails, "version">;
