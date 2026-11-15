@@ -10,6 +10,7 @@ create table if not exists public.instagram_property_posts (
     check (status in ('preview_ready','processing','publishing','published','failed','cancelled')),
   caption text not null check (char_length(caption) between 1 and 2200),
   image_path text not null,
+  media_token uuid not null default gen_random_uuid() unique,
   container_id text,
   ig_media_id text unique,
   permalink text,
