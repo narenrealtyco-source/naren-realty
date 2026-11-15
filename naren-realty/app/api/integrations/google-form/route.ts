@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
   // is intentionally conservative; admins can review and adjust the match list.
   const { data: listings, error: listingError } = await supabase
     .from("properties")
-    .select("id,category,locality,price,details,status")
+    .select("id,title,category,locality,price,details,status")
     .eq("status", "approved")
     .limit(500);
 
