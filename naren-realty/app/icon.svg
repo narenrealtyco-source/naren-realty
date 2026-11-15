@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0a8"/><stop offset=".42" stop-color="#d9a93f"/><stop offset=".72" stop-color="#f8d978"/><stop offset="1" stop-color="#a66d16"/>
+    </linearGradient>
+    <radialGradient id="navy"><stop stop-color="#142b4c"/><stop offset="1" stop-color="#06142e"/></radialGradient>
+  </defs>
+  <rect x="8" y="8" width="496" height="496" rx="72" fill="url(#navy)" stroke="url(#gold)" stroke-width="9"/>
+  <path d="M91 218 256 78l165 140" fill="none" stroke="url(#gold)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M145 205v-27h43v27m136 0v-27h43v27" fill="none" stroke="url(#gold)" stroke-width="8"/>
+  <path d="M166 296V221h40v75m140 0V221h-40v75" fill="none" stroke="url(#gold)" stroke-width="13"/>
+  <path d="M128 313c65-44 191-44 256 0" fill="none" stroke="url(#gold)" stroke-width="9" stroke-linecap="round"/>
+  <text x="256" y="390" text-anchor="middle" font-family="Georgia,serif" font-size="78" font-weight="bold" letter-spacing="2" fill="#fff">NAREN</text>
+  <path d="M93 421h72m182 0h72" stroke="url(#gold)" stroke-width="4"/>
+  <text x="256" y="445" text-anchor="middle" font-family="Georgia,serif" font-size="39" font-weight="bold" letter-spacing="7" fill="url(#gold)">REALTY</text>
+</svg>
