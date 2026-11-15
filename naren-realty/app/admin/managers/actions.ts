@@ -3,7 +3,7 @@ import{revalidatePath}from"next/cache";import{requireAdmin}from"../../lib/supaba
 export type ManagerActionState={status:"idle"|"error"|"success";message:string};
 export async function createManager(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
- const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\\s()-]/g,""),password=String(form.get("password")??""),area=String(form.get("area")??"").trim();
+ const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\s()-]/g,""),password=String(form.get("password")??""),area=String(form.get("area")??"").trim();
  if(fullName.length<2||fullName.length>100||!/^\\S+@\\S+\\.\\S+$/.test(email)||!/^\\+91[6-9]\\d{9}$/.test(phone)||password.length<12||area.length>100)return{status:"error",message:"Enter valid details. Password must be at least 12 characters."};
  const service=createSupabaseServiceClient();
  const{data,error}=await service.auth.admin.createUser({email,password,phone,email_confirm:true,user_metadata:{full_name:fullName,phone}});
