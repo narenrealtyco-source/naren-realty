@@ -23,6 +23,7 @@ import {
   type DraftPayload,
 } from "./draft-actions";
 import SavedDetails from "./SavedDetails";
+import LocalityAutocomplete from "../components/LocalityAutocomplete";
 
 type FormValues = {
   title: string;
@@ -404,7 +405,7 @@ export default function SubmissionForm({
 
         {step === 2 && <div className="space-y-4">
           <label className={labelClass}>Locality
-            <input autoComplete="address-level3" maxLength={120} value={values.locality} onChange={(event) => setField("locality", event.target.value)} placeholder="e.g. Wakad" className={inputClass} />
+            <LocalityAutocomplete autoComplete="off" maxLength={120} value={values.locality} onChange={(event) => setField("locality", event.target.value)} placeholder="Type a Pune locality, e.g. Wakad" className={inputClass} />
           </label>
           <label className={labelClass}>Full property address
             <textarea autoComplete="street-address" rows={3} maxLength={500} value={values.address} onChange={(event) => setField("address", event.target.value)} placeholder="Street, building and address details" className={inputClass} />
