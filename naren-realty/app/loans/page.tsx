@@ -16,7 +16,11 @@ const loanCategories = [
   { slug: "top-up-loan", name: "Top-up Loan", description: "Check additional borrowing options over an eligible existing loan.", image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=900&q=85", tag: "Additional funds" },
 ];
 
-export default async function LoansPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+export default function LoansPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  return <Suspense fallback={<main className="min-h-screen bg-[#f7f8fa] p-6 text-slate-600">Loading loan options...</main>}><LoansPageContent searchParams={searchParams} /></Suspense>;
+}
+
+async function LoansPageContent({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const params = await searchParams;
   const selected = loanCategories.find((item) => item.slug === params.type);
   return <main className="min-h-screen bg-[#f7f8fa] px-3 py-4 text-slate-900 sm:px-6 sm:py-7">
