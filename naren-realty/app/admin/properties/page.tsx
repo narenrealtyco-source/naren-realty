@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
+import InstagramPostPanel from "./InstagramPostPanel";
 import {
   approveAdminProperty,
   loadAdminProperties,
@@ -180,6 +181,9 @@ export default function AdminPropertiesPage() {
                       {property.status !== "rejected" && <button disabled={busyId === property.id} onClick={() => void review(property, "rejected")} className="rounded-md border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 disabled:opacity-60">{property.status === "approved" ? "Unpublish" : "Reject"}</button>}
                     </div>
                   </div>
+                  {property.status.toLowerCase() === "approved" && property.category.toLowerCase() === "resale" && Array.isArray(property.photos) && typeof property.photos[0] === "string" && (
+                    <InstagramPostPanel propertyId={property.id} imagePath={property.photos[0]} />
+                  )}
                   <p className="mt-4 text-xs text-slate-500">Created {new Date(property.created_at).toLocaleString("en-IN")}</p>
                 </article>
               ))}
