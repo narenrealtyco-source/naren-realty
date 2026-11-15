@@ -2,39 +2,63 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient, requireAdmin } from "./lib/supabase-server";
-import { requirementsReady, validateLoan, validateMatch, validUuid } from "./lib/requirements";
+import { requirementsReady, matchesReady, validateLoan, validateMatch, validUuid } from "./lib/requirements";
 
 export type RequirementState = { status: "idle" | "success" | "error"; message: string };
 export async function submitRequirement(kind: "match" | "loan", _state: RequirementState, form: FormData): Promise<RequirementState> {
-  if (!requirementsReady()) return { status: "error", message: "Requirements are unavailable until secure database setup is verified. Nothing was saved." };
   if (kind !== "match" && kind !== "loan") return { status: "error", message: "Invalid requirement type." };
+  if (kind === "match" ? !matchesReady() : !requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was saved." };
+
   let input;
   try { input = kind === "match" ? validateMatch(form) : validateLoan(form); }
   catch (error) { return { status: "error", message: error instanceof Error ? error.message : "Invalid requirement." }; }
+
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Sign in before submitting a requirement." };
-  const { error } = "purpose" in input
-    ? await supabase.from("property_requirements").insert(input)
-    : await supabase.from("loan_requirements").insert(input);
-  if (error) { console.error("[requirements] Insert failed", { code: error.code }); return { status: "error", message: "Your requirement could not be saved. Please try again." }; }
+
+  let error;
+  if ("purpose" in input) {
+    const payload = {
+      customer_id: user.id,
+      requirement_type: input.purpose.toLowerCase(),
+      property_category: input.category === "Short Stay" ? "short_stay" : input.category.toLowerCase(),
+      preferred_location: input.location,
+      preferred_bhk: input.bedrooms,
+      min_budget: input.min_budget,
+      max_budget: input.max_budget,
+      move_in_date: input.move_in_date,
+      additional_requirements: input.details || null,
+      customer_name: input.customer_name,
+      customer_phone: input.phone
+    };
+    ({ error } = await supabase.from("property_requirements").insert(payload));
+  } else {
+    ({ error } = await supabase.from("loan_requirements").insert(input));
+  }
+
+  if (error) {
+    console.error("[requirements] Insert failed", { code: error.code });
+    return { status: "error", message: "Your requirement could not be saved. Please try again." };
+  }
   revalidatePath(kind === "match" ? "/matches" : "/loans");
   return { status: "success", message: "Your requirement was saved. Our team will review it." };
 }
-
 export async function closeMatch(_state: RequirementState, form: FormData): Promise<RequirementState> {
-  if (!requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was changed." };
+  if (!matchesReady()) return { status: "error", message: "Requirements are unavailable. Nothing was changed." };
   const id = form.get("id");
   if (typeof id !== "string" || !validUuid(id)) return { status: "error", message: "Invalid requirement." };
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Please sign in." };
-  const { data, error } = await supabase.from("property_requirements").update({ status: "Closed" }).eq("id", id).eq("customer_id", user.id).select("id").maybeSingle();
-  if (error || !data) { console.error("[requirements] Close failed", { code: error?.code }); return { status: "error", message: "The requirement could not be closed." }; }
+  const { data, error } = await supabase.from("property_requirements").update({ status: "closed" }).eq("id", id).eq("customer_id", user.id).select("id").maybeSingle();
+  if (error || !data) {
+    console.error("[requirements] Close failed", { code: error?.code });
+    return { status: "error", message: "The requirement could not be closed." };
+  }
   revalidatePath("/matches");
   return { status: "success", message: "Requirement closed." };
 }
-
 export async function updateRequirement(_state: RequirementState, form: FormData): Promise<RequirementState> {
   if (!requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was changed." };
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];

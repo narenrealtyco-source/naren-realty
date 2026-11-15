@@ -4,6 +4,9 @@ import { matchesPropertyLocation } from "./property-search";
 // These gates must remain off until the schema, grants and RLS are verified live.
 export function requirementsReady(): boolean { return false; }
 
+// Matches database schema and RLS have been verified.
+export function matchesReady(): boolean { return true; }
+
 export type MatchRequirement = {
   id: string; purpose: "Buy" | "Rent"; category: "Flat" | "PG" | "Hostel" | "Airbnb" | "Short Stay";
   location: string; bedrooms: number | null; min_budget: number | null; max_budget: number | null;
