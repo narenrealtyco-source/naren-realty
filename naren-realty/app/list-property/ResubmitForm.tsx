@@ -80,7 +80,7 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
       <input type="hidden" name="submission_id" value={submission.id} />
       <label className="block text-sm font-semibold">Title<input name="title" defaultValue={submission.title} required maxLength={120} className={inputClass} /></label>
       <label className="block text-sm font-semibold">Category<select name="category" value={category} onChange={(event) => setCategory(event.target.value)} required className={inputClass}>{SUBMISSION_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select></label>
-      <label className="block text-sm font-semibold">Locality<input name="locality" defaultValue={submission.locality} required maxLength={120} className={inputClass} /></label>
+      <label className="block text-sm font-semibold">Locality<LocalityAutocomplete name="locality" defaultValue={submission.locality} required maxLength={120} className={inputClass} placeholder="Start typing locality" /></label>
       <label className="block text-sm font-semibold">Full address<textarea name="address" defaultValue={submission.address} required maxLength={500} className={inputClass} /></label>
       <label className="block text-sm font-semibold">Price (INR)<input name="price" type="number" defaultValue={submission.price} min="0.01" max="1000000000000" step="any" required className={inputClass} /></label>
       <label className="block text-sm font-semibold">Carpet area (sq. ft.)<input name="area" type="number" defaultValue={submission.area} min="0.01" max="10000000" step="any" required className={inputClass} /></label>
