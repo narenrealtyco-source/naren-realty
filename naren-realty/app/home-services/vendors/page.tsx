@@ -62,9 +62,6 @@ async function VendorCategoryContent({ searchParams }: { searchParams: Promise<{
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 NAREN REALTY is onboarding and verifying {categoryName.toLowerCase()} professionals. Approved providers will appear here once they are available in your area.
               </p>
-              <Link href="/home-services/register" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#176B45] px-5 text-sm font-bold text-white hover:bg-[#125638]">
-                Apply as Service Provider
-              </Link>
             </div>
           </section>
         )}
