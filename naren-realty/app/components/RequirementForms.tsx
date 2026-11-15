@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { closeMatch, editLoanRequirement, submitRequirement, updateRequirement, type RequirementState } from "../requirements-actions";
+import LocalityAutocomplete from "./LocalityAutocomplete";
 
 const initial: RequirementState = { status: "idle", message: "" };
 const input = "mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base";
@@ -20,7 +21,7 @@ export function MatchForm({ ready }: { ready: boolean }) {
     <label className={label}>Requirement type<select name="purpose" className={input} required><option>Rent</option><option>Buy</option></select></label>
     <label className={label}>Property category<select name="category" className={input} value={category} onChange={(event) => setCategory(event.target.value)}><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
     <p className="text-xs text-slate-600">Buying is available for flats only.</p>
-    <label className={label}>Preferred location<input name="location" className={input} maxLength={120} required /></label>
+    <label className={label}>Preferred location<LocalityAutocomplete name="location" className={input} maxLength={120} placeholder="Start typing locality, e.g. Baner" required /></label>
     {category === "Flat" && <label className={label}>Configuration<select name="bedrooms" className={input}><option value="">Any BHK</option>{[1,2,3,4,5].map((n) => <option key={n} value={n}>{n} BHK</option>)}</select></label>}
     {category !== "Flat" && <input type="hidden" name="bedrooms" value="" />}
     <div className="grid gap-3 sm:grid-cols-2"><label className={label}>Minimum budget<input name="min_budget" className={input} type="number" min="0.01" step="0.01" /></label><label className={label}>Maximum budget<input name="max_budget" className={input} type="number" min="0.01" step="0.01" /></label></div>
@@ -35,7 +36,7 @@ export function LoanForm({ ready, types }: { ready: boolean; types: { id: string
     <h2 className="text-xl font-bold text-[#10243A]">Create loan requirement</h2><Notice ready={ready} /><ContactFields email />
     <label className={label}>Loan type<select name="loan_type_id" className={input} defaultValue="" required><option value="" disabled>Choose loan type</option>{types.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}</select></label>
     <label className={label}>Required loan amount (INR)<input name="amount" className={input} type="number" min="0.01" step="0.01" required /></label>
-    <label className={label}>Property location (optional)<input name="property_location" className={input} maxLength={120} /></label>
+    <label className={label}>Property location (optional)<LocalityAutocomplete name="property_location" className={input} maxLength={120} placeholder="Start typing locality" /></label>
     <label className={label}>Property value (optional)<input name="property_value" className={input} type="number" min="0.01" step="0.01" /></label>
     <label className={label}>Employment type<select name="employment" className={input} defaultValue="" required><option value="" disabled>Choose employment type</option><option>Salaried</option><option>Self-employed</option><option>Business</option><option>Other</option></select></label>
     <label className={label}>Additional details<textarea name="details" className={input} maxLength={2000} rows={3} /></label>
@@ -66,7 +67,7 @@ export function AdminLoanEdit({ loan, types }: { loan: AdminLoan; types: { id: s
     <label className={label}>Email<input className={input} name="email" defaultValue={loan.email} type="email" maxLength={254} /></label>
     <label className={label}>Loan type<select className={input} name="loan_type_id" defaultValue={loan.loan_type_id}>{types.map((type) => <option key={type.id} value={type.id}>{type.name}{type.active ? "" : " (inactive)"}</option>)}</select></label>
     <label className={label}>Loan amount<input className={input} name="amount" type="number" min="0.01" step="0.01" defaultValue={loan.amount} required /></label>
-    <label className={label}>Property location<input className={input} name="property_location" maxLength={120} defaultValue={loan.property_location} /></label>
+    <label className={label}>Property location<LocalityAutocomplete className={input} name="property_location" maxLength={120} defaultValue={loan.property_location} placeholder="Start typing locality" /></label>
     <label className={label}>Property value<input className={input} name="property_value" type="number" min="0.01" step="0.01" defaultValue={loan.property_value ?? ""} /></label>
     <label className={label}>Employment<select className={input} name="employment" defaultValue={loan.employment}><option>Salaried</option><option>Self-employed</option><option>Business</option><option>Other</option></select></label>
     <label className={label}>Additional details<textarea className={input} name="details" maxLength={2000} defaultValue={loan.details} /></label>
