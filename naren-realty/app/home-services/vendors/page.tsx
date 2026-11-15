@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 const categories: Record<string, string> = {
   plumbing: "Plumbing",
@@ -19,11 +20,15 @@ const categories: Record<string, string> = {
   "kitchen-services": "Kitchen Services",
 };
 
-export default async function VendorsPage({
+export default function VendorsPage({
   searchParams,
 }: {
   searchParams: Promise<{ category?: string | string[] }>;
 }) {
+  return <Suspense fallback={<main className="min-h-screen p-6">Loading service providers...</main>}><VendorCategoryContent searchParams={searchParams} /></Suspense>;
+}
+
+async function VendorCategoryContent({ searchParams }: { searchParams: Promise<{ category?: string | string[] }> }) {
   const params = await searchParams;
   const slug = typeof params.category === "string" ? params.category : "";
   const categoryName = categories[slug];
