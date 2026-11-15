@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "../../lib/supabase-server";
+import { createSupabaseServiceClient } from "../../lib/supabase-service";
 
 type PostRow = {
   id: string; property_id: string; status: string; caption: string; image_path: string;
@@ -19,6 +20,7 @@ function publicImageUrl(supabase: Awaited<ReturnType<typeof requireAdmin>>["supa
 
 export async function createInstagramPreview(propertyId: string): Promise<PostRow> {
   const { supabase, user } = await requireAdmin();
+  const journal = createSupabaseServiceClient();
   const id = propertyId.trim();
   if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid property ID.");
 
@@ -39,7 +41,7 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
     `#NarenRealty #PropertyForSale #RealEstate #${String(property.locality).replace(/[^a-z0-9]/gi, "")}`,
   ].join("\n\n").slice(0, 2200);
 
-  const { data: existing, error: existingError } = await supabase.from("instagram_property_posts")
+  const { data: existing, error: existingError } = await journal.from("instagram_property_posts")
     .select("*").eq("property_id", id).maybeSingle();
   if (existingError) throw new Error("Instagram post storage is not ready. Apply the Instagram post migration first.");
   if (existing && existing.status === "published") throw new Error("This property has already been published to Instagram.");
@@ -57,7 +59,8 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
 
 export async function publishInstagramPreview(postId: string, captionInput: string): Promise<{ permalink: string | null }> {
   const { supabase } = await requireAdmin();
-  const { data: post, error: loadError } = await supabase.from("instagram_property_posts")
+  const journal = createSupabaseServiceClient();
+  const { data: post, error: loadError } = await journal.from("instagram_property_posts")
     .select("*").eq("id", postId).maybeSingle();
   if (loadError || !post) throw new Error("Instagram preview could not be loaded.");
   if (post.status === "published") return { permalink: post.permalink };
@@ -78,7 +81,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     throw new Error("Only currently approved sale properties can be published.");
   }
 
-  const { error: lockError } = await supabase.from("instagram_property_posts")
+  const { error: lockError } = await journal.from("instagram_property_posts")
     .update({ status: "publishing", caption, last_error: null }).eq("id", postId)
     .in("status", ["preview_ready", "failed"]);
   if (lockError) throw new Error("Could not reserve this post for publishing. Refresh and try again.");
