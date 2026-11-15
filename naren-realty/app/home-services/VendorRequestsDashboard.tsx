@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useTransition } from "react";
-import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { createSupabaseBrowserClient } from "../lib/supabase-browser";
 import { respondToVendorEnquiry } from "./vendor-actions";
 type Request={id:string;customer_name:string;locality:string;message:string;status:string;created_at:string;response_deadline_at:string};
 export function VendorRequestsDashboard(){
