@@ -8,9 +8,28 @@ export default function RegisterVendorPage() {
   return <Suspense fallback={<main className="p-5">Loading application...</main>}><Content /></Suspense>;
 }
 
+const previewCategories: MarketplaceCategory[] = [
+  { id: "preview-plumbing", name: "Plumbing", slug: "plumbing", active: true },
+  { id: "preview-electrical", name: "Electrical", slug: "electrical", active: true },
+  { id: "preview-painting", name: "Painting", slug: "painting", active: true },
+  { id: "preview-carpentry-furniture", name: "Carpentry & Furniture", slug: "carpentry-furniture", active: true },
+  { id: "preview-home-cleaning", name: "Home Cleaning", slug: "home-cleaning", active: true },
+  { id: "preview-housekeeping-maid", name: "Housekeeping / Maid", slug: "housekeeping-maid", active: true },
+  { id: "preview-interior-design", name: "Interior Design", slug: "interior-design", active: true },
+  { id: "preview-pest-control", name: "Pest Control", slug: "pest-control", active: true },
+  { id: "preview-civil-renovation", name: "Civil Work & Renovation", slug: "civil-renovation", active: true },
+  { id: "preview-ac-installation", name: "AC Installation", slug: "ac-installation", active: true },
+  { id: "preview-packers-movers", name: "Packers & Movers", slug: "packers-movers", active: true },
+  { id: "preview-appliance-repair", name: "Appliance Repair", slug: "appliance-repair", active: true },
+  { id: "preview-waterproofing", name: "Waterproofing", slug: "waterproofing", active: true },
+  { id: "preview-pet-services", name: "Pet Services", slug: "pet-services", active: true },
+  { id: "preview-ac-cleaning-repair", name: "AC Cleaning & Repair", slug: "ac-cleaning-repair", active: true },
+  { id: "preview-kitchen-services", name: "Kitchen Services", slug: "kitchen-services", active: true },
+];
+
 async function Content() {
   const ready = vendorMarketplaceReady();
-  let categories: MarketplaceCategory[] = [];
+  let categories: MarketplaceCategory[] = ready ? [] : previewCategories;
   let failed = false;
   if (ready) {
     const supabase = await createSupabaseServerClient();
