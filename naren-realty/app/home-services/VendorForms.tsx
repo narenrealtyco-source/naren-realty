@@ -22,9 +22,16 @@ const serviceCatalog: Record<string, string[]> = {
   security: ["CCTV installation", "Video door phone", "Smart lock installation", "Alarm system installation"],
   default: ["Installation", "Repair and maintenance", "Inspection / consultation", "Cleaning / servicing", "Emergency service", "Annual maintenance contract"],
 };
-function servicesFor(categoryName: string) {
-  const key = categoryName.toLowerCase();
+function servicesFor(categoryName: string, slug: string) {
+  const key = (slug + " " + categoryName).toLowerCase();
   const match = Object.keys(serviceCatalog).find((item) => item !== "default" && key.includes(item));
+  if (key.includes("home-cleaning") || key.includes("housekeeping")) return ["Home deep cleaning", "Bathroom cleaning", "Kitchen cleaning", "Sofa and carpet cleaning", "Regular housekeeping", "Maid services", "Cook services"];
+  if (key.includes("ac-installation") || key.includes("ac-cleaning-repair")) return ["New AC installation", "AC uninstallation and shifting", "AC servicing", "AC gas charging", "AC repair", "Annual maintenance"];
+  if (key.includes("civil-renovation")) return ["Civil repairs", "Wall and floor tiling", "Plaster and masonry", "Renovation work", "False ceiling", "Structural repair"];
+  if (key.includes("interior-design")) return ["Residential interior design", "Space planning", "Modular kitchen design", "Wardrobe design", "3D design and consultation", "Turnkey interiors"];
+  if (key.includes("waterproofing")) return ["Terrace waterproofing", "Bathroom waterproofing", "External wall treatment", "Basement waterproofing", "Leakage treatment"];
+  if (key.includes("pet-services")) return ["Pet grooming", "Pet walking", "Pet sitting", "Pet boarding", "At-home pet care"];
+  if (key.includes("kitchen-services")) return ["Chimney cleaning and repair", "Hob and gas stove repair", "Kitchen appliance installation", "Kitchen fittings", "RO and water purifier service"];
   return serviceCatalog[match ?? "default"];
 }
 
@@ -35,7 +42,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
   const [otherService, setOtherService] = useState("");
   const [locality, setLocality] = useState("");
   const activeCategory = categories.find((category) => category.id === categoryId);
-  const serviceOptions = useMemo(() => servicesFor(activeCategory?.name ?? ""), [activeCategory?.name]);
+  const serviceOptions = useMemo(() => servicesFor(activeCategory?.name ?? "", activeCategory?.slug ?? ""), [activeCategory?.name, activeCategory?.slug]);
   const servicesValue = [...selectedServices, ...(otherService.trim() ? [otherService.trim()] : [])].join(", ");
 
   function toggleService(service: string) {
@@ -47,11 +54,6 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A96E]">NAREN REALTY  |  SERVICE PARTNER REGISTRATION</p>
       <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Register Your Business</h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-slate-200">Join the NAREN REALTY service network. Submit your business information and select the services you provide.</p>
-      <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-100">
-        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">VERIFIED PARTNERS</span>
-        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">LOCAL SERVICE NETWORK</span>
-        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">PRIVACY PROTECTED</span>
-      </div>
     </div>
 
     <div className="space-y-7 p-5 sm:p-8">
@@ -88,7 +90,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
           <input type="hidden" name="services" value={servicesValue} />
           <p className="mt-2 text-xs text-slate-500">{selectedServices.length + (otherService.trim() ? 1 : 0)} service(s) selected</p>
         </div> : <p className="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500">Choose a category to see relevant services.</p>}
-        <label className={`${label} mt-4`}>Business Overview<textarea name="description" className={input} maxLength={2000} rows={4} placeholder="Describe your experience, specialisations, operating hours and service coverage." required /></label>
+        <input type="hidden" name="description" value="Service partner application" />
       </section>
 
       <section className="border-t border-slate-100 pt-6">
@@ -103,10 +105,20 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
 
       <section className="border-t border-slate-100 pt-6">
         <div className="mb-4 flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F0E7] text-sm font-bold text-[#8A6A37]">04</span>
-          <div><h3 className="font-bold text-[#10243A]">Partnership Information</h3><p className="text-xs text-slate-500">Optional commercial terms for review by NAREN REALTY.</p></div>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EBDD] text-sm font-bold text-[#9A7744]">04</span>
+          <div><h3 className="font-bold text-[#10243A]">Lead Generation & Payment Model</h3><p className="text-xs text-slate-500">How customer enquiries and partner payments work.</p></div>
         </div>
-        <label className={label}>Proposed Commission / Partnership Terms <span className="font-normal text-slate-400">(optional)</span><textarea name="commission_terms" className={input} maxLength={1000} rows={3} placeholder="Enter your proposed commission or partnership terms." /></label>
+        <div className="rounded-2xl border border-[#E8E1D6] bg-[#FBF9F5] p-4 sm:p-5">
+          <p className="text-sm leading-6 text-[#26394D]">NAREN REALTY connects service partners with customers looking for relevant home services in their locality. Enquiries are routed to suitable partners based on service category and coverage area.</p>
+          <ul className="mt-4 space-y-3 text-sm leading-5 text-[#435366]">
+            <li className="flex gap-2"><span className="font-bold text-[#B18A50]">01</span><span><strong className="text-[#10243A]">Receive relevant leads</strong> — Customer requirements are shared with matching service partners.</span></li>
+            <li className="flex gap-2"><span className="font-bold text-[#B18A50]">02</span><span><strong className="text-[#10243A]">Connect and follow up</strong> — Contact the customer, understand the requirement and provide your service quotation directly.</span></li>
+            <li className="flex gap-2"><span className="font-bold text-[#B18A50]">03</span><span><strong className="text-[#10243A]">Lead-based payment terms</strong> — Applicable lead charges, billing cycle and payment instructions will be communicated transparently before your partner account is activated.</span></li>
+            <li className="flex gap-2"><span className="font-bold text-[#B18A50]">04</span><span><strong className="text-[#10243A]">Track your activity</strong> — Lead status and applicable payment records will be made available through the partner process.</span></li>
+          </ul>
+          <p className="mt-4 border-t border-[#E8E1D6] pt-3 text-xs leading-5 text-slate-500">No prices are displayed at registration. Lead-generation and payment terms will be shared and agreed separately before activation.</p>
+        </div>
+        <input type="hidden" name="commission_terms" value="" />
       </section>
 
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
