@@ -2,7 +2,7 @@ import type { PropertyListing } from "./properties";
 import { matchesPropertyLocation } from "./property-search";
 
 // These gates must remain off until the schema, grants and RLS are verified live.
-export function requirementsReady(): boolean { return false; }
+export function requirementsReady(): boolean { return true; }
 
 // Matches database schema and RLS have been verified.
 export function matchesReady(): boolean { return true; }
