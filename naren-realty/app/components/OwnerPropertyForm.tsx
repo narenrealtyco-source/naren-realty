@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import LocalityAutocomplete from "./LocalityAutocomplete";
 import {
   AIRBNB_AMENITIES,
   createDefaultCategoryDetails,
@@ -226,7 +227,7 @@ export default function OwnerPropertyForm({
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-semibold">Property category<select value={draft.type} onChange={(event) => changeCategory(event.target.value as ListingType)} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-normal">{PROPERTY_CATEGORIES.map((category) => <option key={category} value={category}>{category === "Rental" ? "Flat Rental" : category === "Resale" ? "Flat Resale" : category === "PG" ? "PG / Hostel" : "Airbnb / Short Stay"}</option>)}</select></label>
         <label className="text-sm font-semibold">{draft.type === "PG" ? "PG / Hostel Name" : "Property Title"}<input required maxLength={100} value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 font-normal outline-none focus:border-amber-500" /></label>
-        <label className="text-sm font-semibold">Locality<select required value={draft.locality} onChange={(event) => setDraft({ ...draft, locality: event.target.value })} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-normal"><option value="">Select locality</option>{localities.map((locality) => <option key={locality}>{locality}</option>)}</select></label>
+        <label className="text-sm font-semibold">Locality<LocalityAutocomplete required value={draft.locality} onChange={(event) => setDraft({ ...draft, locality: event.target.value })} placeholder="Start typing locality, e.g. Kharadi" className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-normal" /></label>
         <label className="text-sm font-semibold sm:col-span-2">Full Property Address<input required value={draft.address ?? ""} onChange={(event) => setDraft({ ...draft, address: event.target.value })} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 font-normal outline-none focus:border-amber-500" /></label>
         <label className="text-sm font-semibold">Landmark<input value={draft.landmark ?? ""} onChange={(event) => setDraft({ ...draft, landmark: event.target.value })} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 font-normal outline-none focus:border-amber-500" /></label>
         <label className="text-sm font-semibold">Available From<input required type="date" value={draft.availableFrom ?? ""} onChange={(event) => setDraft({ ...draft, availableFrom: event.target.value })} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 font-normal outline-none focus:border-amber-500" /></label>
