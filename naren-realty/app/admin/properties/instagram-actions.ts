@@ -28,7 +28,7 @@ export async function createInstagramPreview(propertyId: string): Promise<PostRo
   if (!Array.isArray(property.photos) || typeof property.photos[0] !== "string") throw new Error("This property has no approved public photo.");
 
   const imagePath = property.photos[0] as string;
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\/$/, "");
   const caption = [
     property.title,
     property.locality,
