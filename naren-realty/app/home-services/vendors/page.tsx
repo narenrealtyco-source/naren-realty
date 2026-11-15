@@ -61,6 +61,7 @@ async function VendorCategoryContent({
       .from("service_vendors")
       .select("id,public_name,business_name,services,description,city,locality,verified,service_categories!inner(name,slug,active)")
       .eq("active", true)
+      .eq("verified", true)
       .eq("service_categories.active", true)
       .eq("service_categories.slug", slug)
       .order("verified", { ascending: false })
