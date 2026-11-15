@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     .eq("status", "approved")
     .limit(500);
 
+  let matchedProperties: Array<{ title: string; locality: string | null; price: number | null }> = [];
   if (!listingError && listings) {
     const wanted = location.toLowerCase();
     const matches = listings.filter((listing) => {
@@ -129,6 +130,7 @@ export async function POST(request: NextRequest) {
       return type && locality && (locality.includes(wanted) || wanted.includes(locality)) && budgetOk && bhkOk;
     }).slice(0, 20);
 
+    matchedProperties = matches.map((item) => ({ title: item.title, locality: item.locality, price: item.price === null ? null : Number(item.price) }));
     if (matches.length) {
       await supabase.from("google_form_property_requirements").update({
         matched_property_ids: matches.map((item) => item.id),
@@ -140,5 +142,5 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, requirementId: inserted.id, matched: !listingError ? undefined : false }, { status: 201 });
+  return NextResponse.json({ ok: true, requirementId: inserted.id, matchCount: matchedProperties.length, matches: matchedProperties }, { status: 201 });
 }
