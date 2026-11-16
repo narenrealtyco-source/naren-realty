@@ -60,9 +60,11 @@ test("writes omit forged identity and status; database errors never return succe
   assert.deepEqual(submission.args.p_category_ids, [id]);
   assert.equal(Object.hasOwn(submission.args.p_application, "user_id"), false);
   assert.equal(Object.hasOwn(submission.args.p_application, "status"), false);
-  const enquiryWrite = service.calls.find((call) => call.table === "vendor_enquiries");
-  assert.equal(Object.hasOwn(enquiryWrite.payload, "customer_id"), false);
-  assert.equal(Object.hasOwn(enquiryWrite.payload, "status"), false);
+  const enquiryWrite = service.calls.find((call) => call.name === "submit_vendor_enquiry");
+  assert.equal(enquiryWrite.args.p_customer_name, "Customer");
+  assert.equal(enquiryWrite.args.p_mobile, "9876543210");
+  assert.equal(enquiryWrite.args.p_contact_consent, true);
+  assert.equal(Object.hasOwn(enquiryWrite.args, "p_customer_id"), false);
   for (const error of [{ code: "23505" }, { code: "42501" }]) {
     const failing = actions({ error });
     assert.equal((await failing.applyAsVendor({}, application())).status, "error");
@@ -177,6 +179,25 @@ test("new enquiry form requires contact consent and complete address details", (
 test("lead unlock migration stores personal contact privately and masks public enquiry data", async () => {
   const sql = await readFile(new URL("../supabase/migrations/20261116121500_secure_vendor_lead_unlock_and_category_pricing.sql", import.meta.url), "utf8");
   assert.match(sql, /private\.vendor_enquiry_contacts/);
+  assert.match(sql, /get_unlocked_vendor_lead_contact/);
+  assert.match(sql, /admin_list_vendor_lead_contacts/);
+  assert.match(sql, /set customer_name = 'Locked lead'/);
+  assert.match(sql, /lead_unlock_price/);
+});
+
+
+test("new enquiry form requires contact consent and complete address details", () => {
+  const form = enquiry();
+  assert.equal(marketplace.validateVendorEnquiry(form).contact_consent, true);
+  for (const [key, value] of [["contact_consent", "off"], ["locality", " "], ["full_address", " "], ["mobile", "bad"]]) {
+    const invalid = enquiry(); invalid.set(key, value);
+    assert.throws(() => marketplace.validateVendorEnquiry(invalid));
+  }
+});
+
+test("lead unlock migration stores personal contact privately and masks public enquiry data", async () => {
+  const sql = await readFile(new URL("../supabase/migrations/20261116121500_secure_vendor_lead_unlock_and_category_pricing.sql", import.meta.url), "utf8");
+  assert.match(sql, /private\\.vendor_enquiry_contacts/);
   assert.match(sql, /get_unlocked_vendor_lead_contact/);
   assert.match(sql, /admin_list_vendor_lead_contacts/);
   assert.match(sql, /set customer_name = 'Locked lead'/);
