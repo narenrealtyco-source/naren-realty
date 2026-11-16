@@ -148,7 +148,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
 
 export function VendorEnquiryForm({ vendorId, ready }: { vendorId: string; ready: boolean }) {
   const [state, action, pending] = useActionState(enquireVendor, initial);
-  return <form action={action} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  return <form id="enquiry" action={action} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
     <h2 className="text-xl font-bold text-[#10243A]">Enquire about this provider</h2>
     <input type="hidden" name="vendor_id" value={vendorId} />
     <label className={label}>Your name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label>
