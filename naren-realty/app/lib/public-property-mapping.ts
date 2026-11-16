@@ -39,7 +39,7 @@ export function mapPublicProperty(value: unknown, publicUrl: (path: string) => s
     title: text(row.title, true), type: category,
     locality: text(row.locality, true), price: number(row.price),
     bedrooms: number(row.bedrooms), bathrooms: number(row.bathrooms),
-    furnishing: "", description: publicListing ? text(publicListing.description) : "", area: number(row.carpet_area),
+    furnishing: text(row.furnishing), description: publicListing ? text(publicListing.description) : "", area: number(row.carpet_area),
     address: publicListing ? text(publicListing.address) : "",
     publicListingDetails: publicDetails,
     availableFrom: publicDetails?.values.common_available_from,
