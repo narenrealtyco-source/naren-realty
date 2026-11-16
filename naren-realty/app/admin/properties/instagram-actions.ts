@@ -67,8 +67,9 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
   const token = process.env.INSTAGRAM_ACCESS_TOKEN;
   const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
   const version = process.env.INSTAGRAM_GRAPH_API_VERSION;
-  if (!token || !accountId || !version || !/^v\d+\.\d+$/.test(version)) {
-    throw new Error("Instagram is not connected yet. Configure INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_BUSINESS_ACCOUNT_ID and INSTAGRAM_GRAPH_API_VERSION in Vercel.");
+  const graphHost = process.env.INSTAGRAM_GRAPH_API_HOST;
+  if (!token || !accountId || !version || !/^v\d+\.\d+$/.test(version) || !graphHost || !/^(graph\.facebook\.com|graph\.instagram\.com)$/.test(graphHost)) {
+    throw new Error("Instagram is not connected yet. Configure the server-side Instagram token, account ID, API version and verified Graph API host in Vercel.");
   }
 
   const { data: property, error: propertyError } = await supabase.from("properties")
