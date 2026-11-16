@@ -13,21 +13,6 @@ function Notice({ ready }: { ready: boolean }) { return !ready ? <p role="status
 function ContactFields({ email = false }: { email?: boolean }) {
   return <><label className={label}>Name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label><label className={label}>Phone number<input name="phone" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>{email && <label className={label}>Email (optional)<input name="email" className={input} type="email" autoComplete="email" maxLength={254} /></label>}</>;
 }
-"use client";
-
-import { useActionState, useState } from "react";
-import { closeMatch, editLoanRequirement, submitRequirement, updateRequirement, type RequirementState } from "../requirements-actions";
-import LocalityAutocomplete from "./LocalityAutocomplete";
-
-const initial: RequirementState = { status: "idle", message: "" };
-const input = "mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base";
-const label = "block text-sm font-semibold";
-const button = "min-h-11 rounded-lg bg-[#10243A] px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50";
-function Result({ state }: { state: RequirementState }) { return state.message ? <p role={state.status === "error" ? "alert" : "status"} className="text-sm">{state.message}</p> : null; }
-function Notice({ ready }: { ready: boolean }) { return !ready ? <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-950">Secure database setup is pending. This form cannot save anything yet.</p> : null; }
-function ContactFields({ email = false }: { email?: boolean }) {
-  return <><label className={label}>Name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label><label className={label}>Phone number<input name="phone" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>{email && <label className={label}>Email (optional)<input name="email" className={input} type="email" autoComplete="email" maxLength={254} /></label>}</>;
-}
 const choiceBase = "rounded-lg border px-3 py-2 text-sm font-semibold transition";
 const bhkChoices = [{label:"1 RK",value:"0"},{label:"1 BHK",value:"1"},{label:"2 BHK",value:"2"},{label:"3 BHK",value:"3"},{label:"4 BHK",value:"4"},{label:"4+ BHK",value:"6"}];
 export function MatchForm({ ready, onClose }: { ready: boolean; onClose: () => void }) {
