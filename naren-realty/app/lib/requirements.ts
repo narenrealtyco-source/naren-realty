@@ -62,6 +62,20 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   if ((requirement.min_budget !== null || requirement.max_budget !== null) && (!Number.isFinite(property.price) || property.price <= 0)) return false;
   if (requirement.min_budget !== null && property.price < requirement.min_budget) return false;
   if (requirement.max_budget !== null && property.price > requirement.max_budget) return false;
-  if (requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
+  let preferences: { narenRequirement?: number; clientType?: string; bhkChoice?: string; furnishingChoice?: string } = {};
+  try { const parsed: unknown = JSON.parse(requirement.details); if (parsed && typeof parsed === "object") preferences = parsed as typeof preferences; } catch { /* Older plain-text requirements have no preference metadata. */ }
+  const clientType = preferences.clientType ?? "All";
+  if (clientType !== "All" && clientType !== "Family Only") {
+    const tenant = String((property.categoryDetails as { tenantPreference?: string } | undefined)?.tenantPreference ?? "").toLowerCase();
+    const wanted = clientType.toLowerCase().replace(" only", "");
+    if (tenant && tenant !== "any" && !tenant.includes(wanted)) return false;
+  }
+  const furnishing = preferences.furnishingChoice ?? "Any";
+  const actualFurnishing = String((property.categoryDetails as { furnishingStatus?: string } | undefined)?.furnishingStatus ?? property.furnishing ?? "").toLowerCase();
+  if (furnishing !== "Any" && actualFurnishing && actualFurnishing !== furnishing.toLowerCase()) return false;
+  const bhk = preferences.bhkChoice ?? "Any";
+  const actualBhk = String((property.categoryDetails as { bhkConfiguration?: string } | undefined)?.bhkConfiguration ?? "");
+  if (bhk !== "Any" && bhk !== actualBhk) return false;
+  if (!preferences.bhkChoice && requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
   return true;
 }
