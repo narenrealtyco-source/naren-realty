@@ -135,15 +135,15 @@ export default function AdminDashboardPage() {
   ] : [];
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 pb-[env(safe-area-inset-bottom)] text-slate-900">
       <header className="bg-[#10243A] text-white shadow-sm">
-        <div className="mx-auto flex max-w-[88rem] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-[88rem] flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-6 sm:py-4">
           <div><p className="text-xs font-bold tracking-[0.18em] text-amber-400">NAREN REALTY</p><h1 className="mt-1 text-xl font-bold">Admin Dashboard</h1></div>
           <div className="flex items-center gap-2"><Link href="/" className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10">Website</Link><AdminLogoutButton className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10" /></div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[88rem] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[88rem] px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4">
           <div><p className="text-xs font-bold tracking-[0.18em] text-amber-700">OPERATIONS OVERVIEW</p><h2 className="mt-1 text-2xl font-bold text-[#10243A]">Dashboard</h2><p className="mt-1 text-sm text-slate-600">Live record counts from the authenticated Supabase session.</p></div>
           <button type="button" onClick={retryDashboard} disabled={loading} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-[#10243A] hover:border-amber-500 disabled:opacity-60">{loading ? "Loading..." : "Refresh metrics"}</button>
@@ -153,17 +153,29 @@ export default function AdminDashboardPage() {
         {error && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</p>}
 
         {!loading && !error && stats && (
-          <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]">
-            <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="grid min-w-0 gap-4 md:gap-5 md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]">
+            <div className="md:hidden">
+              <label htmlFor="admin-task-select" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Open admin module</label>
+              <select
+                id="admin-task-select"
+                value={selectedTask ?? "properties"}
+                onChange={(event) => setSelectedTask(event.target.value as TaskKey)}
+                className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold text-[#10243A] shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              >
+                {tasks.map((task) => <option key={task.key} value={task.key}>{task.label}{typeof task.count === "number" ? ` · ${task.count}` : ""}</option>)}
+              </select>
+            </div>
+
+            <aside className="hidden h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:block">
               <p className="px-2 pb-2 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
-              <nav aria-label="Dashboard tasks" className="flex gap-1.5 overflow-x-auto md:flex-col md:overflow-visible">
-                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-w-max items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition md:w-full ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}>
+              <nav aria-label="Dashboard tasks" className="flex flex-col gap-1.5">
+                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}>
                   <span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
                 </button>)}
               </nav>
             </aside>
 
-            <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+            <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               {selectedTask === "properties" && <><SectionHeading href="/admin/properties">Property Listings</SectionHeading><MetricGrid section={stats.properties} metrics={propertyMetrics} emptyMessage="No property records yet." /></>}
               {selectedTask === "addProperty" && <><SectionHeading href="/admin/properties/new">Add Property</SectionHeading><Link href="/admin/properties/new" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Property Form</Link></>}
               {selectedTask === "visits" && <><SectionHeading href="/admin/visits">Visit Requests</SectionHeading><MetricGrid section={stats.visits} metrics={visitMetrics} emptyMessage="No visit records yet." /></>}
