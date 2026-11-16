@@ -332,7 +332,7 @@ export async function getAdminDashboardStatsFromSupabase(): Promise<AdminDashboa
     propertySubmissionsEnabled()
       ? loadMetricSection("Property submissions", async () => {
         const rows = await readDashboardRows(supabase, "property_submissions");
-        assertKnownStatuses(rows, "property submission", ["pending", "approved", "rejected"]);
+        assertKnownStatuses(rows, "property submission", ["pending", "approved", "rejected", "deleting"]);
         const statuses = rows.map(normalizedStatus);
         return {
           totalSubmissions: rows.length,
