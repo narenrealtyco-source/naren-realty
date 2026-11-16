@@ -108,5 +108,6 @@ revoke all on function public.get_unlocked_vendor_lead_contact(uuid) from public
 grant execute on function public.get_unlocked_vendor_lead_contact(uuid) to authenticated;
 revoke all on function public.admin_list_vendor_lead_contacts() from public, anon;
 grant execute on function public.admin_list_vendor_lead_contacts() to authenticated;
+grant update (lead_unlock_price) on public.service_categories to authenticated;
 
 commit;
