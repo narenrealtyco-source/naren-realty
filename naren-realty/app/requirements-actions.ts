@@ -66,10 +66,13 @@ export async function updateRequirement(_state: RequirementState, form: FormData
   const id = form.get("id"), kind = form.get("kind"), status = form.get("status"), remarks = form.get("remarks"), assigned = form.get("assigned_to");
   const statuses = kind === "match" ? ["New", "Contacted", "Closed"] : ["New", "Contacted", "Documents Pending", "Under Process", "Approved", "Rejected", "Closed"];
   if (typeof id !== "string" || !validUuid(id) || (kind !== "match" && kind !== "loan") || typeof status !== "string" || !statuses.includes(status) || typeof remarks !== "string" || remarks.length > 2000 || remarks.includes("\0") || typeof assigned !== "string" || (assigned && !validUuid(assigned))) return { status: "error", message: "Invalid status or follow-up." };
-  const { error } = kind === "loan"
-    ? await supabase.rpc("admin_update_loan_requirement", { p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null })
-    : await supabase.rpc("admin_update_requirement", { p_kind: kind, p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null });
-  if (error) { console.error("[requirements] Admin update failed", { code: error.code }); return { status: "error", message: "The requirement could not be updated." }; }
+  if (kind === "loan") {
+    const { error } = await supabase.rpc("admin_update_loan_requirement", { p_id: id, p_status: status, p_remarks: remarks.trim(), p_assigned_to: assigned || null });
+    if (error) { console.error("[requirements] Loan admin update failed", { code: error.code }); return { status: "error", message: "The requirement could not be updated." }; }
+  } else {
+    const { data, error } = await supabase.from("property_requirements").update({ status: status.toLowerCase(), admin_notes: remarks.trim() || null }).eq("id", id).select("id").maybeSingle();
+    if (error || !data) { console.error("[requirements] Property admin update failed", { code: error?.code }); return { status: "error", message: "The requirement could not be updated." }; }
+  }
   revalidatePath("/admin/requirements");
   return { status: "success", message: "Requirement updated." };
 }
