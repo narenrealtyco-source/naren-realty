@@ -38,13 +38,19 @@ export function validateMatch(form: FormData) {
   const category = text(form, "category", 12);
   if (!["Buy", "Rent"].includes(purpose) || !["Flat", "PG", "Hostel", "Airbnb", "Short Stay"].includes(category) || (purpose === "Buy" && category !== "Flat")) throw new Error("Choose a valid purpose and category.");
   const bedroomsValue = text(form, "bedrooms", 1, false);
-  if (bedroomsValue && (category !== "Flat" || !/^[1-5]$/.test(bedroomsValue))) throw new Error("Choose a valid BHK.");
+  if (bedroomsValue && (category !== "Flat" || !/^(0|[1-4]|6)$/.test(bedroomsValue))) throw new Error("Choose a valid BHK.");
+  const clientType = text(form, "client_type", 20, false);
+  if (clientType && !["All", "Family Only", "Bachelors", "Girls Only", "Boys Only"].includes(clientType)) throw new Error("Choose a valid client type.");
+  const furnishedOnly = text(form, "furnished_only", 5, false);
+  if (furnishedOnly && !["true", "false"].includes(furnishedOnly)) throw new Error("Choose a valid furnishing preference.");
+  const notes = text(form, "requirement_notes", 1800, false);
+  const preferenceNotes = [clientType ? `Client type: ${clientType}` : "", furnishedOnly === "true" ? "Furnished only" : "", notes].filter(Boolean).join("\\n");
   const min_budget = amount(form, "min_budget");
   const max_budget = amount(form, "max_budget");
   if (min_budget !== null && max_budget !== null && min_budget > max_budget) throw new Error("Minimum budget cannot exceed maximum budget.");
   const date = text(form, "move_in_date", 10, false);
   if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date)) throw new Error("Choose a valid date.");
-  return { purpose, category, location: text(form, "location", 120), bedrooms: bedroomsValue ? Number(bedroomsValue) : null, min_budget, max_budget, move_in_date: date || null, details: text(form, "details", 2000, false), customer_name: text(form, "customer_name", 120), phone: phone(form) };
+  return { purpose, category, location: text(form, "location", 120), bedrooms: bedroomsValue ? Number(bedroomsValue) : null, min_budget, max_budget, move_in_date: date || null, details: preferenceNotes, customer_name: text(form, "customer_name", 120), phone: phone(form) };
 }
 export function validateLoan(form: FormData) {
   const loan_type_id = text(form, "loan_type_id", 36);
@@ -62,6 +68,9 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   if ((requirement.min_budget !== null || requirement.max_budget !== null) && (!Number.isFinite(property.price) || property.price <= 0)) return false;
   if (requirement.min_budget !== null && property.price < requirement.min_budget) return false;
   if (requirement.max_budget !== null && property.price > requirement.max_budget) return false;
-  if (requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
+  if (requirement.bedrooms !== null) {
+    if (requirement.bedrooms === 6 ? property.bedrooms < 4 : property.bedrooms !== requirement.bedrooms) return false;
+  }
+  if (requirement.details.includes("Furnished only") && !/furnished/i.test(property.furnishing)) return false;
   return true;
 }
