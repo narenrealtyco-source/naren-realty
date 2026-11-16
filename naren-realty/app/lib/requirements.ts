@@ -42,6 +42,12 @@ export function validateMatch(form: FormData) {
   const min_budget = amount(form, "min_budget");
   const max_budget = amount(form, "max_budget");
   if (min_budget !== null && max_budget !== null && min_budget > max_budget) throw new Error("Minimum budget cannot exceed maximum budget.");
+  const clientType = text(form, "client_type", 20);
+  if (!["All", "Family Only", "Bachelors", "Girls Only", "Boys Only"].includes(clientType)) throw new Error("Choose a valid client type.");
+  const bhkChoice = text(form, "bhk_choice", 10);
+  if (!["Any", "1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "4+ BHK"].includes(bhkChoice)) throw new Error("Choose a valid BHK preference.");
+  const furnishingChoice = text(form, "furnishing_choice", 20);
+  if (!["Any", "Fully Furnished", "Semi Furnished", "Unfurnished"].includes(furnishingChoice)) throw new Error("Choose a valid furnishing preference.");
   const date = text(form, "move_in_date", 10, false);
   if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date)) throw new Error("Choose a valid date.");
   return { purpose, category, location: text(form, "location", 120), bedrooms: bedroomsValue ? Number(bedroomsValue) : null, min_budget, max_budget, move_in_date: date || null, details: JSON.stringify({ narenRequirement: 1, clientType, bhkChoice: bhkChoice || "Any", furnishingChoice, notes: text(form, "notes", 1600, false) }), customer_name: text(form, "customer_name", 120), phone: phone(form) };
@@ -65,18 +71,18 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   let preferences: { narenRequirement?: number; clientType?: string; bhkChoice?: string; furnishingChoice?: string } = {};
   try { const parsed: unknown = JSON.parse(requirement.details); if (parsed && typeof parsed === "object") preferences = parsed as typeof preferences; } catch { /* Older plain-text requirements have no preference metadata. */ }
   const clientType = preferences.clientType ?? "All";
-  if (clientType !== "All" && clientType !== "Family Only") {
+  if (clientType !== "All") {
     const tenant = String((property.categoryDetails as { tenantPreference?: string } | undefined)?.tenantPreference ?? "").toLowerCase();
     const wanted = clientType.toLowerCase().replace(" only", "");
-    if (tenant && tenant !== "any" && !tenant.includes(wanted)) return false;
+    if (!tenant || tenant === "any" || !tenant.includes(wanted)) return false;
   }
   const furnishing = preferences.furnishingChoice ?? "Any";
-  const actualFurnishing = String((property.categoryDetails as { furnishingStatus?: string } | undefined)?.furnishingStatus ?? property.furnishing ?? "").toLowerCase();
-  if (furnishing !== "Any" && actualFurnishing && actualFurnishing.replace(/[-_]/g, " ").toLowerCase() !== furnishing.toLowerCase()) return false;
+  const actualFurnishing = String((property.categoryDetails as { furnishingStatus?: string } | undefined)?.furnishingStatus ?? property.furnishing ?? "").toLowerCase().replace(/[-_]/g, " ").trim();
+  if (furnishing !== "Any" && actualFurnishing !== furnishing.toLowerCase()) return false;
   const bhk = preferences.bhkChoice ?? "Any";
-  const actualBhk = String((property.categoryDetails as { bhkConfiguration?: string } | undefined)?.bhkConfiguration ?? "");
+  const actualBhk = String((property.categoryDetails as { bhkConfiguration?: string } | undefined)?.bhkConfiguration ?? property.bedrooms ?? "").toLowerCase().replace(/\s+/g, "");
   if (bhk === "4+ BHK") { if (Number.parseInt(actualBhk, 10) < 4) return false; }
-  else if (bhk !== "Any" && bhk !== actualBhk) return false;
+  else if (bhk !== "Any" && actualBhk !== bhk.toLowerCase().replace(/\s+/g, "")) return false;
   if (!preferences.bhkChoice && requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
   return true;
 }
