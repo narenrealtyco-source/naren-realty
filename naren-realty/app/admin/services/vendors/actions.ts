@@ -14,7 +14,15 @@ export async function manageMarketplace(_state: VendorState, form: FormData): Pr
   const action = form.get("action");
   let error: { code?: string } | null = null;
 
-  if (action === "add-category") {
+  if (action === "set-lead-price") {
+    const id = form.get("id");
+    const raw = form.get("lead_unlock_price");
+    const price = typeof raw === "string" ? Number(raw) : NaN;
+    if (typeof id !== "string" || !uuid(id) || !Number.isFinite(price) || price < 0 || price > 1000000) return { status: "error", message: "Enter a valid non-negative lead price." };
+    const result = await supabase.from("service_categories").update({ lead_unlock_price: price }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    if (!error && !result.data) return { status: "error", message: "Lead price was not updated." };
+  } else if (action === "add-category") {
     const name = form.get("name");
     const slug = form.get("slug");
     if (typeof name !== "string" || !name.trim() || name.trim().length > 100 || typeof slug !== "string" || slug.length > 100 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return { status: "error", message: "Enter a valid name and lowercase hyphenated slug." };
