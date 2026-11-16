@@ -65,15 +65,13 @@ export default function AdminDashboardPage() {
 
   const tasks = useMemo<TaskItem[]>(() => {
     if (!stats) return [];
-    const total = (section: AdminDashboardSection<{ [key: string]: number }>, key: string) =>
-      section.state === "available" ? section.metrics[key] ?? 0 : 0;
     const candidates: TaskItem[] = [
-      { key: "properties", label: "Property Listings", count: total(stats.properties, "totalProperties") },
-      { key: "visits", label: "Visit Requests", count: total(stats.visits, "totalVisits") },
-      { key: "enquiries", label: "Customer Enquiries", count: total(stats.enquiries, "totalEnquiries") },
-      { key: "homeServices", label: "Home Services", count: total(stats.serviceRequests, "totalRequests") + total(stats.vendors, "totalVendors") },
-      { key: "requirements", label: "Customer Requirements", count: total(stats.requirements, "totalRequirements") },
-      { key: "submissions", label: "Property Submissions", count: total(stats.submissions, "totalSubmissions") },
+      { key: "properties", label: "Property Listings", count: stats.properties.state === "available" ? stats.properties.metrics.totalProperties : 0 },
+      { key: "visits", label: "Visit Requests", count: stats.visits.state === "available" ? stats.visits.metrics.totalVisits : 0 },
+      { key: "enquiries", label: "Customer Enquiries", count: stats.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : 0 },
+      { key: "homeServices", label: "Home Services", count: (stats.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : 0) + (stats.vendors.state === "available" ? stats.vendors.metrics.totalVendors : 0) },
+      { key: "requirements", label: "Customer Requirements", count: stats.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : 0 },
+      { key: "submissions", label: "Property Submissions", count: stats.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : 0 },
     ];
     return candidates.filter((task) => task.count > 0);
   }, [stats]);
