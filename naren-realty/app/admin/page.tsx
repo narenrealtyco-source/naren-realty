@@ -154,17 +154,14 @@ export default function AdminDashboardPage() {
 
         {!loading && !error && stats && (
           <div className="grid min-w-0 gap-4 md:gap-5 md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]">
-            <div className="md:hidden">
-              <label htmlFor="admin-task-select" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Open admin module</label>
-              <select
-                id="admin-task-select"
-                value={selectedTask ?? "properties"}
-                onChange={(event) => setSelectedTask(event.target.value as TaskKey)}
-                className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold text-[#10243A] shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-              >
-                {tasks.map((task) => <option key={task.key} value={task.key}>{task.label}{typeof task.count === "number" ? ` · ${task.count}` : ""}</option>)}
-              </select>
-            </div>
+            <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
+              <p className="px-1 pb-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
+              <nav aria-label="Dashboard tasks" className="grid grid-cols-2 gap-2">
+                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${selectedTask === task.key ? "border-[#10243A] bg-[#10243A] text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50"}`}>
+                  <span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
+                </button>)}
+              </nav>
+            </aside>
 
             <aside className="hidden h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:block">
               <p className="px-2 pb-2 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
