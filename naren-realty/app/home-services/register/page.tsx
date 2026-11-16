@@ -39,7 +39,8 @@ async function Content() {
   }
   return <main className="min-h-screen bg-slate-50 p-4 sm:p-8"><div className="mx-auto max-w-2xl">
     <Link href="/home-services" className="text-sm font-semibold underline">← Home Services</Link>
-    <h1 className="mb-5 mt-5 text-3xl font-bold text-[#10243A]">Join our service network</h1>
+    <h1 className="mb-3 mt-5 text-3xl font-bold text-[#10243A]">Join our service network</h1>
+    <p className="mb-5 rounded-xl border border-[#E8E1D6] bg-white px-4 py-3 text-sm leading-6 text-slate-600">A NAREN REALTY account is required to submit an application. <Link href="/account#login" className="font-semibold text-[#10243A] underline underline-offset-2">Sign in or create an account</Link> first, then complete the form below.</p>
     {failed ? <p role="alert">Categories could not be loaded. Please try again later.</p> : <VendorApplicationForm categories={categories} ready={ready} />}
   </div></main>;
 }
