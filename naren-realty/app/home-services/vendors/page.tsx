@@ -116,8 +116,8 @@ async function VendorCategoryContent({
         ) : (
           <section className="mt-5 grid gap-4 sm:grid-cols-2">
             {vendors.map((vendor) => {
-              const cleanDescription = vendor.description.replace(/service\s+partner\\s+application/gi, "").replace(/\\s{2,}/g, " ").trim();
-              const cleanServices = vendor.services.replace(/service\s+partner\\s+application/gi, "").replace(/\\s{2,}/g, " ").trim();
+              const cleanDescription = vendor.description.replace(/service\s+partner\s+application/gi, "").replace(/\s{2,}/g, " ").trim();
+              const cleanServices = vendor.services.replace(/service\s+partner\s+application/gi, "").replace(/\s{2,}/g, " ").trim();
               const photos = [vendor.profile_image_url, ...(Array.isArray(vendor.gallery_urls) ? vendor.gallery_urls : [])]
                 .filter((photo): photo is string => typeof photo === "string" && photo.trim().length > 0);
               const detailHref = `/home-services/vendors/${vendor.id}`;
