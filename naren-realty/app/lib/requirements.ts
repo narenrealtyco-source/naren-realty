@@ -44,7 +44,7 @@ export function validateMatch(form: FormData) {
   if (min_budget !== null && max_budget !== null && min_budget > max_budget) throw new Error("Minimum budget cannot exceed maximum budget.");
   const date = text(form, "move_in_date", 10, false);
   if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date)) throw new Error("Choose a valid date.");
-  return { purpose, category, location: text(form, "location", 120), bedrooms: bedroomsValue ? Number(bedroomsValue) : null, min_budget, max_budget, move_in_date: date || null, details: text(form, "details", 2000, false), customer_name: text(form, "customer_name", 120), phone: phone(form) };
+  return { purpose, category, location: text(form, "location", 120), bedrooms: bedroomsValue ? Number(bedroomsValue) : null, min_budget, max_budget, move_in_date: date || null, details: JSON.stringify({ narenRequirement: 1, clientType, bhkChoice: bhkChoice || "Any", furnishingChoice, notes: text(form, "notes", 1600, false) }), customer_name: text(form, "customer_name", 120), phone: phone(form) };
 }
 export function validateLoan(form: FormData) {
   const loan_type_id = text(form, "loan_type_id", 36);
