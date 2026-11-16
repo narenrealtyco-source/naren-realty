@@ -8,7 +8,7 @@ alter table public.properties
   add constraint properties_status_check
   check (status in ('pending', 'approved', 'rejected', 'deleting'));
 
-create or replace function public.claim_rejected_property_deletion(p_property_id uuid)
+create or replace function private.claim_rejected_property_deletion(p_property_id uuid)
 returns table(property_id uuid, owner_id uuid, storage_paths text[])
 language plpgsql
 security definer
@@ -110,7 +110,7 @@ begin
 end;
 $$;
 
-create or replace function public.finalize_rejected_property_deletion(p_property_id uuid)
+create or replace function private.finalize_rejected_property_deletion(p_property_id uuid)
 returns void
 language plpgsql
 security definer
@@ -168,6 +168,32 @@ begin
   end if;
 end;
 $$;
+
+-- Keep SECURITY DEFINER implementations in the non-exposed private schema.
+revoke all on function private.claim_rejected_property_deletion(uuid) from public, anon, service_role;
+revoke all on function private.finalize_rejected_property_deletion(uuid) from public, anon, service_role;
+grant usage on schema private to authenticated;
+grant execute on function private.claim_rejected_property_deletion(uuid) to authenticated;
+grant execute on function private.finalize_rejected_property_deletion(uuid) to authenticated;
+
+-- Public PostgREST wrappers are SECURITY INVOKER; authorization is enforced by private functions.
+create or replace function public.claim_rejected_property_deletion(p_property_id uuid)
+returns table(property_id uuid, owner_id uuid, storage_paths text[])
+language sql
+security invoker
+set search_path = ''
+as $
+  select * from private.claim_rejected_property_deletion(p_property_id);
+$;
+
+create or replace function public.finalize_rejected_property_deletion(p_property_id uuid)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $
+  select private.finalize_rejected_property_deletion(p_property_id);
+$;
 
 revoke all on function public.claim_rejected_property_deletion(uuid) from public, anon, service_role;
 revoke all on function public.finalize_rejected_property_deletion(uuid) from public, anon, service_role;
