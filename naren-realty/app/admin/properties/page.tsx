@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
 import InstagramPostPanel from "./InstagramPostPanel";
+import DeleteRejectedPropertyButton from "./DeleteRejectedPropertyButton";
 import {
   approveAdminProperty,
   loadAdminProperties,
@@ -65,7 +66,7 @@ export default function AdminPropertiesPage() {
     queueMicrotask(() => {
       if (!active) return;
       const requestedStatus = new URLSearchParams(window.location.search).get("status")?.toLowerCase();
-      if (requestedStatus && ["pending", "pending approval", "approved", "rejected"].includes(requestedStatus)) {
+      if (requestedStatus && ["pending", "pending approval", "approved", "rejected", "deleting"].includes(requestedStatus)) {
         setStatusFilter(requestedStatus);
       }
     });
@@ -177,8 +178,9 @@ export default function AdminPropertiesPage() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {typeof property.details === "object" && property.details !== null && "adminDirect" in property.details && property.details.adminDirect === true && <Link href={`/admin/properties/${property.id}/edit`} className="rounded-md border border-slate-400 px-4 py-2 text-sm font-semibold">Edit</Link>}
-                      {property.status !== "approved" && <button disabled={busyId === property.id} onClick={() => void review(property, "approved")} className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Publish / Approve</button>}
-                      {property.status !== "rejected" && <button disabled={busyId === property.id} onClick={() => void review(property, "rejected")} className="rounded-md border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 disabled:opacity-60">{property.status === "approved" ? "Unpublish" : "Reject"}</button>}
+                      {property.status !== "approved" && property.status !== "deleting" && <button disabled={busyId === property.id} onClick={() => void review(property, "approved")} className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Publish / Approve</button>}
+                      {property.status !== "rejected" && property.status !== "deleting" && <button disabled={busyId === property.id} onClick={() => void review(property, "rejected")} className="rounded-md border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 disabled:opacity-60">{property.status === "approved" ? "Unpublish" : "Reject"}</button>}
+                      {(property.status === "rejected" || property.status === "deleting") && <DeleteRejectedPropertyButton id={property.id} retry={property.status === "deleting"} /> }
                     </div>
                   </div>
                   {property.status.toLowerCase() === "approved" && property.category.toLowerCase() === "resale" && Array.isArray(property.photos) && typeof property.photos[0] === "string" && (
