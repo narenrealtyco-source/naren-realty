@@ -33,6 +33,8 @@ type Vendor = {
   verified: boolean;
   profile_image_url: string | null;
   gallery_urls: string[];
+  opening_time: string | null;
+  closing_time: string | null;
 };
 
 export default function VendorsPage({
@@ -62,7 +64,7 @@ async function VendorCategoryContent({
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("service_vendors")
-      .select("id,public_name,business_name,services,description,city,locality,verified,profile_image_url,gallery_urls,service_categories!inner(name,slug,active)")
+      .select("id,public_name,business_name,services,description,city,locality,verified,profile_image_url,gallery_urls,opening_time,closing_time,service_categories!inner(name,slug,active)")
       .eq("active", true)
       .eq("service_categories.active", true)
       .eq("service_categories.slug", slug)
@@ -121,6 +123,11 @@ async function VendorCategoryContent({
               const photos = [vendor.profile_image_url, ...(Array.isArray(vendor.gallery_urls) ? vendor.gallery_urls : [])]
                 .filter((photo): photo is string => typeof photo === "string" && photo.trim().length > 0);
               const detailHref = `/home-services/vendors/${vendor.id}`;
+              const opening = vendor.opening_time?.slice(0, 5) ?? null;
+              const closing = vendor.closing_time?.slice(0, 5) ?? null;
+              const now = new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false });
+              const isOpen = opening && closing ? (closing > opening ? now >= opening && now < closing : now >= opening || now < closing) : null;
+              const servicesList = cleanServices.split(",").map((item) => item.trim()).filter(Boolean);
               return (
                 <article key={vendor.id} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-[#E9D8B5] bg-white shadow-[0_8px_28px_rgba(64,47,20,0.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(64,47,20,0.13)]">
                   <div className="relative h-52 w-full shrink-0 overflow-hidden bg-[#FCFAF5] sm:h-60">
@@ -138,15 +145,22 @@ async function VendorCategoryContent({
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
                     <div className="min-w-0">
-                      <h2 className="text-xl font-extrabold tracking-tight text-[#243142]">{vendor.public_name}</h2>
-                      <p className="mt-1 text-sm font-medium text-slate-500">{vendor.business_name}</p>
+                      <p className="text-sm font-medium text-slate-500">{vendor.public_name}</p>
+                      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                        <h2 className="text-2xl font-extrabold tracking-tight text-[#10243A]">{vendor.business_name}</h2>
+                        <span className="rounded-full bg-[#F4F0E7] px-3 py-1.5 text-xs font-semibold text-[#10243A]">⌖ {vendor.locality}, {vendor.city}</span>
+                      </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-2 rounded-full bg-[#FBF6EA] px-3 py-1.5 text-xs font-semibold text-[#896329]"><span aria-label="No ratings yet" className="tracking-[0.12em] text-[#B58A45]">☆☆☆☆☆</span><span className="text-slate-600">Not rated yet</span></span>
                     </div>
-                    <div className="mt-4 rounded-2xl bg-[#FCFAF5] p-4">
-                      <p className="text-xs font-bold uppercase tracking-wide text-[#896329]">Services offered</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">{cleanServices}</p>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E8E1D6] bg-[#F8F9FA] p-4">
+                      <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Shop timings</p><p className="mt-1 text-sm font-bold text-[#10243A]">{opening && closing ? opening + " – " + closing : "Timing not provided"}</p></div>
+                      <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${isOpen === null ? "bg-slate-200 text-slate-600" : isOpen ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{isOpen === null ? "Hours unavailable" : isOpen ? "● Open Now" : "● Closed"}</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl bg-[#F8F9FA] p-4">
+                      <p className="text-xs font-bold uppercase tracking-wide text-[#10243A]">Services offered</p>
+                      <div className="mt-3 flex flex-wrap gap-2">{servicesList.map((service, index) => <span key={service + index} className="rounded-full border border-[#D8C49F] bg-white px-3 py-2 text-xs font-semibold text-[#33465A]">{service}</span>)}</div>
                     </div>
                     {cleanDescription ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">{cleanDescription}</p> : null}
                     <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500"><span aria-hidden="true" className="text-[#B58A45]">⌖</span>{vendor.locality}, {vendor.city}</p>
