@@ -16,7 +16,7 @@ function application() {
 }
 function enquiry() {
   const form = new FormData();
-  for (const [key, value] of Object.entries({ vendor_id: id, customer_name: "Customer", mobile: "9876543210", message: "Help", customer_id: "forged", status: "completed" })) form.set(key, value);
+  for (const [key, value] of Object.entries({ vendor_id: id, customer_name: "Customer", mobile: "9876543210", locality: "Wakad", full_address: "Wakad, Pune", message: "Help", contact_consent: "on", customer_id: "forged", status: "completed" })) form.set(key, value);
   return form;
 }
 function actions({ ready = true, user = { id: "verified" }, error = null } = {}) {
@@ -162,4 +162,23 @@ test("category removal requires admin, confirms deletion and preserves reference
     assert.match(result.message, message);
     assert.equal(calls.length, admin ? 1 : 0);
   }
+});
+
+
+test("new enquiry form requires contact consent and complete address details", () => {
+  const form = enquiry();
+  assert.equal(marketplace.validateVendorEnquiry(form).contact_consent, true);
+  for (const [key, value] of [["contact_consent", "off"], ["locality", " "], ["full_address", " "], ["mobile", "bad"]]) {
+    const invalid = enquiry(); invalid.set(key, value);
+    assert.throws(() => marketplace.validateVendorEnquiry(invalid));
+  }
+});
+
+test("lead unlock migration stores personal contact privately and masks public enquiry data", async () => {
+  const sql = await readFile(new URL("../supabase/migrations/20261116121500_secure_vendor_lead_unlock_and_category_pricing.sql", import.meta.url), "utf8");
+  assert.match(sql, /private\.vendor_enquiry_contacts/);
+  assert.match(sql, /get_unlocked_vendor_lead_contact/);
+  assert.match(sql, /admin_list_vendor_lead_contacts/);
+  assert.match(sql, /set customer_name = 'Locked lead'/);
+  assert.match(sql, /lead_unlock_price/);
 });
