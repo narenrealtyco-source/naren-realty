@@ -14,7 +14,7 @@ export function MatchDashboard({ requirements, properties, visitsReady }: { requ
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("");
   const filtered = requirements.filter((r) => (!purpose || r.purpose === purpose) && (!category || r.category === category) && (!location || r.location.toLowerCase().includes(location.trim().toLowerCase())) && (!budget || (r.max_budget !== null && Number(r.max_budget) <= Number(budget))));
-  return <section className="mt-6"><h2 className="text-xl font-bold">Your requirements</h2>
+  return <section className="mt-8"><PublicPropertyBrowser properties={properties} visitsReady={visitsReady} /><div className="mt-10"><h2 className="text-xl font-bold text-[#7A5A27]">Your posted requirements</h2>
     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
       <label className="text-sm">Purpose<select className={input} value={purpose} onChange={(e) => setPurpose(e.target.value)}><option value="">All</option><option>Buy</option><option>Rent</option></select></label>
       <label className="text-sm">Category<select className={input} value={category} onChange={(e) => setCategory(e.target.value)}><option value="">All</option><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
