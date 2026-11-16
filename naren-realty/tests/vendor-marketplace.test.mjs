@@ -184,22 +184,3 @@ test("lead unlock migration stores personal contact privately and masks public e
   assert.match(sql, /set customer_name = 'Locked lead'/);
   assert.match(sql, /lead_unlock_price/);
 });
-
-
-test("new enquiry form requires contact consent and complete address details", () => {
-  const form = enquiry();
-  assert.equal(marketplace.validateVendorEnquiry(form).contact_consent, true);
-  for (const [key, value] of [["contact_consent", "off"], ["locality", " "], ["full_address", " "], ["mobile", "bad"]]) {
-    const invalid = enquiry(); invalid.set(key, value);
-    assert.throws(() => marketplace.validateVendorEnquiry(invalid));
-  }
-});
-
-test("lead unlock migration stores personal contact privately and masks public enquiry data", async () => {
-  const sql = await readFile(new URL("../supabase/migrations/20261116121500_secure_vendor_lead_unlock_and_category_pricing.sql", import.meta.url), "utf8");
-  assert.match(sql, /private\\.vendor_enquiry_contacts/);
-  assert.match(sql, /get_unlocked_vendor_lead_contact/);
-  assert.match(sql, /admin_list_vendor_lead_contacts/);
-  assert.match(sql, /set customer_name = 'Locked lead'/);
-  assert.match(sql, /lead_unlock_price/);
-});
