@@ -20,12 +20,12 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   const closing = data.closing_time as string | null;
   const now = new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false });
   const openNow = opening && closing ? (closing.slice(0, 5) > opening.slice(0, 5) ? now >= opening.slice(0, 5) && now < closing.slice(0, 5) : now >= opening.slice(0, 5) || now < closing.slice(0, 5)) : null;
-  const serviceChips = data.services.split(",").map((item) => item.trim()).filter(Boolean);
+  const serviceChips: string[] = String(data.services ?? "").split(",").map((item: string) => item.trim()).filter(Boolean);
   return <main className="min-h-screen bg-slate-50 p-4 sm:p-8"><div className="mx-auto max-w-3xl">
     <Link href="/home-services/vendors" className="text-sm font-semibold underline">← Providers</Link>
     <p className="mt-5 text-sm text-slate-500">{data.public_name}</p><h1 className="mt-1 text-3xl font-bold text-[#10243A]">{data.business_name}</h1>
     <p className="mt-2 text-slate-600">{data.locality}, {data.city}</p>
-    <div className="mt-4 rounded-xl border border-[#E8E1D6] bg-white p-4"><p className="text-xs font-bold uppercase text-slate-500">Shop timings</p><p className="mt-1 font-semibold text-[#10243A]">{opening && closing ? opening.slice(0,5) + " – " + closing.slice(0,5) : "Timing not provided"}</p><p className="mt-1 text-sm font-semibold">{openNow === null ? "Hours unavailable" : openNow ? "Open Now" : "Closed"}</p></div><div className="mt-4 flex flex-wrap gap-2">{serviceChips.map((service,index) => <span key={service + index} className="rounded-full border border-[#D8C49F] bg-white px-3 py-2 text-sm text-[#33465A]">{service}</span>)}</div><p className="mb-6 mt-3 whitespace-pre-wrap text-slate-700">{data.description}</p>
+    <div className="mt-4 rounded-xl border border-[#E8E1D6] bg-white p-4"><p className="text-xs font-bold uppercase text-slate-500">Shop timings</p><p className="mt-1 font-semibold text-[#10243A]">{opening && closing ? opening.slice(0,5) + " – " + closing.slice(0,5) : "Timing not provided"}</p><p className="mt-1 text-sm font-semibold">{openNow === null ? "Hours unavailable" : openNow ? "Open Now" : "Closed"}</p></div><div className="mt-4 flex flex-wrap gap-2">{serviceChips.map((service: string,index: number) => <span key={service + index} className="rounded-full border border-[#D8C49F] bg-white px-3 py-2 text-sm text-[#33465A]">{service}</span>)}</div><p className="mb-6 mt-3 whitespace-pre-wrap text-slate-700">{data.description}</p>
     <VendorEnquiryForm vendorId={data.id} ready />
   </div></main>;
 }
