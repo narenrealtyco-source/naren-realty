@@ -1,4 +1,4 @@
-export type MarketplaceCategory = { id: string; name: string; slug: string; active: boolean };
+export type MarketplaceCategory = { id: string; name: string; slug: string; active: boolean; lead_unlock_price?: number };
 export type PublicVendor = {
   id: string;
   category_id: string;
