@@ -112,23 +112,23 @@ async function VendorCategoryContent({
           </section>
         ) : (
           <section className="mt-5 grid gap-4 sm:grid-cols-2">
-            {vendors.map((vendor) => (
-              <article key={vendor.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#10243A]">{vendor.public_name}</h2>
-                    <p className="mt-1 text-sm font-medium text-slate-600">{vendor.business_name}</p>
+            {vendors.map((vendor) => {
+              const cleanDescription = vendor.description.replace(/service\s+partner\s+application/gi, "").replace(/\s{2,}/g, " ").trim();
+              return (
+                <article key={vendor.id} className="group relative overflow-hidden rounded-3xl border border-[#E9D8B5] bg-white p-5 shadow-[0_8px_28px_rgba(64,47,20,0.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(64,47,20,0.13)] sm:p-6">
+                  <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#B58A45] via-[#E8D3A5] to-[#B58A45]" />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A27A39]">{categoryName} Professional</p><h2 className="mt-2 text-xl font-extrabold tracking-tight text-[#243142]">{vendor.public_name}</h2><p className="mt-1 text-sm font-medium text-slate-500">{vendor.business_name}</p></div>
+                    {vendor.verified ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E7D4AA] bg-[#FBF6EA] px-3 py-1.5 text-[11px] font-bold text-[#896329]"><span aria-hidden="true">✓</span> Verified</span> : null}
                   </div>
-                  {vendor.verified ? <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">Verified</span> : null}
-                </div>
-                <p className="mt-3 text-sm text-slate-700">{vendor.services}</p>
-                <p className="mt-2 line-clamp-3 text-sm text-slate-500">{vendor.description}</p>
-                <p className="mt-3 text-xs font-semibold text-slate-500">{vendor.locality}, {vendor.city}</p>
-                <Link href={`/home-services/vendors/${vendor.id}`} className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#176B45] px-4 text-sm font-bold text-white">
-                  View details & enquire
-                </Link>
-              </article>
-            ))}
+                  <div className="mt-4 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-2 rounded-full bg-[#FBF6EA] px-3 py-1.5 text-xs font-semibold text-[#896329]"><span aria-label="No ratings yet" className="tracking-[0.12em] text-[#B58A45]">☆☆☆☆☆</span><span className="text-slate-600">Not rated yet</span></span><span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600">NAREN REALTY listed</span></div>
+                  <div className="mt-4 rounded-2xl bg-[#FCFAF5] p-4"><p className="text-xs font-bold uppercase tracking-wide text-[#896329]">Services offered</p><p className="mt-2 text-sm leading-6 text-slate-700">{vendor.services}</p></div>
+                  {cleanDescription ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">{cleanDescription}</p> : null}
+                  <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500"><span aria-hidden="true" className="text-[#B58A45]">⌖</span>{vendor.locality}, {vendor.city}</p>
+                  <Link href={`/home-services/vendors/${vendor.id}`} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B58A45] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#9E7537] focus:outline-none focus:ring-2 focus:ring-[#B58A45] focus:ring-offset-2">View details & enquire <span aria-hidden="true">→</span></Link>
+                </article>
+              );
+            })}
           </section>
         )}
       </div>
