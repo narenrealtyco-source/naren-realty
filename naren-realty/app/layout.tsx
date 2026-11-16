@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://naren-realty-fw7y.vercel.app"),
   title: "NAREN REALTY",
   description: "Find properties and accommodation with NAREN REALTY.",
   applicationName: "NAREN REALTY",
