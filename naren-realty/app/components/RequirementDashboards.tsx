@@ -5,7 +5,7 @@ import LocalityAutocomplete from "./LocalityAutocomplete";
 import type { PropertyListing } from "../lib/properties";
 import { matchesRequirement, type MatchRequirement } from "../lib/requirements";
 import PropertyCard from "./PropertyCard";
-import { CloseMatchForm } from "./RequirementForms";
+import { CloseMatchForm, MatchForm } from "./RequirementForms";
 
 const input = "mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base";
 export function MatchDashboard({ requirements, properties, visitsReady }: { requirements: MatchRequirement[]; properties: PropertyListing[]; visitsReady: boolean }) {
