@@ -14,7 +14,7 @@ async function Content() {
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
   try { ({ supabase } = await requireAdmin()); } catch { return <main className="p-5"><p role="alert">Admin authorization is required.</p><Link className="underline" href="/admin/login">Admin login</Link></main>; }
   if (!requirementsReady()) return <main className="p-5"><Link href="/admin" className="underline">Admin dashboard</Link><h1 className="mt-4 text-2xl font-bold">Requirements</h1><p role="status" className="mt-3">Requirements are unavailable until secure database setup is verified.</p></main>;
-  const [matches, loans, followups, loanFollowups, loanTypes] = await Promise.all([
+  const [matches, loans, loanFollowups, loanTypes] = await Promise.all([
     supabase.from("property_requirements").select("*").order("created_at", { ascending: false }).limit(100),
     supabase.from("loan_requirements").select("*,loan_types(name)").order("created_at", { ascending: false }).limit(100),
     supabase.from("loan_requirement_followups").select("requirement_id,assigned_to,remarks").limit(1000),
