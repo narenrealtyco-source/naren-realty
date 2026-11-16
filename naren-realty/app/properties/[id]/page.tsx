@@ -1,65 +1,67 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getApprovedPropertiesFromSupabase } from "../../lib/supabase-properties";
 import PropertyDetailClient from "./PropertyDetailClient";
+import { getApprovedPropertiesFromSupabase } from "../../lib/supabase-properties";
 
-const siteUrl = "https://naren-realty-fw7y.vercel.app";
-
-function formatPrice(price: number, type: string): string {
-  const amount = `₹${price.toLocaleString("en-IN")}`;
-  if (type === "Rental") return `${amount} per month`;
-  if (type === "PG") return `${amount} per person / month`;
-  if (type === "Airbnb") return `${amount} per night`;
-  return amount;
-}
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\/$/, "");
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  const canonicalUrl = `${siteUrl}/properties/${encodeURIComponent(id)}`;
+
   try {
     const listings = await getApprovedPropertiesFromSupabase();
     const listing = listings.find((item) => item.id === id);
     if (!listing) {
       return {
-        title: "Property not available | NAREN REALTY",
-        description: "View verified property listings on NAREN REALTY.",
-        robots: { index: false, follow: false },
+        title: "Property | NAREN REALTY",
+        description: "Explore verified property listings with NAREN REALTY.",
+        alternates: { canonical: canonicalUrl },
+        openGraph: {
+          type: "website",
+          url: canonicalUrl,
+          siteName: "NAREN REALTY",
+          title: "Property | NAREN REALTY",
+          description: "Explore verified property listings with NAREN REALTY.",
+        },
       };
     }
 
-    const title = `${listing.title} | ${listing.type} in ${listing.locality}`;
-    const description = [
-      listing.type === "Resale" ? "For sale" : listing.type === "Rental" ? "For rent" : listing.type,
-      formatPrice(listing.price, listing.type),
-      listing.locality,
-      listing.bedrooms > 0 ? `${listing.bedrooms} BHK` : "",
-      "View photos and details on NAREN REALTY.",
-    ].filter(Boolean).join(" · ");
-    const url = `${siteUrl}/properties/${encodeURIComponent(listing.id)}`;
+    const price = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(listing.price);
+    const priceLabel = listing.type === "Rental" ? `${price}/month`
+      : listing.type === "PG" ? `${price}/person/month`
+      : listing.type === "Airbnb" ? `${price}/night` : price;
+    const description = [listing.description?.trim(), listing.locality, priceLabel, "NAREN REALTY"]
+      .filter(Boolean).join(" · ").slice(0, 300);
+    const title = `${listing.title} | ${listing.locality} | NAREN REALTY`;
     const image = listing.photos.find((photo) => /^https:\/\//i.test(photo));
+    const imageUrl = image || `${siteUrl}/social/property-share.jpg`;
+
     return {
       title,
       description,
-      alternates: { canonical: url },
+      alternates: { canonical: canonicalUrl },
       openGraph: {
         type: "website",
+        url: canonicalUrl,
         siteName: "NAREN REALTY",
         title,
         description,
-        url,
-        ...(image ? { images: [{ url: image, alt: listing.title }] } : {}),
+        images: [{ url: imageUrl, width: 1200, height: 630, alt: listing.title }],
       },
       twitter: {
-        card: image ? "summary_large_image" : "summary",
+        card: "summary_large_image",
         title,
         description,
-        ...(image ? { images: [image] } : {}),
+        images: [imageUrl],
       },
     };
   } catch (error) {
-    console.error("[property-metadata] Could not load property metadata", error);
+    console.error("[property-metadata] Could not load listing metadata", error);
     return {
-      title: "Property details | NAREN REALTY",
-      description: "View property photos, pricing and details on NAREN REALTY.",
+      title: "Property | NAREN REALTY",
+      description: "Explore verified property listings with NAREN REALTY.",
+      alternates: { canonical: canonicalUrl },
     };
   }
 }
