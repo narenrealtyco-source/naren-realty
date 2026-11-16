@@ -33,10 +33,18 @@ export async function enquireVendor(_state: VendorState, form: FormData): Promis
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Please sign in to send an enquiry." };
-  const { error } = await supabase.from("vendor_enquiries").insert(input);
+  const { error } = await supabase.rpc("submit_vendor_enquiry", {
+    p_vendor_id: input.vendor_id,
+    p_customer_name: input.customer_name,
+    p_mobile: input.mobile,
+    p_locality: input.locality,
+    p_full_address: input.full_address,
+    p_message: input.message,
+    p_contact_consent: input.contact_consent,
+  });
   if (error) {
     console.error("[vendor] Enquiry failed", { code: error.code });
-    return { status: "error", message: "Your enquiry could not be saved. The vendor may no longer be available." };
+    return { status: "error", message: "Your enquiry could not be saved. The provider may no longer be available." };
   }
-  return { status: "success", message: "Your enquiry was received. Our team will review it." };
+  return { status: "success", message: "Your enquiry was received. Your contact details stay private until the lead is securely unlocked by the provider." };
 }
