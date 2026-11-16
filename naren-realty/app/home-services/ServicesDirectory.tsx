@@ -51,9 +51,9 @@ export default function ServicesDirectory({ initialCategory, initialVendors }: {
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#10243A] sm:text-3xl">Home Services</h1>
             <p className="mt-1 hidden text-sm text-slate-600 sm:block">Find trusted professionals for your home.</p>
           </div>
-          <Link href="/home-services/register" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#176B45] px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#125638] sm:px-5 sm:text-sm">
+          <div className="flex shrink-0 items-center gap-2"><Link href="/home-services/partner" className="text-xs font-semibold text-[#176B45] underline sm:text-sm">Partner Login</Link><Link href="/home-services/register" className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-[#176B45] px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#125638] sm:px-5 sm:text-sm">
             <span aria-hidden="true">＋</span><span className="hidden sm:inline">Apply as Service Provider</span><span className="sm:hidden">Apply</span>
-          </Link>
+          </Link></div>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
