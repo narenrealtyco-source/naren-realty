@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import MobileBottomNav from "./components/MobileBottomNav";
+import InstallAppPrompt from "./components/InstallAppPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -45,7 +46,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}<Suspense><MobileBottomNav /></Suspense></body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Suspense><MobileBottomNav /></Suspense>
+        <InstallAppPrompt />
+      </body>
     </html>
   );
 }
