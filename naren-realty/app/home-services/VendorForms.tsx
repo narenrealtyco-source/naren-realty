@@ -74,6 +74,9 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
           <label className={label}>Business Contact Number<input name="mobile" className={input} type="tel" autoComplete="tel" maxLength={13} placeholder="10-digit mobile number" required /></label>
           <label className={label}>Email <span className="font-normal text-slate-400">(optional)</span><input name="email" className={input} type="email" autoComplete="email" maxLength={254} placeholder="you@example.com" /></label>
           <div><label className={label}>Operating City<input name="city" className={input} maxLength={100} defaultValue="Pune" required /></label></div>
+          <label className={label}>Shop Opening Time (optional)<input name="opening_time" className={input} type="time" /></label>
+          <label className={label}>Shop Closing Time (optional)<input name="closing_time" className={input} type="time" /></label>
+          <p className="text-xs text-slate-500 sm:col-span-2">Enter both timings to display your shop's daily Open / Closed status.</p>
         </div>
       </section>
 
