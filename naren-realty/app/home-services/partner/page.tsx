@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "../../lib/supabase-server";
 
+// This authenticated dashboard depends on the request's Supabase session.
+// Render it at request time instead of trying to prerender it during build.
+export const instant = false;
+
+
 type Lead = { id: string; vendor_id: string; status: string; payment_status: string; payment_reference: string | null; created_at: string };
 type Contact = { customer_name: string; mobile: string; full_address: string; locality: string; message: string };
 
