@@ -223,8 +223,8 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
   const photos = Array.isArray(listing.photos) ? listing.photos.filter((photo) => typeof photo === "string" && photo.trim()) : [];
   const detailHref = `/properties/${encodeURIComponent(listing.id)}`;
 
-  return <article className="flex h-full min-h-[205px] min-w-0 flex-row overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg sm:min-h-[250px]">
-    <div className="relative min-h-[205px] w-[35%] shrink-0 bg-slate-100 sm:min-h-[250px] sm:w-[39%]">
+  return <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg">
+    <div className="relative h-[220px] w-full shrink-0 bg-slate-100 sm:h-[280px]">
       <Link href={detailHref} aria-label={`View ${listing.title}`} className="absolute inset-0 overflow-hidden">
         {photos[0] && !photoFailed
           ? <Image src={photos[0]} alt={listing.title} fill sizes="(max-width: 639px) 36vw, 40vw" unoptimized loading="lazy" decoding="async" onError={() => setPhotoFailed(true)} className="object-cover transition-transform duration-300 hover:scale-[1.03]" />
@@ -236,7 +236,7 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
       <div className="absolute right-2 top-2"><FavoriteButton propertyId={listing.id} title={listing.title} locality={listing.locality} type={category} price={price ?? ""} bedrooms={listing.bedrooms || undefined} /></div>
     </div>
 
-    <div className="flex min-w-0 flex-1 flex-col p-1.5 min-[390px]:p-2 sm:gap-0.5 sm:p-3 lg:p-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4 sm:gap-2 sm:p-5 lg:p-6">
       <div className="flex min-w-0 items-start gap-1">
         <p className="mt-0.5 w-fit max-w-[42%] shrink-0 rounded-full bg-[#10243A] px-1.5 py-0.5 text-[8px] font-bold leading-tight text-amber-300 sm:px-2 sm:text-[9px]">{category}</p>
         <h3 className="min-w-0 break-words text-[12px] font-bold leading-tight text-[#10243A] sm:text-base"><Link href={detailHref} className="hover:text-amber-800">{listing.title}</Link></h3>
