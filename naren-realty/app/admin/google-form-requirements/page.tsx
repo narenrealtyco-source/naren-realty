@@ -1,7 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { requireAdmin } from "../../lib/supabase-server";
 
-export default async function GoogleFormRequirementsPage() {
+export default function GoogleFormRequirementsPage() {
+  return <Suspense fallback={<main className="p-6">Loading Google Form requirements…</main>}><GoogleFormRequirementsContent /></Suspense>;
+}
+
+async function GoogleFormRequirementsContent() {
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
   try { ({ supabase } = await requireAdmin()); }
   catch { return <main className="p-6"><p>Admin authorization is required.</p><Link href="/admin/login" className="underline">Admin login</Link></main>; }
