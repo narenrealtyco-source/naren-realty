@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { requireAdmin } from "../../lib/supabase-server";
 
-export default async function GoogleFormRequirementsPage() {
+async function GoogleFormRequirementsContent() {
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
   try { ({ supabase } = await requireAdmin()); }
   catch { return <main className="p-6"><p>Admin authorization is required.</p><Link href="/admin/login" className="underline">Admin login</Link></main>; }
@@ -23,4 +24,10 @@ export default async function GoogleFormRequirementsPage() {
       <p className="mt-4 text-xs text-slate-500">Tenant contact details are visible only inside the authenticated Admin area. Matching currently considers approved rental/resale listings, locality, budget and BHK where listing data is available.</p>
     </div>
   </main>;
+}
+
+export default function GoogleFormRequirementsPage() {
+  return <Suspense fallback={<main className="p-6 text-sm text-slate-600">Loading Google Form requirements…</main>}>
+    <GoogleFormRequirementsContent />
+  </Suspense>;
 }
