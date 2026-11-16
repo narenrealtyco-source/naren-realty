@@ -12,8 +12,14 @@ export async function GET(request: Request, context: { params: Promise<{ postId:
   try {
     const supabase = createSupabaseServiceClient();
     const { data: post, error } = await supabase.from("instagram_property_posts")
-      .select("image_path,status,media_token").eq("id", postId).eq("media_token", token).maybeSingle();
+      .select("property_id,image_path,status,media_token").eq("id", postId).eq("media_token", token).maybeSingle();
     if (error || !post || !["preview_ready", "publishing", "failed"].includes(post.status)) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+
+    const { data: property, error: propertyError } = await supabase.from("properties")
+      .select("status,category").eq("id", post.property_id).maybeSingle();
+    if (propertyError || !property || String(property.status).toLowerCase() !== "approved" || String(property.category).toLowerCase() !== "resale") {
       return new NextResponse("Not found", { status: 404 });
     }
 
