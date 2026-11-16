@@ -11,7 +11,7 @@ const button = "min-h-11 rounded-lg bg-[#10243A] px-4 py-3 text-sm font-bold tex
 function Result({ state }: { state: RequirementState }) { return state.message ? <p role={state.status === "error" ? "alert" : "status"} className="text-sm">{state.message}</p> : null; }
 function Notice({ ready }: { ready: boolean }) { return !ready ? <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-950">Secure database setup is pending. This form cannot save anything yet.</p> : null; }
 function ContactFields({ email = false }: { email?: boolean }) {
-  return <><label className={label}>Name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label><label className={label}>Phone number<input name="phone" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>{email && <label className={label}>Email (optional)<input name="email" className={input} type="email" autoComplete="email" maxLength={254} />}</label></>;
+  return <><label className={label}>Name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label><label className={label}>Phone number<input name="phone" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>{email && <label className={label}>Email (optional)<input name="email" className={input} type="email" autoComplete="email" maxLength={254} /></label>}</>;
 }
 export function MatchForm({ ready }: { ready: boolean }) {
   const [state, action, pending] = useActionState(submitRequirement.bind(null, "match"), initial);
