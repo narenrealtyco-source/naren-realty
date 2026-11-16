@@ -81,10 +81,11 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     .update({ status: "publishing", caption, last_error: null }).eq("id", postId)
     .in("status", ["preview_ready", "failed"]).select("id").maybeSingle();
   if (lockError || !locked) throw new Error("Could not reserve this post for publishing. Refresh and try again.");
-  const base = `https://graph.instagram.com/${version}`;
-  let confirmedMediaId: string | null = null;
+  const base = `https://${graphHost}/${version}`;
+  let publishAttempted = false;
   try {
-    let containerId = post.container_id as string | null;
+    // A failed/expired container is never reused on a retry.
+    let containerId: string | null = post.status === "failed" ? null : (post.container_id as string | null);
     if (!containerId) {
       const form = new URLSearchParams({
         image_url: (process.env.NEXT_PUBLIC_SITE_URL || "https://naren-realty-fw7y.vercel.app").replace(/\/$/, "") + "/api/instagram/media/" + post.id + "?token=" + encodeURIComponent(post.media_token),
@@ -112,6 +113,7 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     if (!ready) throw new Error("Instagram image is still processing. Retry from Admin after a short wait.");
 
     const publishForm = new URLSearchParams({ creation_id: containerId, access_token: token });
+    publishAttempted = true;
     const publishResponse = await fetch(`${base}/${accountId}/media_publish`, { method: "POST", body: publishForm, cache: "no-store" });
     const published = await publishResponse.json() as { id?: string; error?: { message?: string } };
     if (!publishResponse.ok || !published.id) throw new Error(published.error?.message || "Instagram did not confirm publication.");
@@ -119,15 +121,24 @@ export async function publishInstagramPreview(postId: string, captionInput: stri
     const permalinkResponse = await fetch(`${base}/${published.id}?fields=permalink&access_token=${encodeURIComponent(token)}`, { cache: "no-store" });
     const media = await permalinkResponse.json() as { permalink?: string };
     const permalink = media.permalink ?? null;
-    const { error: updateError } = await supabase.from("instagram_property_posts")
+    const { error: updateError } = await journal.from("instagram_property_posts")
       .update({ status: "published", ig_media_id: published.id, permalink, published_at: new Date().toISOString(), last_error: null })
       .eq("id", postId);
-    if (updateError) throw new Error("Instagram published the post, but the Admin status could not be saved. Do not republish; contact support.");
+    if (updateError) throw new Error("Instagram confirmed publication, but saving the result failed. The post remains locked to prevent duplicate publishing; verify Instagram before any manual recovery.");
     revalidatePath("/admin/properties");
     return { permalink };
   } catch (error) {
     const message = cleanError(error);
-    await supabase.from("instagram_property_posts").update({ status: "failed", last_error: message }).eq("id", postId);
+    // Once media_publish has been sent, a network/timeout failure can have an
+    // unknown outcome. Keep the row locked for manual verification; never offer
+    // an automatic retry that could create a duplicate post.
+    if (!publishAttempted) {
+      await journal.from("instagram_property_posts")
+        .update({ status: "failed", container_id: null, last_error: message }).eq("id", postId);
+    } else {
+      await journal.from("instagram_property_posts")
+        .update({ status: "publishing", last_error: "Publication outcome is unconfirmed. Check the Instagram account before retrying." }).eq("id", postId);
+    }
     revalidatePath("/admin/properties");
     throw new Error(message);
   }
