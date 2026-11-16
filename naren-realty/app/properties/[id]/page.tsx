@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const description = [listing.description?.trim(), listing.locality, priceLabel, "NAREN REALTY"]
       .filter(Boolean).join(" · ").slice(0, 300);
     const title = `${listing.title} | ${listing.locality} | NAREN REALTY`;
-    const image = listing.photos.find((photo) => /^https:\/\//i.test(photo));
-    const imageUrl = image || `${siteUrl}/social/property-share.jpg`;
+    const image = listing.photos.find((photo) => typeof photo === "string" && photo.trim());
+    const imageUrl = image ? new URL(image, siteUrl).toString() : `${siteUrl}/opengraph-image`;
 
     return {
       title,
