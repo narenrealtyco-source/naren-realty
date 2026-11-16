@@ -13,7 +13,7 @@ returns table(property_id uuid, owner_id uuid, storage_paths text[])
 language plpgsql
 security definer
 set search_path = ''
-as $$$
+as $$
 declare
   v_actor uuid := auth.uid();
   v_property public.properties%rowtype;
@@ -115,7 +115,7 @@ returns void
 language plpgsql
 security definer
 set search_path = ''
-as $$$
+as $$
 declare
   v_actor uuid := auth.uid();
   v_property public.properties%rowtype;
