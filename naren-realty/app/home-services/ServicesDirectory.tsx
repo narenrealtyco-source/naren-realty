@@ -26,16 +26,15 @@ const categories: Category[] = [
   { slug: "kitchen-services", name: "Kitchen Services", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=700&q=80", description: "Gas stove, hob, chimney and kitchen repair" },
 ];
 
-type Vendor = { id: string; public_name: string; business_name: string; category: string; city: string; locality: string };
+type Vendor = { id: string; public_name: string; business_name: string; category: string; category_slug: string; city: string; locality: string };
 
-export default function ServicesDirectory({ initialCategory }: { initialCategory: string }) {
+export default function ServicesDirectory({ initialCategory, initialVendors }: { initialCategory: string; initialVendors: Vendor[] }) {
   const router = useRouter();
   const [vendorSearch, setVendorSearch] = useState("");
   const [locality, setLocality] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const selected = categories.find((item) => item.slug === selectedCategory);
-  // Approved vendor records will be connected after the secure vendor database is enabled.
-  const vendors: Vendor[] = [];
+  const vendors = initialVendors;
   const filteredVendors = useMemo(() => vendors.filter((vendor) => {
     const matchesName = `${vendor.public_name} ${vendor.business_name}`.toLowerCase().includes(vendorSearch.toLowerCase());
     const matchesArea = `${vendor.locality} ${vendor.city}`.toLowerCase().includes(locality.toLowerCase());
@@ -110,7 +109,7 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
             <Link href="/home-services/register" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#176B45] px-5 text-sm font-bold text-white hover:bg-[#125638]">Apply as Service Provider</Link>
           </div>
         ) : (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">{filteredVendors.map((vendor) => <article key={vendor.id} className="rounded-xl border border-slate-200 p-4"><h3 className="font-bold">{vendor.public_name}</h3><p className="text-sm text-slate-600">{vendor.business_name} · {vendor.locality}, {vendor.city}</p></article>)}</div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">{filteredVendors.map((vendor) => <article key={vendor.id} className="rounded-xl border border-slate-200 p-4"><h3 className="font-bold">{vendor.public_name}</h3><p className="text-sm text-slate-600">{vendor.business_name} · {vendor.locality}, {vendor.city}</p><p className="mt-1 text-xs text-slate-500">{vendor.category}</p><Link className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#176B45] px-4 text-sm font-bold text-white" href={`/home-services/vendors/${vendor.id}`}>View details & enquire</Link></article>)}</div>
         )}
       </section>
       <p className="pb-2 text-center text-xs text-slate-500">Only vendors approved by NAREN REALTY will be displayed.</p>
