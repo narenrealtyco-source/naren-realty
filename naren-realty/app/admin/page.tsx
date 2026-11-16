@@ -8,8 +8,8 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "visits" | "homeServices" | "requirements" | "submissions" | "enquiries";
-type TaskItem = { key: TaskKey; label: string; count: number };
+type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies";
+type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
   navy: "border-l-[#10243A] bg-slate-50",
@@ -63,23 +63,26 @@ export default function AdminDashboardPage() {
     return () => { active = false; };
   }, [retryKey]);
 
-  const tasks = useMemo<TaskItem[]>(() => {
-    if (!stats) return [];
-    const candidates: TaskItem[] = [
-      { key: "properties", label: "Property Listings", count: stats.properties.state === "available" ? stats.properties.metrics.totalProperties : 0 },
-      { key: "visits", label: "Visit Requests", count: stats.visits.state === "available" ? stats.visits.metrics.totalVisits : 0 },
-      { key: "enquiries", label: "Customer Enquiries", count: stats.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : 0 },
-      { key: "homeServices", label: "Home Services", count: (stats.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : 0) + (stats.vendors.state === "available" ? stats.vendors.metrics.totalVendors : 0) },
-      { key: "requirements", label: "Customer Requirements", count: stats.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : 0 },
-      { key: "submissions", label: "Property Submissions", count: stats.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : 0 },
-    ];
-    return candidates.filter((task) => task.count > 0);
-  }, [stats]);
+  const tasks: TaskItem[] = [
+    { key: "properties", label: "Properties", count: stats?.properties.state === "available" ? stats.properties.metrics.totalProperties : undefined },
+    { key: "addProperty", label: "Add Property", href: "/admin/properties/new" },
+    { key: "enquiries", label: "Enquiries", count: stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : undefined },
+    { key: "visits", label: "Visit Requests", count: stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : undefined },
+    { key: "managers", label: "Managers", href: "/admin/managers" },
+    { key: "submissions", label: "Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
+    { key: "serviceRequests", label: "Service Requests", count: stats?.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : undefined },
+    { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
+    { key: "requirements", label: "Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : undefined },
+    { key: "googleLeads", label: "Google Form Leads", href: "/admin/google-form-requirements" },
+    { key: "loans", label: "Loan Requests", href: undefined },
+    { key: "matches", label: "Matches", href: undefined },
+    { key: "referrals", label: "Referrals", href: undefined },
+    { key: "policies", label: "Policies", href: "/admin/policies" },
+  ];
 
   useEffect(() => {
-    if (!tasks.length) { setSelectedTask(null); return; }
-    if (!selectedTask || !tasks.some((task) => task.key === selectedTask)) setSelectedTask(tasks[0].key);
-  }, [tasks, selectedTask]);
+    if (!selectedTask) setSelectedTask("properties");
+  }, [selectedTask]);
 
   function retryDashboard() {
     setError("");
@@ -153,20 +156,28 @@ export default function AdminDashboardPage() {
           <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]">
             <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
               <p className="px-2 pb-2 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
-              {tasks.length ? <nav aria-label="Dashboard tasks" className="flex gap-1.5 overflow-x-auto md:flex-col md:overflow-visible">
+              <nav aria-label="Dashboard tasks" className="flex gap-1.5 overflow-x-auto md:flex-col md:overflow-visible">
                 {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-w-max items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition md:w-full ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}>
-                  <span>{task.label}</span><span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>
+                  <span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
                 </button>)}
-              </nav> : <p className="px-2 py-3 text-sm text-slate-500">No active tasks right now.</p>}
+              </nav>
             </aside>
 
             <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-              {selectedTask === "properties" && <><SectionHeading href="/admin/properties">Property Listings</SectionHeading><div className="mb-4"><Link href="/admin/properties/new" className="inline-flex rounded-lg bg-[#FBBF24] px-3 py-2 text-sm font-bold text-[#10243A] hover:bg-amber-300">+ Add Property</Link></div><MetricGrid section={stats.properties} metrics={propertyMetrics} emptyMessage="No property tasks are pending." /></>}
-              {selectedTask === "visits" && <><SectionHeading href="/admin/visits">Property Visits</SectionHeading><MetricGrid section={stats.visits} metrics={visitMetrics} emptyMessage="No visit tasks are pending." /></>}
-              {selectedTask === "enquiries" && <><SectionHeading href="/admin/enquiries">Customer Enquiries</SectionHeading><MetricGrid section={stats.enquiries} metrics={enquiryMetrics} emptyMessage="No enquiry tasks are pending." /></>}
-              {selectedTask === "homeServices" && <><SectionHeading href="/admin/services">Home Services</SectionHeading><div className="space-y-6"><div><SectionHeading href="/admin/services">Service Requests</SectionHeading><MetricGrid section={stats.serviceRequests} metrics={requestMetrics} emptyMessage="No service requests are pending." /></div><div className="border-t border-slate-100 pt-5"><SectionHeading href="/admin/services/vendors">Vendor Management</SectionHeading><MetricGrid section={stats.vendors} metrics={vendorMetrics} emptyMessage="No vendor tasks are pending." /></div></div></>}
-              {selectedTask === "requirements" && <><SectionHeading href="/admin/requirements">Customer Requirements</SectionHeading><MetricGrid section={stats.requirements} metrics={requirementMetrics} emptyMessage="No requirement tasks are pending." /></>}
-              {selectedTask === "submissions" && <><SectionHeading href="/admin/submissions">Property Submissions</SectionHeading><MetricGrid section={stats.submissions} metrics={submissionMetrics} emptyMessage="No submission tasks are pending." /></>}
+              {selectedTask === "properties" && <><SectionHeading href="/admin/properties">Property Listings</SectionHeading><MetricGrid section={stats.properties} metrics={propertyMetrics} emptyMessage="No property records yet." /></>}
+              {selectedTask === "addProperty" && <><SectionHeading href="/admin/properties/new">Add Property</SectionHeading><Link href="/admin/properties/new" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Property Form</Link></>}
+              {selectedTask === "visits" && <><SectionHeading href="/admin/visits">Visit Requests</SectionHeading><MetricGrid section={stats.visits} metrics={visitMetrics} emptyMessage="No visit records yet." /></>}
+              {selectedTask === "enquiries" && <><SectionHeading href="/admin/enquiries">Customer Enquiries</SectionHeading><MetricGrid section={stats.enquiries} metrics={enquiryMetrics} emptyMessage="No enquiry records yet." /></>}
+              {selectedTask === "managers" && <><SectionHeading href="/admin/managers">Managers</SectionHeading><Link href="/admin/managers" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Manager Management</Link></>}
+              {selectedTask === "submissions" && <><SectionHeading href="/admin/submissions">Property Submissions</SectionHeading><MetricGrid section={stats.submissions} metrics={submissionMetrics} emptyMessage="No submission records yet." /></>}
+              {selectedTask === "serviceRequests" && <><SectionHeading href="/admin/services">Service Requests</SectionHeading><MetricGrid section={stats.serviceRequests} metrics={requestMetrics} emptyMessage="No service requests yet." /></>}
+              {selectedTask === "vendors" && <><SectionHeading href="/admin/services/vendors">Vendor Management</SectionHeading><MetricGrid section={stats.vendors} metrics={vendorMetrics} emptyMessage="No vendors registered yet." /></>}
+              {selectedTask === "requirements" && <><SectionHeading href="/admin/requirements">Customer Requirements</SectionHeading><MetricGrid section={stats.requirements} metrics={requirementMetrics} emptyMessage="No requirements submitted yet." /></>}
+              {selectedTask === "googleLeads" && <><SectionHeading href="/admin/google-form-requirements">Google Form Leads</SectionHeading><Link href="/admin/google-form-requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Google Form Leads</Link></>}
+              {selectedTask === "loans" && <><h3 className="text-lg font-bold text-[#10243A]">Loan Requests</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. This module is listed here so it remains visible; loan request data and review actions still need to be integrated.</p></>}
+              {selectedTask === "matches" && <><h3 className="text-lg font-bold text-[#10243A]">Matches</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Matching activity and requirement oversight still need to be integrated here.</p></>}
+              {selectedTask === "referrals" && <><h3 className="text-lg font-bold text-[#10243A]">Referrals</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Referral tracking, reward verification and payout status still need to be integrated here.</p></>}
+              {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><Link href="/admin/policies" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Policy Management</Link></>}
             </section>
           </div>
         )}
