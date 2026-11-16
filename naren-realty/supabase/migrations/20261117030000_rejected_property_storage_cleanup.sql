@@ -182,18 +182,18 @@ returns table(property_id uuid, owner_id uuid, storage_paths text[])
 language sql
 security invoker
 set search_path = ''
-as $
+as $$
   select * from private.claim_rejected_property_deletion(p_property_id);
-$;
+$$;
 
 create or replace function public.finalize_rejected_property_deletion(p_property_id uuid)
 returns void
 language sql
 security invoker
 set search_path = ''
-as $
+as $$
   select private.finalize_rejected_property_deletion(p_property_id);
-$;
+$$;
 
 revoke all on function public.claim_rejected_property_deletion(uuid) from public, anon, service_role;
 revoke all on function public.finalize_rejected_property_deletion(uuid) from public, anon, service_role;
