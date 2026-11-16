@@ -29,6 +29,10 @@ export function ReviewForm({ id, status, notes }: { id: string; status: string; 
     <div className="mt-2 flex flex-wrap gap-2"><button name="action" value="approve" disabled={pending || status !== "pending"} className={button}>Approve</button><button name="action" value="reject" disabled={pending || status !== "pending"} className={button}>Reject</button></div><Result state={state} />
   </form>;
 }
+export function CategoryPriceForm({ id, price }: { id: string; price: number }) {
+  const [state, action, pending] = useActionState(manageMarketplace, initial);
+  return <form action={action} className="mt-2 flex flex-wrap items-end gap-2"><input type="hidden" name="id" value={id}/><input type="hidden" name="action" value="set-lead-price"/><label className="text-xs font-semibold">Lead unlock price (₹)<input className={input} name="lead_unlock_price" type="number" min="0" max="1000000" step="1" defaultValue={price}/></label><button disabled={pending} className={button}>Save price</button><Result state={state}/></form>;
+}
 export function MarkLeadPaidForm({ id, paymentStatus, reference }: { id: string; paymentStatus: string; reference: string | null }) {
   const [state, action, pending] = useActionState(manageMarketplace, initial);
   return <form action={action} className="mt-3 space-y-2"><input type="hidden" name="id" value={id} /><input type="hidden" name="action" value="mark-lead-paid" />
