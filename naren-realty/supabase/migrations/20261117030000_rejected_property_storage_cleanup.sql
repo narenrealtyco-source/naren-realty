@@ -42,10 +42,13 @@ begin
     raise exception 'Only rejected properties can be deleted' using errcode = 'P0001';
   end if;
 
-  if pg_catalog.jsonb_typeof(v_property.photos) <> 'array'
-     or pg_catalog.jsonb_array_length(v_property.photos) > 5
+  if v_property.photos is null or pg_catalog.jsonb_typeof(v_property.photos) <> 'array' then
+    raise exception 'Property photo manifest is invalid' using errcode = '22023';
+  end if;
+
+  if pg_catalog.jsonb_array_length(v_property.photos) > 5
      or exists (
-       select 1 from pg_catalog.jsonb_array_elements(v_property.photos) item
+       select 1 from pg_catalog.jsonb_array_elements(v_property.photos) as items(item)
        where pg_catalog.jsonb_typeof(item) <> 'string'
      )
      or (
