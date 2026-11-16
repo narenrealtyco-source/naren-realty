@@ -9,7 +9,7 @@ import { visitRequestsReady } from "../properties/visit-actions";
 
 export default function MatchesPage() {
   const ready = matchesReady();
-  return <main className="min-h-screen bg-[#FFFCF7] p-4 text-slate-800 sm:p-8"><div className="mx-auto max-w-6xl">
+  return <main className="min-h-screen bg-white p-4 text-slate-800 sm:p-8"><div className="mx-auto max-w-6xl">
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div><Link href="/" className="text-sm font-semibold text-[#8A672E] hover:underline">← Home</Link><h1 className="mt-3 text-3xl font-bold tracking-tight text-[#7A5A27]">Property Matches</h1><p className="mt-2 text-sm text-slate-600">Explore approved rental and resale properties matching your needs.</p></div>
       <div className="sm:self-start"><MatchesPostRequirement ready={ready} /></div>
