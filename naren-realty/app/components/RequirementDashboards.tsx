@@ -24,12 +24,21 @@ export function MatchDashboard({ requirements, properties, visitsReady }: { requ
     {!filtered.length && <p className="mt-3">{requirements.length ? "No requirements match these filters." : "No requirements yet."}</p>}
     {filtered.map((r) => {
       const matches = r.status === "Closed" ? [] : properties.filter((property) => matchesRequirement(r, property));
-      return <article key={r.id} className="mt-4 rounded-xl border bg-white p-4"><h3 className="font-bold">{r.purpose} · {r.category} · {r.location}</h3>
+      let notes = r.details;
+      try { const parsed = JSON.parse(r.details); if (parsed && typeof parsed === "object") notes = parsed.notes ?? ""; } catch { /* legacy text */ }
+      return <article key={r.id} className="mt-4 rounded-xl border border-[#E8D9BC] bg-white p-4"><h3 className="font-bold text-[#7A5A27]">{r.purpose} · {r.category} · {r.location}</h3>
         <p className="mt-1 text-sm text-slate-600">Status: {r.status} {r.bedrooms ? `· ${r.bedrooms} BHK` : ""} · Budget: {r.min_budget ?? "Any"} – {r.max_budget ?? "Any"}</p>
-        {r.move_in_date && <p className="mt-1 text-sm">Preferred date: {r.move_in_date}</p>}{r.details && <p className="mt-1 whitespace-pre-wrap text-sm">{r.details}</p>}
-        {r.status !== "Closed" && <><CloseMatchForm id={r.id} />{matches.length ? <div className="mt-4 grid gap-3 md:grid-cols-2">{matches.map((property) => <PropertyCard key={property.id} listing={property} listings={properties} visitsReady={visitsReady} />)}</div> : <p className="mt-3">No matching properties are currently available.</p>}</>}
+        {r.move_in_date && <p className="mt-1 text-sm">Preferred date: {r.move_in_date}</p>}{notes && <p className="mt-1 whitespace-pre-wrap text-sm">{notes}</p>}
+        {r.status !== "Closed" && <><CloseMatchForm id={r.id} />{matches.length ? <div className="mt-4 grid gap-3 md:grid-cols-2">{matches.map((property) => <PropertyCard key={property.id} listing={property} listings={properties} visitsReady={visitsReady} />)}</div> : <p className="mt-3 text-sm text-slate-500">No matching properties are currently available for this requirement.</p>}</>}
       </article>;
     })}
+  </div></section>;
+}
+export function PublicPropertyBrowser({ properties, visitsReady }: { properties: PropertyListing[]; visitsReady: boolean }) {
+  const [type, setType] = useState<"All" | "Rental" | "Resale">("All");
+  const available = properties.filter((property) => property.status === "Approved" && (property.type === "Rental" || property.type === "Resale") && (type === "All" || property.type === type));
+  return <section><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold text-[#7A5A27]">Matching Properties</h2><p className="mt-1 text-sm text-slate-500">Approved rental and resale listings</p></div><div className="flex flex-wrap gap-2">{(["All", "Rental", "Resale"] as const).map((item) => <button key={item} type="button" onClick={() => setType(item)} aria-pressed={type === item} className={`rounded-full border px-4 py-2 text-sm font-semibold ${type === item ? "border-[#B88A3B] bg-[#B88A3B] text-white" : "border-[#D8C39A] bg-white text-[#59482C]"}`}>{item}</button>)}</div></div>
+    {!available.length ? <p className="mt-4 rounded-xl border border-[#E8D9BC] bg-white p-5 text-sm text-slate-600">No approved {type === "All" ? "rental or resale" : type.toLowerCase()} properties are available right now.</p> : <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{available.map((property) => <PropertyCard key={property.id} listing={property} listings={properties} visitsReady={visitsReady} />)}</div>}
   </section>;
 }
 export type LoanSummary = { id: string; customer_name: string; phone: string; loan_type_id: string; type_name: string; amount: number; status: string; created_at: string };
