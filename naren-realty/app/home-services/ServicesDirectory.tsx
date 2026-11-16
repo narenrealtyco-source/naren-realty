@@ -26,22 +26,21 @@ const categories: Category[] = [
   { slug: "kitchen-services", name: "Kitchen Services", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=700&q=80", description: "Gas stove, hob, chimney and kitchen repair" },
 ];
 
-type Vendor = { id: string; public_name: string; business_name: string; category: string; city: string; locality: string };
+type Vendor = { id: string; public_name: string; business_name: string; category: string; category_slug: string; city: string; locality: string };
 
-export default function ServicesDirectory({ initialCategory }: { initialCategory: string }) {
+export default function ServicesDirectory({ initialCategory, initialVendors = [] }: { initialCategory: string; initialVendors?: Vendor[] }) {
   const router = useRouter();
   const [vendorSearch, setVendorSearch] = useState("");
   const [locality, setLocality] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const selected = categories.find((item) => item.slug === selectedCategory);
-  // Approved vendor records will be connected after the secure vendor database is enabled.
-  const vendors: Vendor[] = [];
+  const vendors = initialVendors;
   const filteredVendors = useMemo(() => vendors.filter((vendor) => {
     const matchesName = `${vendor.public_name} ${vendor.business_name}`.toLowerCase().includes(vendorSearch.toLowerCase());
     const matchesArea = `${vendor.locality} ${vendor.city}`.toLowerCase().includes(locality.toLowerCase());
     const matchesCategory = !selected || vendor.category === selected.name;
     return matchesName && matchesArea && matchesCategory;
-  }), [vendorSearch, locality, selected]);
+  }), [vendors, vendorSearch, locality, selected]);
 
   return (
     <div className="space-y-7">
@@ -56,7 +55,6 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
             <span aria-hidden="true">＋</span><span className="hidden sm:inline">Apply as Service Provider</span><span className="sm:hidden">Apply</span>
           </Link>
         </div>
-
         <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0 text-slate-500"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
@@ -72,7 +70,6 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
           <button type="button" onClick={() => { setVendorSearch(""); setLocality(""); setSelectedCategory(""); }} className="font-semibold text-emerald-800 hover:underline">Clear search & filters</button>
         </div>
       </header>
-
       <section aria-labelledby="service-categories">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div><h2 id="service-categories" className="text-xl font-extrabold text-[#10243A] sm:text-2xl">Browse Services</h2><p className="mt-1 text-sm text-slate-600">Choose a category to find the right professional.</p></div>
@@ -87,16 +84,12 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
                   <img src={category.image} alt={category.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#10243A]">{active ? "Selected" : "Explore"}</span>
                 </div>
-                <div className="p-3">
-                  <h3 className="text-sm font-bold leading-snug text-[#10243A]">{category.name}</h3>
-                  <p className="mt-1 hidden text-xs leading-relaxed text-slate-500 sm:block">{category.description}</p>
-                </div>
+                <div className="p-3"><h3 className="text-sm font-bold leading-snug text-[#10243A]">{category.name}</h3><p className="mt-1 hidden text-xs leading-relaxed text-slate-500 sm:block">{category.description}</p></div>
               </button>
             );
           })}
         </div>
       </section>
-
       <section aria-labelledby="providers-heading" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div><h2 id="providers-heading" className="text-xl font-extrabold text-[#10243A]">{selected ? selected.name : "Popular Service Providers"}</h2><p className="mt-1 text-sm text-slate-600">{locality ? `Showing providers for ${locality}` : "Approved professionals will appear here."}</p></div>
@@ -110,7 +103,7 @@ export default function ServicesDirectory({ initialCategory }: { initialCategory
             <Link href="/home-services/register" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#176B45] px-5 text-sm font-bold text-white hover:bg-[#125638]">Apply as Service Provider</Link>
           </div>
         ) : (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">{filteredVendors.map((vendor) => <article key={vendor.id} className="rounded-xl border border-slate-200 p-4"><h3 className="font-bold">{vendor.public_name}</h3><p className="text-sm text-slate-600">{vendor.business_name} · {vendor.locality}, {vendor.city}</p></article>)}</div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">{filteredVendors.map((vendor) => <article key={vendor.id} className="rounded-xl border border-slate-200 p-4"><h3 className="font-bold">{vendor.public_name}</h3><p className="text-sm text-slate-600">{vendor.business_name} · {vendor.locality}, {vendor.city}</p><p className="mt-1 text-xs text-emerald-800">{vendor.category}</p></article>)}</div>
         )}
       </section>
       <p className="pb-2 text-center text-xs text-slate-500">Only vendors approved by NAREN REALTY will be displayed.</p>
