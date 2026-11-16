@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { MatchForm } from "../components/RequirementForms";
 import { MatchDashboard } from "../components/RequirementDashboards";
 import { matchesReady, type MatchRequirement } from "../lib/requirements";
 import { createSupabaseServerClient } from "../lib/supabase-server";
@@ -11,8 +10,7 @@ export default function MatchesPage() {
   const ready = matchesReady();
   return <main className="min-h-screen bg-slate-50 p-4 text-slate-900 sm:p-8"><div className="mx-auto max-w-5xl">
     <Link href="/" className="text-sm font-semibold underline">← Home</Link><h1 className="mt-4 text-3xl font-bold text-[#10243A]">Matches</h1>
-    <p className="mb-5 mt-2 text-sm text-slate-600">Tell us what you need and view matching approved properties.</p>
-    <MatchForm ready={ready} />
+    <p className="mb-5 mt-2 text-sm text-slate-600">Browse matching approved properties and post your requirement when needed.</p>
     {ready && <Suspense fallback={<p className="mt-5">Loading requirements...</p>}><Requirements /></Suspense>}
   </div></main>;
 }
