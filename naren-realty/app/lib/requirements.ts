@@ -72,10 +72,11 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   }
   const furnishing = preferences.furnishingChoice ?? "Any";
   const actualFurnishing = String((property.categoryDetails as { furnishingStatus?: string } | undefined)?.furnishingStatus ?? property.furnishing ?? "").toLowerCase();
-  if (furnishing !== "Any" && actualFurnishing && actualFurnishing !== furnishing.toLowerCase()) return false;
+  if (furnishing !== "Any" && actualFurnishing && actualFurnishing.replace(/[-_]/g, " ").toLowerCase() !== furnishing.toLowerCase()) return false;
   const bhk = preferences.bhkChoice ?? "Any";
   const actualBhk = String((property.categoryDetails as { bhkConfiguration?: string } | undefined)?.bhkConfiguration ?? "");
-  if (bhk !== "Any" && bhk !== actualBhk) return false;
+  if (bhk === "4+ BHK") { if (Number.parseInt(actualBhk, 10) < 4) return false; }
+  else if (bhk !== "Any" && bhk !== actualBhk) return false;
   if (!preferences.bhkChoice && requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
   return true;
 }
