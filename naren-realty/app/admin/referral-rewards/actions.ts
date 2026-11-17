@@ -49,3 +49,30 @@ export async function triggerReferralReward(referralId: string) {
   revalidatePath("/account/referrals");
 }
 
+
+export async function markReferralRewardPaid(input: {
+  claimId: string;
+  paymentMode: "bank_transfer" | "upi";
+  paymentReference: string;
+  paymentRemarks: string;
+}) {
+  const { supabase, user } = await requireAdmin();
+  if (!input.claimId || !input.paymentReference.trim()) throw new Error("Payment reference is required.");
+  const { data: claim, error: claimError } = await supabase.from("referral_reward_claims")
+    .select("id,referral_id,status").eq("id", input.claimId).eq("status", "waiting").maybeSingle();
+  if (claimError || !claim) throw new Error("Waiting claim not found.");
+  const paidAt = new Date().toISOString();
+  const { error } = await supabase.from("referral_reward_claims").update({
+    status: "paid", reviewed_by: user.id, paid_at: paidAt, payment_mode: input.paymentMode,
+    payment_reference: input.paymentReference.trim(), payment_remarks: input.paymentRemarks.trim() || null,
+  }).eq("id", claim.id).eq("status", "waiting");
+  if (error) throw new Error(error.message);
+  const { error: referralError } = await supabase.from("referral_attributions").update({
+    status: "paid", paid_by: user.id, paid_at: paidAt, payment_reference: input.paymentReference.trim(),
+  }).eq("id", claim.referral_id).eq("status", "approved");
+  if (referralError) throw new Error("Claim is recorded as paid, but referral status update failed. Contact support before retrying.");
+  revalidatePath("/admin/referral-rewards");
+  revalidatePath("/admin/referrals");
+  revalidatePath("/account/referral-claim");
+  revalidatePath("/account/referrals");
+}
