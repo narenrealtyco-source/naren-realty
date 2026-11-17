@@ -3,11 +3,20 @@ import{revalidatePath}from"next/cache";import{requireAdmin}from"../../lib/supaba
 export type ManagerActionState={status:"idle"|"error"|"success";message:string};
 export async function createManager(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
- const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\s()-]/g,""),password=String(form.get("password")??""),area=String(form.get("area")??"").trim();
- if(fullName.length<2||fullName.length>100||!/^\S+@\S+\.\S+$/.test(email)||!/^\+91[6-9]\d{9}$/.test(phone)||password.length<12||area.length>100)return{status:"error",message:"Enter valid details. Password must be at least 12 characters."};
+ const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\\s()-]/g,""),area=String(form.get("area")??"").trim();
+ if(fullName.length<2||fullName.length>100||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!/^\\+91[6-9]\\d{9}$/.test(phone)||area.length>100)return{status:"error",message:"Enter valid manager details."};
  const service=createSupabaseServiceClient();
- const{data,error}=await service.auth.admin.createUser({email,password,phone,email_confirm:true,user_metadata:{full_name:fullName,phone}});
- if(error||!data.user)return{status:"error",message:error?.message??"Manager account could not be created."};
+ const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\\/$/,"");
+ const{data,error}=await service.auth.admin.inviteUserByEmail(email,{
+  data:{full_name:fullName,phone},
+  redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`,
+ });
+ if(error||!data.user)return{status:"error",message:error?.message??"Invitation email could not be sent. Check Auth SMTP configuration."};
+ const{error:phoneError}=await service.auth.admin.updateUserById(data.user.id,{phone,phone_confirm:true});
+ if(phoneError){
+  await service.auth.admin.deleteUser(data.user.id);
+  return{status:"error",message:"Invitation account phone setup failed; account creation was rolled back. Check the phone provider settings."};
+ }
  const{data:profile,error:profileError}=await service.from("profiles").upsert({
   id:data.user.id,full_name:fullName,phone,role:"manager",manager_active:true,
   manager_area:area||null,manager_email:email,
@@ -15,10 +24,10 @@ export async function createManager(_state:ManagerActionState,form:FormData):Pro
  if(profileError||!profile||profile.id!==data.user.id||profile.role!=="manager"){
   await service.auth.admin.deleteUser(data.user.id);
   console.error("[manager] Profile upsert failed",{code:profileError?.code??"profile_verification_failed"});
-  return{status:"error",message:"Manager profile could not be verified. Account creation was rolled back."};
+  return{status:"error",message:"Manager profile could not be verified. Account creation was rolled back; contact admin if invitation email arrived."};
  }
  revalidatePath("/admin");revalidatePath("/admin/managers");revalidatePath("/admin/visits");
- return{status:"success",message:"Manager account and profile created and verified. Share the email/password securely; mobile OTP requires SMS provider setup."};
+ return{status:"success",message:"Manager invitation email sent. They must open the email and create their password before logging in."};
 }
 export async function setManagerActive(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
