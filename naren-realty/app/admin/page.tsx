@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies";
+type TaskKey = "properties" | "visits" | "loans" | "matches" | "managers" | "submissions" | "vendors" | "policies";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
@@ -65,18 +65,12 @@ export default function AdminDashboardPage() {
 
   const tasks: TaskItem[] = [
     { key: "properties", label: "Properties", count: stats?.properties.state === "available" ? stats.properties.metrics.totalProperties : undefined },
-    { key: "addProperty", label: "Add Property", href: "/admin/properties/new" },
-    { key: "enquiries", label: "Enquiries", count: stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : undefined },
-    { key: "visits", label: "Visit Requests", count: stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : undefined },
+    { key: "visits", label: "Visit Schedule", href: "/admin/visit-schedule" },
+    { key: "loans", label: "Loans", href: "/admin/loans" },
+    { key: "matches", label: "Matches", href: "/admin/requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : undefined },
+    { key: "submissions", label: "Property Submissions", href: "/admin/submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
+    { key: "vendors", label: "Service Partners", href: "/admin/services/vendors", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
     { key: "managers", label: "Managers", href: "/admin/managers" },
-    { key: "submissions", label: "Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
-    { key: "serviceRequests", label: "Service Requests", count: stats?.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : undefined },
-    { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
-    { key: "requirements", label: "Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : undefined },
-    { key: "googleLeads", label: "Google Form Leads", href: "/admin/google-form-requirements" },
-    { key: "loans", label: "Loan Requests", href: undefined },
-    { key: "matches", label: "Matches", href: undefined },
-    { key: "referrals", label: "Referrals", href: undefined },
     { key: "policies", label: "Policies", href: "/admin/policies" },
   ];
 
@@ -157,18 +151,14 @@ export default function AdminDashboardPage() {
             <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
               <p className="px-1 pb-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
               <nav aria-label="Dashboard tasks" className="grid grid-cols-2 gap-2">
-                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${selectedTask === task.key ? "border-[#10243A] bg-[#10243A] text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50"}`}>
-                  <span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
-                </button>)}
+                {tasks.map((task) => task.href ? <Link key={task.key} href={task.href} className="flex min-h-12 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-xs font-semibold text-slate-700 transition hover:border-amber-400 hover:bg-amber-50"><span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] tabular-nums text-slate-600">{task.count}</span>}</Link> : <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${selectedTask === task.key ? "border-[#10243A] bg-[#10243A] text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50"}`}><span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}</button>)}
               </nav>
             </aside>
 
             <aside className="hidden h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:block">
               <p className="px-2 pb-2 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
               <nav aria-label="Dashboard tasks" className="flex flex-col gap-1.5">
-                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}>
-                  <span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
-                </button>)}
+                {tasks.map((task) => task.href ? <Link key={task.key} href={task.href} className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold text-slate-600 transition hover:bg-amber-50 hover:text-[#10243A]"><span>{task.label}</span>{typeof task.count === "number" && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] tabular-nums text-slate-600">{task.count}</span>}</Link> : <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}><span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}</button>)}
               </nav>
             </aside>
 
