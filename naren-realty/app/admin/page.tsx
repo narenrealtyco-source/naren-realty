@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "visits" | "loans" | "matches" | "managers" | "submissions" | "vendors" | "policies";
+type TaskKey = "properties" | "visits" | "loans" | "matches" | "managers" | "submissions" | "vendors" | "policies" | "addProperty" | "enquiries" | "serviceRequests" | "requirements" | "googleLeads" | "referrals";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
