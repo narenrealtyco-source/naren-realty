@@ -29,6 +29,19 @@ export async function createManager(_state:ManagerActionState,form:FormData):Pro
  revalidatePath("/admin");revalidatePath("/admin/managers");revalidatePath("/admin/visits");
  return{status:"success",message:"Manager invitation email sent. They must open the email and create their password before logging in."};
 }
+export async function sendManagerSetupEmail(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
+ try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
+ const id=String(form.get("id")??"");
+ if(!/^[0-9a-f-]{36}$/i.test(id))return{status:"error",message:"Invalid manager."};
+ const service=createSupabaseServiceClient();
+ const{data:manager,error:lookupError}=await service.from("profiles").select("manager_email,manager_active").eq("id",id).eq("role","manager").maybeSingle();
+ if(lookupError||!manager?.manager_email)return{status:"error",message:"Manager email was not found."};
+ if(manager.manager_active!==true)return{status:"error",message:"Activate this manager before sending the setup email."};
+ const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\/$/,"");
+ const{error}=await service.auth.resetPasswordForEmail(manager.manager_email,{redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`});
+ if(error)return{status:"error",message:error.message};
+ return{status:"success",message:"Password setup email sent to the manager."};
+}
 export async function setManagerActive(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
  const id=String(form.get("id")??""),active=String(form.get("active")??"");
