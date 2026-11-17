@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "../lib/supabase-server";
 import { propertySubmissionsEnabled, propertySubmissionUploadsReady } from "../lib/property-submission-config";
 import {
   MAX_SUBMISSION_PHOTO_BYTES,
+  MAX_SUBMISSION_VIDEO_BYTES,
   hasUnsupportedSubmissionDetails,
   validatePropertySubmission,
   validateSubmissionPhoto,
@@ -24,6 +25,29 @@ export type SubmissionState = {
 
 function isSetupError(code: string | undefined): boolean {
   return ["42P01", "PGRST205", "42703", "PGRST204"].includes(code ?? "");
+}
+
+
+export async function createPropertyVideoUpload(formData: FormData): Promise<{ path?: string; token?: string; error?: string }> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { error: "Your session has expired. Please sign in again." };
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (profileError || profile?.role !== "customer") return { error: "A Customer account is required to upload a property video." };
+  if (!propertySubmissionsEnabled() || !await propertySubmissionUploadsReady()) return { error: "Property video uploads are not ready yet." };
+  const id = formData.get("submission_id");
+  const digest = formData.get("digest");
+  if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ||
+      typeof digest !== "string" || !/^[0-9a-f]{64}$/.test(digest)) return { error: "Invalid video upload request." };
+  const token = digest.slice(0, 32);
+  const videoId = `${token.slice(0, 8)}-${token.slice(8, 12)}-${token.slice(12, 16)}-${token.slice(16, 20)}-${token.slice(20)}`;
+  const path = `${user.id}/${id}/${videoId}`;
+  const { data, error } = await createPrivateSubmissionClient().storage.from("private-property-submissions").createSignedUploadUrl(path, { upsert: true });
+  if (error || !data?.token) {
+    console.error("[property-submission] Signed video upload URL failed", { name: error?.name });
+    return { error: "A secure video upload could not be prepared. Please try again." };
+  }
+  return { path, token: data.token };
 }
 
 export async function submitProperty(
@@ -113,6 +137,26 @@ export async function submitProperty(
   if (typeof submissionId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(submissionId)) {
     return { status: "error", message: "Invalid submission attempt. Reload the page and try again." };
   }
+
+  const videoPath = formData.get("video_path");
+  const videoSize = Number(formData.get("video_size"));
+  const videoDigest = formData.get("video_digest");
+  let stagedVideo: { path: string; type: "video/mp4"; size: number; digest: string } | undefined;
+  if (videoPath !== null || videoDigest !== null || formData.get("video_size") !== null) {
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof videoPath !== "string" || typeof videoDigest !== "string" || !/^[0-9a-f]{64}$/.test(videoDigest) ||
+        !Number.isInteger(videoSize) || videoSize < 1 || videoSize > MAX_SUBMISSION_VIDEO_BYTES ||
+        !videoPath.startsWith(`${user.id}/${submissionId}/`) || !uuid.test(videoPath.slice(`${user.id}/${submissionId}/`.length)) ||
+        videoPath.slice(`${user.id}/${submissionId}/`.length) !== `${videoDigest.slice(0,8)}-${videoDigest.slice(8,12)}-${videoDigest.slice(12,16)}-${videoDigest.slice(16,20)}-${videoDigest.slice(20,32)}`) {
+      return { status: "error", message: "The selected MP4 video is invalid. Please select it again." };
+    }
+    const { data: stored, error: storedError } = await createPrivateSubmissionClient().storage.from("private-property-submissions").list(`${user.id}/${submissionId}`, { search: videoPath.split("/").pop() });
+    const object = stored?.find((item) => item.name === videoPath.split("/").pop());
+    if (storedError || !object || object.metadata?.mimetype !== "video/mp4" || Number(object.metadata?.size) !== videoSize) {
+      return { status: "error", message: "The MP4 upload could not be verified. Please retry the video upload." };
+    }
+    stagedVideo = { path: videoPath, type: "video/mp4", size: videoSize, digest: videoDigest };
+  }
   const payload = { ...input, details, ownerDetails };
   const stagedPhotos = decodedPhotos.map((photo, index) => {
     const digest = createHash("sha256").update(photo.bytes).digest("hex");
@@ -120,7 +164,7 @@ export async function submitProperty(
     const photoId = `${token.slice(0, 8)}-${token.slice(8, 12)}-${token.slice(12, 16)}-${token.slice(16, 20)}-${token.slice(20)}`;
     return { path: `${user.id}/${submissionId}/${photoId}`, type: photo.type, bytes: photo.bytes, digest };
   });
-  const baseAttempt = { id: submissionId, ownerId: user.id, photos: stagedPhotos };
+  const baseAttempt = { id: submissionId, ownerId: user.id, photos: stagedPhotos, video: stagedVideo };
   const attempt = { ...baseAttempt, fingerprint: manifestFingerprint(payload, baseAttempt) };
   try {
     await submitStagedAttempt(lifecycleStore(createPrivateSubmissionClient(), payload), attempt);
