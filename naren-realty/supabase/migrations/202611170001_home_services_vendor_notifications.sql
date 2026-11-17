@@ -129,6 +129,24 @@ begin
 end;
 $$;
 
+create or replace function public.notification_user_vendor_payment()
+returns trigger language plpgsql security definer set search_path = pg_catalog, public
+as $
+declare v_vendor_user_id uuid;
+begin
+  if new.payment_status is distinct from old.payment_status
+     and lower(coalesce(new.payment_status,'')) in ('paid','completed') then
+    select user_id into v_vendor_user_id
+    from public.service_vendors where id = new.vendor_id and active is true;
+    if v_vendor_user_id is not null then
+      perform public.notify_user(v_vendor_user_id,'vendor_lead_payment','Lead payment confirmed',
+        'Payment for your service lead has been confirmed.','/services/vendor/dashboard');
+    end if;
+  end if;
+  return new;
+end;
+$;
+
 create or replace function public.notification_on_vendor_enquiry_update()
 returns trigger language plpgsql security definer set search_path = pg_catalog, public
 as $$
@@ -182,6 +200,9 @@ create trigger trg_notify_user_home_service_status
 after update of status on public.home_service_enquiries
 for each row execute function public.notification_on_home_service_status_update();
 
+revoke insert, delete, truncate, references, trigger on public.notifications from authenticated;
+grant select, update on public.notifications to authenticated;
+
 revoke all on function public.get_vendor_enquiries() from public, anon;
 revoke all on function public.vendor_respond_to_enquiry(uuid,text) from public, anon;
 grant execute on function public.get_vendor_enquiries() to authenticated;
@@ -192,6 +213,7 @@ revoke all on function public.notify_admins(text,text,text,text) from public, an
 revoke all on function public.notification_on_vendor_enquiry_update() from public, anon, authenticated;
 revoke all on function public.notification_on_vendor_application() from public, anon, authenticated;
 revoke all on function public.notification_on_home_service_status_update() from public, anon, authenticated;
+revoke all on function public.notification_user_vendor_payment() from public, anon, authenticated;
 revoke all on function public.submit_vendor_enquiry(uuid,text,text,text,text,text,boolean) from public, anon;
 grant execute on function public.submit_vendor_enquiry(uuid,text,text,text,text,text,boolean) to authenticated;
 revoke all on function public.get_unlocked_vendor_lead_contact(uuid) from public, anon;
