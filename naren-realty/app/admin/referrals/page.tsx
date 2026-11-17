@@ -161,7 +161,7 @@ export default function AdminReferralsPage() {
     <header className="bg-[#10243A] text-white">
       <div className="mx-auto flex max-w-[96rem] flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-6">
         <div><p className="text-xs font-bold tracking-[0.18em] text-amber-400">NAREN REALTY</p><h1 className="mt-1 text-xl font-bold">Referral Management</h1></div>
-        <nav className="flex flex-wrap gap-2"><Link href="/admin" className="rounded-lg border border-white/30 px-3 py-2 text-sm font-semibold">Dashboard</Link><Link href="/referral-policy" className="rounded-lg border border-white/30 px-3 py-2 text-sm font-semibold">Referral Policy</Link><AdminLogoutButton /></nav>
+        <nav className="flex flex-wrap gap-2"><Link href="/admin" className="rounded-lg border border-white/30 px-3 py-2 text-sm font-semibold">Dashboard</Link><Link href="/referral-policy" className="rounded-lg border border-white/30 px-3 py-2 text-sm font-semibold">Referral Policy</Link><Link href="/admin/referral-rewards" className="rounded-lg border border-amber-300 px-3 py-2 text-sm font-semibold text-amber-300">Approved / Waiting Rewards</Link><AdminLogoutButton /></nav>
       </div>
     </header>
     <section className="mx-auto max-w-[96rem] px-4 py-6 sm:px-6 sm:py-8">
