@@ -6,7 +6,7 @@ import { findHomeService } from "../../lib/home-services";
 import { homeServicesReady } from "../../lib/home-services-config";
 import StatusForm from "./StatusForm";
 
-type ServiceRow = { id: string; service: string; customer_name: string; mobile_number: string; requirement: string; preferred_time: string; status: string; created_at: string };
+type ServiceRow = { id: string; service: string; customer_name: string; mobile_number: string; requirement: string; preferred_time: string; locality: string; status: string; created_at: string };
 
 export default function AdminServicesPage() {
   return <Suspense fallback={<main className="p-5">Loading service enquiries...</main>}><AdminServicesContent /></Suspense>;
@@ -22,7 +22,7 @@ async function AdminServicesContent() {
   let failed = false;
   for (;;) {
     const { data, error, count } = await supabase.from("home_service_enquiries")
-      .select("id,service,customer_name,mobile_number,requirement,preferred_time,status,created_at", { count: "exact" })
+      .select("id,service,customer_name,mobile_number,requirement,preferred_time,locality,status,created_at", { count: "exact" })
       .order("created_at", { ascending: false }).order("id").range(rows.length, rows.length + 99);
     if (error || count === null || (!data?.length && rows.length < count)) {
       console.error("[home-service] Admin lookup failed", { code: error?.code });
@@ -37,6 +37,7 @@ async function AdminServicesContent() {
       <div className="mt-5 space-y-4">{rows.map((row) => <article key={row.id} className="rounded-xl border border-slate-200 bg-white p-4 [overflow-wrap:anywhere]">
         <h2 className="font-bold">{findHomeService(row.service)?.name ?? row.service}</h2>
         <p className="mt-2 text-sm"><strong>Customer:</strong> {row.customer_name} · {row.mobile_number}</p>
+        <p className="mt-2 text-sm"><strong>Locality:</strong> {row.locality}</p>
         <p className="mt-2 whitespace-pre-wrap text-sm"><strong>Requirement:</strong> {row.requirement}</p>
         {row.preferred_time && <p className="mt-2 text-sm"><strong>Preferred time:</strong> {row.preferred_time}</p>}
         <p className="mt-2 text-sm"><strong>Received:</strong> {row.created_at}</p>
