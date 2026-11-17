@@ -124,8 +124,10 @@ export default function AdminDashboardPage() {
   ] : [];
   const requirementMetrics = stats?.requirements.state === "available" ? [
     { label: "Total Requirements", value: stats.requirements.metrics.totalRequirements, href: "/admin/requirements", tone: "navy" as const },
-    { label: "New Requirements", value: stats.requirements.metrics.newRequirements, href: "/admin/requirements?status=New", tone: "amber" as const },
-    { label: "Pending Requirements", value: stats.requirements.metrics.pendingRequirements, href: "/admin/requirements", tone: "amber" as const },
+    { label: "Pending Requirements", value: stats.requirements.metrics.pendingRequirements, href: "/admin/requirements?status=pending", tone: "amber" as const },
+    { label: "Approved Requirements", value: stats.requirements.metrics.approvedRequirements, href: "/admin/requirements?status=approved", tone: "green" as const },
+    { label: "Rejected Requirements", value: stats.requirements.metrics.rejectedRequirements, href: "/admin/requirements?status=rejected", tone: "red" as const },
+    { label: "Closed Requirements", value: stats.requirements.metrics.closedRequirements, href: "/admin/requirements?status=closed", tone: "navy" as const },
   ] : [];
   const submissionMetrics = stats?.submissions.state === "available" ? [
     { label: "Total Submissions", value: stats.submissions.metrics.totalSubmissions, href: "/admin/submissions", tone: "navy" as const },
