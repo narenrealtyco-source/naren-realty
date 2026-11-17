@@ -65,7 +65,15 @@ const sections = [
     ],
   },
   {
-    heading: "8. Promotional validity – offer till 31 December 2026",\n    bullets: [\n      "This limited-time Refer & Earn offer is valid for eligible referral registrations made on or before 31 December 2026 (inclusive).",\n      "A referral registered within the offer period remains subject to all qualifying transaction, verification, approval and payment conditions in this policy. Registration alone does not guarantee a reward.",\n      "All other terms and conditions in this policy continue to apply.",\n    ],\n  },\n  {\n    heading: "9. Status and policy administration",
+    heading: "8. Promotional validity – offer till 31 December 2026",
+    bullets: [
+      "This limited-time Refer & Earn offer is valid for eligible referral registrations made on or before 31 December 2026 (inclusive).",
+      "A referral registered within the offer period remains subject to all qualifying transaction, verification, approval and payment conditions in this policy. Registration alone does not guarantee a reward.",
+      "All other terms and conditions in this policy continue to apply.",
+    ],
+  },
+  {
+    heading: "9. Status and policy administration",
     paragraphs: [
       "Referral records may show statuses such as Registered, Pending, Eligible, Rejected or Paid. An Eligible status is subject to final Admin approval and does not mean payment has already been made.",
       "NAREN REALTY may verify, reject or investigate suspected misuse and may update this policy prospectively. The version and effective date displayed on this page identify the published policy.",
