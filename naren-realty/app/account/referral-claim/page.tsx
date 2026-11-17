@@ -5,14 +5,14 @@ import Link from "next/link";
 import { getCustomerSession, type CustomerAccount } from "../../lib/customers";
 import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
 const supabase=createSupabaseBrowserClient();
-type Reward={id:string;reward_amount:number;referral_type:"tenant"|"owner";status:string;created_at:string};
+type Reward={id:string;reward_amount:number;referral_type:"tenant"|"owner";status:string;created_at:string;reward_triggered_at:string|null};
 type Claim={referral_id:string;status:string;submitted_at:string;payment_reference:string|null;paid_at:string|null};
 export default function ReferralClaimPage(){
  const [customer,setCustomer]=useState<CustomerAccount|null>(null),[rewards,setRewards]=useState<Reward[]>([]),[claims,setClaims]=useState<Claim[]>([]);
  const [forms,setForms]=useState<Record<string,{holder:string;bank:string;account:string;ifsc:string;upi:string}>>({});
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(""),[error,setError]=useState(""),[notice,setNotice]=useState("");
  async function load(){setLoading(true);try{const c=await getCustomerSession();setCustomer(c);if(!c){setRewards([]);return;}
- const [r,cl]=await Promise.all([supabase.from("referral_attributions").select("id,reward_amount,referral_type,status,created_at").eq("referred_user_id",c.id).eq("status","approved"),supabase.from("referral_reward_claims").select("referral_id,status,submitted_at,payment_reference,paid_at").eq("user_id",c.id)]);
+ const [r,cl]=await Promise.all([supabase.from("referral_attributions").select("id,reward_amount,referral_type,status,created_at,reward_triggered_at").eq("referred_user_id",c.id).eq("status","approved").not("reward_triggered_at","is",null),supabase.from("referral_reward_claims").select("referral_id,status,submitted_at,payment_reference,paid_at").eq("user_id",c.id)]);
  if(r.error||cl.error)throw new Error("Your claim information could not be loaded.");setRewards(r.data??[]);setClaims(cl.data??[]);
  }catch(e){setError(e instanceof Error?e.message:"Could not load claims.");}finally{setLoading(false);}}
  useEffect(()=>{void load();},[]);
