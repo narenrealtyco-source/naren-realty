@@ -146,7 +146,9 @@ export default function ReferralsPage() {
       <section aria-labelledby="referral-heading" className="overflow-hidden rounded-2xl bg-[#10243A] p-5 text-white shadow-sm sm:p-8 lg:p-10">
         <p className="text-xs font-bold tracking-[0.18em] text-amber-400">LIMITED-TIME CUSTOMER REWARDS</p>
         <h1 id="referral-heading" className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">Refer &amp; Earn with NAREN REALTY</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">Share opportunities. Help people find their perfect property. Earn rewards.</p>\n        <p className="mt-4 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-[#10243A]">Offer valid till 31 December 2026</p>\n        <p className="mt-2 text-xs font-semibold text-slate-300">Terms &amp; Conditions Apply. Please read the Referral &amp; Reward Policy.</p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">Share opportunities. Help people find their perfect property. Earn rewards.</p>
+        <p className="mt-4 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-[#10243A]">Offer valid till 31 December 2026</p>
+        <p className="mt-2 text-xs font-semibold text-slate-300">Terms &amp; Conditions Apply. Please read the Referral &amp; Reward Policy.</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-white/15 bg-white/5 p-4">
             <p className="text-sm font-semibold text-slate-300">Tenant Referral</p>
