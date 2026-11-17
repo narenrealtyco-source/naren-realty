@@ -514,7 +514,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
       if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
         try {
-          await navigator.share({ files: [imageFile], title: listing.title });
+          await navigator.share({ files: [imageFile], title: listing.title, text: url, url });
           setShareMessage("Property card shared successfully.");
           return;
         } catch (shareError) {
