@@ -77,8 +77,10 @@ export type VendorDashboardMetrics = {
 
 export type RequirementDashboardMetrics = {
   totalRequirements: number;
-  newRequirements: number;
   pendingRequirements: number;
+  approvedRequirements: number;
+  rejectedRequirements: number;
+  closedRequirements: number;
 };
 
 export type SubmissionDashboardMetrics = {
@@ -321,11 +323,16 @@ export async function getAdminDashboardStatsFromSupabase(): Promise<AdminDashboa
         assertKnownStatuses(loanRequirements, "loan requirement", ["New", "Contacted", "Documents Pending", "Under Process", "Approved", "Rejected", "Closed"]);
         const propertyStatuses = propertyRequirements.map(normalizedStatus);
         const loanStatuses = loanRequirements.map(normalizedStatus);
+        // Every record belongs to exactly one workflow status. "Total" is a
+        // roll-up only; pending never separately counts as New/Contacted.
         const pendingLoanStatuses = new Set(["new", "contacted", "documents pending", "under process"]);
+        const pendingPropertyStatuses = new Set(["new", "contacted"]);
         return {
           totalRequirements: propertyRequirements.length + loanRequirements.length,
-          newRequirements: propertyStatuses.filter((status) => status === "new").length + loanStatuses.filter((status) => status === "new").length,
-          pendingRequirements: propertyStatuses.filter((status) => status === "new" || status === "contacted").length + loanStatuses.filter((status) => pendingLoanStatuses.has(status)).length,
+          pendingRequirements: propertyStatuses.filter((status) => pendingPropertyStatuses.has(status)).length + loanStatuses.filter((status) => pendingLoanStatuses.has(status)).length,
+          approvedRequirements: loanStatuses.filter((status) => status === "approved").length,
+          rejectedRequirements: loanStatuses.filter((status) => status === "rejected").length,
+          closedRequirements: propertyStatuses.filter((status) => status === "closed").length + loanStatuses.filter((status) => status === "closed").length,
         };
       })
       : Promise.resolve(unavailableMetrics<RequirementDashboardMetrics>(secureSetupUnavailable)),
