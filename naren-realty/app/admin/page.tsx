@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
     { key: "googleLeads", label: "Google Form Leads", href: "/admin/google-form-requirements" },
     { key: "loans", label: "Loan Requests", href: undefined },
     { key: "matches", label: "Matches", href: undefined },
-    { key: "referrals", label: "Referrals", href: undefined },
+    { key: "referrals", label: "Referrals", href: "/admin/referrals" },
     { key: "policies", label: "Policies", href: "/admin/policies" },
   ];
 
@@ -185,7 +185,7 @@ export default function AdminDashboardPage() {
               {selectedTask === "googleLeads" && <><SectionHeading href="/admin/google-form-requirements">Google Form Leads</SectionHeading><Link href="/admin/google-form-requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Google Form Leads</Link></>}
               {selectedTask === "loans" && <><h3 className="text-lg font-bold text-[#10243A]">Loan Requests</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. This module is listed here so it remains visible; loan request data and review actions still need to be integrated.</p></>}
               {selectedTask === "matches" && <><h3 className="text-lg font-bold text-[#10243A]">Matches</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Matching activity and requirement oversight still need to be integrated here.</p></>}
-              {selectedTask === "referrals" && <><h3 className="text-lg font-bold text-[#10243A]">Referrals</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Referral tracking, reward verification and payout status still need to be integrated here.</p></>}
+              {selectedTask === "referrals" && <><SectionHeading href="/admin/referrals">Referral Review &amp; Rewards</SectionHeading><p className="mb-4 text-sm text-slate-600">Verify transaction source, linked property, deal completion and manual reward payouts. Direct, market and other-broker deals are not eligible.</p><Link href="/admin/referrals" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Referral Management</Link></>}
               {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><Link href="/admin/policies" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Policy Management</Link></>}
             </section>
           </div>
