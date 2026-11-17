@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import { startTransition, useActionState, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { submitProperty, type SubmissionState } from "./actions";
+import { createPropertyVideoUpload, submitProperty, type SubmissionState } from "./actions";
+import { supabase } from "../lib/supabase";
 import {
   MAX_SUBMISSION_PHOTO_BYTES,
+  MAX_SUBMISSION_VIDEO_BYTES,
   MAX_SUBMISSION_PHOTOS,
   SUBMISSION_CATEGORIES,
   validatePropertySubmission,
@@ -35,6 +37,7 @@ type FormValues = {
 };
 type OwnerValues = Omit<PropertyOwnerDetails, "version">;
 type PhotoItem = { id: string; file: File; url: string };
+type VideoItem = { file: File; url: string };
 const initialState: SubmissionState = { status: "idle", message: "" };
 const inputClass = "mt-2 block min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-normal text-slate-950 shadow-sm placeholder:text-slate-500 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-200";
 const labelClass = "block min-w-0 text-sm font-semibold text-slate-900";
@@ -102,6 +105,7 @@ export default function SubmissionForm({
 }) {
   const attemptId = useRef<string | null>(null);
   const photoUrls = useRef<string[]>([]);
+  const videoUrl = useRef<string | null>(null);
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState("");
   const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
@@ -110,6 +114,8 @@ export default function SubmissionForm({
   const [ownerConfirmed, setOwnerConfirmed] = useState(false);
   const [listingDeclaration, setListingDeclaration] = useState(false);
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
+  const [videoItem, setVideoItem] = useState<VideoItem | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const [stepError, setStepError] = useState("");
   const [draft, setDraft] = useState<DraftActionState | null>(null);
@@ -121,6 +127,9 @@ export default function SubmissionForm({
       const result = await submitProperty(previous, data);
       if (result.status === "success") {
         photoItems.forEach((item) => URL.revokeObjectURL(item.url));
+        if (videoUrl.current) URL.revokeObjectURL(videoUrl.current);
+        videoUrl.current = null;
+        setVideoItem(null);
         photoUrls.current = [];
         setPhotoItems([]);
         setCategory("");
@@ -161,7 +170,10 @@ export default function SubmissionForm({
     return () => { active = false; };
   }, [draftsAvailable]);
 
-  useEffect(() => () => photoUrls.current.forEach((url) => URL.revokeObjectURL(url)), []);
+  useEffect(() => () => {
+    photoUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    if (videoUrl.current) URL.revokeObjectURL(videoUrl.current);
+  }, []);
 
   function setField<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -252,6 +264,32 @@ export default function SubmissionForm({
     setStepError("");
   }
 
+
+  function selectVideo(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0] ?? null;
+    event.currentTarget.value = "";
+    if (!file) return;
+    if (file.type !== "video/mp4" || !file.name.toLowerCase().endsWith(".mp4") || file.size < 12 || file.size > MAX_SUBMISSION_VIDEO_BYTES) {
+      setPhotoError("Choose one MP4 video up to 50 MB.");
+      return;
+    }
+    void file.slice(4, 8).text().then((brand) => {
+      if (brand !== "ftyp") { setPhotoError("This file is not a valid MP4 video."); return; }
+      if (videoUrl.current) URL.revokeObjectURL(videoUrl.current);
+      const url = URL.createObjectURL(file);
+      videoUrl.current = url;
+      setVideoItem({ file, url });
+      setPhotoError("");
+      setStepError("");
+    });
+  }
+
+  function removeVideo() {
+    if (videoUrl.current) URL.revokeObjectURL(videoUrl.current);
+    videoUrl.current = null;
+    setVideoItem(null);
+  }
+
   function removePhoto(id: string) {
     const removed = photoItems.find((photo) => photo.id === id);
     if (removed) {
@@ -312,7 +350,7 @@ export default function SubmissionForm({
     setStepError("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (step !== STEPS.length - 1) return;
     try {
@@ -334,13 +372,31 @@ export default function SubmissionForm({
       data.set("owner_details", JSON.stringify(validatedOwner));
       data.set("owner_confirmed", "on");
       data.set("listing_declaration", "on");
+
       for (const photo of photoItems) data.append("photos", photo.file);
       if (!attemptId.current) attemptId.current = crypto.randomUUID();
       data.set("submission_id", attemptId.current);
+      if (videoItem) {
+        setVideoUploading(true);
+        const digestBuffer = await crypto.subtle.digest("SHA-256", await videoItem.file.arrayBuffer());
+        const digest = Array.from(new Uint8Array(digestBuffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
+        const uploadRequest = new FormData();
+        uploadRequest.set("submission_id", attemptId.current);
+        uploadRequest.set("digest", digest);
+        const signed = await createPropertyVideoUpload(uploadRequest);
+        if (!signed.path || !signed.token) throw new Error(signed.error || "Could not prepare the video upload.");
+        const { error: uploadError } = await supabase.storage.from("private-property-submissions").uploadToSignedUrl(signed.path, signed.token, videoItem.file, { contentType: "video/mp4", upsert: true });
+        if (uploadError) throw new Error("Video upload failed. Check your connection and try again.");
+        data.set("video_path", signed.path);
+        data.set("video_size", String(videoItem.file.size));
+        data.set("video_digest", digest);
+      }
       setStepError("");
       startTransition(() => action(data));
     } catch (error) {
       setStepError(error instanceof Error ? error.message : "Review the required details before submitting.");
+    } finally {
+      setVideoUploading(false);
     }
   }
 
@@ -432,6 +488,14 @@ export default function SubmissionForm({
             <label className={`${labelClass} max-w-xl`}>Choose photos
               <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={selectFiles} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#10243A] file:px-4 file:font-semibold file:text-white" />
             </label>
+
+            <label className={`${labelClass} mt-4 max-w-xl`}>Property video (optional · 1 MP4, up to 50 MB)
+              <input type="file" accept="video/mp4,.mp4" onChange={selectVideo} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#10243A] file:px-4 file:font-semibold file:text-white" />
+            </label>
+            {videoItem && <div className="mt-3 max-w-xl rounded-xl border border-slate-200 p-3">
+              <video src={videoItem.url} controls playsInline preload="metadata" className="max-h-64 w-full rounded-lg bg-black" />
+              <div className="mt-2 flex items-center justify-between gap-3"><p className="min-w-0 truncate text-xs text-slate-600">{videoItem.file.name} · {(videoItem.file.size / (1024 * 1024)).toFixed(1)} MB</p><button type="button" onClick={removeVideo} className="shrink-0 rounded-md border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">Remove video</button></div>
+            </div>}
             {photoError && <p role="alert" className="text-sm font-semibold text-rose-700">{photoError}</p>}
             {photoItems.length > 0 && <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
               {photoItems.map((photo, index) => <article key={photo.id} className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -516,7 +580,7 @@ export default function SubmissionForm({
             className="min-h-11 rounded-xl border border-[#10243A] px-3 text-sm font-bold text-[#10243A] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
           {step < STEPS.length - 1
             ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50">Continue</button>
-            : <button type="submit" disabled={pending || !available} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500">{pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
+            : <button type="submit" disabled={pending || videoUploading || !available} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
         </div>
       </div>
     </div>
