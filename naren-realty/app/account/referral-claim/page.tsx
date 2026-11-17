@@ -12,7 +12,7 @@ export default function ReferralClaimPage(){
  const [forms,setForms]=useState<Record<string,{holder:string;bank:string;account:string;ifsc:string;upi:string}>>({});
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(""),[error,setError]=useState(""),[notice,setNotice]=useState("");
  async function load(){setLoading(true);try{const c=await getCustomerSession();setCustomer(c);if(!c){setRewards([]);return;}
- const [r,cl]=await Promise.all([supabase.from("referral_attributions").select("id,reward_amount,referral_type,status,created_at,reward_triggered_at").eq("referred_user_id",c.id).eq("status","approved").not("reward_triggered_at","is",null),supabase.from("referral_reward_claims").select("referral_id,status,submitted_at,payment_reference,paid_at").eq("user_id",c.id)]);
+ const [r,cl]=await Promise.all([supabase.from("referral_attributions").select("id,reward_amount,referral_type,status,created_at,reward_triggered_at").eq("referred_user_id",c.id).in("status",["approved","paid"]).not("reward_triggered_at","is",null),supabase.from("referral_reward_claims").select("referral_id,status,submitted_at,payment_reference,paid_at").eq("user_id",c.id)]);
  if(r.error||cl.error)throw new Error("Your claim information could not be loaded.");setRewards(r.data??[]);setClaims(cl.data??[]);
  }catch(e){setError(e instanceof Error?e.message:"Could not load claims.");}finally{setLoading(false);}}
  useEffect(()=>{void load();},[]);
