@@ -1,5 +1,6 @@
 export type StagedPhoto = { path: string; type: string; bytes: Uint8Array; digest: string };
-export type SubmissionAttempt = { id: string; ownerId: string; fingerprint: string; photos: StagedPhoto[] };
+export type StagedVideo = { path: string; type: "video/mp4"; size: number; digest: string };
+export type SubmissionAttempt = { id: string; ownerId: string; fingerprint: string; photos: StagedPhoto[]; video?: StagedVideo };
 export type AttemptState = "staging" | "committed" | "cleaning" | "cleaned";
 
 export interface SubmissionLifecycleStore {
@@ -29,7 +30,7 @@ export async function reconcileSubmissionPhotos(store: SubmissionCleanupStore, l
   for (const attempt of attempts) {
     const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const prefix = `${attempt.ownerId}/${attempt.id}/`;
-    if (!uuid.test(attempt.ownerId) || !uuid.test(attempt.id) || !attempt.paths.length || attempt.paths.length > 5 ||
+    if (!uuid.test(attempt.ownerId) || !uuid.test(attempt.id) || !attempt.paths.length || attempt.paths.length > 6 ||
       attempt.paths.some((path) => !path.startsWith(prefix) || !uuid.test(path.slice(prefix.length)))) {
       throw new Error("Invalid cleanup manifest; no files were deleted.");
     }
