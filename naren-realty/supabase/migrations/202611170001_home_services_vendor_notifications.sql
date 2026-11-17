@@ -2,31 +2,13 @@
 -- Applied to the connected Supabase project and verified separately.
 begin;
 
-alter table public.vendor_enquiries
-  add column if not exists customer_phone text;
-
-grant insert (vendor_id, customer_id, customer_name, customer_phone, locality, message, contact_consent)
-  on public.vendor_enquiries to authenticated;
-
-drop policy if exists "Customers can submit vendor enquiries" on public.vendor_enquiries;
-create policy "Customers can submit vendor enquiries"
-on public.vendor_enquiries for insert to authenticated
-with check (
-  customer_id = (select auth.uid())
-  and contact_consent is true
-  and status = 'new'
-  and exists (
-    select 1 from public.service_vendors v
-    join public.service_categories c on c.id = v.category_id
-    where v.id = vendor_id and v.active is true and c.active is true
-  )
-);
-
 drop policy if exists "Customers and assigned vendors can read enquiries" on public.vendor_enquiries;
 drop policy if exists "Customers and admins can read vendor enquiries" on public.vendor_enquiries;
 create policy "Customers and admins can read vendor enquiries"
 on public.vendor_enquiries for select to authenticated
 using (customer_id = (select auth.uid()) or (select is_admin()));
+
+revoke insert on public.vendor_enquiries from authenticated;
 
 create or replace function public.get_vendor_enquiries()
 returns jsonb language plpgsql security definer set search_path = pg_catalog, public
@@ -40,7 +22,6 @@ begin
   select coalesce(jsonb_agg(jsonb_build_object(
     'id', e.id,
     'customer_name', e.customer_name,
-    'customer_phone', case when e.payment_status in ('paid','waived') then e.customer_phone else null end,
     'locality', e.locality,
     'message', e.message,
     'status', e.status,
@@ -53,6 +34,25 @@ begin
   return v_result;
 end;
 $$;
+
+create or replace function public.get_unlocked_vendor_lead_contact(p_enquiry_id uuid)
+returns table(mobile text, full_address text)
+language plpgsql security definer set search_path = pg_catalog, public, private
+as $
+begin
+  if auth.uid() is null then raise exception 'Sign in is required.'; end if;
+  return query
+  select c.mobile, c.full_address
+  from private.vendor_enquiry_contacts c
+  join public.vendor_enquiries e on e.id = c.enquiry_id
+  join public.service_vendors v on v.id = e.vendor_id
+  where e.id = p_enquiry_id
+    and e.payment_status in ('paid','waived')
+    and v.user_id = auth.uid()
+    and v.active;
+  if not found then raise exception 'Contact is locked or this lead is not assigned to your account.'; end if;
+end;
+$;
 
 create or replace function public.vendor_respond_to_enquiry(p_enquiry_id uuid, p_decision text)
 returns boolean language plpgsql security definer set search_path = pg_catalog, public
@@ -186,5 +186,12 @@ grant execute on function public.vendor_respond_to_enquiry(uuid,text) to authent
 
 revoke all on function public.notify_user(uuid,text,text,text,text) from public, anon, authenticated;
 revoke all on function public.notify_admins(text,text,text,text) from public, anon, authenticated;
+revoke all on function public.notification_on_vendor_enquiry_update() from public, anon, authenticated;
+revoke all on function public.notification_on_vendor_application() from public, anon, authenticated;
+revoke all on function public.notification_on_home_service_status_update() from public, anon, authenticated;
+revoke all on function public.submit_vendor_enquiry(uuid,text,text,text,text,text,boolean) from public, anon;
+grant execute on function public.submit_vendor_enquiry(uuid,text,text,text,text,text,boolean) to authenticated;
+revoke all on function public.get_unlocked_vendor_lead_contact(uuid) from public, anon;
+grant execute on function public.get_unlocked_vendor_lead_contact(uuid) to authenticated;
 
 commit;
