@@ -65,7 +65,7 @@ const sections = [
     ],
   },
   {
-    heading: "8. Status and policy administration",
+    heading: "8. Promotional validity – offer till 31 December 2026",\n    bullets: [\n      "This limited-time Refer & Earn offer is valid for eligible referral registrations made on or before 31 December 2026 (inclusive).",\n      "A referral registered within the offer period remains subject to all qualifying transaction, verification, approval and payment conditions in this policy. Registration alone does not guarantee a reward.",\n      "All other terms and conditions in this policy continue to apply.",\n    ],\n  },\n  {\n    heading: "9. Status and policy administration",
     paragraphs: [
       "Referral records may show statuses such as Registered, Pending, Eligible, Rejected or Paid. An Eligible status is subject to final Admin approval and does not mean payment has already been made.",
       "NAREN REALTY may verify, reject or investigate suspected misuse and may update this policy prospectively. The version and effective date displayed on this page identify the published policy.",
@@ -83,9 +83,9 @@ export default function ReferralPolicyPage() {
         </div>
       </header>
       <article className="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-12">
-        <p className="text-xs font-bold tracking-[0.18em] text-amber-700">OFFICIAL PROGRAM TERMS</p>
-        <h1 className="mt-2 text-3xl font-bold text-[#10243A] sm:text-4xl">Referral &amp; Reward Policy</h1>
-        <p className="mt-3 text-sm text-slate-600">Version 1.1 · Effective 18 November 2026</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-amber-700">LIMITED-TIME OFFER · OFFICIAL PROGRAM TERMS</p>
+        <h1 className="mt-2 text-3xl font-bold text-[#10243A] sm:text-4xl">Referral &amp; Reward Policy</h1>\n        <p className="mt-3 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-sm font-extrabold text-[#10243A]">OFFER VALID TILL 31 DECEMBER 2026 · TERMS &amp; CONDITIONS APPLY</p>
+        <p className="mt-3 text-sm text-slate-600">Version 1.2 · Effective 18 November 2026 · Offer valid till 31 December 2026</p>
         <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-950">
           Core rule: No NAREN REALTY transaction = No referral reward. A deal completed directly, in the open market or through another broker does not qualify, even if the same property is listed on NAREN REALTY.
         </div>
