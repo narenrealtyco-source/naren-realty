@@ -33,7 +33,15 @@ export async function enquireVendor(_state: VendorState, form: FormData): Promis
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Please sign in to send an enquiry." };
-  const { error } = await supabase.from("vendor_enquiries").insert(input);
+  const { error } = await supabase.from("vendor_enquiries").insert({
+    vendor_id: input.vendor_id,
+    customer_id: user.id,
+    customer_name: input.customer_name,
+    customer_phone: input.customer_phone,
+    locality: input.locality,
+    message: input.message,
+    contact_consent: input.contact_consent,
+  });
   if (error) {
     console.error("[vendor] Enquiry failed", { code: error.code });
     return { status: "error", message: "Your enquiry could not be saved. The vendor may no longer be available." };
