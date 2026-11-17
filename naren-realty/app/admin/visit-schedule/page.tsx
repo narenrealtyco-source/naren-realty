@@ -1,9 +1,14 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
 import { createSupabaseServiceClient } from "../../lib/supabase-service";
 
-export default async function AdminVisitSchedulePage() {
+export default function AdminVisitSchedulePage() {
+  return <Suspense fallback={<main className="p-6">Loading visit schedule...</main>}><Content /></Suspense>;
+}
+
+async function Content() {
   await connection();
   try { await requireAdmin(); } catch { return <main className="p-6"><p role="alert">Admin authorization is required.</p><Link href="/admin/login" className="underline">Admin login</Link></main>; }
   const supabase = await createSupabaseServiceClient();
