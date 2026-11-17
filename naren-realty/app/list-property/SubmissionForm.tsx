@@ -405,7 +405,7 @@ export default function SubmissionForm({
     <div className="rounded-t-2xl bg-[#10243A] px-4 py-5 text-white sm:px-7">
       <p className="text-xs font-bold tracking-[0.16em] text-amber-300">NAREN REALTY · CUSTOMER LISTINGS</p>
       <h2 className="mt-2 text-2xl font-bold sm:text-3xl">List your property</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">A guided, secure submission. Your property and photos stay private while Admin reviews your listing.</p>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">A guided, secure submission. Your property, photos and optional video stay private while Admin reviews your listing.</p>
     </div>
 
     <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-3 py-3 backdrop-blur sm:px-6">
@@ -556,7 +556,7 @@ export default function SubmissionForm({
           </label>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-800">
             <input type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
-            <span>I agree that Admin may review this submission and, if approved, publish the property details, full address, selected amenities and photos on NAREN REALTY.</span>
+            <span>I agree that Admin may review this submission and, if approved, publish the property details, full address, selected amenities, photos and optional property video on NAREN REALTY.</span>
           </label>
           <div className="rounded-xl bg-slate-50 p-4 text-sm">
             <p className="font-semibold text-[#10243A]">Ready to submit?</p>
