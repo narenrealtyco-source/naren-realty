@@ -17,6 +17,7 @@ export async function requestHomeService(_state: ServiceState, form: FormData): 
   const { error } = await supabase.from("home_service_enquiries").insert({
     service: input.service, customer_name: input.name,
     mobile_number: input.mobile, requirement: input.requirement, preferred_time: input.preferred,
+    locality: input.locality, contact_consent: input.contactConsent,
   });
   if (error) {
     console.error("[home-service] Enquiry could not be saved", { code: error.code });
