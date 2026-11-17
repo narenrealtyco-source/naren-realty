@@ -25,40 +25,69 @@ export default function NotificationBell() {
     const supabase = createSupabaseBrowserClient();
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let active = true;
+    let currentUserId: string | null = null;
 
-    const load = async (userId: string) => {
+    const clearUser = () => {
+      currentUserId = null;
+      if (channel) void supabase.removeChannel(channel);
+      channel = null;
+      setItems([]);
+      setUnread(0);
+      setReady(false);
+    };
+
+    const connectUser = async (userId: string) => {
+      if (!active || currentUserId === userId) return;
+      clearUser();
+      currentUserId = userId;
       const { data, error } = await supabase
         .from("notifications")
         .select("id,event_key,title,body,action_url,read_at,created_at")
         .eq("recipient_id", userId)
         .order("created_at", { ascending: false })
         .limit(20);
-      if (!active || error) return;
+      if (!active || currentUserId !== userId) return;
+      if (error) {
+        console.error("[notifications] Initial load failed", { code: error.code });
+        setReady(true);
+        return;
+      }
       const rows = (data ?? []) as NotificationRow[];
       setItems(rows);
       setUnread(rows.filter((row) => !row.read_at).length);
       setReady(true);
-    };
-
-    void (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!active || !user) return;
-      if (!active) return;
-      await load(user.id);
-      if (!active) return;
       channel = supabase
-        .channel(`notifications:${user.id}`)
+        .channel(`notifications:${userId}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${user.id}` },
+          { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${userId}` },
           (payload) => {
+            if (!active || currentUserId !== userId) return;
             const row = payload.new as NotificationRow;
             setItems((current) => [row, ...current].slice(0, 20));
             setUnread((count) => count + 1);
           },
         )
-        .subscribe();
-    })();
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.error("[notifications] Realtime subscription failed", status);
+          }
+        });
+    };
+
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!active) return;
+      if (user) void connectUser(user.id);
+      else clearUser();
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      Promise.resolve().then(() => {
+        if (!active) return;
+        if (session?.user) void connectUser(session.user.id);
+        else clearUser();
+      });
+    });
 
     const closeOnOutside = (event: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
@@ -67,6 +96,7 @@ export default function NotificationBell() {
 
     return () => {
       active = false;
+      authListener.subscription.unsubscribe();
       document.removeEventListener("mousedown", closeOnOutside);
       if (channel) void supabase.removeChannel(channel);
     };
