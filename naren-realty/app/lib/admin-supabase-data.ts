@@ -77,6 +77,7 @@ export type VendorDashboardMetrics = {
 
 export type RequirementDashboardMetrics = {
   totalRequirements: number;
+  totalLoanRequests: number;
   newRequirements: number;
   pendingRequirements: number;
 };
@@ -324,6 +325,7 @@ export async function getAdminDashboardStatsFromSupabase(): Promise<AdminDashboa
         const pendingLoanStatuses = new Set(["new", "contacted", "documents pending", "under process"]);
         return {
           totalRequirements: propertyRequirements.length + loanRequirements.length,
+          totalLoanRequests: loanRequirements.length,
           newRequirements: propertyStatuses.filter((status) => status === "new").length + loanStatuses.filter((status) => status === "new").length,
           pendingRequirements: propertyStatuses.filter((status) => status === "new" || status === "contacted").length + loanStatuses.filter((status) => pendingLoanStatuses.has(status)).length,
         };

@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies";
+type TaskKey = "properties" | "visits" | "loans" | "matches" | "managers" | "submissions" | "vendors" | "policies" | "addProperty" | "enquiries" | "serviceRequests" | "requirements" | "googleLeads" | "referrals";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
@@ -43,6 +43,10 @@ function MetricGrid({ section, metrics, emptyMessage }: {
   return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{activeMetrics.map((item) => <MetricCard key={item.label} {...item} />)}</div>;
 }
 
+function ModuleFrame({ title, src }: { title: string; src: string }) {
+  return <iframe title={title} src={src} loading="lazy" className="h-[78vh] min-h-[620px] w-full rounded-xl border border-slate-200 bg-white" />;
+}
+
 function SectionHeading({ children, href }: { children: ReactNode; href: string }) {
   return <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold text-[#10243A]">{children}</h3><Link href={href} className="text-sm font-semibold text-amber-800 hover:underline">View All</Link></div>;
 }
@@ -65,19 +69,18 @@ export default function AdminDashboardPage() {
 
   const tasks: TaskItem[] = [
     { key: "properties", label: "Properties", count: stats?.properties.state === "available" ? stats.properties.metrics.totalProperties : undefined },
-    { key: "addProperty", label: "Add Property", href: "/admin/properties/new" },
-    { key: "enquiries", label: "Enquiries", count: stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : undefined },
-    { key: "visits", label: "Visit Requests", count: stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : undefined },
-    { key: "managers", label: "Managers", href: "/admin/managers" },
-    { key: "submissions", label: "Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
+    { key: "addProperty", label: "Add Property" },
+    { key: "visits", label: "Visit Schedule", count: stats?.visits.state === "available" || stats?.enquiries.state === "available" ? (stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : 0) + (stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : 0) : undefined },
+    { key: "loans", label: "Loans", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalLoanRequests : undefined },
+    { key: "matches", label: "Matches", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements - stats.requirements.metrics.totalLoanRequests : undefined },
+    { key: "requirements", label: "Customer Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements - stats.requirements.metrics.totalLoanRequests : undefined },
+    { key: "submissions", label: "Property Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
     { key: "serviceRequests", label: "Service Requests", count: stats?.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : undefined },
-    { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
-    { key: "requirements", label: "Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : undefined },
-    { key: "googleLeads", label: "Google Form Leads", href: "/admin/google-form-requirements" },
-    { key: "loans", label: "Loan Requests", href: undefined },
-    { key: "matches", label: "Matches", href: undefined },
-    { key: "referrals", label: "Referrals", href: undefined },
-    { key: "policies", label: "Policies", href: "/admin/policies" },
+    { key: "vendors", label: "Service Partners", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
+    { key: "managers", label: "Managers" },
+    { key: "googleLeads", label: "Google Form Leads" },
+    { key: "referrals", label: "Refer & Earn" },
+    { key: "policies", label: "Policies" },
   ];
 
   useEffect(() => {
@@ -157,36 +160,31 @@ export default function AdminDashboardPage() {
             <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
               <p className="px-1 pb-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
               <nav aria-label="Dashboard tasks" className="grid grid-cols-2 gap-2">
-                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${selectedTask === task.key ? "border-[#10243A] bg-[#10243A] text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50"}`}>
-                  <span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
-                </button>)}
+                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${selectedTask === task.key ? "border-[#10243A] bg-[#10243A] text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50"}`}><span className="min-w-0 leading-4">{task.label}</span>{typeof task.count === "number" && <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}</button>)}
               </nav>
             </aside>
 
             <aside className="hidden h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:block">
               <p className="px-2 pb-2 text-[10px] font-bold tracking-[0.16em] text-slate-400">TASKS</p>
               <nav aria-label="Dashboard tasks" className="flex flex-col gap-1.5">
-                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A]"}`}>
-                  <span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}
-                </button>)}
+                {tasks.map((task) => <button key={task.key} type="button" onClick={() => setSelectedTask(task.key)} aria-pressed={selectedTask === task.key} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${selectedTask === task.key ? "bg-[#10243A] text-white shadow-sm" : "text-slate-600 hover:bg-amber-50 hover:text-[#10243A}"}`}><span>{task.label}</span>{typeof task.count === "number" && <span className={`rounded-full px-2 py-0.5 text-[11px] tabular-nums ${selectedTask === task.key ? "bg-amber-400 text-[#10243A]" : "bg-slate-100 text-slate-600"}`}>{task.count}</span>}</button>)}
               </nav>
             </aside>
 
             <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-              {selectedTask === "properties" && <><SectionHeading href="/admin/properties">Property Listings</SectionHeading><MetricGrid section={stats.properties} metrics={propertyMetrics} emptyMessage="No property records yet." /></>}
-              {selectedTask === "addProperty" && <><SectionHeading href="/admin/properties/new">Add Property</SectionHeading><Link href="/admin/properties/new" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Property Form</Link></>}
-              {selectedTask === "visits" && <><SectionHeading href="/admin/visits">Visit Requests</SectionHeading><MetricGrid section={stats.visits} metrics={visitMetrics} emptyMessage="No visit records yet." /></>}
-              {selectedTask === "enquiries" && <><SectionHeading href="/admin/enquiries">Customer Enquiries</SectionHeading><MetricGrid section={stats.enquiries} metrics={enquiryMetrics} emptyMessage="No enquiry records yet." /></>}
-              {selectedTask === "managers" && <><SectionHeading href="/admin/managers">Managers</SectionHeading><Link href="/admin/managers" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Manager Management</Link></>}
-              {selectedTask === "submissions" && <><SectionHeading href="/admin/submissions">Property Submissions</SectionHeading><MetricGrid section={stats.submissions} metrics={submissionMetrics} emptyMessage="No submission records yet." /></>}
-              {selectedTask === "serviceRequests" && <><SectionHeading href="/admin/services">Service Requests</SectionHeading><MetricGrid section={stats.serviceRequests} metrics={requestMetrics} emptyMessage="No service requests yet." /></>}
-              {selectedTask === "vendors" && <><SectionHeading href="/admin/services/vendors">Vendor Management</SectionHeading><MetricGrid section={stats.vendors} metrics={vendorMetrics} emptyMessage="No vendors registered yet." /></>}
-              {selectedTask === "requirements" && <><SectionHeading href="/admin/requirements">Customer Requirements</SectionHeading><MetricGrid section={stats.requirements} metrics={requirementMetrics} emptyMessage="No requirements submitted yet." /></>}
-              {selectedTask === "googleLeads" && <><SectionHeading href="/admin/google-form-requirements">Google Form Leads</SectionHeading><Link href="/admin/google-form-requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Google Form Leads</Link></>}
-              {selectedTask === "loans" && <><h3 className="text-lg font-bold text-[#10243A]">Loan Requests</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. This module is listed here so it remains visible; loan request data and review actions still need to be integrated.</p></>}
-              {selectedTask === "matches" && <><h3 className="text-lg font-bold text-[#10243A]">Matches</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Matching activity and requirement oversight still need to be integrated here.</p></>}
-              {selectedTask === "referrals" && <><h3 className="text-lg font-bold text-[#10243A]">Referrals</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Referral tracking, reward verification and payout status still need to be integrated here.</p></>}
-              {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><Link href="/admin/policies" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Policy Management</Link></>}
+              {selectedTask === "properties" && <><SectionHeading href="/admin/properties">Property Listings</SectionHeading><ModuleFrame title="Property Listings" src="/admin/properties" /></>}
+              {selectedTask === "addProperty" && <><SectionHeading href="/admin/properties/new">Add Property</SectionHeading><ModuleFrame title="Add Property" src="/admin/properties/new" /></>}
+              {selectedTask === "visits" && <><SectionHeading href="/admin/visit-schedule">Visit Schedule — Enquiries & Site Visits</SectionHeading><div className="grid gap-4 xl:grid-cols-2"><div><h4 className="mb-2 font-bold text-[#10243A]">Customer Enquiries & Follow-ups</h4><ModuleFrame title="Customer Enquiries" src="/admin/enquiries" /></div><div><h4 className="mb-2 font-bold text-[#10243A]">Site Visit Schedule</h4><ModuleFrame title="Site Visit Schedule" src="/admin/visits" /></div></div></>}
+              {selectedTask === "loans" && <><SectionHeading href="/admin/loans">Loans & Applications</SectionHeading><ModuleFrame title="Loans & Applications" src="/admin/loans" /></>}
+              {selectedTask === "matches" && <><SectionHeading href="/admin/requirements">Property Matches</SectionHeading><ModuleFrame title="Property Matches" src="/admin/requirements" /></>}
+              {selectedTask === "requirements" && <><SectionHeading href="/admin/requirements">Customer Requirements</SectionHeading><ModuleFrame title="Customer Requirements" src="/admin/requirements" /></>}
+              {selectedTask === "submissions" && <><SectionHeading href="/admin/submissions">Property Submissions</SectionHeading><ModuleFrame title="Property Submissions" src="/admin/submissions" /></>}
+              {selectedTask === "serviceRequests" && <><SectionHeading href="/admin/services">Service Requests</SectionHeading><ModuleFrame title="Service Requests" src="/admin/services" /></>}
+              {selectedTask === "vendors" && <><SectionHeading href="/admin/services/vendors">Service Partners</SectionHeading><ModuleFrame title="Service Partners" src="/admin/services/vendors" /></>}
+              {selectedTask === "managers" && <><SectionHeading href="/admin/managers">Managers</SectionHeading><ModuleFrame title="Managers" src="/admin/managers" /></>}
+              {selectedTask === "googleLeads" && <><SectionHeading href="/admin/google-form-requirements">Google Form Leads</SectionHeading><ModuleFrame title="Google Form Leads" src="/admin/google-form-requirements" /></>}
+              {selectedTask === "referrals" && <><h3 className="text-lg font-bold text-[#10243A]">Refer & Earn</h3><p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Referral admin management screen is not implemented yet. Referral tracking, reward verification and payout status need a dedicated module.</p></>}
+              {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><ModuleFrame title="Policies" src="/admin/policies" /></>}
             </section>
           </div>
         )}
