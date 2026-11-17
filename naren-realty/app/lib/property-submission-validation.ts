@@ -1,6 +1,7 @@
 export const SUBMISSION_CATEGORIES = ["Rental", "Resale", "PG", "Airbnb"] as const;
 export const MAX_SUBMISSION_PHOTOS = 5;
 export const MAX_SUBMISSION_PHOTO_BYTES = 5 * 1024 * 1024;
+export const MAX_SUBMISSION_VIDEO_BYTES = 50 * 1024 * 1024;
 export const SUPPORTED_SUBMISSION_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export type PropertySubmissionInput = {
