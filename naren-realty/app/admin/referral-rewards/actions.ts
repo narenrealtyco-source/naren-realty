@@ -7,10 +7,12 @@ export async function loadReferralRewardQueues() {
   const { supabase } = await requireAdmin();
   const [approvedResult, claimsResult, paidResult] = await Promise.all([
     supabase.from("referral_attributions").select("*").eq("status", "approved").is("reward_triggered_at", null).order("verified_at", { ascending: false }).limit(500),
-    supabase.from("referral_reward_claims").select("*").eq("status", "waiting").order("submitted_at", { ascending: true }).limit(500),\n    supabase.from("referral_reward_claims").select("*").eq("status", "paid").order("paid_at", { ascending: false }).limit(500),
+    supabase.from("referral_reward_claims").select("*").eq("status", "waiting").order("submitted_at", { ascending: true }).limit(500),
+    supabase.from("referral_reward_claims").select("*").eq("status", "paid").order("paid_at", { ascending: false }).limit(500),
   ]);
   if (approvedResult.error) throw new Error(approvedResult.error.message);
-  if (claimsResult.error) throw new Error(claimsResult.error.message);\n  if (paidResult.error) throw new Error(paidResult.error.message);
+  if (claimsResult.error) throw new Error(claimsResult.error.message);
+  if (paidResult.error) throw new Error(paidResult.error.message);
   const rows = [...(approvedResult.data ?? []), ...(claimsResult.data ?? []), ...(paidResult.data ?? [])];
   const ids = [...new Set(rows.flatMap((r: any) => [r.referrer_user_id, r.referred_user_id, r.user_id].filter(Boolean)))];
   const [profiles, properties] = await Promise.all([
@@ -22,7 +24,8 @@ export async function loadReferralRewardQueues() {
   const propmap = new Map((properties.data ?? []).map((p:any)=>[p.id,p]));
   return {
     approved: (approvedResult.data ?? []).map((r:any)=>({...r, referrer:pmap.get(r.referrer_user_id) ?? null, referred:pmap.get(r.referred_user_id) ?? null, property:propmap.get(r.property_id) ?? null})),
-    waiting: (claimsResult.data ?? []).map((c:any)=>({...c, claimant:pmap.get(c.user_id) ?? null})),\n    paid: (paidResult.data ?? []).map((c:any)=>({...c, claimant:pmap.get(c.user_id) ?? null})),
+    waiting: (claimsResult.data ?? []).map((c:any)=>({...c, claimant:pmap.get(c.user_id) ?? null})),
+    paid: (paidResult.data ?? []).map((c:any)=>({...c, claimant:pmap.get(c.user_id) ?? null})),
   };
 }
 
