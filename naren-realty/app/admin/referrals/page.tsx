@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
 import {
@@ -209,7 +209,7 @@ export default function AdminReferralsPage() {
                   const submission = submissions[0];
                   const property = ownerProperties[0];
                   const isOpen = expandedId === row.id;
-                  return <tbody key={row.id} className="contents">
+                  return <Fragment key={row.id}>
                     <tr className="border-t border-slate-200 align-top hover:bg-amber-50/40">
                       <td className="sticky left-0 z-[1] bg-white px-3 py-3 font-mono text-[10px] text-slate-500">{index + 1}<br />{row.id.slice(0, 8)}</td>
                       <td className="px-3 py-3"><strong className="block text-slate-800">{row.referrer?.full_name ?? "—"}</strong><span className="text-slate-500">{row.referrer?.phone ?? "—"}</span></td>
@@ -264,7 +264,7 @@ export default function AdminReferralsPage() {
                         </>;
                       })()}
                     </td></tr>}
-                  </tbody>;
+                  </Fragment>;
                 })}
                 {!filtered.length && <tr><td colSpan={13} className="px-4 py-10 text-center text-sm text-slate-500">No referral records found for this register.</td></tr>}
               </tbody>
