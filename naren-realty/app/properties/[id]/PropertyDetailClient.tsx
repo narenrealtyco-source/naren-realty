@@ -379,7 +379,6 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [visitsReady, setVisitsReady] = useState(false);
   const [shareMessage, setShareMessage] = useState("");
-  const [shareUrl, setShareUrl] = useState("");
   const requestKey = `${listingId}:${loadAttempt}`;
   const loading = completedRequest !== requestKey;
   const loadError = loadFailure?.key === requestKey ? loadFailure.message : "";
@@ -396,7 +395,6 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
   async function shareProperty() {
     if (!listing) return;
     const url = `https://narenrealty.co/properties/${encodeURIComponent(listing.id)}`;
-    setShareUrl(url);
     setShareMessage("Preparing property card...");
     try {
       const canvas = document.createElement("canvas");
@@ -517,7 +515,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
       if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
         try {
           await navigator.share({ files: [imageFile], title: listing.title });
-          setShareMessage("Property card shared. Copy the property link below and send it separately for a clickable link.");
+          setShareMessage("Property card shared successfully.");
           return;
         } catch (shareError) {
           if (shareError instanceof DOMException && shareError.name === "AbortError") {
@@ -526,13 +524,13 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
           }
           // Some mobile browsers lose share permission while the image is being prepared.
           downloadCard();
-          setShareMessage("Property card downloaded. Post it as a Photo Status, then copy the link below and send it separately.");
+          setShareMessage("Property card downloaded successfully.");
           return;
         }
       }
 
       downloadCard();
-      setShareMessage("Property card downloaded. Post it as a Photo Status, then paste the copied property link as a separate Text Status.");
+      setShareMessage("Property card downloaded successfully.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setShareMessage("Share could not start. Please tap Share again.");
@@ -600,20 +598,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
                         </div>
                       </div>
                       {shareMessage && <p role="status" className="mt-3 text-sm text-slate-600">{shareMessage}</p>}
-                      {shareUrl && (
-                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-                          <p className="text-xs font-bold text-[#10243A]">PROPERTY LINK</p>
-                          <a href={shareUrl} className="mt-1 block break-all text-sm font-medium text-blue-700 underline" target="_blank" rel="noreferrer">{shareUrl}</a>
-                          <button type="button" onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(shareUrl);
-                              setShareMessage("Property link copied. Paste it into WhatsApp as a separate message.");
-                            } catch {
-                              setShareMessage("Tap and hold the property link above, then choose Copy.");
-                            }
-                          }} className="mt-3 rounded-lg bg-[#10243A] px-4 py-2 text-sm font-bold text-white">Copy Property Link</button>
-                        </div>
-                      )}
+
                     </section>
 
                     {highlights.length > 0 && (
