@@ -395,6 +395,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
   async function shareProperty() {
     if (!listing) return;
     const url = `${window.location.origin}/properties/${encodeURIComponent(listing.id)}`;
+    setShareMessage("Preparing property card...");
     try {
       const canvas = document.createElement("canvas");
       canvas.width = 1080;
@@ -494,24 +495,45 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
         canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Image export failed")), "image/png");
       });
       const imageFile = new File([blob], `naren-realty-${listing.id}.png`, { type: "image/png" });
-      const shareText = `${listing.title} · ${listing.locality}, Pune\\n${url}`;
+      const downloadCard = () => {
+        const downloadUrl = URL.createObjectURL(blob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = downloadUrl;
+        downloadLink.download = imageFile.name;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      };
 
-      if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
-        await navigator.share({ files: [imageFile], title: listing.title, text: shareText });
-        setShareMessage("Property card ready to share. Choose WhatsApp, then My Status.");
-        return;
+      try {
+        await navigator.clipboard?.writeText(url);
+      } catch {
+        // Clipboard access can be blocked by mobile browser permissions.
       }
 
-      const downloadUrl = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = downloadUrl;
-      downloadLink.download = imageFile.name;
-      downloadLink.click();
-      URL.revokeObjectURL(downloadUrl);
-      setShareMessage("Property card downloaded and property link copied. Post the image as a Photo Status, then paste the link as a separate Text Status.");
+      if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
+        try {
+          await navigator.share({ files: [imageFile], title: listing.title });
+          setShareMessage("Property card shared. The property link was copied separately; paste it as a Text Status if you want a clickable link.");
+          return;
+        } catch (shareError) {
+          if (shareError instanceof DOMException && shareError.name === "AbortError") {
+            setShareMessage("Sharing cancelled.");
+            return;
+          }
+          // Some mobile browsers lose share permission while the image is being prepared.
+          downloadCard();
+          setShareMessage("Property card downloaded. Post it as a Photo Status, then paste the copied property link as a separate Text Status.");
+          return;
+        }
+      }
+
+      downloadCard();
+      setShareMessage("Property card downloaded. Post it as a Photo Status, then paste the copied property link as a separate Text Status.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      setShareMessage("Could not create the property card. Please try again.");
+      setShareMessage("Share could not start. Please tap Share again.");
     }
   }
 
