@@ -1,6 +1,6 @@
 import "server-only";
 import { createPrivateSubmissionClient } from "./private-submission-server";
-import { MAX_SUBMISSION_PHOTO_BYTES, SUPPORTED_SUBMISSION_PHOTO_TYPES } from "./property-submission-validation";
+import { MAX_SUBMISSION_PHOTO_BYTES, MAX_SUBMISSION_VIDEO_BYTES, SUPPORTED_SUBMISSION_PHOTO_TYPES } from "./property-submission-validation";
 
 const PRIVATE_BUCKET = "private-property-submissions";
 
@@ -25,18 +25,18 @@ export async function propertySubmissionUploadsReady(): Promise<boolean> {
     }
 
     const allowedMimeTypes = data.allowed_mime_types;
-    const supportedTypes = [...SUPPORTED_SUBMISSION_PHOTO_TYPES].sort();
+    const supportedTypes = [...SUPPORTED_SUBMISSION_PHOTO_TYPES, "video/mp4"].sort();
     const configuredTypes = Array.isArray(allowedMimeTypes) ? [...allowedMimeTypes].sort() : [];
     const ready = data.id === PRIVATE_BUCKET &&
       data.public === false &&
-      data.file_size_limit === MAX_SUBMISSION_PHOTO_BYTES &&
+      data.file_size_limit === MAX_SUBMISSION_VIDEO_BYTES &&
       configuredTypes.length === supportedTypes.length &&
       configuredTypes.every((type, index) => type === supportedTypes[index]);
 
     if (!ready) {
       console.error("[property-submission] Private storage bucket configuration is not ready", {
         private: data.public === false,
-        sizeLimitMatches: data.file_size_limit === MAX_SUBMISSION_PHOTO_BYTES,
+        sizeLimitMatches: data.file_size_limit === MAX_SUBMISSION_VIDEO_BYTES,
         mimeTypesMatch: configuredTypes.length === supportedTypes.length &&
           configuredTypes.every((type, index) => type === supportedTypes[index]),
       });
