@@ -489,9 +489,6 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
       context.fillStyle = "#e5b84e";
       context.fillRect(0, 1310, 1080, 4);
-      context.fillStyle = "#ffffff";
-      context.font = "bold 28px Arial";
-      context.fillText("narenrealty.co", 66, 1350 - 14);
 
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Image export failed")), "image/png");
@@ -511,8 +508,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
       downloadLink.download = imageFile.name;
       downloadLink.click();
       URL.revokeObjectURL(downloadUrl);
-      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
-      setShareMessage("Property card downloaded and property link copied. Attach the image to WhatsApp Status.");
+      setShareMessage("Property card downloaded and property link copied. Post the image as a Photo Status, then paste the link as a separate Text Status.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setShareMessage("Could not create the property card. Please try again.");
