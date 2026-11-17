@@ -26,6 +26,10 @@ self.addEventListener("fetch", (event) => {
       if (response.ok && response.type === "basic") void cache.put(request, response.clone());
       return response;
     });
-    return cached || network;
+    if (cached) {
+      event.waitUntil(network.then(() => undefined).catch(() => undefined));
+      return cached;
+    }
+    return network;
   })());
 });
