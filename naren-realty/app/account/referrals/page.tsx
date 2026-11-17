@@ -47,6 +47,7 @@ export default function ReferralsPage() {
   const [signedIn, setSignedIn] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState<"tenant" | "owner" | "">("");
+  const [hasClaimableReward, setHasClaimableReward] = useState(false);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -60,6 +61,10 @@ export default function ReferralsPage() {
           return;
         }
         if (active) setSignedIn(true);
+        const { data: claimable } = await supabase.from("referral_attributions")
+          .select("id").eq("referred_user_id", customer.id).in("status", ["approved", "paid"])
+          .not("reward_triggered_at", "is", null).limit(1);
+        if (active) setHasClaimableReward(Boolean(claimable?.length));
 
         const { data, error: rpcError } = await supabase.rpc("customer_referral_dashboard");
         if (rpcError) throw rpcError;
@@ -133,7 +138,7 @@ export default function ReferralsPage() {
           <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-amber-400">REALTY</span></span>
           <span className="mt-1 block text-xs tracking-widest text-slate-300">CUSTOMER SERVICES</span>
         </Link>
-        <div className="flex flex-wrap gap-2"><Link href="/account/referral-claim" className="inline-flex min-h-11 items-center rounded-lg border border-amber-300 px-4 text-sm font-semibold text-amber-300 hover:bg-white/10">Claim Reward</Link><Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-4 text-sm font-semibold text-white hover:bg-white/10">My account</Link></div>
+        <div className="flex flex-wrap gap-2">{hasClaimableReward && <Link href="/account/referral-claim" className="inline-flex min-h-11 items-center rounded-lg border border-amber-300 px-4 text-sm font-semibold text-amber-300 hover:bg-white/10">Claim Reward</Link>}<Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-4 text-sm font-semibold text-white hover:bg-white/10">My account</Link></div>
       </div>
     </header>
 
