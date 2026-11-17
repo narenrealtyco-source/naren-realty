@@ -83,10 +83,10 @@ export default function Home() {
           <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-3 rounded-2xl border border-amber-300 bg-gradient-to-br from-amber-50 to-amber-100 p-5 lg:flex lg:gap-4">
             <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-[#10243A] text-amber-400"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="size-8"><path d="M3 9h18v4H3zM12 9v12M5 13v8h14v-8M12 9c-2 0-4-1-4-3a2 2 0 0 1 4 0c0 2 0 3 0 3Zm0 0c2 0 4-1 4-3a2 2 0 0 0-4 0" /></svg></span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-xl font-extrabold text-[#10243A]">Refer &amp; Earn</h2>
+              <div className="flex flex-wrap items-center gap-2"><h2 className="text-xl font-extrabold text-[#10243A]">Refer &amp; Earn</h2><span className="rounded-full bg-rose-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">Limited-time offer</span></div>
               <p className="mt-1 text-sm font-bold text-[#10243A]">Tenant Referral – <span className="text-amber-700">₹1,000</span></p>
-              <p className="text-sm font-bold text-[#10243A]">Owner Referral – <span className="text-amber-700">₹2,000</span></p>
-              <p className="mt-1 text-xs italic text-slate-600">Terms Apply.</p>
+              <p className="text-sm font-bold text-[#10243A]">Owner Referral – <span className="text-amber-700">₹2,000</span></p>\n              <p className="mt-2 rounded-lg bg-[#10243A] px-3 py-2 text-xs font-extrabold text-amber-300">OFFER VALID TILL 31 DECEMBER 2026</p>
+              <p className="mt-1 text-xs font-semibold text-slate-700">Terms &amp; Conditions Apply. See Referral Policy.</p>
             </div>
             <Link href="/account/referrals" className="col-start-2 inline-flex min-h-11 shrink-0 items-center justify-self-start rounded-lg bg-[#10243A] px-4 text-sm font-bold text-amber-400 hover:bg-[#1b3a5a]">Refer Now</Link>
           </div>
