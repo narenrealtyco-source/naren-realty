@@ -571,7 +571,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
             : !listing ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white px-5 py-14"><h1 className="text-2xl font-bold text-[#10243A]">Property unavailable</h1><p className="mt-2 text-slate-600">This property may no longer be approved for browsing.</p></div>
               : <>
                 <div className="mt-5">
-                  <PropertyPhotoGallery title={listing.title} photos={listing.photos} />
+                  <PropertyPhotoGallery title={listing.title} photos={listing.photos} videoUrl={listing.videoUrl} />
                 </div>
 
                 <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_20rem] xl:gap-9">
