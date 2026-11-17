@@ -64,8 +64,12 @@ export function validateVendorEnquiry(form: FormData) {
   if (!uuid(vendor_id)) throw new Error("Choose a valid vendor.");
   const mobile = field(form, "mobile", "Mobile", 13);
   if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
+  if (form.get("contact_consent") !== "yes") throw new Error("Please consent to sharing your contact details with this provider.");
   return {
-    vendor_id, mobile,
+    vendor_id,
+    customer_phone: mobile,
+    contact_consent: true,
+    locality: field(form, "locality", "Locality", 100),
     customer_name: field(form, "customer_name", "Name", 120),
     message: field(form, "message", "Requirement", 2000),
   };
