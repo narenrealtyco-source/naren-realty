@@ -23,6 +23,7 @@ type Submission = {
   details: unknown;
   owner_details: unknown;
   photo_paths: string[];
+  video_path: string | null;
   status: string;
   rejection_feedback: string | null;
   reviewed_by: string | null;
@@ -49,7 +50,7 @@ export default async function AdminSubmissionsPage() {
   let loadFailed = false;
   for (;;) {
     const { data, error, count } = await supabase.from("property_submissions")
-      .select("id,user_id,title,category,locality,address,price,area,description,details,owner_details,photo_paths,status,rejection_feedback,reviewed_by,reviewed_at,published_property_id,created_at", { count: "exact" })
+      .select("id,user_id,title,category,locality,address,price,area,description,details,owner_details,photo_paths,video_path,status,rejection_feedback,reviewed_by,reviewed_at,published_property_id,created_at", { count: "exact" })
       .order("created_at", { ascending: false }).order("id", { ascending: false })
       .range(submissions.length, submissions.length + 99);
     if (error || count === null || (!data?.length && submissions.length < count)) {
@@ -82,6 +83,7 @@ export default async function AdminSubmissionsPage() {
             <p className="mt-2 break-all text-xs text-slate-500">Submission: {submission.id} · Customer: {submission.user_id} · Created: {submission.created_at}</p>
             {submission.reviewed_at && <p className="mt-1 break-all text-xs text-slate-500">Reviewed: {submission.reviewed_at} · Reviewer: {submission.reviewed_by}</p>}
             {Array.isArray(submission.photo_paths) && submission.photo_paths.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{submission.photo_paths.map((_: unknown, index: number) => <a key={index} href={`/admin/submissions/${submission.id}/photos/${index}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold underline">View private photo {index + 1}</a>)}</div>}
+            {submission.video_path && <a href={`/admin/submissions/${submission.id}/video`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold underline">Preview submitted property video</a>}
             {submission.status === "pending" && <ReviewForms id={submission.id} />}
             {(submission.status === "rejected" || submission.status === "deleting") && !submission.published_property_id
               && <DeleteRejectedButton id={submission.id} retry={submission.status === "deleting"} />}
