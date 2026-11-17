@@ -2,6 +2,9 @@
 -- Applied to the connected Supabase project and verified separately.
 begin;
 
+alter table public.vendor_enquiries drop column if exists customer_phone;
+revoke insert on public.vendor_enquiries from authenticated;
+
 drop policy if exists "Customers and assigned vendors can read enquiries" on public.vendor_enquiries;
 drop policy if exists "Customers and admins can read vendor enquiries" on public.vendor_enquiries;
 create policy "Customers and admins can read vendor enquiries"
