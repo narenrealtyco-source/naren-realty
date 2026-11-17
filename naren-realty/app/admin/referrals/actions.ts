@@ -129,3 +129,76 @@ export async function reviewAdminReferral(input: {
   revalidatePath("/admin/referrals");
   revalidatePath("/account/referrals");
 }
+
+
+export type ReferralRegisterType = "tenant" | "owner";
+export type ReferralRegisterRow = {
+  referral: AdminReferral;
+  referralCode: string | null;
+  properties: Array<{ id: string; title: string; locality: string | null; status: string; created_at: string; updated_at: string | null }>;
+  submissions: Array<{ id: string; title: string; locality: string; status: string; created_at: string; reviewed_at: string | null; published_property_id: string | null }>;
+  requirements: Array<{ id: string; requirement_type: string; property_category: string; preferred_location: string; min_budget: number | null; max_budget: number | null; status: string; created_at: string }>;
+  googleRequirements: Array<{ id: string; requirement_type: string; property_category: string; preferred_location: string; min_budget: number | null; max_budget: number | null; status: string; created_at: string }>;
+  enquiries: Array<{ id: string; property_id: string | null; requirement: string | null; status: string; created_at: string }>;
+  visits: Array<{ id: string; property_id: string; status: string; visit_date: string | null; created_at: string }>;
+};
+
+export async function loadAdminReferralRegister(type: ReferralRegisterType): Promise<ReferralRegisterRow[]> {
+  const { supabase } = await requireAdmin();
+  const referralResult = await supabase
+    .from("referral_attributions")
+    .select("*")
+    .eq("referral_type", type)
+    .order("created_at", { ascending: false })
+    .limit(1000);
+  if (referralResult.error) throw new Error(`Could not load ${type} referrals: ${referralResult.error.message}`);
+
+  const rows = referralResult.data ?? [];
+  if (!rows.length) return [];
+  const userIds = Array.from(new Set(rows.map((row) => row.referred_user_id)));
+  const referrerIds = Array.from(new Set(rows.map((row) => row.referrer_user_id)));
+  const allUserIds = Array.from(new Set([...userIds, ...referrerIds]));
+  const codeIds = Array.from(new Set(rows.map((row) => row.referral_code_id).filter((id): id is string => Boolean(id))));
+
+  const [profileResult, codeResult, propertyResult, submissionResult, requirementResult, googleResult, enquiryResult, visitResult] = await Promise.all([
+    supabase.from("profiles").select("id,full_name,phone").in("id", allUserIds),
+    codeIds.length ? supabase.from("referral_codes").select("id,code").in("id", codeIds) : Promise.resolve({ data: [], error: null }),
+    type === "owner" ? supabase.from("properties").select("id,owner_id,title,locality,status,created_at,updated_at").in("owner_id", userIds).order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+    type === "owner" ? supabase.from("property_submissions").select("id,user_id,title,locality,status,created_at,reviewed_at,published_property_id").in("user_id", userIds).order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+    type === "tenant" ? supabase.from("property_requirements").select("id,customer_id,requirement_type,property_category,preferred_location,min_budget,max_budget,status,created_at").in("customer_id", userIds).order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+    type === "tenant" ? supabase.from("google_form_property_requirements").select("id,customer_phone,requirement_type,property_category,preferred_location,min_budget,max_budget,status,created_at").order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+    type === "tenant" ? supabase.from("enquiries").select("id,customer_id,property_id,requirement,status,created_at").in("customer_id", userIds).order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+    type === "tenant" ? supabase.from("visit_requests").select("id,customer_id,property_id,status,visit_date,created_at").in("customer_id", userIds).order("created_at", { ascending: false }).limit(2000) : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  for (const result of [profileResult, codeResult, propertyResult, submissionResult, requirementResult, googleResult, enquiryResult, visitResult]) {
+    if (result.error) throw new Error("Referral activity records could not be loaded. Please refresh and try again.");
+  }
+
+  const profiles = new Map((profileResult.data ?? []).map((p) => [p.id, p]));
+  const codes = new Map((codeResult.data ?? []).map((c) => [c.id, c.code]));
+  const phoneByUser = new Map(userIds.map((id) => [id, profiles.get(id)?.phone ?? ""]));
+  const properties = propertyResult.data ?? [];
+  const submissions = submissionResult.data ?? [];
+  const requirements = requirementResult.data ?? [];
+  const googleRequirements = googleResult.data ?? [];
+  const enquiries = enquiryResult.data ?? [];
+  const visits = visitResult.data ?? [];
+
+  return rows.map((row) => ({
+    referral: {
+      ...row,
+      reward_amount: Number(row.reward_amount),
+      referrer: profiles.get(row.referrer_user_id) ?? null,
+      referred: profiles.get(row.referred_user_id) ?? null,
+      property: null,
+    } as AdminReferral,
+    referralCode: codes.get(row.referral_code_id) ?? null,
+    properties: properties.filter((p) => p.owner_id === row.referred_user_id),
+    submissions: submissions.filter((s) => s.user_id === row.referred_user_id),
+    requirements: requirements.filter((r) => r.customer_id === row.referred_user_id),
+    googleRequirements: googleRequirements.filter((r) => r.customer_phone && r.customer_phone === phoneByUser.get(row.referred_user_id)),
+    enquiries: enquiries.filter((e) => e.customer_id === row.referred_user_id),
+    visits: visits.filter((v) => v.customer_id === row.referred_user_id),
+  }));
+}
