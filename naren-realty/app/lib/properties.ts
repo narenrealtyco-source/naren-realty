@@ -150,6 +150,7 @@ export type PropertyListing = {
   furnishing: string;
   description: string;
   photos: string[];
+  videoUrl?: string;
   categoryDetails?: PropertyCategoryDetails;
   publicListingDetails?: import("./submission-details").SubmissionDetails;
   status: ListingStatus;
