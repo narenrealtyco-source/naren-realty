@@ -2,6 +2,14 @@
 -- Applied to the connected Supabase project and verified separately.
 begin;
 
+alter table public.home_service_enquiries
+  add column if not exists locality text not null default '',
+  add column if not exists contact_consent boolean not null default false;
+alter table public.home_service_enquiries
+  drop constraint if exists home_service_enquiries_contact_consent_check;
+alter table public.home_service_enquiries
+  add constraint home_service_enquiries_contact_consent_check check (contact_consent is true);
+
 alter table public.vendor_enquiries drop column if exists customer_phone;
 revoke insert on public.vendor_enquiries from authenticated;
 
