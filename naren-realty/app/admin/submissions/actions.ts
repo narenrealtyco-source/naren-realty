@@ -113,6 +113,14 @@ export async function deleteRejectedSubmission(
       return path;
     });
 
+    const { data: videoRecord, error: videoLookupError } = await supabase.from("property_submissions").select("video_path").eq("id", id).maybeSingle();
+    if (videoLookupError) throw new Error("The video cleanup manifest could not be verified.");
+    if (typeof videoRecord?.video_path === "string") {
+      const videoPath = videoRecord.video_path;
+      if (!videoPath.startsWith(`${manifest.user_id}/${id}/`) || !uuidPattern.test(videoPath.slice(`${manifest.user_id}/${id}/`.length))) throw new Error("The video path failed security validation. No files were deleted.");
+      safePaths.push(videoPath);
+    }
+
     const storage = createPrivateSubmissionClient();
     const { error: storageError } = await storage.storage
       .from("private-property-submissions")
