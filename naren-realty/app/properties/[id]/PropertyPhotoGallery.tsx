@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type UIEvent } from "react";
 import Image from "next/image";
 
-export default function PropertyPhotoGallery({ title, photos }: { title: string; photos: string[] }) {
+export default function PropertyPhotoGallery({ title, photos, videoUrl }: { title: string; photos: string[]; videoUrl?: string }) {
   const railRef = useRef<HTMLDivElement>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -81,6 +81,7 @@ export default function PropertyPhotoGallery({ title, photos }: { title: string;
 
   return (
     <>
+      {videoUrl && <section aria-label="Property video" className="mb-3 overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-sm"><video src={videoUrl} controls playsInline preload="metadata" aria-label={`${title} property video`} className="max-h-[32rem] w-full bg-black" /></section>}
       <section aria-label="Property photo gallery" className="relative overflow-hidden rounded-2xl bg-[#10243A] shadow-sm">
         <div ref={railRef} onScroll={onMobileScroll} className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {actualPhotos.map((_, index) => (
