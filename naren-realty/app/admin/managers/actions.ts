@@ -3,10 +3,10 @@ import{revalidatePath}from"next/cache";import{requireAdmin}from"../../lib/supaba
 export type ManagerActionState={status:"idle"|"error"|"success";message:string};
 export async function createManager(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
- const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\\s()-]/g,""),area=String(form.get("area")??"").trim();
- if(fullName.length<2||fullName.length>100||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!/^\\+91[6-9]\\d{9}$/.test(phone)||area.length>100)return{status:"error",message:"Enter valid manager details."};
+ const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\s()-]/g,""),area=String(form.get("area")??"").trim();
+ if(fullName.length<2||fullName.length>100||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^\+91[6-9]\d{9}$/.test(phone)||area.length>100)return{status:"error",message:"Enter valid manager details."};
  const service=createSupabaseServiceClient();
- const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\\/$/,"");
+ const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\/$/,"");
  const{data,error}=await service.auth.admin.inviteUserByEmail(email,{
   data:{full_name:fullName,phone},
   redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`,
