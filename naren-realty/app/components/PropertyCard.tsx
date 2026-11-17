@@ -227,7 +227,7 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
     <div className="relative h-[220px] w-full shrink-0 bg-slate-100 sm:h-[280px]">
       <Link href={detailHref} aria-label={`View ${listing.title}`} className="absolute inset-0 overflow-hidden">
         {photos[0] && !photoFailed
-          ? <Image src={photos[0]} alt={listing.title} fill sizes="(max-width: 639px) 36vw, 40vw" unoptimized loading="lazy" decoding="async" onError={() => setPhotoFailed(true)} className="object-cover transition-transform duration-300 hover:scale-[1.03]" />
+          ? <Image src={photos[0]} alt={listing.title} fill sizes="(max-width: 767px) 100vw, 50vw" loading="lazy" decoding="async" onError={() => setPhotoFailed(true)} className="object-cover transition-transform duration-300 hover:scale-[1.03]" />
           : <div className="flex size-full items-center justify-center px-2 text-center text-xs font-medium text-slate-500">Photo unavailable</div>}
         <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-slate-950/75 px-1.5 py-1 text-[9px] font-semibold text-white backdrop-blur">
           <CardIcon kind="photos" />{photos.length ? `${photos.length} ${photos.length === 1 ? "photo" : "photos"}` : "No photos"}
