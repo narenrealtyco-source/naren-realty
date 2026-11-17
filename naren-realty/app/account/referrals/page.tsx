@@ -227,14 +227,14 @@ export default function ReferralsPage() {
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-slate-200 p-4">
             <h3 className="font-bold text-[#10243A]">Tenant referral <span className="text-amber-700">· ₹1,000</span></h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Payable after a successful rental transaction, execution of the rental agreement and Admin verification.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Payable only when the referred tenant completes a rental through NAREN REALTY, executes the Rent / Leave & License Agreement and passes Admin verification. Direct owner, market or other-broker deals do not qualify.</p>
           </div>
           <div className="rounded-xl border border-slate-200 p-4">
             <h3 className="font-bold text-[#10243A]">Property owner referral <span className="text-amber-700">· ₹2,000</span></h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Payable after listing approval, a successful deal and Admin verification.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Payable only when the referred owner’s approved listing is rented or resold through NAREN REALTY and Admin verifies the transaction. Direct, market or other-broker deals for the same property do not qualify.</p>
           </div>
         </div>
-        <p className="mt-5 text-xs leading-5 text-slate-500">Rewards are verified and paid manually by Admin, separate from brokerage. No PG referral reward applies. Terms apply.</p>
+        <p className="mt-5 text-xs leading-5 text-slate-500">No reward is created by registration or listing alone. Deals completed directly, in the open market or through another broker do not qualify, even for the same property listed on NAREN REALTY. Admin verifies and manually pays qualifying rewards, separate from brokerage. No buyer or PG referral reward applies. See the full Referral & Reward Policy.</p>
       </section>
     </div>
   </main>;
