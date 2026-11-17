@@ -67,9 +67,10 @@ export function validateVendorEnquiry(form: FormData) {
   if (form.get("contact_consent") !== "yes") throw new Error("Please consent to sharing your contact details with this provider.");
   return {
     vendor_id,
-    customer_phone: mobile,
+    mobile,
     contact_consent: true,
-    locality: field(form, "locality", "Locality", 100),
+    locality: field(form, "locality", "Locality", 120),
+    full_address: field(form, "full_address", "Full address", 500),
     customer_name: field(form, "customer_name", "Name", 120),
     message: field(form, "message", "Requirement", 2000),
   };
