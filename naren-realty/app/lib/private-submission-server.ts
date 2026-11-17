@@ -79,7 +79,7 @@ export async function reconcilePrivateSubmissions(client: Client, limit = 50): P
   return reconcileSubmissionPhotos(store, limit);
 }
 
-export function manifestFingerprint(payload: object, attempt: Pick<SubmissionAttempt, "id" | "ownerId" | "photos">): string {
+export function manifestFingerprint(payload: object, attempt: Pick<SubmissionAttempt, "id" | "ownerId" | "photos" | "video">): string {
   return createHash("sha256").update(JSON.stringify({
     id: attempt.id, ownerId: attempt.ownerId, payload,
     photos: attempt.photos.map(({ path, type, bytes, digest }) => ({ path, type, size: bytes.length, digest })),
