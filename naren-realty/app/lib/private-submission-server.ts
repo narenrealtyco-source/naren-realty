@@ -24,7 +24,10 @@ export function lifecycleStore(client: Client, payload: object): SubmissionLifec
   const bucket = client.storage.from(bucketName);
   return {
     async begin(attempt) {
-      const manifest = attempt.photos.map((photo) => ({ path: photo.path, type: photo.type, size: photo.bytes.length, digest: photo.digest }));
+      const manifest = [
+        ...attempt.photos.map((photo) => ({ path: photo.path, type: photo.type, size: photo.bytes.length, digest: photo.digest })),
+        ...(attempt.video ? [{ path: attempt.video.path, type: attempt.video.type, size: attempt.video.size, digest: attempt.video.digest }] : []),
+      ];
       const { data, error } = await client.rpc("begin_private_submission", {
         p_id: attempt.id, p_actor: attempt.ownerId, p_fingerprint: attempt.fingerprint, p_payload: payload, p_manifest: manifest,
       });
@@ -80,5 +83,6 @@ export function manifestFingerprint(payload: object, attempt: Pick<SubmissionAtt
   return createHash("sha256").update(JSON.stringify({
     id: attempt.id, ownerId: attempt.ownerId, payload,
     photos: attempt.photos.map(({ path, type, bytes, digest }) => ({ path, type, size: bytes.length, digest })),
+    video: attempt.video ?? null,
   })).digest("hex");
 }
