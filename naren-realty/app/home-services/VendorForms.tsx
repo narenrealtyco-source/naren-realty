@@ -155,8 +155,10 @@ export function VendorEnquiryForm({ vendorId, ready }: { vendorId: string; ready
     <h2 className="text-xl font-bold text-[#10243A]">Enquire about this provider</h2>
     <input type="hidden" name="vendor_id" value={vendorId} />
     <label className={label}>Your name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label>
-    <label className={label}>Mobile<input name="mobile" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>
+    <label className={label}>Mobile number<input name="mobile" className={input} type="tel" maxLength={13} autoComplete="tel" placeholder="10-digit mobile number" required /></label>
+    <label className={label}>Your locality<input name="locality" className={input} maxLength={100} placeholder="e.g. Wakad, Baner" required /></label>
     <label className={label}>Your requirements<textarea name="message" className={input} maxLength={2000} rows={4} required /></label>
+    <label className="flex items-start gap-2 text-sm text-slate-600"><input name="contact_consent" type="checkbox" value="yes" required className="mt-1 accent-[#10243A]" /><span>I agree that NAREN REALTY may share my name, mobile number, locality and service requirement with this service provider to respond to my enquiry.</span></label>
     <p className="text-sm text-slate-600">A customer account is required. <Link href="/account#login" className="underline">Sign in</Link></p>
     {state.message && <p role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
     <button disabled={!ready || pending || state.status === "success"} className={button}>{pending ? "Sending..." : "Send enquiry"}</button>
