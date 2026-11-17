@@ -6,8 +6,8 @@ import { respondToVendorLead } from "../../../home-services/vendor-actions";
 type VendorLead = {
   id: string;
   customer_name: string;
-  customer_phone: string | null;
   locality: string;
+  contact?: { mobile: string; full_address: string } | null;
   message: string;
   status: "new" | "contacted" | "closed" | "cancelled";
   payment_status: "pending" | "paid" | "waived" | "refunded";
@@ -50,7 +50,17 @@ export default async function VendorDashboardPage() {
     console.error("[vendor] Dashboard lead lookup failed", { code: error.code });
     return <main className="min-h-screen bg-slate-50 p-5"><p role="alert">Service leads could not be loaded. Please refresh or contact NAREN REALTY.</p></main>;
   }
-  const leads = (Array.isArray(data) ? data : []) as VendorLead[];
+  const rawLeads = (Array.isArray(data) ? data : []) as Omit<VendorLead, "contact">[];
+  const leads: VendorLead[] = await Promise.all(rawLeads.map(async (lead) => {
+    if (lead.payment_status !== "paid" && lead.payment_status !== "waived") return { ...lead, contact: null };
+    const { data: contactRows, error: contactError } = await supabase.rpc("get_unlocked_vendor_lead_contact", { p_enquiry_id: lead.id });
+    if (contactError) {
+      console.error("[vendor] Paid lead contact lookup failed", { code: contactError.code });
+      return { ...lead, contact: null };
+    }
+    const contact = Array.isArray(contactRows) ? contactRows[0] : null;
+    return { ...lead, contact: contact ? { mobile: contact.mobile, full_address: contact.full_address } : null };
+  }));
 
   return <main className="min-h-screen bg-slate-50 p-4 text-slate-900 sm:p-8"><div className="mx-auto max-w-4xl">
     <Link href="/home-services" className="text-sm font-semibold underline">← Home Services</Link>
@@ -64,7 +74,7 @@ export default async function VendorDashboardPage() {
         <p className="mt-2 text-sm text-slate-600">{lead.locality} · {new Date(lead.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
         <p className="mt-3 whitespace-pre-wrap text-sm">{lead.message}</p>
         <p className="mt-3 text-xs text-slate-500">Lead payment: {lead.payment_status}</p>
-        {lead.customer_phone ? <p className="mt-2 font-semibold text-emerald-800">Customer mobile: {lead.customer_phone}</p> : <p className="mt-2 text-xs text-slate-500">Customer mobile unlocks after the lead payment is marked paid or waived by NAREN REALTY Admin.</p>}
+        {lead.contact ? <div className="mt-2 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900"><p className="font-semibold">Customer mobile: {lead.contact.mobile}</p><p className="mt-1">Address: {lead.contact.full_address}</p></div> : <p className="mt-2 text-xs text-slate-500">Customer mobile and full address unlock after the lead payment is marked paid by NAREN REALTY Admin.</p>}
         {lead.status === "new" && <form action={respondToVendorLead} className="mt-4 flex flex-wrap gap-2">
           <input type="hidden" name="enquiry_id" value={lead.id} />
           <button name="decision" value="accept" className="min-h-11 rounded-lg bg-[#10243A] px-5 font-semibold text-white">Accept Lead</button>
