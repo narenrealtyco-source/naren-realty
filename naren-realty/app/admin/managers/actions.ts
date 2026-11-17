@@ -1,22 +1,15 @@
 "use server";
-import{revalidatePath}from"next/cache";import{requireAdmin}from"../../lib/supabase-server";import{createSupabaseServiceClient}from"../../lib/supabase-service";
+import{revalidatePath}from"next/cache";import{requireAdmin}from"../../lib/supabase-server";import{createSupabaseServiceClient}from"../../lib/supabase-service";import{sendManagerSetupEmail as deliverManagerSetupEmail}from"../../lib/resend-manager-email";
 export type ManagerActionState={status:"idle"|"error"|"success";message:string};
 export async function createManager(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
  const fullName=String(form.get("full_name")??"").trim(),email=String(form.get("email")??"").trim().toLowerCase(),phone=String(form.get("phone")??"").replace(/[\s()-]/g,""),area=String(form.get("area")??"").trim();
  if(fullName.length<2||fullName.length>100||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^\+91[6-9]\d{9}$/.test(phone)||area.length>100)return{status:"error",message:"Enter valid manager details."};
  const service=createSupabaseServiceClient();
- const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\/$/,"");
- const{data,error}=await service.auth.admin.inviteUserByEmail(email,{
-  data:{full_name:fullName,phone},
-  redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`,
- });
- if(error||!data.user)return{status:"error",message:error?.message??"Invitation email could not be sent. Check Auth SMTP configuration."};
+ const{data,error}=await service.auth.admin.createUser({email,email_confirm:true,user_metadata:{full_name:fullName,phone}});
+ if(error||!data.user)return{status:"error",message:error?.message??"Manager account could not be created."};
  const{error:phoneError}=await service.auth.admin.updateUserById(data.user.id,{phone,phone_confirm:true});
- if(phoneError){
-  await service.auth.admin.deleteUser(data.user.id);
-  return{status:"error",message:"Invitation account phone setup failed; account creation was rolled back. Check the phone provider settings."};
- }
+ if(phoneError){await service.auth.admin.deleteUser(data.user.id);return{status:"error",message:"Manager phone setup failed; account creation was rolled back."};}
  const{data:profile,error:profileError}=await service.from("profiles").upsert({
   id:data.user.id,full_name:fullName,phone,role:"manager",manager_active:true,
   manager_area:area||null,manager_email:email,
@@ -24,10 +17,20 @@ export async function createManager(_state:ManagerActionState,form:FormData):Pro
  if(profileError||!profile||profile.id!==data.user.id||profile.role!=="manager"){
   await service.auth.admin.deleteUser(data.user.id);
   console.error("[manager] Profile upsert failed",{code:profileError?.code??"profile_verification_failed"});
-  return{status:"error",message:"Manager profile could not be verified. Account creation was rolled back; contact admin if invitation email arrived."};
+  return{status:"error",message:"Manager profile could not be verified. Account creation was rolled back."};
+ }
+ try {
+  const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\/$/,"");
+  const{data:linkData,error:linkError}=await service.auth.admin.generateLink({type:"recovery",email,options:{redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`}});
+  if(linkError||!linkData.properties?.action_link)throw new Error("Secure setup link could not be generated.");
+  await deliverManagerSetupEmail({to:email,name:fullName,actionLink:linkData.properties.action_link});
+ } catch(error) {
+  console.error("[manager] Setup email failed",error);
+  revalidatePath("/admin/managers");
+  return{status:"error",message:"Manager account was created, but setup email could not be sent. Use Send / Resend Setup Email."};
  }
  revalidatePath("/admin");revalidatePath("/admin/managers");revalidatePath("/admin/visits");
- return{status:"success",message:"Manager invitation email sent. They must open the email and create their password before logging in."};
+ return{status:"success",message:"Manager account created. Secure password setup email accepted by email provider."};
 }
 export async function sendManagerSetupEmail(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
@@ -38,9 +41,15 @@ export async function sendManagerSetupEmail(_state:ManagerActionState,form:FormD
  if(lookupError||!manager?.manager_email)return{status:"error",message:"Manager email was not found."};
  if(manager.manager_active!==true)return{status:"error",message:"Activate this manager before sending the setup email."};
  const siteUrl=(process.env.NEXT_PUBLIC_SITE_URL??"https://narenrealty.co").replace(/\/$/,"");
- const{error}=await service.auth.resetPasswordForEmail(manager.manager_email,{redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`});
- if(error)return{status:"error",message:error.message};
- return{status:"success",message:"Password setup email sent to the manager."};
+ try {
+  const{data:linkData,error:linkError}=await service.auth.admin.generateLink({type:"recovery",email:manager.manager_email,options:{redirectTo:`${siteUrl}/auth/callback?next=/manager/accept-invite`}});
+  if(linkError||!linkData.properties?.action_link)throw new Error("Secure setup link could not be generated.");
+  await deliverManagerSetupEmail({to:manager.manager_email,name:"Manager",actionLink:linkData.properties.action_link});
+ } catch(error) {
+  console.error("[manager] Setup email resend failed",error);
+  return{status:"error",message:error instanceof Error?error.message:"Setup email could not be sent."};
+ }
+ return{status:"success",message:"Setup email accepted by email provider."};
 }
 export async function setManagerActive(_state:ManagerActionState,form:FormData):Promise<ManagerActionState>{
  try{await requireAdmin();}catch{return{status:"error",message:"Admin authorization is required."};}
