@@ -150,10 +150,20 @@ export async function submitProperty(
         videoPath.slice(`${user.id}/${submissionId}/`.length) !== `${videoDigest.slice(0,8)}-${videoDigest.slice(8,12)}-${videoDigest.slice(12,16)}-${videoDigest.slice(16,20)}-${videoDigest.slice(20,32)}`) {
       return { status: "error", message: "The selected MP4 video is invalid. Please select it again." };
     }
-    const { data: stored, error: storedError } = await createPrivateSubmissionClient().storage.from("private-property-submissions").list(`${user.id}/${submissionId}`, { search: videoPath.split("/").pop() });
+    const privateClient = createPrivateSubmissionClient();
+    const { data: stored, error: storedError } = await privateClient.storage.from("private-property-submissions").list(`${user.id}/${submissionId}`, { search: videoPath.split("/").pop() });
     const object = stored?.find((item) => item.name === videoPath.split("/").pop());
     if (storedError || !object || object.metadata?.mimetype !== "video/mp4" || Number(object.metadata?.size) !== videoSize) {
       return { status: "error", message: "The MP4 upload could not be verified. Please retry the video upload." };
+    }
+    const { data: storedVideo, error: downloadError } = await privateClient.storage.from("private-property-submissions").download(videoPath);
+    if (downloadError || !storedVideo || storedVideo.size !== videoSize || storedVideo.type !== "video/mp4") {
+      return { status: "error", message: "The MP4 upload could not be verified. Please retry the video upload." };
+    }
+    const videoBytes = new Uint8Array(await storedVideo.arrayBuffer());
+    if (videoBytes.length < 12 || new TextDecoder().decode(videoBytes.slice(4, 8)) !== "ftyp" ||
+        createHash("sha256").update(videoBytes).digest("hex") !== videoDigest) {
+      return { status: "error", message: "The uploaded video failed MP4 integrity verification. Please select it again." };
     }
     stagedVideo = { path: videoPath, type: "video/mp4", size: videoSize, digest: videoDigest };
   }
