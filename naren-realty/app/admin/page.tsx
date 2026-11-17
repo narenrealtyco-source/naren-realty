@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
   const tasks: TaskItem[] = [
     { key: "properties", label: "Properties", count: stats?.properties.state === "available" ? stats.properties.metrics.totalProperties : undefined },
     { key: "addProperty", label: "Add Property" },
-    { key: "visits", label: "Visit Schedule", count: stats?.visits.state === "available" && stats?.enquiries.state === "available" ? stats.visits.metrics.totalVisits + stats.enquiries.metrics.totalEnquiries : undefined },
+    { key: "visits", label: "Visit Schedule", count: stats?.visits.state === "available" || stats?.enquiries.state === "available" ? (stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : 0) + (stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : 0) : undefined },
     { key: "loans", label: "Loans", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalLoanRequests : undefined },
     { key: "matches", label: "Matches", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements - stats.requirements.metrics.totalLoanRequests : undefined },
     { key: "requirements", label: "Customer Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements - stats.requirements.metrics.totalLoanRequests : undefined },
