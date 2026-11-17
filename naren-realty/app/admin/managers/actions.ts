@@ -39,9 +39,9 @@ export async function createManager(_state: ManagerActionState, form: FormData):
   try { await requireAdmin(); } catch { return { status: "error", message: "Admin authorization is required." }; }
   const fullName = String(form.get("full_name") ?? "").trim();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
-  const phone = String(form.get("phone") ?? "").replace(/[\\s()-]/g, "");
+  const phone = String(form.get("phone") ?? "").replace(/[\s()-]/g, "");
   const area = String(form.get("area") ?? "").trim();
-  if (fullName.length < 2 || fullName.length > 100 || !/^\\S+@\\S+\\.\\S+$/.test(email) || !/^\\+91[6-9]\\d{9}$/.test(phone) || area.length > 100) {
+  if (fullName.length < 2 || fullName.length > 100 || !/^\S+@\S+\.\S+$/.test(email) || !/^\+91[6-9]\d{9}$/.test(phone) || area.length > 100) {
     return { status: "error", message: "Enter a valid name, email, Indian mobile number and area." };
   }
   const service = createSupabaseServiceClient();
