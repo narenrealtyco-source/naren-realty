@@ -43,12 +43,7 @@ export default function NotificationBell() {
     void (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!active || !user) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (!active || profile?.role === "admin") return;
+      if (!active) return;
       await load(user.id);
       if (!active) return;
       channel = supabase
