@@ -23,6 +23,7 @@ with check (
 );
 
 drop policy if exists "Customers and assigned vendors can read enquiries" on public.vendor_enquiries;
+drop policy if exists "Customers and admins can read vendor enquiries" on public.vendor_enquiries;
 create policy "Customers and admins can read vendor enquiries"
 on public.vendor_enquiries for select to authenticated
 using (customer_id = (select auth.uid()) or (select is_admin()));
