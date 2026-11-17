@@ -395,7 +395,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
   async function shareProperty() {
     if (!listing) return;
-    const url = `${window.location.origin}/properties/${encodeURIComponent(listing.id)}`;
+    const url = `https://narenrealty.co/properties/${encodeURIComponent(listing.id)}`;
     setShareUrl(url);
     setShareMessage("Preparing property card...");
     try {
