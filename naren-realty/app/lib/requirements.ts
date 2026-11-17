@@ -89,10 +89,10 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   const bhk = preferences.bhkChoice ?? "Any";
   const actualBhk = String(
     categoryDetails?.bhkConfiguration ?? values[`${categoryKey}_bhk`] ?? property.bedrooms ?? "",
-  ).toLowerCase().replace(/\\s+/g, "");
+  ).toLowerCase().replace(/\s+/g, "");
   if (bhk === "4+ BHK") {
     if (Number.parseInt(actualBhk, 10) < 4) return false;
-  } else if (bhk !== "Any" && actualBhk !== bhk.toLowerCase().replace(/\\s+/g, "")) return false;
+  } else if (bhk !== "Any" && actualBhk !== bhk.toLowerCase().replace(/\s+/g, "")) return false;
   if (!preferences.bhkChoice && requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
   return true;
 }
