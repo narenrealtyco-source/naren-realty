@@ -48,3 +48,29 @@ export async function enquireVendor(_state: VendorState, form: FormData): Promis
   }
   return { status: "success", message: "Your enquiry was received. Our team will review it." };
 }
+
+
+export async function respondToVendorLead(form: FormData): Promise<void> {
+  const enquiryId = form.get("enquiry_id");
+  const decision = form.get("decision");
+  if (typeof enquiryId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(enquiryId)) {
+    throw new Error("Invalid service lead.");
+  }
+  if (decision !== "accept" && decision !== "decline") {
+    throw new Error("Choose accept or decline.");
+  }
+  const supabase = await createSupabaseServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error("Please sign in to manage service leads.");
+  const { error } = await supabase.rpc("vendor_respond_to_enquiry", {
+    p_enquiry_id: enquiryId,
+    p_decision: decision,
+  });
+  if (error) {
+    console.error("[vendor] Lead response failed", { code: error.code });
+    throw new Error("This service lead could not be updated. Refresh and try again.");
+  }
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/services/vendor/dashboard");
+  revalidatePath("/admin/services/vendors");
+}
