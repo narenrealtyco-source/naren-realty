@@ -12,9 +12,8 @@ async function sendVendorApplicationEmail(email: string, name: string, businessN
     return false;
   }
   const dashboardUrl = "https://narenrealty.co/services/vendor/dashboard";
-  const loginUrl = "https://narenrealty.co/account#login";
   const safe = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
-  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#182B40;line-height:1.6"><div style="background:#10243A;color:white;padding:22px"><h2>NAREN REALTY</h2><p>Home Services · Service Partner Registration</p></div><div style="padding:24px;border:1px solid #ddd"><p>Hello ${safe(name)},</p><p>Thank you for registering <strong>${safe(businessName)}</strong> with NAREN REALTY Home Services.</p><p>Your application has been received and is pending review by our team. We will notify you when its status changes.</p><p><a href="${dashboardUrl}" style="display:inline-block;background:#10243A;color:#fff;padding:12px 18px;text-decoration:none;border-radius:8px">Open Vendor Dashboard</a></p><p>Sign in with the same account used during registration:</p><p><a href="${loginUrl}">Vendor Login</a></p><p>Dashboard: <a href="${dashboardUrl}">${dashboardUrl}</a></p><p>Regards,<br>NAREN REALTY Team</p></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#182B40;line-height:1.6"><div style="background:#10243A;color:white;padding:22px"><h2>NAREN REALTY</h2><p>Home Services · Service Partner Registration</p></div><div style="padding:24px;border:1px solid #ddd"><p>Hello ${safe(name)},</p><p>Thank you for registering <strong>${safe(businessName)}</strong> with NAREN REALTY Home Services.</p><p>Your application has been received and is pending review by our team. We will notify you when its status changes.</p><p><a href="${dashboardUrl}" style="display:inline-block;background:#10243A;color:#fff;padding:12px 18px;text-decoration:none;border-radius:8px">Login to Vendor Dashboard</a></p><p>Use the same account and registered email address you used while applying.</p><p>Regards,<br>NAREN REALTY Team</p></div></div>`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -23,7 +22,7 @@ async function sendVendorApplicationEmail(email: string, name: string, businessN
       to: [email],
       subject: "NAREN REALTY – Vendor Registration Received",
       html,
-      text: `Hello ${name}, your application for ${businessName} has been received and is pending review. Vendor dashboard: ${dashboardUrl} Login: ${loginUrl} Regards, NAREN REALTY Team.`,
+      text: `Hello ${name}, your application for ${businessName} has been received and is pending review. Login to Vendor Dashboard: ${dashboardUrl} Regards, NAREN REALTY Team.`,
     }),
     cache: "no-store",
   });
