@@ -143,6 +143,7 @@ export function VendorApplicationForm({ categories, ready }: { categories: Marke
       </div>
       {!ready && <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Online applications are temporarily unavailable while the secure vendor database is being configured. Your information will not be submitted or stored.</p>}
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">{state.message}</p>}
+      {state.status === "success" && <Link href="/services/vendor/dashboard" className="inline-flex min-h-11 items-center font-semibold text-[#10243A] underline">Track application / Open partner dashboard</Link>}
       <button disabled={!ready || pending || state.status === "success" || categoryIds.length === 0 || !servicesValue.trim() || !locality.trim()} className={button}>{pending ? "Submitting application..." : "Submit Application"}</button>
       <p className="text-center text-[11px] text-slate-400">By submitting this form, you authorise NAREN REALTY to contact you for business verification and onboarding.</p>
     </div>
