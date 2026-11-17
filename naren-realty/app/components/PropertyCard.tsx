@@ -233,7 +233,6 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
           <CardIcon kind="photos" />{photos.length ? `${photos.length} ${photos.length === 1 ? "photo" : "photos"}` : "No photos"}
         </span>
       </Link>
-      <div className="absolute right-2 top-2"><FavoriteButton propertyId={listing.id} title={listing.title} locality={listing.locality} type={category} price={price ?? ""} bedrooms={listing.bedrooms || undefined} /></div>
     </div>
 
     <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4 sm:gap-2 sm:p-5 lg:p-6">
@@ -259,11 +258,12 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
         {highlights.map((highlight) => <li key={highlight} className="property-highlight max-w-full rounded-full border border-amber-200 bg-amber-50 px-1 py-0.5 text-[8px] font-bold leading-tight text-amber-900 sm:px-2 sm:text-[10px]">{highlight}</li>)}
       </ul>}
 
-      <div className="mt-auto grid grid-cols-2 gap-1 pt-1">
-        <Link href={detailHref} className="flex min-h-7 min-w-0 items-center justify-center rounded-lg bg-amber-400 px-1 py-1 text-[10px] font-bold leading-tight text-slate-950 transition hover:bg-amber-300 sm:text-xs">View Details</Link>
-        <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-7 min-w-0 rounded-lg bg-[#10243A] px-1 py-1 text-[9px] font-bold leading-tight text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
-      </div>
       {!visitsReady && <p className="mt-1 text-[9px] leading-tight text-slate-500">Visit requests are not available yet.</p>}
+    </div>
+    <div className="mt-auto grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 bg-white p-3 sm:p-4">
+      <FavoriteButton propertyId={listing.id} title={listing.title} locality={listing.locality} type={category} price={price ?? ""} bedrooms={listing.bedrooms || undefined} />
+      <Link href={detailHref} className="flex min-h-10 min-w-0 items-center justify-center rounded-lg bg-amber-400 px-2 py-2 text-[10px] font-bold leading-tight text-slate-950 transition hover:bg-amber-300 sm:text-xs">View Details</Link>
+      <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-10 min-w-0 rounded-lg bg-[#10243A] px-2 py-2 text-[9px] font-bold leading-tight text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
     </div>
     {visitOpen && <VisitRequestForm propertyId={listing.id} title={listing.title} onClose={() => setVisitOpen(false)} />}
   </article>;
