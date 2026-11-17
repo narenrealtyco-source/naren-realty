@@ -86,6 +86,19 @@ begin
 end;
 $$;
 
+create or replace function public.notification_on_vendor_enquiry()
+returns trigger language plpgsql security definer set search_path = pg_catalog, public
+as $
+begin
+  perform public.notify_admins('new_vendor_enquiry','New vendor service lead',
+    new.customer_name || ' submitted a service enquiry.','/admin/services/vendors');
+  perform public.notify_user(new.customer_id,'vendor_enquiry_received','Service enquiry received',
+    'Your service request has been sent to the selected provider. NAREN REALTY will notify you when there is an update.',
+    '/home-services');
+  return new;
+end;
+$;
+
 create or replace function public.notification_user_vendor_lead()
 returns trigger language plpgsql security definer set search_path = pg_catalog, public
 as $$
@@ -218,6 +231,7 @@ grant execute on function public.vendor_respond_to_enquiry(uuid,text) to authent
 
 revoke all on function public.notify_user(uuid,text,text,text,text) from public, anon, authenticated;
 revoke all on function public.notify_admins(text,text,text,text) from public, anon, authenticated;
+revoke all on function public.notification_on_vendor_enquiry() from public, anon, authenticated;
 revoke all on function public.notification_on_vendor_enquiry_update() from public, anon, authenticated;
 revoke all on function public.notification_on_vendor_application() from public, anon, authenticated;
 revoke all on function public.notification_on_home_service_status_update() from public, anon, authenticated;
