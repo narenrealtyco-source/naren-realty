@@ -44,6 +44,7 @@ export function mapPublicProperty(value: unknown, publicUrl: (path: string) => s
     publicListingDetails: publicDetails,
     availableFrom: publicDetails?.values.common_available_from,
     availabilityConfirmation: publicListing?.availabilityConfirmation === "immediate" || publicListing?.availabilityConfirmation === "date" ? publicListing.availabilityConfirmation : undefined,
+    videoUrl: publicListing && typeof publicListing.videoPath === "string" && publicListing.videoPath.trim() ? `/properties/${encodeURIComponent(text(row.id, true))}/video` : undefined,
     photos: paths.map((path, index) => path.startsWith("private-submission/")
       ? `/properties/${encodeURIComponent(text(row.id, true))}/photos/${index}`
       : publicUrl(path.startsWith("property-photos/") ? path.slice("property-photos/".length) : path)),
