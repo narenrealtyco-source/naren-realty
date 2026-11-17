@@ -394,22 +394,128 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
   async function shareProperty() {
     if (!listing) return;
-    const url = window.location.href;
+    const url = `${window.location.origin}/properties/${encodeURIComponent(listing.id)}`;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: listing.title, text: `${listing.title} · ${listing.locality}, Pune`, url });
-        setShareMessage("Property shared.");
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1350;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Canvas is unavailable");
+
+      context.fillStyle = "#071a32";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = "#d9a83f";
+      context.fillRect(0, 0, canvas.width, 18);
+
+      const photos = Array.isArray(listing.photos) ? listing.photos.filter((photo) => typeof photo === "string" && photo.trim()) : [];
+      if (photos[0]) {
+        try {
+          const photo = new Image();
+          photo.crossOrigin = "anonymous";
+          photo.src = photos[0];
+          await new Promise<void>((resolve, reject) => {
+            photo.onload = () => resolve();
+            photo.onerror = () => reject(new Error("Property photo could not be loaded"));
+          });
+          const scale = Math.max(1080 / photo.naturalWidth, 650 / photo.naturalHeight);
+          const width = photo.naturalWidth * scale;
+          const height = photo.naturalHeight * scale;
+          context.save();
+          context.beginPath();
+          context.rect(0, 18, 1080, 650);
+          context.clip();
+          context.drawImage(photo, (1080 - width) / 2, 18 + (650 - height) / 2, width, height);
+          context.restore();
+        } catch {
+          context.fillStyle = "#173554";
+          context.fillRect(0, 18, 1080, 650);
+        }
+      } else {
+        context.fillStyle = "#173554";
+        context.fillRect(0, 18, 1080, 650);
+      }
+
+      const drawText = (value: string, x: number, y: number, maxWidth: number, lineHeight: number, font: string, color: string, maxLines = 2) => {
+        context.font = font;
+        context.fillStyle = color;
+        const words = value.split(/\\s+/);
+        let line = "";
+        let lineNumber = 0;
+        for (const word of words) {
+          const candidate = line ? `${line} ${word}` : word;
+          if (context.measureText(candidate).width > maxWidth && line) {
+            context.fillText(line, x, y + lineNumber * lineHeight);
+            lineNumber += 1;
+            line = word;
+            if (lineNumber >= maxLines - 1) break;
+          } else {
+            line = candidate;
+          }
+        }
+        if (line && lineNumber < maxLines) {
+          const remaining = words.slice(words.indexOf(line.split(" ")[0])).join(" ");
+          context.fillText(lineNumber === maxLines - 1 && context.measureText(remaining).width > maxWidth ? `${line.slice(0, Math.max(0, line.length - 3))}…` : line, x, y + lineNumber * lineHeight);
+        }
+      };
+
+      context.fillStyle = "#071a32";
+      context.fillRect(0, 668, 1080, 682);
+      context.fillStyle = "#e5b84e";
+      context.font = "bold 42px Arial";
+      context.fillText("NAREN REALTY", 64, 735);
+      context.fillStyle = "#ffffff";
+      context.font = "24px Arial";
+      context.fillText("BUY  •  SELL  •  RENT  •  INVEST", 66, 780);
+
+      context.fillStyle = "#e5b84e";
+      context.font = "bold 25px Arial";
+      context.fillText(purposeLabel.toUpperCase(), 66, 850);
+      drawText(listing.title, 66, 915, 940, 58, "bold 48px Arial", "#ffffff", 2);
+      context.fillStyle = "#dce6f1";
+      context.font = "30px Arial";
+      context.fillText(`${listing.locality}, Pune`, 66, 1045);
+
+      context.fillStyle = "#e5b84e";
+      context.font = "bold 54px Arial";
+      context.fillText(price, 66, 1135);
+      context.fillStyle = "#ffffff";
+      context.font = "25px Arial";
+      context.fillText(categoryLabel, 66, 1185);
+
+      const facts = highlights.slice(0, 3).map((fact) => `${fact.label}: ${fact.value}`);
+      context.fillStyle = "#dce6f1";
+      context.font = "22px Arial";
+      facts.forEach((fact, index) => context.fillText(fact.slice(0, 58), 66, 1240 + index * 30));
+
+      context.fillStyle = "#e5b84e";
+      context.fillRect(0, 1310, 1080, 4);
+      context.fillStyle = "#ffffff";
+      context.font = "bold 28px Arial";
+      context.fillText("narenrealty.co", 66, 1350 - 14);
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Image export failed")), "image/png");
+      });
+      const imageFile = new File([blob], `naren-realty-${listing.id}.png`, { type: "image/png" });
+      const shareText = `${listing.title} · ${listing.locality}, Pune\\n${url}`;
+
+      if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
+        await navigator.share({ files: [imageFile], title: listing.title, text: shareText });
+        setShareMessage("Property card ready to share. Choose WhatsApp, then My Status.");
         return;
       }
-      if (!navigator.clipboard?.writeText) {
-        setShareMessage("Sharing is not available in this browser.");
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      setShareMessage("Property link copied.");
+
+      const downloadUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = imageFile.name;
+      downloadLink.click();
+      URL.revokeObjectURL(downloadUrl);
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+      setShareMessage("Property card downloaded and property link copied. Attach the image to WhatsApp Status.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      setShareMessage("Could not share the property. Please try again.");
+      setShareMessage("Could not create the property card. Please try again.");
     }
   }
 
