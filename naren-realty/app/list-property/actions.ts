@@ -69,6 +69,19 @@ export async function submitProperty(
   if (profile.role !== "customer") {
     return { status: "error", message: "A Customer account is required to submit a property." };
   }
+  const { data: ownerCapability, error: ownerCapabilityError } = await supabase
+    .from("profile_capabilities")
+    .select("capability")
+    .eq("user_id", user.id)
+    .eq("capability", "owner")
+    .maybeSingle();
+  if (ownerCapabilityError) {
+    console.error("[property-submission] Owner capability verification failed", { code: ownerCapabilityError.code });
+    return { status: "error", message: "Owner access could not be verified. Please try again." };
+  }
+  if (!ownerCapability) {
+    return { status: "error", message: "Activate Owner access and accept the applicable Owner Terms and Privacy Policy before submitting a property." };
+  }
   if (!propertySubmissionsEnabled()) {
     return { status: "error", message: "Property submissions are awaiting private database setup. Nothing was saved." };
   }
@@ -195,6 +208,14 @@ export async function resubmitProperty(_previous: SubmissionState, formData: For
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { status: "error", message: "Your session has expired. Please sign in again." };
+  const { data: ownerCapability, error: ownerCapabilityError } = await supabase
+    .from("profile_capabilities")
+    .select("capability")
+    .eq("user_id", user.id)
+    .eq("capability", "owner")
+    .maybeSingle();
+  if (ownerCapabilityError) return { status: "error", message: "Owner access could not be verified. Please try again." };
+  if (!ownerCapability) return { status: "error", message: "Activate Owner access before resubmitting this property." };
   if (!propertySubmissionsEnabled()) return { status: "error", message: "Property submissions are awaiting private database setup." };
   if (!await propertySubmissionUploadsReady()) return { status: "error", message: "Resubmission is unavailable until private submission setup is verified. Nothing was saved." };
 
