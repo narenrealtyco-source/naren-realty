@@ -133,7 +133,7 @@ export default function ReferralsPage() {
           <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-amber-400">REALTY</span></span>
           <span className="mt-1 block text-xs tracking-widest text-slate-300">CUSTOMER SERVICES</span>
         </Link>
-        <Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-4 text-sm font-semibold text-white hover:bg-white/10">My account</Link>
+        <div className="flex flex-wrap gap-2"><Link href="/account/referral-claim" className="inline-flex min-h-11 items-center rounded-lg border border-amber-300 px-4 text-sm font-semibold text-amber-300 hover:bg-white/10">Claim Reward</Link><Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-4 text-sm font-semibold text-white hover:bg-white/10">My account</Link></div>
       </div>
     </header>
 
