@@ -399,14 +399,24 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
     try {
       const canvas = document.createElement("canvas");
       canvas.width = 1080;
-      canvas.height = 1350;
+      canvas.height = 1080;
       const context = canvas.getContext("2d");
       if (!context) throw new Error("Canvas is unavailable");
 
-      context.fillStyle = "#071a32";
+      const roundRect = (x: number, y: number, width: number, height: number, radius: number) => {
+        context.beginPath();
+        context.roundRect(x, y, width, height, radius);
+      };
+      const drawFit = (value: string, x: number, y: number, maxWidth: number, font: string, color: string) => {
+        context.font = font;
+        let text = value;
+        while (text.length > 3 && context.measureText(text).width > maxWidth) text = `${text.slice(0, -2).trimEnd()}…`;
+        context.fillStyle = color;
+        context.fillText(text, x, y);
+      };
+
+      context.fillStyle = "#ffffff";
       context.fillRect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = "#d9a83f";
-      context.fillRect(0, 0, canvas.width, 18);
 
       const photos = Array.isArray(listing.photos) ? listing.photos.filter((photo) => typeof photo === "string" && photo.trim()) : [];
       if (photos[0]) {
@@ -418,78 +428,86 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
             photo.onload = () => resolve();
             photo.onerror = () => reject(new Error("Property photo could not be loaded"));
           });
-          const scale = Math.max(1080 / photo.naturalWidth, 650 / photo.naturalHeight);
+          const imageHeight = 570;
+          const scale = Math.max(canvas.width / photo.naturalWidth, imageHeight / photo.naturalHeight);
           const width = photo.naturalWidth * scale;
           const height = photo.naturalHeight * scale;
           context.save();
           context.beginPath();
-          context.rect(0, 18, 1080, 650);
+          context.rect(0, 0, canvas.width, imageHeight);
           context.clip();
-          context.drawImage(photo, (1080 - width) / 2, 18 + (650 - height) / 2, width, height);
+          context.drawImage(photo, (canvas.width - width) / 2, (imageHeight - height) / 2, width, height);
           context.restore();
         } catch {
-          context.fillStyle = "#173554";
-          context.fillRect(0, 18, 1080, 650);
+          context.fillStyle = "#e2e8f0";
+          context.fillRect(0, 0, canvas.width, 570);
         }
       } else {
-        context.fillStyle = "#173554";
-        context.fillRect(0, 18, 1080, 650);
+        context.fillStyle = "#e2e8f0";
+        context.fillRect(0, 0, canvas.width, 570);
       }
 
-      const drawText = (value: string, x: number, y: number, maxWidth: number, lineHeight: number, font: string, color: string, maxLines = 2) => {
-        context.font = font;
-        context.fillStyle = color;
-        const words = value.split(/\\s+/);
-        let line = "";
-        let lineNumber = 0;
-        for (const word of words) {
-          const candidate = line ? `${line} ${word}` : word;
-          if (context.measureText(candidate).width > maxWidth && line) {
-            context.fillText(line, x, y + lineNumber * lineHeight);
-            lineNumber += 1;
-            line = word;
-            if (lineNumber >= maxLines - 1) break;
-          } else {
-            line = candidate;
-          }
-        }
-        if (line && lineNumber < maxLines) {
-          const remaining = words.slice(words.indexOf(line.split(" ")[0])).join(" ");
-          context.fillText(lineNumber === maxLines - 1 && context.measureText(remaining).width > maxWidth ? `${line.slice(0, Math.max(0, line.length - 3))}…` : line, x, y + lineNumber * lineHeight);
-        }
-      };
-
-      context.fillStyle = "#071a32";
-      context.fillRect(0, 668, 1080, 682);
-      context.fillStyle = "#e5b84e";
-      context.font = "bold 42px Arial";
-      context.fillText("NAREN REALTY", 64, 735);
+      const navy = "#10243A";
+      const gold = "#e5b84e";
       context.fillStyle = "#ffffff";
-      context.font = "24px Arial";
-      context.fillText("BUY  •  SELL  •  RENT  •  INVEST", 66, 780);
+      context.fillRect(0, 570, canvas.width, 510);
 
-      context.fillStyle = "#e5b84e";
-      context.font = "bold 25px Arial";
-      context.fillText(purposeLabel.toUpperCase(), 66, 850);
-      drawText(listing.title, 66, 915, 940, 58, "bold 48px Arial", "#ffffff", 2);
-      context.fillStyle = "#dce6f1";
-      context.font = "30px Arial";
-      context.fillText(`${listing.locality}, Pune`, 66, 1045);
+      const pillText = categoryLabel;
+      context.font = "bold 23px Arial";
+      const pillWidth = context.measureText(pillText).width + 42;
+      context.fillStyle = navy;
+      roundRect(62, 612, pillWidth, 48, 24);
+      context.fill();
+      context.fillStyle = gold;
+      context.fillText(pillText, 83, 644);
+      drawFit(listing.title, 62 + pillWidth + 18, 648, 1080 - (62 + pillWidth + 80), "bold 36px Arial", navy);
 
-      context.fillStyle = "#e5b84e";
-      context.font = "bold 54px Arial";
-      context.fillText(price, 66, 1135);
-      context.fillStyle = "#ffffff";
-      context.font = "25px Arial";
-      context.fillText(categoryLabel, 66, 1185);
+      context.fillStyle = "#526176";
+      context.font = "29px Arial";
+      context.fillText(`⌖  ${listing.locality}, Pune`, 66, 718);
 
-      const facts = highlights.slice(0, 3).map((fact) => `${fact.label}: ${fact.value}`);
-      context.fillStyle = "#dce6f1";
-      context.font = "22px Arial";
-      facts.forEach((fact, index) => context.fillText(fact.slice(0, 58), 66, 1240 + index * 30));
+      context.strokeStyle = "#e2e8f0";
+      context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo(62, 758);
+      context.lineTo(1018, 758);
+      context.stroke();
 
-      context.fillStyle = "#e5b84e";
-      context.fillRect(0, 1310, 1080, 4);
+      context.fillStyle = "#64748b";
+      context.font = "bold 22px Arial";
+      context.fillText(listing.type === "Rental" ? "MONTHLY RENT" : "PRICE", 66, 795);
+      context.fillStyle = navy;
+      context.font = "bold 46px Arial";
+      context.fillText(price, 66, 850);
+
+      const rentalDetails = rentalFacts(listing);
+      const detailList = detailFacts(listing);
+      const highlightList = buildHighlights(listing);
+      const detailPairs = [
+        rentalDetails.find((fact) => fact.label === "Security Deposit"),
+        highlightList.find((fact) => fact.label === "Built-up Area"),
+        highlightList.find((fact) => fact.label === "Carpet Area"),
+        highlightList.find((fact) => fact.label === "Bedrooms / BHK"),
+        detailList.find((fact) => /furnishing/i.test(fact.label)),
+        rentalDetails.find((fact) => fact.label === "Tenant Preference"),
+      ].filter((fact): fact is PropertyFact => Boolean(fact)).slice(0, 4);
+
+      const columns = [66, 558];
+      detailPairs.forEach((fact, index) => {
+        const x = columns[index % 2];
+        const y = 910 + Math.floor(index / 2) * 78;
+        context.fillStyle = "#64748b";
+        context.font = "bold 19px Arial";
+        drawFit(fact.label.toUpperCase(), x, y, 440, "bold 19px Arial", "#64748b");
+        drawFit(fact.value, x, y + 36, 440, "bold 27px Arial", navy);
+      });
+
+      context.strokeStyle = gold;
+      context.lineWidth = 5;
+      context.beginPath();
+      context.moveTo(0, 1077);
+      context.lineTo(1080, 1077);
+      context.stroke();
 
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Image export failed")), "image/png");
@@ -514,7 +532,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
       if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
         try {
-          await navigator.share({ files: [imageFile], title: listing.title, text: url, url });
+          await navigator.share({ files: [imageFile], title: listing.title, text: `Property details: ${url}` });
           setShareMessage("Property card shared successfully.");
           return;
         } catch (shareError) {
