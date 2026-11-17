@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 import { respondToVendorLead } from "../../../home-services/vendor-actions";
 
+export const instant = false;
+
 type VendorLead = {
   id: string;
   customer_name: string;
