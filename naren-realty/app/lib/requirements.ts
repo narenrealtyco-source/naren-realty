@@ -70,19 +70,29 @@ export function matchesRequirement(requirement: MatchRequirement, property: Prop
   if (requirement.max_budget !== null && property.price > requirement.max_budget) return false;
   let preferences: { narenRequirement?: number; clientType?: string; bhkChoice?: string; furnishingChoice?: string } = {};
   try { const parsed: unknown = JSON.parse(requirement.details); if (parsed && typeof parsed === "object") preferences = parsed as typeof preferences; } catch { /* Older plain-text requirements have no preference metadata. */ }
+  const values = property.publicListingDetails?.values ?? {};
+  const categoryKey = property.type === "Rental" ? "Rental" : property.type === "Resale" ? "Resale" : property.type;
+  const categoryDetails = property.categoryDetails as {
+    tenantPreference?: string; furnishingStatus?: string; bhkConfiguration?: string;
+  } | undefined;
+  const tenant = String(categoryDetails?.tenantPreference ?? values[`${categoryKey}_tenant_preference`] ?? "").toLowerCase().trim();
   const clientType = preferences.clientType ?? "All";
-  if (clientType !== "All") {
-    const tenant = String((property.categoryDetails as { tenantPreference?: string } | undefined)?.tenantPreference ?? "").toLowerCase();
+  if (clientType !== "All" && tenant && tenant !== "any") {
     const wanted = clientType.toLowerCase().replace(" only", "");
-    if (!tenant || tenant === "any" || !tenant.includes(wanted)) return false;
+    if (!tenant.includes(wanted)) return false;
   }
   const furnishing = preferences.furnishingChoice ?? "Any";
-  const actualFurnishing = String((property.categoryDetails as { furnishingStatus?: string } | undefined)?.furnishingStatus ?? property.furnishing ?? "").toLowerCase().replace(/[-_]/g, " ").trim();
+  const actualFurnishing = String(
+    categoryDetails?.furnishingStatus ?? values[`${categoryKey}_furnishing`] ?? property.furnishing ?? "",
+  ).toLowerCase().replace(/[-_]/g, " ").trim();
   if (furnishing !== "Any" && actualFurnishing !== furnishing.toLowerCase()) return false;
   const bhk = preferences.bhkChoice ?? "Any";
-  const actualBhk = String((property.categoryDetails as { bhkConfiguration?: string } | undefined)?.bhkConfiguration ?? property.bedrooms ?? "").toLowerCase().replace(/\s+/g, "");
-  if (bhk === "4+ BHK") { if (Number.parseInt(actualBhk, 10) < 4) return false; }
-  else if (bhk !== "Any" && actualBhk !== bhk.toLowerCase().replace(/\s+/g, "")) return false;
+  const actualBhk = String(
+    categoryDetails?.bhkConfiguration ?? values[`${categoryKey}_bhk`] ?? property.bedrooms ?? "",
+  ).toLowerCase().replace(/\\s+/g, "");
+  if (bhk === "4+ BHK") {
+    if (Number.parseInt(actualBhk, 10) < 4) return false;
+  } else if (bhk !== "Any" && actualBhk !== bhk.toLowerCase().replace(/\\s+/g, "")) return false;
   if (!preferences.bhkChoice && requirement.bedrooms !== null && property.bedrooms !== requirement.bedrooms) return false;
   return true;
 }
