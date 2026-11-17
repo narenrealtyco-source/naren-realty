@@ -8,15 +8,16 @@ export async function getApprovedPropertiesFromSupabase(): Promise<PropertyListi
   const listings: PropertyListing[] = [];
   for (;;) {
     const { data, error, count } = await supabase.from("properties")
-      .select("id,owner_id,title,category,locality,price,photos,status,created_at,updated_at,carpet_area:details->>carpetArea,bedrooms:details->>bedrooms,bathrooms:details->>bathrooms,public_listing:details->publicListing", { count: "exact" })
+      .select("id,owner_id,title,category,locality,price,photos,status,created_at,updated_at,carpet_area:details->>carpetArea,bedrooms:details->>bedrooms,bathrooms:details->>bathrooms,public_listing:details->publicListing")
       .eq("status", "approved").order("id").range(listings.length, listings.length + 99);
-    if (error || count === null || (!data?.length && listings.length < count)) {
-      console.error("[public-properties] Approved property lookup failed", { code: error?.code, missingCount: count === null });
+    if (error) {
+      console.error("[public-properties] Approved property lookup failed", { code: error.code });
       throw new Error("Approved properties could not be loaded.");
     }
-    listings.push(...(data ?? []).map((row) => mapPublicProperty(row, (path) =>
+    const batch = data ?? [];
+    listings.push(...batch.map((row) => mapPublicProperty(row, (path) =>
       supabase.storage.from("property-photos").getPublicUrl(path).data.publicUrl)));
-    if (listings.length >= count) break;
+    if (batch.length < 100) break;
   }
   return listings;
 }
