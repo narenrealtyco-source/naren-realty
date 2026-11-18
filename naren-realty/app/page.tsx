@@ -172,13 +172,29 @@ export default function Home() {
               <Link href="/list-property" className="text-amber-400 hover:text-amber-300">List Your Property</Link>
               <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-800 pt-4 text-xs">
-              <Link href="/customer-terms" className="text-slate-400 hover:text-amber-300">Customer Terms</Link>
-              <Link href="/owner-terms" className="text-slate-400 hover:text-amber-300">Owner Terms</Link>
-              <Link href="/pg-hostel-policy" className="text-slate-400 hover:text-amber-300">PG / Hostel Policy</Link>
-              <Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb Policy</Link>
-              <Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link>
-              <Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward Policy</Link>
+            <div className="mt-5 border-t border-slate-800 pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-white">Legal &amp; Policies</p>
+                <Link href="/legal-policies" className="text-xs font-semibold text-amber-400 hover:text-amber-300">View All Policies →</Link>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 text-xs sm:grid-cols-3">
+                <Link href="/customer-terms" className="text-slate-400 hover:text-amber-300">Customer Terms</Link>
+                <Link href="/owner-terms" className="text-slate-400 hover:text-amber-300">Owner Terms</Link>
+                <Link href="/brokerage-policy" className="text-slate-400 hover:text-amber-300">Brokerage Policy</Link>
+                <Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link>
+                <Link href="/pg-hostel-policy" className="text-slate-400 hover:text-amber-300">PG / Hostel Policy</Link>
+                <Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb / Short-Stay</Link>
+                <Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward</Link>
+                <Link href="/cancellation-refund-policy" className="text-slate-400 hover:text-amber-300">Cancellation &amp; Refund</Link>
+                <Link href="/payment-policy" className="text-slate-400 hover:text-amber-300">Payment Policy</Link>
+                <Link href="/property-listing-verification-policy" className="text-slate-400 hover:text-amber-300">Listing &amp; Verification</Link>
+                <Link href="/site-visit-policy" className="text-slate-400 hover:text-amber-300">Enquiry &amp; Site Visit</Link>
+                <Link href="/user-conduct-policy" className="text-slate-400 hover:text-amber-300">User Conduct</Link>
+                <Link href="/grievance-redressal-policy" className="text-slate-400 hover:text-amber-300">Grievance Redressal</Link>
+                <Link href="/disclaimer" className="text-slate-400 hover:text-amber-300">Disclaimer</Link>
+                <Link href="/cookie-policy" className="text-slate-400 hover:text-amber-300">Cookie Policy</Link>
+                <Link href="/third-party-services-policy" className="text-slate-400 hover:text-amber-300">Third-Party Services</Link>
+              </div>
             </div>
           </div>
         </div>
