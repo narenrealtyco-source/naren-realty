@@ -156,7 +156,10 @@ export function VendorEnquiryForm({ vendorId, ready }: { vendorId: string; ready
     <input type="hidden" name="vendor_id" value={vendorId} />
     <label className={label}>Your name<input name="customer_name" className={input} maxLength={120} autoComplete="name" required /></label>
     <label className={label}>Mobile<input name="mobile" className={input} type="tel" maxLength={13} autoComplete="tel" required /></label>
+    <label className={label}>Locality<LocalityAutocomplete name="locality" className={input} maxLength={120} placeholder="Your locality" required /></label>
+    <label className={label}>Full address<textarea name="full_address" className={input} maxLength={500} rows={2} autoComplete="street-address" required /></label>
     <label className={label}>Your requirements<textarea name="message" className={input} maxLength={2000} rows={4} required /></label>
+    <label className="flex items-start gap-2 text-sm font-normal text-slate-600"><input type="checkbox" name="contact_consent" required className="mt-1 accent-[#10243A]" /><span>I agree that NAREN REALTY may share my contact details and requirement with this selected service provider to respond to my enquiry.</span></label>
     <p className="text-sm text-slate-600">A customer account is required. <Link href="/account#login" className="underline">Sign in</Link></p>
     {state.message && <p role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
     <button disabled={!ready || pending || state.status === "success"} className={button}>{pending ? "Sending..." : "Send enquiry"}</button>
