@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { closeMatch, editLoanRequirement, submitRequirement, updateRequirement, type RequirementState } from "../requirements-actions";
+import { closeMatch, deleteRequirement, editLoanRequirement, submitRequirement, updateRequirement, type RequirementState } from "../requirements-actions";
 import LocalityAutocomplete from "./LocalityAutocomplete";
 
 const initial: RequirementState = { status: "idle", message: "" };
@@ -61,6 +61,16 @@ export function AdminRequirementForm({ id, kind, status, remarks, assigned }: { 
     <button disabled={pending} className={button}>Save follow-up</button><Result state={state} />
   </form>;
 }
+
+export function AdminRequirementDelete({ id, kind }: { id: string; kind: "match" | "loan" }) {
+  const [state, action, pending] = useActionState(deleteRequirement, initial);
+  return <form action={action} onSubmit={(event) => { if (!window.confirm("Are you sure you want to permanently delete this requirement? This cannot be undone.")) event.preventDefault(); }} className="mt-3 border-t border-rose-100 pt-3">
+    <input type="hidden" name="id" value={id} /><input type="hidden" name="kind" value={kind} />
+    <button type="submit" disabled={pending} className="min-h-11 rounded-lg border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50 disabled:opacity-50">{pending ? "Deleting..." : "Delete requirement"}</button>
+    <Result state={state} />
+  </form>;
+}
+
 export type AdminLoan = { id: string; customer_name: string; phone: string; email: string; loan_type_id: string; amount: number; property_location: string; property_value: number | null; employment: string; details: string };
 export function AdminLoanEdit({ loan, types }: { loan: AdminLoan; types: { id: string; name: string; active: boolean }[] }) {
   const [state, action, pending] = useActionState(editLoanRequirement, initial);
