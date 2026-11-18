@@ -64,9 +64,13 @@ export function validateVendorEnquiry(form: FormData) {
   if (!uuid(vendor_id)) throw new Error("Choose a valid vendor.");
   const mobile = field(form, "mobile", "Mobile", 13);
   if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
+  const contact_consent = form.get("contact_consent") === "on";
+  if (!contact_consent) throw new Error("Please agree to share your contact details with NAREN REALTY and this service provider.");
   return {
-    vendor_id, mobile,
+    vendor_id, mobile, contact_consent,
     customer_name: field(form, "customer_name", "Name", 120),
+    locality: field(form, "locality", "Locality", 120),
+    full_address: field(form, "full_address", "Full address", 500),
     message: field(form, "message", "Requirement", 2000),
   };
 }
