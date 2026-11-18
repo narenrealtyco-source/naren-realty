@@ -2,6 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
 import TaskActions from "./TaskActions";
+import AdminRecordDeleteButton from "../../components/AdminRecordDeleteButton";
 
 export const instant = false;
 
@@ -35,7 +36,7 @@ export default async function PendingTasksPage() {
             <div><p className="text-xs font-semibold uppercase tracking-wide text-amber-700">New customer enquiry</p><h2 className="mt-1 font-bold text-[#10243A]">{task.last_step || "Follow up with customer"}</h2><p className="mt-1 text-xs text-slate-500">Created: {formatIndiaTime(task.created_at)} · Task: {task.id.slice(0, 8)}</p></div>
             <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">Open</span>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><Link href="/admin/enquiries" className="text-sm font-semibold text-amber-800 hover:underline">Review enquiry details →</Link><TaskActions taskId={task.id} /></div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><Link href="/admin/enquiries" className="text-sm font-semibold text-amber-800 hover:underline">Review enquiry details →</Link><TaskActions taskId={task.id} /><AdminRecordDeleteButton kind="task" id={task.id} label="Delete task" /></div>
         </article>)}
       </div> : <div className="mt-6 rounded-xl border border-slate-200 bg-white p-8 text-center"><h2 className="font-bold text-[#10243A]">No open follow-ups</h2><p className="mt-1 text-sm text-slate-500">New submitted enquiries will automatically appear here.</p></div>}
       <p className="mt-5 text-xs text-slate-500">These are internal admin reminders only. No WhatsApp, SMS, email or customer notification is sent. Customer contact is handled from the enquiry workflow and must follow the applicable consent and privacy policy.</p>
