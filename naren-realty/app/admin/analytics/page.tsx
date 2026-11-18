@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
+import AnalyticsInteractions from "./AnalyticsInteractions";
 
 export const instant = false;
 
@@ -19,12 +20,12 @@ export default async function AnalyticsDashboard() {
   const metric = (n: number | null) => (n ?? 0).toLocaleString("en-IN");
   const formatIndiaTime = (value: string) => new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }).format(new Date(value));
   const cards = [
-    ["Visitors · 24h", metric(visitors.count)],
-    ["Active · 5 min", metric(active.count)],
-    ["Tracked events · 24h", metric(events.count)],
-    ["Searches · 24h", metric(searches.count)],
-    ["Page exits · 24h", metric(exits.count)],
-    ["Open pending tasks", metric(tasks.count)],
+    { label: "Visitors · 24h", value: metric(visitors.count), filter: "all" },
+    { label: "Active · 5 min", value: metric(active.count), filter: "all" },
+    { label: "Tracked events · 24h", value: metric(events.count), filter: "all" },
+    { label: "Searches · 24h", value: metric(searches.count), filter: "search" },
+    { label: "Page exits · 24h", value: metric(exits.count), filter: "page_exit" },
+    { label: "Open pending tasks", value: metric(tasks.count), filter: "tasks" },
   ];
   const cityRows = await supabase.from("visitor_sessions").select("city,region,country").not("city", "is", null).gte("started_at", since).limit(500);
   const cityCounts = new Map<string, number>();
@@ -37,10 +38,10 @@ export default async function AnalyticsDashboard() {
     <div className="mx-auto max-w-7xl">
       <a href="/admin" className="text-sm font-semibold text-amber-800 hover:underline">← Admin Dashboard</a>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold tracking-widest text-amber-700">NAREN REALTY</p><h1 className="mt-1 text-3xl font-bold text-[#10243A]">Analytics & Engagement</h1><p className="mt-1 text-sm text-slate-500">Visitor activity, approximate location, searches and drop-off signals</p></div><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Live data · auto-refresh on reload</span></div>
-      <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{cards.map(([label,value]) => <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold text-[#10243A]">{value}</p></div>)}</section>
+      <AnalyticsInteractions cards={cards} recent={(recent.data ?? []).map((row) => ({ id: row.id, visitor: row.visitor_key, event: row.event_name, page: row.page_path, data: row.event_data, time: formatIndiaTime(row.created_at) }))} />
       <div className="mt-6 grid gap-5 lg:grid-cols-3">
         <section className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-1"><h2 className="font-bold text-[#10243A]">Visitor locations</h2><p className="mt-1 text-xs text-slate-500">Approximate city from Vercel request headers; may be unavailable or inaccurate.</p>{cities.length ? <ul className="mt-4 space-y-3">{cities.map(([city,count]) => <li key={city} className="flex justify-between gap-2 text-sm"><span>{city}</span><strong>{count}</strong></li>)}</ul> : <p className="mt-4 text-sm text-slate-500">No location data recorded yet.</p>}</section>
-        <section className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2"><h2 className="font-bold text-[#10243A]">Recent visitor activity</h2>{recent.data?.length ? <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b text-xs text-slate-500"><th className="py-2 pr-3">Time</th><th className="py-2 pr-3">Visitor</th><th className="py-2 pr-3">Event</th><th className="py-2">Page</th></tr></thead><tbody>{recent.data.map(row => <tr key={row.id} className="border-b border-slate-100"><td className="py-2 pr-3 whitespace-nowrap">{formatIndiaTime(row.created_at)}</td><td className="py-2 pr-3 font-mono text-xs">{row.visitor_key.slice(0,12)}</td><td className="py-2 pr-3">{row.event_name}</td><td className="py-2 break-all">{row.page_path}</td></tr>)}</tbody></table></div> : <p className="mt-4 text-sm text-slate-500">No visitor events yet. Events appear after visitors browse the website with tracking enabled.</p>}</section>
+        
       </div>
       <p className="mt-5 text-xs text-slate-500">Guest visitors remain anonymous. This module does not collect GPS coordinates or exact addresses. No form field contents, passwords, OTPs, or payment details are intentionally recorded. Location is approximate and depends on hosting headers.</p>
     </div>
