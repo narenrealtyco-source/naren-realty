@@ -14,7 +14,9 @@ export default function ServiceEnquiryForm({ service, ready }: { service: string
     <input type="hidden" name="service" value={service} />
     <label className="block text-sm font-semibold">Your name<input className={input} name="name" autoComplete="name" maxLength={120} required /></label>
     <label className="block text-sm font-semibold">Mobile number<input className={input} name="mobile" type="tel" autoComplete="tel" required /></label>
+    <label className="block text-sm font-semibold">Locality<input className={input} name="locality" maxLength={120} required placeholder="e.g. Wakad, Baner, Hinjewadi" /></label>
     <label className="block text-sm font-semibold">Your requirements<textarea className={input} name="requirement" rows={4} maxLength={2000} required /></label>
+    <label className="flex items-start gap-2 text-sm font-normal text-slate-600"><input type="checkbox" name="contact_consent" required className="mt-1 accent-[#10243A]" /><span>I agree that NAREN REALTY may contact me about this service requirement.</span></label>
     <label className="block text-sm font-semibold">Preferred contact time <span className="font-normal">(optional)</span><input className={input} name="preferred_time" maxLength={120} /></label>
     <p className="text-sm text-slate-600">A customer account is required. <Link href="/account#login" className="underline">Sign in</Link></p>
     {!ready && <p role="status" className="text-sm text-amber-900">Service enquiries are not available yet. Nothing will be saved.</p>}
