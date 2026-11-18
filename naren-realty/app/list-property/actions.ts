@@ -120,7 +120,7 @@ export async function submitProperty(
     });
     details = parseSubmissionDetails(formData);
     ownerDetails = parsePropertyOwnerDetails(formData);
-    if (formData.get("owner_confirmed") !== "on" || formData.get("listing_declaration") !== "on") {
+    if (formData.get("owner_confirmed") !== "on" || formData.get("listing_declaration") !== "on" || formData.get("brokerage_acknowledged") !== "on") {
       throw new Error("Confirm your authority to list the property and review the listing declaration.");
     }
     validateSubmissionPhotoCount(photos.length);
