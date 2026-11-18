@@ -15,13 +15,14 @@ function MultiLocationSelect() {
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const choices = useMemo(() => PUNE_LOCALITIES.filter((place) => place.toLowerCase().includes(query.trim().toLowerCase()) && !selected.includes(place)).slice(0, 8), [query, selected]);
+  const customChoice = query.trim() && !PUNE_LOCALITIES.some((place) => place.toLowerCase() === query.trim().toLowerCase()) && !selected.some((place) => place.toLowerCase() === query.trim().toLowerCase()) ? query.trim() : "";
   const toggle = (place: string) => setSelected((current) => current.includes(place) ? current.filter((item) => item !== place) : [...current, place]);
   return <div className="mt-1">
     <input className={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search and add multiple areas, e.g. Baner, Wakad" autoComplete="off" aria-label="Search localities" />
-    {query.trim() && <div className="mt-1 max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-sm">{choices.length ? choices.map((place) => <button key={place} type="button" onClick={() => { toggle(place); setQuery(""); }} className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-amber-50">＋ {place}</button>) : <p className="px-3 py-2 text-sm text-slate-500">No more matching localities.</p>}</div>}
+    {query.trim() && <div className="mt-1 max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-sm">{choices.map((place) => <button key={place} type="button" onClick={() => { toggle(place); setQuery(""); }} className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-amber-50">＋ {place}</button>)}{customChoice && <button type="button" onClick={() => { toggle(customChoice); setQuery(""); }} className="block w-full px-3 py-2 text-left text-sm font-semibold text-[#10243A] hover:bg-amber-50">＋ Add “{customChoice}”</button>}{!choices.length && !customChoice && <p className="px-3 py-2 text-sm text-slate-500">No more matching localities.</p>}</div>}
     {selected.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{selected.map((place) => <button key={place} type="button" onClick={() => toggle(place)} className="rounded-full border border-[#FBBF24] bg-[#FBBF24] px-3 py-1.5 text-xs font-semibold text-[#10243A]">{place} ×</button>)}</div>}
     <input type="hidden" name="location" value={selected.join(", ")} />
-    <p className="mt-1 text-xs text-slate-500">Select one or more locations. Tap a selected area to remove it.</p>
+    <p className="mt-1 text-xs text-slate-500">Select one or more Pune localities, or type and add another area. Tap a selected area to remove it.</p>
   </div>;
 }
 export default function MatchesPostRequirement({ ready }: { ready: boolean }) {
