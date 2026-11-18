@@ -9,9 +9,9 @@ function getIds() {
 }
 export default function VisitorTracker() {
   const [consent, setConsent] = useState<"unknown" | "yes" | "no">("unknown");
-  useEffect(() => { const saved = localStorage.getItem("nr_analytics_consent"); if (saved === "yes" || saved === "no") setConsent(saved); }, []);
+  useEffect(() => { if (location.pathname.startsWith("/admin")) { setConsent("no"); return; } const saved = localStorage.getItem("nr_analytics_consent"); if (saved === "yes" || saved === "no") setConsent(saved); }, []);
   useEffect(() => {
-    if (consent !== "yes") return;
+    if (consent !== "yes" || location.pathname.startsWith("/admin")) return;
     let stopped = false;
     const send = (eventName: string, eventData: Record<string, unknown> = {}) => {
       if (stopped) return;
