@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { requireAdmin } from "../../../lib/supabase-server";
 import { vendorMarketplaceReady, type MarketplaceCategory } from "../../../lib/vendor-marketplace";
 import { CategoryForm, CategoryToggle, MarkLeadPaidForm, ReviewForm } from "./Forms";
+import AdminRecordDeleteButton from "../../../components/AdminRecordDeleteButton";
 
 type Application = { id: string; business_name: string; public_name: string; category_id: string; contact_person: string; mobile: string; email: string | null; services: string; description: string; city: string; locality: string; address: string; admin_notes: string | null; status: string };
 type Enquiry = { id: string; vendor_id: string; customer_name: string; locality: string; message: string; status: string; payment_status: string; payment_reference: string | null; created_at: string };
@@ -39,10 +40,12 @@ async function Content() {
         <p className="mt-2 text-sm"><strong>Contact:</strong> {a.contact_person} · {a.mobile}{a.email && ` · ${a.email}`}</p>
         <p className="mt-2 text-sm"><strong>Location:</strong> {a.locality}, {a.city}</p><p className="mt-2 text-sm"><strong>Services:</strong> {a.services}</p><p className="mt-2 whitespace-pre-wrap text-sm">{a.description}</p>
         <ReviewForm key={`${a.id}-${a.status}-${a.admin_notes}`} id={a.id} status={a.status} notes={a.admin_notes ?? ""} />
+        {(a.status === "pending" || a.status === "rejected") && !vendors.some((v) => v.application_id === a.id) && <AdminRecordDeleteButton kind="vendor-application" id={a.id} label="Delete application" />}
       </article>)}</div>{applications.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 applications.</p>}
     </section>
     <section className="mt-6"><h2 className="text-xl font-bold">Vendor enquiries & lead payments</h2>{enquiries.length === 0 && <p className="mt-3">No enquiries yet.</p>}
-      <div className="mt-3 space-y-3">{enquiries.map((e) => <article key={e.id} className="rounded-xl border bg-white p-4 [overflow-wrap:anywhere]"><h3 className="font-bold">{vendors.find((v) => v.id === e.vendor_id)?.business_name ?? "Service provider enquiry"}</h3><p className="mt-1 text-sm">{e.customer_name} · {e.locality}</p><p className="mt-2 whitespace-pre-wrap text-sm">{e.message}</p><p className="mt-2 text-sm">{e.status} · {e.created_at}</p><MarkLeadPaidForm key={`${e.id}-${e.payment_status}-${e.payment_reference}`} id={e.id} paymentStatus={e.payment_status} reference={e.payment_reference} /></article>)}</div>{enquiries.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 enquiries.</p>}
+      <div className="mt-3 space-y-3">{enquiries.map((e) => <article key={e.id} className="rounded-xl border bg-white p-4 [overflow-wrap:anywhere]"><h3 className="font-bold">{vendors.find((v) => v.id === e.vendor_id)?.business_name ?? "Service provider enquiry"}</h3><p className="mt-1 text-sm">{e.customer_name} · {e.locality}</p><p className="mt-2 whitespace-pre-wrap text-sm">{e.message}</p><p className="mt-2 text-sm">{e.status} · {e.created_at}</p><MarkLeadPaidForm key={`${e.id}-${e.payment_status}-${e.payment_reference}`} id={e.id} paymentStatus={e.payment_status} reference={e.payment_reference} />
+        {e.payment_status !== "paid" && <AdminRecordDeleteButton kind="vendor-enquiry" id={e.id} label="Delete vendor enquiry" />}</article>)}</div>{enquiries.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 enquiries.</p>}
     </section>
   </div></main>;
 }
