@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
   if (error) {
     return NextResponse.redirect(new URL("/manager/login?setup=expired", origin));
   }
-  if (type === "email") {\n    return NextResponse.redirect(new URL("/account?verified=1", origin));\n  }\n  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (type === "email") {
+    return NextResponse.redirect(new URL("/account?verified=1", origin));
+  }
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
     return NextResponse.redirect(new URL("/manager/login?setup=failed", origin));
   }
