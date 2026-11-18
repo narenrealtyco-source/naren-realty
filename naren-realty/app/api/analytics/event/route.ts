@@ -12,6 +12,14 @@ export async function POST(request: NextRequest) {
     }
     const safeData = eventData && typeof eventData === "object" && !Array.isArray(eventData) ? Object.fromEntries(Object.entries(eventData).filter(([key]) => !/password|otp|phone|mobile|email|pan|aadhaar|address|token|amount/i.test(key)).slice(0, 12)) : {};
     const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      const role = String(profile?.role ?? "").toLowerCase();
+      if (["admin", "super_admin", "owner", "broker", "staff"].includes(role)) {
+        return new NextResponse(null, { status: 204 });
+      }
+    }
     const { error } = await supabase.rpc("track_visitor_event", {
       p_visitor_key: visitorKey,
       p_session_key: sessionKey,
