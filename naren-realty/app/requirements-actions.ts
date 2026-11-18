@@ -10,7 +10,10 @@ export async function submitRequirement(kind: "match" | "loan", _state: Requirem
   if (kind === "match" ? !matchesReady() : !requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was saved." };
 
   let input;
-  try { input = kind === "match" ? validateMatch(form) : validateLoan(form); }
+  try {
+    input = kind === "match" ? validateMatch(form) : validateLoan(form);
+    if (kind === "match" && form.get("brokerage_acknowledged") !== "on") throw new Error("Please accept the applicable brokerage terms before submitting.");
+  }
   catch (error) { return { status: "error", message: error instanceof Error ? error.message : "Invalid requirement." }; }
 
   const supabase = await createSupabaseServerClient();
