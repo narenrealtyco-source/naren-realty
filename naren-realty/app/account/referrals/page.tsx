@@ -121,13 +121,13 @@ export default function ReferralsPage() {
       category: "tenant" as const,
       title: "Refer a Tenant",
       description: "₹1,000 reward after a qualifying rental transaction.",
-      unavailable: "Complete a property visit request or property enquiry to unlock your Tenant referral link.",
+      unavailable: "Complete a property visit request or property enquiry to unlock your Tenant referral link. A property requirement submission alone does not qualify.",
     },
     {
       category: "owner" as const,
       title: "Refer a Property Owner",
       description: "₹2,000 reward after an approved listing and successful deal.",
-      unavailable: "Activate Owner capability and get at least one property approved to unlock your Owner referral link.",
+      unavailable: "Open the Owner Portal, complete activation by accepting the relevant Owner Terms and Privacy Policy, and have at least one approved property to unlock your Owner referral link.",
     },
   ];
 
