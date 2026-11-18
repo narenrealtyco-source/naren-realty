@@ -5,6 +5,7 @@ import { requireAdmin } from "../../lib/supabase-server";
 import { findHomeService } from "../../lib/home-services";
 import { homeServicesReady } from "../../lib/home-services-config";
 import StatusForm from "./StatusForm";
+import AdminRecordDeleteButton from "../../components/AdminRecordDeleteButton";
 
 type ServiceRow = { id: string; service: string; customer_name: string; mobile_number: string; requirement: string; preferred_time: string; locality: string; status: string; created_at: string };
 
@@ -42,6 +43,7 @@ async function AdminServicesContent() {
         {row.preferred_time && <p className="mt-2 text-sm"><strong>Preferred time:</strong> {row.preferred_time}</p>}
         <p className="mt-2 text-sm"><strong>Received:</strong> {row.created_at}</p>
         <StatusForm key={`${row.id}-${row.status}`} id={row.id} status={row.status} />
+        <AdminRecordDeleteButton kind="home-service" id={row.id} label="Delete service enquiry" />
       </article>)}</div>}
   </div></main>;
 }
