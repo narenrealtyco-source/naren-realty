@@ -157,50 +157,75 @@ export default function Home() {
 
       <WhyChoose />
 
-      <footer id="contact" className="bg-slate-950 px-6 py-10 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row">
-          <div>
-            <h2 className="text-2xl font-bold tracking-widest">NAREN REALTY</h2>
-            <p className="mt-2 text-sm text-slate-400">Your property. Our priority.</p>
-          </div>
-          <div>
-            <p className="font-semibold">Pune, Maharashtra</p>
-            <p className="mt-2 text-sm text-slate-400">For property enquiries, connect with our team.</p>
-            <div className="mt-4 flex flex-wrap gap-4 text-sm">
-              <Link href="/properties" className="text-amber-400 hover:text-amber-300">Live Properties</Link>
-              <Link href="/account" className="text-amber-400 hover:text-amber-300">My Account</Link>
-              <Link href="/list-property" className="text-amber-400 hover:text-amber-300">List Your Property</Link>
-              <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
+      <footer id="contact" className="bg-slate-950 px-5 py-10 text-white sm:px-6 sm:py-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-8 border-b border-slate-800 pb-8 md:grid-cols-[1fr_1.2fr] md:items-start">
+            <div>
+              <h2 className="text-2xl font-bold tracking-widest">NAREN REALTY</h2>
+              <p className="mt-2 text-sm text-slate-400">Your property. Our priority.</p>
+              <p className="mt-5 text-sm font-semibold text-white">Pune, Maharashtra</p>
+              <p className="mt-1 max-w-sm text-sm leading-6 text-slate-400">For property enquiries, connect with our team.</p>
             </div>
-            <div className="mt-5 border-t border-slate-800 pt-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-white">Legal &amp; Policies</p>
-                <Link href="/legal-policies" className="text-xs font-semibold text-amber-400 hover:text-amber-300">View All Policies →</Link>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 text-xs sm:grid-cols-3">
-                <Link href="/customer-terms" className="text-slate-400 hover:text-amber-300">Customer Terms</Link>
-                <Link href="/owner-terms" className="text-slate-400 hover:text-amber-300">Owner Terms</Link>
-                <Link href="/brokerage-policy" className="text-slate-400 hover:text-amber-300">Brokerage Policy</Link>
-                <Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link>
-                <Link href="/pg-hostel-policy" className="text-slate-400 hover:text-amber-300">PG / Hostel Policy</Link>
-                <Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb / Short-Stay</Link>
-                <Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward</Link>
-                <Link href="/cancellation-refund-policy" className="text-slate-400 hover:text-amber-300">Cancellation &amp; Refund</Link>
-                <Link href="/payment-policy" className="text-slate-400 hover:text-amber-300">Payment Policy</Link>
-                <Link href="/property-listing-verification-policy" className="text-slate-400 hover:text-amber-300">Listing &amp; Verification</Link>
-                <Link href="/site-visit-policy" className="text-slate-400 hover:text-amber-300">Enquiry &amp; Site Visit</Link>
-                <Link href="/user-conduct-policy" className="text-slate-400 hover:text-amber-300">User Conduct</Link>
-                <Link href="/grievance-redressal-policy" className="text-slate-400 hover:text-amber-300">Grievance Redressal</Link>
-                <Link href="/disclaimer" className="text-slate-400 hover:text-amber-300">Disclaimer</Link>
-                <Link href="/cookie-policy" className="text-slate-400 hover:text-amber-300">Cookie Policy</Link>
-                <Link href="/third-party-services-policy" className="text-slate-400 hover:text-amber-300">Third-Party Services</Link>
+            <div>
+              <p className="text-sm font-semibold text-white">Quick Links</p>
+              <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-3 text-sm sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
+                <Link href="/properties" className="text-amber-400 hover:text-amber-300">Live Properties</Link>
+                <Link href="/account" className="text-amber-400 hover:text-amber-300">My Account</Link>
+                <Link href="/list-property" className="text-amber-400 hover:text-amber-300">List Your Property</Link>
+                <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
               </div>
             </div>
           </div>
+
+          <div className="pt-8">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-base font-bold text-white">Legal &amp; Policies</p>
+                <p className="mt-1 text-xs text-slate-400">Important terms and policies for using NAREN REALTY.</p>
+              </div>
+              <Link href="/legal-policies" className="text-sm font-semibold text-amber-400 hover:text-amber-300">View All Policies →</Link>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Platform Terms</p>
+                <ul className="mt-3 space-y-3 text-sm">
+                  <li><Link href="/customer-terms" className="text-slate-400 hover:text-amber-300">Customer Terms</Link></li>
+                  <li><Link href="/owner-terms" className="text-slate-400 hover:text-amber-300">Owner Terms</Link></li>
+                  <li><Link href="/brokerage-policy" className="text-slate-400 hover:text-amber-300">Brokerage Policy</Link></li>
+                  <li><Link href="/user-conduct-policy" className="text-slate-400 hover:text-amber-300">User Conduct</Link></li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Property &amp; Payments</p>
+                <ul className="mt-3 space-y-3 text-sm">
+                  <li><Link href="/property-listing-verification-policy" className="text-slate-400 hover:text-amber-300">Listing &amp; Verification</Link></li>
+                  <li><Link href="/site-visit-policy" className="text-slate-400 hover:text-amber-300">Enquiry &amp; Site Visit</Link></li>
+                  <li><Link href="/payment-policy" className="text-slate-400 hover:text-amber-300">Payment Policy</Link></li>
+                  <li><Link href="/cancellation-refund-policy" className="text-slate-400 hover:text-amber-300">Cancellation &amp; Refund</Link></li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Privacy &amp; Support</p>
+                <ul className="mt-3 space-y-3 text-sm">
+                  <li><Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link></li>
+                  <li><Link href="/cookie-policy" className="text-slate-400 hover:text-amber-300">Cookie Policy</Link></li>
+                  <li><Link href="/third-party-services-policy" className="text-slate-400 hover:text-amber-300">Third-Party Services</Link></li>
+                  <li><Link href="/grievance-redressal-policy" className="text-slate-400 hover:text-amber-300">Grievance Redressal</Link></li>
+                  <li><Link href="/disclaimer" className="text-slate-400 hover:text-amber-300">Disclaimer</Link></li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Other Services</p>
+                <ul className="mt-3 space-y-3 text-sm">
+                  <li><Link href="/pg-hostel-policy" className="text-slate-400 hover:text-amber-300">PG / Hostel Policy</Link></li>
+                  <li><Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb / Short-Stay</Link></li>
+                  <li><Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward</Link></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <p className="mt-9 border-t border-slate-800 pt-5 text-xs text-slate-500">© 2026 Naren Realty. All rights reserved.</p>
         </div>
-        <p className="mx-auto mt-8 max-w-7xl border-t border-slate-800 pt-6 text-xs text-slate-500">
-          © 2026 Naren Realty. All rights reserved.
-        </p>
       </footer>
 
     </main>
