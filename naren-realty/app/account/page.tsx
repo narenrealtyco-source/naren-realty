@@ -95,7 +95,11 @@ export default function CustomerAccountPage() {
   const [referralCategory, setReferralCategory] = useState<"tenant" | "owner">("tenant");
   const [authError, setAuthError] = useState("");
   const [authNotice, setAuthNotice] = useState("");
-  const [authSubmitting, setAuthSubmitting] = useState(false);\n  const [verificationPending, setVerificationPending] = useState(false);\n  const [verificationEmail, setVerificationEmail] = useState("");\n  const [resendSubmitting, setResendSubmitting] = useState(false);\n  const [resendCooldown, setResendCooldown] = useState(0);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [verificationPending, setVerificationPending] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [resendSubmitting, setResendSubmitting] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
