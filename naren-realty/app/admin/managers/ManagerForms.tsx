@@ -1,5 +1,6 @@
 "use client";
 import { useActionState } from "react";
+import LocalityAutocomplete from "../../components/LocalityAutocomplete";
 import { createManager, resendManagerSetupEmail, setManagerActive, type ManagerActionState } from "./actions";
 const initial: ManagerActionState = { status: "idle", message: "" };
 export function CreateManagerForm() {
@@ -9,7 +10,7 @@ export function CreateManagerForm() {
   <label className="text-sm font-semibold">Full name<input name="full_name" required maxLength={100} className="mt-1 w-full rounded border p-2.5"/></label>
   <label className="text-sm font-semibold">Email<input name="email" required type="email" className="mt-1 w-full rounded border p-2.5"/></label>
   <label className="text-sm font-semibold">Mobile (+91)<input name="phone" required placeholder="+919876543210" pattern="\+91[6-9][0-9]{9}" className="mt-1 w-full rounded border p-2.5"/></label>
-  <label className="text-sm font-semibold">Area / Location<input name="area" maxLength={100} placeholder="Wakad / Baner / Hinjewadi" className="mt-1 w-full rounded border p-2.5"/></label>
+  <label className="text-sm font-semibold">Area / Location<LocalityAutocomplete name="area" maxLength={100} placeholder="Search manager service area" className="mt-1 w-full rounded border p-2.5"/></label>
   <p className="text-sm text-slate-600 sm:col-span-2">A secure account setup email will be sent to the manager. They create their own password.</p>
   <button disabled={pending} className="rounded-lg bg-[#10243A] px-4 py-3 font-semibold text-white disabled:opacity-50 sm:col-span-2">{pending?"Creating…":"Create Manager & Send Setup Email"}</button>
   {state.message&&<p role={state.status==="error"?"alert":"status"} className={state.status==="error"?"text-sm text-rose-700 sm:col-span-2":"text-sm text-emerald-700 sm:col-span-2"}>{state.message}</p>}
