@@ -146,6 +146,17 @@ export async function registerCustomer(input: {
   return { customer, requiresEmailConfirmation: false };
 }
 
+export async function resendCustomerConfirmationEmail(emailInput: string): Promise<void> {
+  const email = emailInput.trim().toLowerCase();
+  if (!email) throw new Error("Enter your email address first.");
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: getCustomerAccountRedirectUrl() },
+  });
+  if (error) throw new Error(error.message || "Verification email could not be sent. Please try again.");
+}
+
 export async function loginCustomer(emailInput: string, password: string): Promise<CustomerAccount> {
   const email = emailInput.trim().toLowerCase();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
