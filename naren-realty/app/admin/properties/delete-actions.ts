@@ -63,3 +63,38 @@ export async function deleteRejectedProperty(
     return { status: "error", message: error instanceof Error ? error.message : "Deletion could not be confirmed. Retry cleanup." };
   }
 }
+
+
+export async function deleteAdminProperty(
+  _previous: DeleteRejectedPropertyState,
+  formData: FormData,
+): Promise<DeleteRejectedPropertyState> {
+  let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+  try { ({ supabase } = await requireAdmin()); }
+  catch { return { status: "error", message: "Admin authentication and authorization are required." }; }
+  const id = formData.get("property_id");
+  if (typeof id !== "string" || !uuid.test(id)) return { status: "error", message: "Invalid property ID." };
+
+  const { data: property, error: lookupError } = await supabase.from("properties").select("id,status").eq("id", id).maybeSingle();
+  if (lookupError || !property) return { status: "error", message: "Property not found." };
+
+  // Keep records with operational, financial, referral or social history intact.
+  const dependencies = await Promise.all([
+    supabase.from("brokerage_acknowledgements").select("id").eq("property_id", id).limit(1).maybeSingle(),
+    supabase.from("enquiries").select("id").eq("property_id", id).limit(1).maybeSingle(),
+    supabase.from("instagram_property_posts").select("id").eq("property_id", id).limit(1).maybeSingle(),
+    supabase.from("referral_attributions").select("id").eq("property_id", id).limit(1).maybeSingle(),
+    supabase.from("visit_requests").select("id").eq("property_id", id).limit(1).maybeSingle(),
+  ]);
+  if (dependencies.some((item) => item.error || item.data)) {
+    return { status: "error", message: "This listing has linked enquiries, visits, referral, brokerage or social records. Unpublish it instead; linked history is protected." };
+  }
+
+  if (property.status !== "rejected" && property.status !== "deleting") {
+    const { error } = await supabase.from("properties").update({ status: "rejected" }).eq("id", id);
+    if (error) return { status: "error", message: "Listing could not be unpublished before deletion." };
+  }
+  const result = await deleteRejectedProperty({ status: "idle", message: "" }, formData);
+  if (result.status === "success") revalidatePath("/admin/properties");
+  return result;
+}
