@@ -5,6 +5,7 @@ import Link from "next/link";
 import { type ListingType, type PropertyListing } from "../lib/properties";
 import { loadApprovedProperties } from "./actions";
 import PropertyCard from "../components/PropertyCard";
+import LocalityAutocomplete from "../components/LocalityAutocomplete";
 import { visitRequestsReady } from "./visit-actions";
 import { matchesPropertyLocation } from "../lib/property-search";
 
@@ -46,7 +47,7 @@ export default function BrowsePropertiesPage() {
       <section className="mx-auto max-w-7xl px-5 py-8 sm:px-6 sm:py-12">
         <div className="border-b border-slate-200 pb-6"><p className="text-xs font-bold tracking-[0.18em] text-amber-700">CUSTOMER PROPERTY BROWSING</p><h1 className="mt-2 text-3xl font-bold text-[#10243A]">Find your next home</h1><p className="mt-2 text-sm text-slate-600">Only properties approved by Naren Realty are shown.</p></div>
         <div className="mt-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-sm font-semibold">Locality or landmark<input value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Search locality or landmark" className="mt-1.5 w-full rounded-md border border-slate-300 px-3 py-2.5 font-normal outline-none focus:border-amber-500" /></label>
+          <label className="text-sm font-semibold">Locality or landmark<LocalityAutocomplete value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Search locality or landmark" className="mt-1.5 w-full rounded-md border border-slate-300 px-3 py-2.5 font-normal outline-none focus:border-amber-500" /></label>
           <label className="text-sm font-semibold">Property category<select value={type} onChange={(event) => setType(event.target.value as "All" | ListingType)} className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="All">All properties</option><option value="Rental">Flat rental</option><option value="Resale">Flat resale</option><option value="PG">PG / Hostel</option><option value="Airbnb">Airbnb / Short stay</option></select></label>
           <label className="text-sm font-semibold">Maximum budget (INR)<input type="number" min="1" value={budget} onChange={(event) => setBudget(event.target.value)} placeholder="No limit" className="mt-1.5 w-full rounded-md border border-slate-300 px-3 py-2.5 font-normal outline-none focus:border-amber-500" /></label>
           <label className="text-sm font-semibold">Bedrooms<select value={bedrooms} onChange={(event) => setBedrooms(event.target.value)} className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="">Any BHK</option><option value="1">1 BHK</option><option value="2">2 BHK</option><option value="3">3 BHK</option><option value="4+">4+ BHK</option></select></label>
