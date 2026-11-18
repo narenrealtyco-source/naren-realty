@@ -26,6 +26,7 @@ export default function VisitorTracker() {
     let stopped = false;
     const startedForms = new WeakSet<HTMLFormElement>();
     const visitedFields = new WeakMap<HTMLFormElement, WeakSet<Element>>();
+    const formSteps = new WeakMap<HTMLFormElement, number>();
     const send = (eventName: string, eventData: Record<string, unknown> = {}) => {
       if (stopped) return;
       try {
@@ -55,12 +56,10 @@ export default function VisitorTracker() {
       if (!fields) { fields = new WeakSet<Element>(); visitedFields.set(form, fields); }
       if (!fields.has(target)) {
         fields.add(target);
-        send("form_step", { formIndex: index, stepIndex: fieldsCount(form, fields) });
+        const nextStep = (formSteps.get(form) ?? 0) + 1;
+        formSteps.set(form, nextStep);
+        send("form_step", { formIndex: index, stepIndex: nextStep });
       }
-    };
-    const fieldsCount = (form: HTMLFormElement, fields: WeakSet<Element>) => {
-      // Step count is intentionally not derived from or accompanied by field values/names.
-      return Math.min(form.elements.length, 50);
     };
     const onSubmit = (event: Event) => {
       const form = event.target;
