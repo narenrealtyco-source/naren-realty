@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { AdminLoanEdit, AdminRequirementForm } from "../../components/RequirementForms";
+import { AdminLoanEdit, AdminRequirementDelete, AdminRequirementForm } from "../../components/RequirementForms";
 import { requirementsReady } from "../../lib/requirements";
 import { requireAdmin } from "../../lib/supabase-server";
 
@@ -44,7 +44,7 @@ async function Content({ searchParams }: { searchParams: Promise<{ status?: stri
         {kind === "match" ? <p className="mt-2 text-sm">{row.requirement_type} · {row.property_category} · {row.preferred_location} · {row.preferred_bhk ?? "Any"} BHK · {row.min_budget ?? "Any"} – {row.max_budget ?? "Any"} · {row.move_in_date ?? "No date"}</p> : <p className="mt-2 text-sm">{row.loan_types?.name ?? "Loan type unavailable"} · ₹{Number(row.amount).toLocaleString("en-IN")} · {row.employment} · {row.property_location} · {row.property_value ?? "No property value"} · {row.email}</p>}
         <p className="mt-2 whitespace-pre-wrap text-sm">{kind === "match" ? row.additional_requirements : row.details}</p><p className="mt-2 text-sm">{row.created_at}</p>
         {kind === "loan" && <AdminLoanEdit loan={row} types={loanTypes.data ?? []} />}
-        <AdminRequirementForm id={row.id} kind={kind} status={row.status} remarks={kind === "match" ? (row.admin_notes ?? "") : (note?.remarks ?? "")} assigned={note?.assigned_to ?? ""} /></article>; })}
+        <AdminRequirementForm id={row.id} kind={kind} status={row.status} remarks={kind === "match" ? (row.admin_notes ?? "") : (note?.remarks ?? "")} assigned={note?.assigned_to ?? ""} /><AdminRequirementDelete id={row.id} kind={kind} /></article>; })}
       {(kind === "match" ? matches.data : loans.data)?.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 requirements.</p>}
     </section>)}
   </div></main>;
