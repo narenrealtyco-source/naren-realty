@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
+import AdminRecordDeleteButton from "../../components/AdminRecordDeleteButton";
 import {
   loadAdminReferrals,
   loadAdminReferralRegister,
@@ -236,6 +237,7 @@ export default function AdminReferralsPage() {
                         <div className="rounded-lg border border-slate-200 bg-white p-3"><strong>Enquiries &amp; visits</strong>{enquiries.map((e) => <p key={e.id} className="mt-1">Enquiry {dateLabel(e.created_at)} · {e.status}</p>)}{visits.map((v) => <p key={v.id} className="mt-1">Visit {dateLabel(v.created_at)} · {v.status}</p>)}{!enquiries.length && !visits.length && <p className="mt-1 text-slate-500">No enquiry or visit record found</p>}</div>
                         <div className="rounded-lg border border-slate-200 bg-white p-3"><strong>Referral trail</strong><p className="mt-1">Referred by: {row.referrer?.full_name ?? "—"}</p><p>Registered: {dateLabel(row.created_at)}</p><p>Verified: {dateLabel(row.verified_at)}</p><p>Paid: {dateLabel(row.paid_at)}</p><p>Payment ref: {row.payment_reference ?? "—"}</p></div>
                       </div>
+                      {(row.status === "pending" || row.status === "rejected") && <AdminRecordDeleteButton kind="referral" id={row.id} label="Delete referral record" />}
                       {(() => {
                         const draft = drafts[row.id] ?? toDraft(row);
                         const ownerOptions = properties.filter((p) => selectedType !== "owner" || p.owner_id === row.referred_user_id);
