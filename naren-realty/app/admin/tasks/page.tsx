@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
 import TaskActions from "./TaskActions";
+
+export const instant = false;
 
 function formatIndiaTime(value: string) {
   return new Intl.DateTimeFormat("en-IN", {
@@ -10,6 +13,7 @@ function formatIndiaTime(value: string) {
 }
 
 export default async function PendingTasksPage() {
+  await connection();
   const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("pending_tasks")
