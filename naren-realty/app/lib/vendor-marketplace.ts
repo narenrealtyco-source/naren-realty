@@ -41,7 +41,7 @@ export function validateVendorApplication(form: FormData) {
   if (!/^(?:[6-9]\d{9}|\+91[6-9]\d{9})$/.test(mobile)) throw new Error("Enter a valid Indian mobile number.");
   const opening_time = field(form, "opening_time", "Shop opening time", 5, false);
   const closing_time = field(form, "closing_time", "Shop closing time", 5, false);
-  if ((opening_time && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(opening_time)) || (closing_time && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(closing_time))) throw new Error("Enter valid shop timings.");
+  if ((opening_time && !/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/.test(opening_time)) || (closing_time && !/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/.test(closing_time))) throw new Error("Enter valid shop timings.");
   if (Boolean(opening_time) !== Boolean(closing_time)) throw new Error("Enter both shop opening and closing times.");
   const email = field(form, "email", "Email", 254, false);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
