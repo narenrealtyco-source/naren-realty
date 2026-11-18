@@ -1,6 +1,8 @@
+import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
 
 export default async function AnalyticsDashboard() {
+  await connection();
   const { supabase } = await requireAdmin();
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [visitors, active, events, searches, exits, tasks, recent] = await Promise.all([
