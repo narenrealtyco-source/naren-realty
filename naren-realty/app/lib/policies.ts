@@ -7,7 +7,7 @@ export type PolicyDocument = { type: PolicyType; path: string; title: string; ve
 type SavedPolicyVersion = { version: string; lastUpdated: string };
 
 const LAST_UPDATED = "November 18, 2026";
-const DEFAULT_VERSION = "1.1";
+const DEFAULT_VERSION = "1.0";
 const VERSIONS_KEY = "naren-realty-policy-versions-v1";
 const ACCEPTANCES_KEY = "naren-realty-policy-acceptances-v1";
 const BROKERAGE_ACKS_KEY = "naren-realty-brokerage-acknowledgements-v1";
@@ -58,7 +58,7 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "brokerage_policy", path: "/brokerage-policy", title: "Brokerage Policy", version: DEFAULT_VERSION, lastUpdated: LAST_UPDATED,
+    type: "brokerage_policy", path: "/brokerage-policy", title: "Brokerage Policy", version: "1.1", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Flat Resale", paragraphs: ["Buyer brokerage: 2% of the final sale value.", "Seller brokerage: 2% of the final sale value. The buyer and seller acknowledge their obligations separately."] },
       { heading: "Flat Rental", paragraphs: ["Tenant brokerage: an amount equal to one month's rent.", "Owner brokerage: none."] },
@@ -213,8 +213,7 @@ function brokerageStatement(category: ListingType, party: BrokerageParty): strin
   if (category === "Resale" && party === "Buyer") return "Buyer brokerage is 2% of the final sale value. Applicable GST, if any, is additional.";
   if (category === "Resale" && party === "Seller") return "Seller brokerage is 2% of the final sale value. Applicable GST, if any, is additional.";
   if (category === "Rental" && party === "Tenant") return "Tenant brokerage is equal to one month's rent. Applicable GST, if any, is additional.";
-  if (category === "PG" && party === "Resident") return "Resident / Tenant brokerage is equal to one month's rent. Applicable GST, if any, is additional.";
-  if (category === "PG" && party === "PG / Hostel Owner") return "PG / Hostel Owner brokerage is equal to one month's rent. Applicable GST, if any, is additional.";
+  if (category === "PG" && party === "PG / Hostel Owner") return "PG / Hostel Owner commission is 10% of accommodation rent for each successful booking introduced or facilitated by Naren Realty. Applicable GST, if any, is additional.";
   if (category === "Airbnb" && party === "Host") return "Host commission is 10% of accommodation rent for each successful booking introduced or facilitated by Naren Realty. Cleaning charges and taxes are excluded unless separately agreed in writing. Applicable GST, if any, is additional.";
   throw new Error("No brokerage acknowledgement applies to this party and category.");
 }
