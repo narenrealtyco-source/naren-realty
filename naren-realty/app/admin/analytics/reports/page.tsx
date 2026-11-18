@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import Link from "next/link";
 import { requireAdmin } from "../../../lib/supabase-server";
-import AnalyticsReports from "./AnalyticsReports";
+import AnalyticsReports from "../AnalyticsReports";
 
 export default async function AnalyticsReportsPage() {
   await connection();
