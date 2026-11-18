@@ -80,6 +80,25 @@ export async function updateRequirement(_state: RequirementState, form: FormData
   return { status: "success", message: "Requirement updated." };
 }
 
+
+export async function deleteRequirement(_state: RequirementState, form: FormData): Promise<RequirementState> {
+  if (!requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was deleted." };
+  let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+  try { ({ supabase } = await requireAdmin()); } catch { return { status: "error", message: "Admin authorization is required." }; }
+  const id = form.get("id"), kind = form.get("kind");
+  if (typeof id !== "string" || !validUuid(id) || (kind !== "match" && kind !== "loan")) return { status: "error", message: "Invalid requirement." };
+  const table = kind === "match" ? "property_requirements" : "loan_requirements";
+  const { data, error } = await supabase.from(table).delete().eq("id", id).select("id").maybeSingle();
+  if (error || !data) {
+    console.error("[requirements] Admin delete failed", { kind, code: error?.code });
+    return { status: "error", message: "Requirement could not be deleted. Please check access and try again." };
+  }
+  revalidatePath("/admin/requirements");
+  revalidatePath("/matches");
+  revalidatePath("/loans");
+  return { status: "success", message: "Requirement permanently deleted." };
+}
+
 export async function editLoanRequirement(_state: RequirementState, form: FormData): Promise<RequirementState> {
   if (!requirementsReady()) return { status: "error", message: "Requirements are unavailable. Nothing was changed." };
   let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
