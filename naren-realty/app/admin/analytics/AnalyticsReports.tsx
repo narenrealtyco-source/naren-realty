@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 
 type EventRow = { sessionKey: string; event: string; page: string; time: string };
 
+function completedFormsLabel(submitted: number, started: number) {
+  return Math.min(submitted, started);
+}
+
 function rate(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
@@ -19,6 +23,8 @@ export default function AnalyticsReports({ events }: { events: EventRow[] }) {
     const propertyViews = sessionsFor((event) => event.event === "page_view" && /^\/properties\/[^/]+\/?$/.test(event.page));
     const formStarts = sessionsFor((event) => event.event === "form_start");
     const formSubmits = sessionsFor((event) => event.event === "form_submit");
+    const propertyFormStarts = new Set([...propertyViews].filter((session) => formStarts.has(session)));
+    const completedForms = new Set([...formStarts].filter((session) => formSubmits.has(session)));
     const pages = new Map<string, Set<string>>();
     for (const event of filtered) {
       if (event.event !== "page_view") continue;
@@ -33,9 +39,9 @@ export default function AnalyticsReports({ events }: { events: EventRow[] }) {
       propertyViews: propertyViews.size,
       formStarts: formStarts.size,
       formSubmits: formSubmits.size,
-      propertyDropoff: Math.max(0, propertyViews.size - formStarts.size),
-      propertyToFormRate: rate(formStarts.size, propertyViews.size),
-      formCompletionRate: rate(formSubmits.size, formStarts.size),
+      propertyDropoff: Math.max(0, propertyViews.size - propertyFormStarts.size),
+      propertyToFormRate: rate(propertyFormStarts.size, propertyViews.size),
+      formCompletionRate: rate(completedForms.size, formStarts.size),
       visitorToSubmitRate: rate(formSubmits.size, visitors.size),
       topPages,
       eventCount: filtered.length,
@@ -60,7 +66,7 @@ export default function AnalyticsReports({ events }: { events: EventRow[] }) {
     </div>
     <div className="grid gap-3 sm:grid-cols-3">
       <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Property view → form start</p><strong className="mt-2 block text-2xl text-[#10243A]">{data.propertyToFormRate}%</strong><p className="mt-1 text-xs text-slate-500">{data.propertyDropoff} property-viewing sessions did not start a form</p></article>
-      <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Form completion rate</p><strong className="mt-2 block text-2xl text-[#10243A]">{data.formCompletionRate}%</strong><p className="mt-1 text-xs text-slate-500">{data.formSubmits} submitted · {data.formStarts} started</p></article>
+      <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Form completion rate</p><strong className="mt-2 block text-2xl text-[#10243A]">{data.formCompletionRate}%</strong><p className="mt-1 text-xs text-slate-500">{completedFormsLabel(data.formSubmits, data.formStarts)} submitted · {data.formStarts} started</p></article>
       <article className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Visitor → form submit</p><strong className="mt-2 block text-2xl text-[#10243A]">{data.visitorToSubmitRate}%</strong><p className="mt-1 text-xs text-slate-500">{data.eventCount.toLocaleString("en-IN")} recorded events in this period</p></article>
     </div>
     <div className="grid gap-5 lg:grid-cols-2">
