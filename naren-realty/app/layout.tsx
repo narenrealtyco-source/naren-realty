@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
-import Link from "next/link";
 import MobileBottomNav from "./components/MobileBottomNav";
 import NotificationBell from "./components/NotificationBell";
 import InstallAppPrompt from "./components/InstallAppPrompt";
@@ -49,11 +48,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen">
         {children}
-        <footer className="border-t border-slate-200 bg-white px-4 py-5 text-center text-sm text-slate-600">
-          <Link href="/referral-policy" className="font-semibold text-[#10243A] underline underline-offset-4">Referral &amp; Reward Policy</Link>
-          <span className="mx-2 text-slate-300">·</span>
-          <Link href="/privacy-policy" className="font-semibold text-[#10243A] underline underline-offset-4">Privacy Policy</Link>
-        </footer>
         <NotificationBell />
         <InstallAppPrompt />
         <Suspense><MobileBottomNav /></Suspense>
