@@ -21,7 +21,7 @@ export function MatchForm({ ready }: { ready: boolean }) {
   return <form action={action} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
     <h2 className="text-xl font-bold text-[#10243A]">Create property requirement</h2><Notice ready={ready} />
     <label className={label}>Requirement type<select name="purpose" className={input} value={purpose} onChange={(event) => { setPurpose(event.target.value); setBrokerageAccepted(false); }} required><option>Rent</option><option>Buy</option></select></label>
-    <label className={label}>Property category<select name="category" className={input} value={category} onChange={(event) => setCategory(event.target.value)}><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
+    <label className={label}>Property category<select name="category" className={input} value={category} onChange={(event) => { setCategory(event.target.value); setBrokerageAccepted(false); }}><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
     <p className="text-xs text-slate-600">Buying is available for flats only.</p>
     <label className={label}>Preferred location<LocalityAutocomplete name="location" className={input} maxLength={120} placeholder="Start typing locality, e.g. Baner" required /></label>
     {category === "Flat" && <label className={label}>Configuration<select name="bedrooms" className={input}><option value="">Any BHK</option>{[1,2,3,4,5].map((n) => <option key={n} value={n}>{n} BHK</option>)}</select></label>}
