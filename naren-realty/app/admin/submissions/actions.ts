@@ -148,3 +148,35 @@ export async function deleteRejectedSubmission(
     };
   }
 }
+
+
+export async function deleteAdminSubmission(
+  _previous: DeleteRejectedState,
+  formData: FormData,
+): Promise<DeleteRejectedState> {
+  let supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+  try { ({ supabase } = await requireAdmin()); }
+  catch { return { status: "error", message: "Admin authentication and authorization are required." }; }
+  if (!propertySubmissionsEnabled()) return { status: "error", message: "Submission deletion is awaiting private database setup." };
+  const id = formData.get("submission_id");
+  if (typeof id !== "string" || !uuidPattern.test(id)) return { status: "error", message: "Invalid submission ID." };
+
+  const { data: row, error } = await supabase.from("property_submissions")
+    .select("id,status,published_property_id").eq("id", id).maybeSingle();
+  if (error || !row) return { status: "error", message: "Submission not found." };
+  if (row.published_property_id || row.status === "approved") {
+    return { status: "error", message: "This submission is already published. Delete is blocked to protect the live property; unpublish the property separately if required." };
+  }
+  if (!["pending", "rejected", "deleting"].includes(row.status)) {
+    return { status: "error", message: "This submission status is protected from deletion." };
+  }
+
+  if (row.status === "pending") {
+    const rejectData = new FormData();
+    rejectData.set("submission_id", id);
+    rejectData.set("reason", "Submission permanently deleted by Admin.");
+    const reviewed = await reviewSubmission("rejected", rejectData);
+    if (reviewed.status !== "success") return reviewed;
+  }
+  return deleteRejectedSubmission({ status: "idle", message: "" }, formData);
+}
