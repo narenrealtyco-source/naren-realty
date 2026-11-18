@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
+import AdminRecordDeleteButton from "../../components/AdminRecordDeleteButton";
 import { loadAdminEnquiries, updateAdminEnquiryDetails, updateAdminEnquiryStatus } from "./actions";
 import {
   ENQUIRY_STATUSES,
@@ -303,6 +304,7 @@ export default function AdminEnquiriesPage() {
                   </div>
                   <button type="button" disabled={savingId === enquiry.id} onClick={() => void saveAdminDetails(enquiry)} className="mt-3 rounded-md border border-[#10243A] px-4 py-2 text-sm font-semibold text-[#10243A] hover:bg-slate-50 disabled:opacity-60">Save Admin Notes</button>
                 </div>
+                <AdminRecordDeleteButton kind="enquiry" id={enquiry.id} label="Delete enquiry" />
               </article>
             ))}
           </div>
