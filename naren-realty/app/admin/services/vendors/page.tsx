@@ -18,7 +18,7 @@ async function Content() {
   const [categoryResult, applicationResult, vendorResult, enquiryResult] = await Promise.all([
     supabase.from("service_categories").select("id,name,slug,active").order("name"),
     supabase.from("service_vendor_applications").select("id,business_name,public_name,category_id,contact_person,mobile,email,services,description,city,locality,address,admin_notes,status").order("created_at", { ascending: false }).limit(100),
-    supabase.from("service_vendors").select("id,application_id,active").limit(1000),
+    supabase.from("service_vendors").select("id,application_id,business_name,active").limit(1000),
     supabase.from("vendor_enquiries").select("id,vendor_id,customer_name,locality,message,status,payment_status,payment_reference,created_at").order("created_at", { ascending: false }).limit(100),
   ]);
   const errors = [categoryResult.error, applicationResult.error, vendorResult.error, enquiryResult.error].filter(Boolean);
@@ -42,7 +42,7 @@ async function Content() {
       </article>)}</div>{applications.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 applications.</p>}
     </section>
     <section className="mt-6"><h2 className="text-xl font-bold">Vendor enquiries & lead payments</h2>{enquiries.length === 0 && <p className="mt-3">No enquiries yet.</p>}
-      <div className="mt-3 space-y-3">{enquiries.map((e) => <article key={e.id} className="rounded-xl border bg-white p-4 [overflow-wrap:anywhere]"><h3 className="font-bold">{applications.find((a) => a.id === e.vendor_id)?.business_name ?? "Service provider enquiry"}</h3><p className="mt-1 text-sm">{e.customer_name} · {e.locality}</p><p className="mt-2 whitespace-pre-wrap text-sm">{e.message}</p><p className="mt-2 text-sm">{e.status} · {e.created_at}</p><MarkLeadPaidForm key={`${e.id}-${e.payment_status}-${e.payment_reference}`} id={e.id} paymentStatus={e.payment_status} reference={e.payment_reference} /></article>)}</div>{enquiries.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 enquiries.</p>}
+      <div className="mt-3 space-y-3">{enquiries.map((e) => <article key={e.id} className="rounded-xl border bg-white p-4 [overflow-wrap:anywhere]"><h3 className="font-bold">{vendors.find((v) => v.id === e.vendor_id)?.business_name ?? "Service provider enquiry"}</h3><p className="mt-1 text-sm">{e.customer_name} · {e.locality}</p><p className="mt-2 whitespace-pre-wrap text-sm">{e.message}</p><p className="mt-2 text-sm">{e.status} · {e.created_at}</p><MarkLeadPaidForm key={`${e.id}-${e.payment_status}-${e.payment_reference}`} id={e.id} paymentStatus={e.payment_status} reference={e.payment_reference} /></article>)}</div>{enquiries.length === 100 && <p className="mt-3 text-sm">Showing the latest 100 enquiries.</p>}
     </section>
   </div></main>;
 }
