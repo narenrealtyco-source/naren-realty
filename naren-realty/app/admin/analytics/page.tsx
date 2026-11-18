@@ -1,7 +1,5 @@
 import { requireAdmin } from "../../lib/supabase-server";
 
-export const dynamic = "force-dynamic";
-
 export default async function AnalyticsDashboard() {
   const { supabase } = await requireAdmin();
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
