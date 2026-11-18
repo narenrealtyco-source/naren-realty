@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics";
+type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics" | "followups";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
@@ -79,6 +79,7 @@ export default function AdminDashboardPage() {
     { key: "referrals", label: "Referrals", href: "/admin/referrals" },
     { key: "policies", label: "Policies", href: "/admin/policies" },
     { key: "analytics", label: "Analytics & Engagement", href: "/admin/analytics" },
+    { key: "followups", label: "Pending Follow-ups", href: "/admin/tasks" },
   ];
 
   useEffect(() => {
@@ -191,6 +192,7 @@ export default function AdminDashboardPage() {
               {selectedTask === "referrals" && <><SectionHeading href="/admin/referrals">Referral Review &amp; Rewards</SectionHeading><p className="mb-4 text-sm text-slate-600">Verify transaction source, linked property, deal completion and manual reward payouts. Direct, market and other-broker deals are not eligible.</p><Link href="/admin/referrals" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Referral Management</Link></>}
               {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><Link href="/admin/policies" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Policy Management</Link></>}
               {selectedTask === "analytics" && <><SectionHeading href="/admin/analytics">Analytics & Engagement</SectionHeading><p className="mb-4 text-sm text-slate-600">Review visitor sessions, approximate city-level location, page views, searches and exit signals.</p><Link href="/admin/analytics" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Analytics Dashboard</Link></>}
+              {selectedTask === "followups" && <><SectionHeading href="/admin/tasks">Pending Follow-ups</SectionHeading><p className="mb-4 text-sm text-slate-600">New enquiries automatically create internal follow-up tasks. Mark them completed or dismissed after review.</p><Link href="/admin/tasks" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Pending Follow-ups</Link></>}
             </section>
           </div>
         )}
