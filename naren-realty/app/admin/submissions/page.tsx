@@ -84,7 +84,7 @@ export default async function AdminSubmissionsPage() {
             {submission.reviewed_at && <p className="mt-1 break-all text-xs text-slate-500">Reviewed: {submission.reviewed_at} · Reviewer: {submission.reviewed_by}</p>}
             {Array.isArray(submission.photo_paths) && submission.photo_paths.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{submission.photo_paths.map((_: unknown, index: number) => <a key={index} href={`/admin/submissions/${submission.id}/photos/${index}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold underline">View private photo {index + 1}</a>)}</div>}
             {submission.video_path && <a href={`/admin/submissions/${submission.id}/video`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold underline">Preview submitted property video</a>}
-            {submission.status === "pending" && <ReviewForms id={submission.id} />}
+            {submission.status === "pending" && <><ReviewForms id={submission.id} /><DeleteRejectedButton id={submission.id} retry={false} pendingSubmission /></>}
             {(submission.status === "rejected" || submission.status === "deleting") && !submission.published_property_id
               && <DeleteRejectedButton id={submission.id} retry={submission.status === "deleting"} />}
           </article>)}</div>}
