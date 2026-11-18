@@ -31,6 +31,7 @@ export default function MatchesPostRequirement({ ready }: { ready: boolean }) {
   const [client, setClient] = useState("All");
   const [bhk, setBhk] = useState("Any");
   const [furnishing, setFurnishing] = useState("Any");
+  const [brokerageAccepted, setBrokerageAccepted] = useState(false);
   return <div className="relative">
     <button type="button" onClick={() => setOpen(!open)} className="rounded-xl border border-[#FBBF24] bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] shadow-sm hover:bg-amber-300">{open ? "Close" : "＋ Post Your Requirement"}</button>
     {open && <form action={action} className="mt-4 space-y-5 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm sm:p-6">
@@ -48,8 +49,9 @@ export default function MatchesPostRequirement({ ready }: { ready: boolean }) {
       <input type="hidden" name="move_in_date" value="" />
       <input type="hidden" name="details" value="" />
       <p className="text-xs text-slate-500">Client type and furnishing preferences are included with your notes.</p>
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-slate-800"><input type="checkbox" name="brokerage_acknowledged" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} required className="mt-1 size-4 shrink-0 accent-[#10243A]" /><span>{purpose === "Buy" ? "I acknowledge buyer brokerage of 2% of the final sale value, plus applicable GST." : "I acknowledge tenant brokerage equal to one month’s rent, plus applicable GST."} I have read and accept the applicable terms.</span></label>
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className="text-sm">{state.message}</p>}
-      <button disabled={!ready || pending || state.status === "success"} className="w-full rounded-xl bg-[#FBBF24] px-5 py-3.5 font-bold text-[#10243A] shadow-sm hover:bg-amber-300 disabled:opacity-50">{pending ? "Submitting..." : "Post Requirement"}</button>
+      <button disabled={!ready || pending || state.status === "success" || !brokerageAccepted} className="w-full rounded-xl bg-[#FBBF24] px-5 py-3.5 font-bold text-[#10243A] shadow-sm hover:bg-amber-300 disabled:opacity-50">{pending ? "Submitting..." : "Post Requirement"}</button>
     </form>}
   </div>;
 }
