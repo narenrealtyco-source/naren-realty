@@ -74,8 +74,8 @@ export default function AdminDashboardPage() {
     { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
     { key: "requirements", label: "Requirements", count: stats?.requirements.state === "available" ? stats.requirements.metrics.totalRequirements : undefined },
     { key: "googleLeads", label: "Google Form Leads", href: "/admin/google-form-requirements" },
-    { key: "loans", label: "Loan Requests", href: undefined },
-    { key: "matches", label: "Matches", href: undefined },
+    { key: "loans", label: "Loan Requests", href: "/admin/requirements" },
+    { key: "matches", label: "Property Matches", href: "/admin/requirements" },
     { key: "referrals", label: "Referrals", href: "/admin/referrals" },
     { key: "policies", label: "Policies", href: "/admin/policies" },
   ];
@@ -185,8 +185,8 @@ export default function AdminDashboardPage() {
               {selectedTask === "vendors" && <><SectionHeading href="/admin/services/vendors">Vendor Management</SectionHeading><MetricGrid section={stats.vendors} metrics={vendorMetrics} emptyMessage="No vendors registered yet." /></>}
               {selectedTask === "requirements" && <><SectionHeading href="/admin/requirements">Customer Requirements</SectionHeading><MetricGrid section={stats.requirements} metrics={requirementMetrics} emptyMessage="No requirements submitted yet." /></>}
               {selectedTask === "googleLeads" && <><SectionHeading href="/admin/google-form-requirements">Google Form Leads</SectionHeading><Link href="/admin/google-form-requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Google Form Leads</Link></>}
-              {selectedTask === "loans" && <><h3 className="text-lg font-bold text-[#10243A]">Loan Requests</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. This module is listed here so it remains visible; loan request data and review actions still need to be integrated.</p></>}
-              {selectedTask === "matches" && <><h3 className="text-lg font-bold text-[#10243A]">Matches</h3><p className="mt-2 text-sm text-slate-600">Admin monitoring screen is not connected yet. Matching activity and requirement oversight still need to be integrated here.</p></>}
+              {selectedTask === "loans" && <><SectionHeading href="/admin/requirements">Loan Requests</SectionHeading><p className="mb-4 text-sm text-slate-600">Review customer loan requirements, update application status, assign follow-ups and record remarks.</p><Link href="/admin/requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Loan Requirements</Link></>}
+              {selectedTask === "matches" && <><SectionHeading href="/admin/requirements">Property Match Requirements</SectionHeading><p className="mb-4 text-sm text-slate-600">Review customer rent / buy requirements and coordinate suitable approved property matches.</p><Link href="/admin/requirements" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Property Requirements</Link></>}
               {selectedTask === "referrals" && <><SectionHeading href="/admin/referrals">Referral Review &amp; Rewards</SectionHeading><p className="mb-4 text-sm text-slate-600">Verify transaction source, linked property, deal completion and manual reward payouts. Direct, market and other-broker deals are not eligible.</p><Link href="/admin/referrals" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Referral Management</Link></>}
               {selectedTask === "policies" && <><SectionHeading href="/admin/policies">Policies</SectionHeading><Link href="/admin/policies" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Policy Management</Link></>}
             </section>
