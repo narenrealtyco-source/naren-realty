@@ -54,11 +54,11 @@ function getAuthErrorMessage(error: { code?: string; message: string }): string 
 }
 
 function getCustomerAccountRedirectUrl(): string {
-  return `${window.location.origin}/account`;
+  return "https://narenrealty.co/account";
 }
 
 function getCustomerPasswordResetRedirectUrl(): string {
-  return `${window.location.origin}/account/reset-password`;
+  return "https://narenrealty.co/account/reset-password";
 }
 
 export type CustomerFavorite = {
