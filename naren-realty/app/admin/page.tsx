@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics" | "followups";
+type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics" | "followups" | "accounts";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
@@ -69,6 +69,7 @@ export default function AdminDashboardPage() {
     { key: "enquiries", label: "Enquiries", count: stats?.enquiries.state === "available" ? stats.enquiries.metrics.totalEnquiries : undefined },
     { key: "visits", label: "Visit Requests", count: stats?.visits.state === "available" ? stats.visits.metrics.totalVisits : undefined },
     { key: "managers", label: "Managers", href: "/admin/managers" },
+    { key: "accounts", label: "Customer & Owner Accounts", href: "/admin/accounts" },
     { key: "submissions", label: "Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
     { key: "serviceRequests", label: "Service Requests", count: stats?.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : undefined },
     { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
