@@ -1,6 +1,8 @@
 import { connection } from "next/server";
 import { requireAdmin } from "../../lib/supabase-server";
 
+export const instant = false;
+
 export default async function AnalyticsDashboard() {
   await connection();
   const { supabase } = await requireAdmin();
