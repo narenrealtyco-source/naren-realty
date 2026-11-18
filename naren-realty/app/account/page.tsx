@@ -12,6 +12,7 @@ import {
   loginCustomer,
   logoutCustomer,
   registerCustomer,
+  resendCustomerConfirmationEmail,
   requestCustomerPasswordReset,
   removeCustomerFavorite,
   updateCustomerProfile,
