@@ -31,11 +31,11 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "pg_hostel_policy", path: "/pg-hostel-policy", title: "PG / Hostel Policy", version: "1.1", lastUpdated: LAST_UPDATED,
+    type: "pg_hostel_policy", path: "/pg-hostel-policy", title: "PG / Hostel Policy", version: "1.2", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Listing Information", paragraphs: ["PG / Hostel listings may display gender preference, sharing options, rent per person, security deposit, available beds or rooms, facilities, amenities, and property rules.", "Only Admin-approved listings appear in customer browsing."] },
-      { heading: "Commission", paragraphs: ["No brokerage is charged to the Resident / Tenant. The PG / Hostel Owner commission is 10% of accommodation rent for each successful booking introduced or facilitated by NAREN REALTY. Applicable GST, if any, is additional."] },
-      { heading: "Acknowledgement", paragraphs: ["The PG / Hostel Owner acknowledges the 10% commission at the property submission stage. The Resident / Tenant is not charged brokerage. Acknowledgement does not collect payment or create a booking."] },
+      { heading: "Commission", paragraphs: ["Resident / Tenant brokerage is equal to one month’s rent for a successful PG / Hostel booking facilitated by NAREN REALTY. No brokerage or commission is charged to the PG / Hostel Owner. Applicable GST, if any, is additional."] },
+      { heading: "Acknowledgement", paragraphs: ["The Resident / Tenant acknowledges brokerage equal to one month’s rent at the requirement / booking stage. The PG / Hostel Owner is not charged brokerage or commission. Acknowledgement does not collect payment or create a booking."] },
     ],
   },
   {
@@ -58,11 +58,11 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "brokerage_policy", path: "/brokerage-policy", title: "Brokerage Policy", version: "1.1", lastUpdated: LAST_UPDATED,
+    type: "brokerage_policy", path: "/brokerage-policy", title: "Brokerage Policy", version: "1.2", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Flat Resale", paragraphs: ["Buyer brokerage: 2% of the final sale value.", "Seller brokerage: 2% of the final sale value. The buyer and seller acknowledge their obligations separately."] },
       { heading: "Flat Rental", paragraphs: ["Tenant brokerage: an amount equal to one month's rent.", "Owner brokerage: none."] },
-      { heading: "PG / Hostel", paragraphs: ["Resident / Tenant brokerage: none.", "PG / Hostel Owner commission: 10% of accommodation rent for each successful booking introduced or facilitated by NAREN REALTY."] },
+      { heading: "PG / Hostel", paragraphs: ["Resident / Tenant brokerage: an amount equal to one month’s rent.", "PG / Hostel Owner brokerage: none."] },
       { heading: "Airbnb / Short Stay", paragraphs: ["Guest commission: none.", "Property Owner / Host commission: 25% of accommodation rent for every successful booking introduced or facilitated by Naren Realty. Cleaning charges and taxes are excluded unless separately agreed in writing."] },
       { heading: "Taxes and Acknowledgement", paragraphs: ["Applicable GST, if any, is additional to brokerage or commission.", "The applicable party acknowledges the brokerage / commission at the requirement or property submission stage through a mandatory checkbox. This acknowledgement does not collect online payments or provide booking functionality."] },
     ],
@@ -213,7 +213,8 @@ function brokerageStatement(category: ListingType, party: BrokerageParty): strin
   if (category === "Resale" && party === "Buyer") return "Buyer brokerage is 2% of the final sale value. Applicable GST, if any, is additional.";
   if (category === "Resale" && party === "Seller") return "Seller brokerage is 2% of the final sale value. Applicable GST, if any, is additional.";
   if (category === "Rental" && party === "Tenant") return "Tenant brokerage is equal to one month's rent. Applicable GST, if any, is additional.";
-  if (category === "PG" && party === "PG / Hostel Owner") return "PG / Hostel Owner commission is 10% of accommodation rent for each successful booking introduced or facilitated by Naren Realty. Applicable GST, if any, is additional.";
+  if (category === "PG" && party === "Resident") return "Resident / Tenant brokerage is equal to one month’s rent for a successful PG / Hostel booking facilitated by Naren Realty. Applicable GST, if any, is additional.";
+  if (category === "PG" && party === "PG / Hostel Owner") return "No brokerage or commission is payable by the PG / Hostel Owner.";
   if (category === "Airbnb" && party === "Host") return "Host commission is 10% of accommodation rent for each successful booking introduced or facilitated by Naren Realty. Cleaning charges and taxes are excluded unless separately agreed in writing. Applicable GST, if any, is additional.";
   throw new Error("No brokerage acknowledgement applies to this party and category.");
 }
@@ -230,7 +231,7 @@ export function createBrokerageAcknowledgements(input: {
   } else if (input.listing.type === "Rental") {
     parties.push({ userId: input.customerId, userRole: "customer", party: "Tenant" });
   } else if (input.listing.type === "PG") {
-    parties.push({ userId: input.listing.ownerId, userRole: "owner", party: "PG / Hostel Owner" });
+    parties.push({ userId: input.customerId, userRole: "customer", party: "Resident" });
   } else {
     parties.push({ userId: input.listing.ownerId, userRole: "owner", party: "Host" });
   }
