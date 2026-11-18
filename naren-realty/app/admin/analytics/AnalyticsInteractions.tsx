@@ -12,7 +12,7 @@ export default function AnalyticsInteractions({ cards, recent }: { cards: Card[]
   const rows = useMemo(() => filter === "all" ? recent : recent.filter((row) => row.event === filter), [filter, recent]);
 
   function choose(card: Card) {
-    if (card.filter === "tasks") { setShowTasks(true); return; }
+    if (card.filter === "tasks") { window.location.assign("/admin/tasks"); return; }
     setShowTasks(false);
     setFilter(card.filter);
     document.getElementById("analytics-activity")?.scrollIntoView({ behavior: "smooth", block: "start" });
