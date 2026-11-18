@@ -113,6 +113,7 @@ export default function SubmissionForm({
   const [owner, setOwner] = useState<OwnerValues>(() => initialOwnerValues(initialOwnerDetails));
   const [ownerConfirmed, setOwnerConfirmed] = useState(false);
   const [listingDeclaration, setListingDeclaration] = useState(false);
+  const [brokerageAccepted, setBrokerageAccepted] = useState(false);
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [videoItem, setVideoItem] = useState<VideoItem | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
@@ -139,6 +140,7 @@ export default function SubmissionForm({
         setOwner(initialOwnerValues(initialOwnerDetails));
         setOwnerConfirmed(false);
         setListingDeclaration(false);
+        setBrokerageAccepted(false);
         attemptId.current = null;
         if (draftsAvailable && draft?.payload) {
           const deletion = await deletePropertySubmissionDraft();
@@ -346,6 +348,7 @@ export default function SubmissionForm({
     setStep(Math.min(draft.payload.step - 1, STEPS.length - 1));
     setOwnerConfirmed(false);
     setListingDeclaration(false);
+    setBrokerageAccepted(false);
     setDraftMessage("Draft restored. Select your photos again; image files are not stored in drafts.");
     setStepError("");
   }
@@ -361,7 +364,7 @@ export default function SubmissionForm({
       const validatedDetails = validateSubmissionDetails(details);
       const validatedOwner = validatePropertyOwnerDetails({ version: 1, ...owner });
       validateSubmissionPhotoCount(photoItems.length);
-      if (!ownerConfirmed || !listingDeclaration) throw new Error("Confirm your authority to list the property and review the listing declaration.");
+      if (!ownerConfirmed || !listingDeclaration || !brokerageAccepted) throw new Error("Confirm your authority, listing declaration and applicable brokerage terms.");
       if (photoItems.some(({ file }) => file.size === 0 || file.size > MAX_SUBMISSION_PHOTO_BYTES ||
         !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
         throw new Error("Choose JPEG, PNG or WebP photos, each up to 5 MB.");
@@ -372,6 +375,7 @@ export default function SubmissionForm({
       data.set("owner_details", JSON.stringify(validatedOwner));
       data.set("owner_confirmed", "on");
       data.set("listing_declaration", "on");
+      data.set("brokerage_acknowledged", "on");
 
       for (const photo of photoItems) data.append("photos", photo.file);
       if (!attemptId.current) attemptId.current = crypto.randomUUID();
@@ -434,7 +438,7 @@ export default function SubmissionForm({
         {step === 0 && <fieldset className="min-w-0">
           <legend className="text-sm font-semibold text-slate-800">What type of property are you listing?</legend>
           <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
-            {SUBMISSION_CATEGORIES.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => { setCategory(item); setStepError(""); }}
+            {SUBMISSION_CATEGORIES.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => { setCategory(item); setBrokerageAccepted(false); setStepError(""); }}
               className={`flex min-h-24 min-w-0 items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${category === item
                 ? "border-amber-500 bg-amber-50 ring-2 ring-amber-200"
                 : "border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/50"}`}>
@@ -558,6 +562,10 @@ export default function SubmissionForm({
             <input type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
             <span>I agree that Admin may review this submission and, if approved, publish the property details, full address, selected amenities, photos and optional property video on NAREN REALTY.</span>
           </label>
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-slate-800">
+            <input type="checkbox" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
+            <span>{category === "Resale" ? "I acknowledge seller brokerage of 2% of the final sale value, plus applicable GST, payable on a successful sale facilitated by NAREN REALTY." : category === "Rental" ? "I acknowledge that no owner brokerage is payable for flat rental." : category === "PG" ? "I acknowledge owner commission of 10% of accommodation rent for each successful PG / Hostel booking introduced or facilitated by NAREN REALTY, plus applicable GST." : "I acknowledge host commission of 10% of accommodation rent for each successful Airbnb / Short-Stay booking introduced or facilitated by NAREN REALTY, plus applicable GST."} I have read and accept the applicable owner-side terms.</span>
+          </label>
           <div className="rounded-xl bg-slate-50 p-4 text-sm">
             <p className="font-semibold text-[#10243A]">Ready to submit?</p>
             <p className="mt-1 text-slate-700">{values.title || "Your property"} · {category ? categoryLabel(category as ListingType) : "Select a category"} · {values.locality || "Add locality"}</p>
@@ -580,7 +588,7 @@ export default function SubmissionForm({
             className="min-h-11 rounded-xl border border-[#10243A] px-3 text-sm font-bold text-[#10243A] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
           {step < STEPS.length - 1
             ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50">Continue</button>
-            : <button type="submit" disabled={pending || videoUploading || !available} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
+            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
         </div>
       </div>
     </div>
