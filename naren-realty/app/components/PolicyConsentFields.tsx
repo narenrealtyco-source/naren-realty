@@ -11,6 +11,15 @@ const consentCopy: Record<PolicyType, { prefix: string; linkText: string; suffix
   airbnb_policy: { prefix: "I agree to the ", linkText: "Airbnb / Short-Stay Terms & Conditions", suffix: "." },
   privacy_policy: { prefix: "I have read and agree to the ", linkText: "Privacy Policy", suffix: "." },
   brokerage_policy: { prefix: "I have read and agree to the ", linkText: "Brokerage Policy", suffix: "." },
+  cancellation_refund_policy: { prefix: "I have read and agree to the ", linkText: "Cancellation & Refund Policy", suffix: "." },
+  payment_policy: { prefix: "I have read and agree to the ", linkText: "Payment Policy", suffix: "." },
+  listing_verification_policy: { prefix: "I have read and agree to the ", linkText: "Property Listing & Verification Policy", suffix: "." },
+  site_visit_policy: { prefix: "I have read and agree to the ", linkText: "Enquiry & Site Visit Policy", suffix: "." },
+  user_conduct_policy: { prefix: "I have read and agree to the ", linkText: "User Conduct Policy", suffix: "." },
+  grievance_policy: { prefix: "I have read and agree to the ", linkText: "Grievance Redressal Policy", suffix: "." },
+  disclaimer_policy: { prefix: "I have read and agree to the ", linkText: "Disclaimer", suffix: "." },
+  cookie_policy: { prefix: "I have read and agree to the ", linkText: "Cookie Policy", suffix: "." },
+  third_party_policy: { prefix: "I have read and agree to the ", linkText: "Third-Party Services Policy", suffix: "." },
 };
 
 export default function PolicyConsentFields({
