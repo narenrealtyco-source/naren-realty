@@ -10,6 +10,7 @@ import type { PropertyListing } from "./lib/properties";
 import { matchesPropertyLocation } from "./lib/property-search";
 import WhyChoose from "./components/WhyChoose";
 import DesktopQuickNav from "./components/DesktopQuickNav";
+import LocalityAutocomplete from "./components/LocalityAutocomplete";
 
 const categories = [{ label: "All Properties", type: "All" }, { label: "Flat Rental", type: "Rental" }, { label: "Flat Resale", type: "Resale" }, { label: "PG / Hostel", type: "PG" }, { label: "Airbnb", type: "Airbnb" }] as const;
 
@@ -56,10 +57,10 @@ export default function Home() {
             <select id="homepage-category" value={category} onChange={(event) => setCategory(event.target.value)} className="min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-3 text-slate-900">
               {categories.map((item) => <option key={item.type} value={item.type}>{item.label}</option>)}
             </select>
-            <input
+            <LocalityAutocomplete
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Enter locality or landmark..."
+              placeholder="Search Pune locality or landmark..."
               aria-label="Locality or landmark"
               className="min-w-0 flex-1 rounded-lg border border-slate-200 px-4 py-4 text-slate-900 outline-none focus:border-amber-500"
             />
