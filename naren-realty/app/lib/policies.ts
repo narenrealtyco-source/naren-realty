@@ -6,7 +6,7 @@ export type PolicySection = { heading: string; paragraphs: string[]; bullets?: s
 export type PolicyDocument = { type: PolicyType; path: string; title: string; version: string; lastUpdated: string; sections: PolicySection[] };
 type SavedPolicyVersion = { version: string; lastUpdated: string };
 
-const LAST_UPDATED = "November 10, 2026";
+const LAST_UPDATED = "November 18, 2026";
 const DEFAULT_VERSION = "1.0";
 const VERSIONS_KEY = "naren-realty-policy-versions-v1";
 const ACCEPTANCES_KEY = "naren-realty-policy-acceptances-v1";
@@ -47,12 +47,14 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "privacy_policy", path: "/privacy-policy", title: "Privacy Policy", version: DEFAULT_VERSION, lastUpdated: LAST_UPDATED,
+    type: "privacy_policy", path: "/privacy-policy", title: "Privacy Policy", version: "1.1", lastUpdated: LAST_UPDATED,
     sections: [
-      { heading: "Information in This Prototype", paragraphs: ["The application forms collect account name, mobile number, email address, property listing information, photos, and customer enquiry details. Admin follow-up notes and policy acknowledgements may also be recorded."] },
-      { heading: "Use and Access", paragraphs: ["Customer details are used for customer account features and enquiry coordination by Naren Realty Admin. Owner contact details are available in the Admin property review interface and are not displayed on customer property pages.", "Owners see their own listings and do not see customer enquiry contact details. Customers see their own account enquiries."] },
-      { heading: "Prototype Storage", paragraphs: ["Supabase is not configured in this application at the time of this policy version. Existing accounts, listings, enquiries, policy versions, and prototype acceptance records use browser Local Storage and are not centrally synchronized or protected as server-side records.", "Do not treat Local Storage acceptance records as permanent legal records. Database tables and Row Level Security setup are provided for a future Supabase Auth integration."] },
-      { heading: "Communication", paragraphs: ["Customer-owner communication is not provided. Enquiries are directed to Naren Realty Admin. This prototype does not integrate online payments, external messaging, or paid third-party services."] },
+      { heading: "Information We Collect", paragraphs: ["Depending on the features you use, NAREN REALTY may collect your name, mobile number, email address, account and authentication details, property requirements, listing information and photographs, enquiries, visit requests, referral information, policy acknowledgements, and communications or follow-up information submitted through the platform."] },
+      { heading: "How We Use Information", paragraphs: ["We use information to create and manage accounts, display approved property listings, receive and coordinate enquiries and visit requests, administer referrals, provide customer and owner services, maintain platform security, respond to support requests, and meet applicable legal obligations."] },
+      { heading: "Storage and Service Providers", paragraphs: ["NAREN REALTY uses Supabase services for account authentication and selected application records, including property and visit-related data. Some browser features and records, including saved favourites and certain enquiry or policy acknowledgement records, may be stored in the browser Local Storage on the device being used. Such browser-stored information may not automatically synchronize across devices and can be lost if browser data is cleared.", "Supabase and other infrastructure providers process information on our behalf to operate the platform. Access to administrative records is restricted through authenticated roles and application permissions. No online payment processing is offered unless a specific payment facility is separately introduced and disclosed."] },
+      { heading: "Access and Sharing", paragraphs: ["Customer contact information is used by authorized NAREN REALTY personnel for enquiry and service coordination and is not intended to be publicly displayed on property pages. Owners can manage their own listings but are not given general access to customer enquiry contact details. Information may be shared with service providers supporting the platform or where required by law, to protect users, or to address security and fraud concerns."] },
+      { heading: "Security and Retention", paragraphs: ["We use role-based access controls and the security features available in the services supporting the platform. No internet-based system can be guaranteed to be completely secure. Information is retained for as long as reasonably needed to provide services, maintain business and transaction records, resolve disputes, and comply with applicable legal requirements. Browser Local Storage records remain on the relevant device until cleared or removed by the user or browser."] },
+      { heading: "Your Choices and Contact", paragraphs: ["You may contact NAREN REALTY through the official website to request access to, correction of, or deletion of personal information, subject to applicable legal and operational record-keeping requirements. You may also clear browser Local Storage, noting that doing so can remove locally saved account-related preferences or records.", "For privacy-related questions or requests, contact NAREN REALTY through the contact details published on the official website."] },
     ],
   },
   {
