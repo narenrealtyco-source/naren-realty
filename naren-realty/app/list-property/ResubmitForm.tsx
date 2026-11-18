@@ -52,6 +52,7 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
   const [ownerDetailsInvalid, setOwnerDetailsInvalid] = useState(savedOwner.invalid);
   const [ownerConfirmed, setOwnerConfirmed] = useState(false);
   const [listingDeclaration, setListingDeclaration] = useState(false);
+  const [brokerageAccepted, setBrokerageAccepted] = useState(false);
   const [detailError, setDetailError] = useState("");
   const [state, action, pending] = useActionState(async (previous: SubmissionState, data: FormData): Promise<SubmissionState> => {
     try {
@@ -68,7 +69,8 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
     const data = new FormData(event.currentTarget);
     try {
       validatePropertyOwnerDetails({ version: 1, ...owner });
-      if (!ownerConfirmed || !listingDeclaration) throw new Error("Confirm your authority to list the property and review the listing declaration.");
+      if (!ownerConfirmed || !listingDeclaration || !brokerageAccepted) throw new Error("Confirm your authority, listing declaration and applicable brokerage terms.");
+      data.set("brokerage_acknowledged", "on");
     } catch (error) {
       setDetailError(error instanceof Error ? error.message : "Owner contact details are invalid.");
       return;
@@ -100,12 +102,13 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
         {ownerDetailsInvalid && <p role="alert" className="text-sm text-rose-700">Saved owner contact details could not be read. Review and re-enter them before resubmitting.</p>}
         <label className="flex items-start gap-3 text-sm leading-6"><input name="owner_confirmed" type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 accent-[#10243A]" /><span>I confirm that I am the owner or am authorized to list this property and that the information is accurate.</span></label>
         <label className="flex items-start gap-3 text-sm leading-6"><input name="listing_declaration" type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 accent-[#10243A]" /><span>I agree that Admin may review the submission and publish its approved details, address and photos.</span></label>
+        <label className="flex items-start gap-3 rounded-lg bg-amber-50 p-3 text-sm leading-6"><input type="checkbox" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} className="mt-1 size-4 accent-[#10243A]" /><span>{category === "Resale" ? "I acknowledge seller brokerage of 2% of the final sale value, plus applicable GST." : category === "Rental" ? "I acknowledge that no owner brokerage is payable for flat rental." : category === "PG" ? "I acknowledge owner commission of 10% of accommodation rent for each successful PG / Hostel booking, plus applicable GST." : "I acknowledge host commission of 10% of accommodation rent for each successful Airbnb / Short-Stay booking, plus applicable GST."} I accept the applicable terms.</span></label>
       </fieldset>
       {detailError && <p role="alert" className="text-sm text-rose-700">{detailError}</p>}
       <p className="text-sm text-slate-600">Existing private photos are retained; photo replacement is not available yet.</p>
       {!available && <p role="status" className="text-sm text-amber-900">Resubmission is unavailable until private submission setup is verified. Nothing will be saved.</p>}
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className="text-sm">{state.message}</p>}
-      <button disabled={pending || !available} className="min-h-11 w-full rounded-md bg-[#10243A] px-4 py-2 text-sm sm:w-auto font-semibold text-white disabled:opacity-50">{pending ? "Resubmitting..." : "Resubmit for review"}</button>
+      <button disabled={pending || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted} className="min-h-11 w-full rounded-md bg-[#10243A] px-4 py-2 text-sm sm:w-auto font-semibold text-white disabled:opacity-50">{pending ? "Resubmitting..." : "Resubmit for review"}</button>
     </form>
   </details>;
 }
