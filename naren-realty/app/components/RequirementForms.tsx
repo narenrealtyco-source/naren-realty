@@ -16,9 +16,11 @@ function ContactFields({ email = false }: { email?: boolean }) {
 export function MatchForm({ ready }: { ready: boolean }) {
   const [state, action, pending] = useActionState(submitRequirement.bind(null, "match"), initial);
   const [category, setCategory] = useState("Flat");
+  const [purpose, setPurpose] = useState("Rent");
+  const [brokerageAccepted, setBrokerageAccepted] = useState(false);
   return <form action={action} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
     <h2 className="text-xl font-bold text-[#10243A]">Create property requirement</h2><Notice ready={ready} />
-    <label className={label}>Requirement type<select name="purpose" className={input} required><option>Rent</option><option>Buy</option></select></label>
+    <label className={label}>Requirement type<select name="purpose" className={input} value={purpose} onChange={(event) => { setPurpose(event.target.value); setBrokerageAccepted(false); }} required><option>Rent</option><option>Buy</option></select></label>
     <label className={label}>Property category<select name="category" className={input} value={category} onChange={(event) => setCategory(event.target.value)}><option>Flat</option><option>PG</option><option>Hostel</option><option>Airbnb</option><option>Short Stay</option></select></label>
     <p className="text-xs text-slate-600">Buying is available for flats only.</p>
     <label className={label}>Preferred location<LocalityAutocomplete name="location" className={input} maxLength={120} placeholder="Start typing locality, e.g. Baner" required /></label>
@@ -27,7 +29,9 @@ export function MatchForm({ ready }: { ready: boolean }) {
     <div className="grid gap-3 sm:grid-cols-2"><label className={label}>Minimum budget<input name="min_budget" className={input} type="number" min="0.01" step="0.01" /></label><label className={label}>Maximum budget<input name="max_budget" className={input} type="number" min="0.01" step="0.01" /></label></div>
     <label className={label}>Preferred move-in / possession date<input name="move_in_date" className={input} type="date" /></label>
     <label className={label}>Additional requirements<textarea name="details" className={input} maxLength={2000} rows={3} /></label>
-    <ContactFields /><Result state={state} /><button disabled={!ready || pending || state.status === "success"} className={button}>{pending ? "Saving..." : "Submit requirement"}</button>
+    <ContactFields />
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6"><input type="checkbox" name="brokerage_acknowledged" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} required className="mt-1 size-4 shrink-0 accent-[#10243A]" /><span>{category === "Flat" ? (purpose === "Buy" ? "I acknowledge buyer brokerage of 2% of the final sale value, plus applicable GST." : "I acknowledge tenant brokerage equal to one month’s rent, plus applicable GST.") : category === "Airbnb" || category === "Short Stay" ? "No guest commission is payable. Host commission is agreed separately with the property owner." : "No resident / tenant brokerage is payable for PG / Hostel. Any owner-side commission is agreed with the property owner."} I have read and accept the applicable terms.</span></label>
+    <Result state={state} /><button disabled={!ready || pending || state.status === "success" || !brokerageAccepted} className={button}>{pending ? "Saving..." : "Submit requirement"}</button>
   </form>;
 }
 export function LoanForm({ ready, types, defaultTypeId }: { ready: boolean; types: { id: string; name: string }[]; defaultTypeId?: string }) {
