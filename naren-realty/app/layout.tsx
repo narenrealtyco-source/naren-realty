@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import MobileBottomNav from "./components/MobileBottomNav";
 import NotificationBell from "./components/NotificationBell";
 import InstallAppPrompt from "./components/InstallAppPrompt";
+import VisitorTracker from "./components/VisitorTracker";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen">
         {children}
+        <VisitorTracker />
         <NotificationBell />
         <InstallAppPrompt />
         <Suspense><MobileBottomNav /></Suspense>
