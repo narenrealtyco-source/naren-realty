@@ -31,7 +31,7 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "pg_hostel_policy", path: "/pg-hostel-policy", title: "PG / Hostel Policy", version: DEFAULT_VERSION, lastUpdated: LAST_UPDATED,
+    type: "pg_hostel_policy", path: "/pg-hostel-policy", title: "PG / Hostel Policy", version: "1.1", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Listing Information", paragraphs: ["PG / Hostel listings may display gender preference, sharing options, rent per person, security deposit, available beds or rooms, facilities, amenities, and property rules.", "Only Admin-approved listings appear in customer browsing."] },
       { heading: "Commission", paragraphs: ["No brokerage is charged to the Resident / Tenant. The PG / Hostel Owner commission is 10% of accommodation rent for each successful booking introduced or facilitated by NAREN REALTY. Applicable GST, if any, is additional."] },
@@ -39,7 +39,7 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "airbnb_policy", path: "/airbnb-policy", title: "Airbnb / Short-Stay Policy", version: DEFAULT_VERSION, lastUpdated: LAST_UPDATED,
+    type: "airbnb_policy", path: "/airbnb-policy", title: "Airbnb / Short-Stay Policy", version: "1.1", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Short-Stay Listings", paragraphs: ["Airbnb / Short-Stay listings may display property type, guest capacity, nightly price, stay limits, amenities, check-in/check-out times, and house rules.", "Only Admin-approved listings appear in customer browsing. The application does not provide online booking or payment."] },
       { heading: "Host Commission", paragraphs: ["The Property Owner / Host commission is 10% of accommodation rent for every successful booking introduced or facilitated by Naren Realty. Cleaning charges and taxes are excluded unless separately agreed in writing. Applicable GST, if any, is additional."] },
