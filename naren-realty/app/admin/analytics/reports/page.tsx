@@ -3,6 +3,8 @@ import Link from "next/link";
 import { requireAdmin } from "../../../lib/supabase-server";
 import AnalyticsReports from "../AnalyticsReports";
 
+export const instant = false;
+
 export default async function AnalyticsReportsPage() {
   await connection();
   const { supabase } = await requireAdmin();
