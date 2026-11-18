@@ -180,7 +180,7 @@ export default function AdminPropertiesPage() {
                       {typeof property.details === "object" && property.details !== null && "adminDirect" in property.details && property.details.adminDirect === true && <Link href={`/admin/properties/${property.id}/edit`} className="rounded-md border border-slate-400 px-4 py-2 text-sm font-semibold">Edit</Link>}
                       {property.status !== "approved" && property.status !== "deleting" && <button disabled={busyId === property.id} onClick={() => void review(property, "approved")} className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Publish / Approve</button>}
                       {property.status !== "rejected" && property.status !== "deleting" && <button disabled={busyId === property.id} onClick={() => void review(property, "rejected")} className="rounded-md border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 disabled:opacity-60">{property.status === "approved" ? "Unpublish" : "Reject"}</button>}
-                      {(property.status === "rejected" || property.status === "deleting") && <DeleteRejectedPropertyButton id={property.id} retry={property.status === "deleting"} /> }
+                      <DeleteRejectedPropertyButton id={property.id} retry={property.status === "deleting"} />
                     </div>
                   </div>
                   {property.status.toLowerCase() === "approved" && property.category.toLowerCase() === "resale" && Array.isArray(property.photos) && typeof property.photos[0] === "string" && (
