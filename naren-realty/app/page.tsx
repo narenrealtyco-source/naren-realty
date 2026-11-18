@@ -179,6 +179,7 @@ export default function Home() {
               <Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb Policy</Link>
               <Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link>
               <Link href="/brokerage-policy" className="text-slate-400 hover:text-amber-300">Brokerage Policy</Link>
+              <Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward Policy</Link>
             </div>
           </div>
         </div>
