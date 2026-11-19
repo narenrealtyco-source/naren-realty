@@ -41,6 +41,7 @@ function EventDetailsContent() {
   if(loading)return <main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading event details...</main>;
   if(notFound||!event)return <main className="min-h-screen bg-[#f4f7fc] px-4 py-16 text-center text-[#10243A]"><h1 className="text-2xl font-extrabold">Event not found</h1><p className="mt-2 text-sm text-slate-600">This event may have been removed or is not publicly available.</p><Link href="/events" className="mt-5 inline-flex rounded-lg bg-amber-400 px-5 py-3 text-sm font-extrabold">Browse events</Link></main>;
 
+  const eventId=event.id;
   const date=new Date(event.starts_at);
   const category=event.custom_event_type||event.subcategory||event.category;
   const seats=event.available_seats??0;
@@ -49,8 +50,8 @@ function EventDetailsContent() {
     setBookingBusy(true);setBookingMessage("");
     try{
       const {data:{session}}=await supabase.auth.getSession();
-      if(!session){window.location.href="/account?next="+encodeURIComponent("/events/"+event.id);return;}
-      const response=await fetch("/api/events/book",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({eventId:event.id,quantity,requestKey:crypto.randomUUID()})});
+      if(!session){window.location.href="/account?next="+encodeURIComponent("/events/"+eventId);return;}
+      const response=await fetch("/api/events/book",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({eventId,quantity,requestKey:crypto.randomUUID()})});
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||"Booking could not be completed.");
       setEvent(current=>current?{...current,available_seats:Math.max(0,(current.available_seats??0)-quantity)}:current);
