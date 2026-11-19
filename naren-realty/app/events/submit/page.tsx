@@ -62,7 +62,7 @@ export default function SubmitEventPage() {
   }
 
   return <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
-    <header className="bg-[#10243A] px-4 py-4 text-white"><div className="mx-auto flex max-w-3xl items-center justify-between"><Link href="/" className="font-extrabold">NAREN <span className="text-amber-400">REALTY</span></Link><div className="flex items-center gap-3"><Link href="/events/manage" className="text-sm font-semibold text-white underline">Manage My Events</Link><Link href="/events" className="text-sm font-semibold text-amber-300">← Events</Link></div></div></header>
+    <header className="bg-[#10243A] px-4 py-4 text-white"><div className="mx-auto flex max-w-3xl items-center justify-between"><Link href="/" className="font-extrabold">NAREN <span className="text-amber-400">REALTY</span></Link><div className="flex items-center gap-3"><Link href="/events/manage" className="text-sm font-semibold text-white underline">Manage My Events</Link><div className="flex items-center gap-3"><Link href="/events/manage" className="text-sm font-semibold text-amber-300">My Events</Link><Link href="/events" className="text-sm font-semibold text-amber-300">← Events</Link></div></div></div></header>
     <section className="mx-auto max-w-3xl px-4 py-8">
       <p className="text-xs font-bold uppercase tracking-widest text-amber-700">For organisers & vendors</p><h1 className="mt-2 text-3xl font-extrabold text-[#10243A]">Post Your Event</h1>
       <p className="mt-2 text-sm text-slate-600">Submit your event details. Your event will appear in the public listing after admin approval.</p>
