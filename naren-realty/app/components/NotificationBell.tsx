@@ -25,40 +25,71 @@ export default function NotificationBell() {
     const supabase = createSupabaseBrowserClient();
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let active = true;
+    let authGeneration = 0;
 
-    const load = async (userId: string) => {
+    const clearForAccountChange = () => {
+      setItems([]);
+      setUnread(0);
+      setOpen(false);
+      setReady(false);
+    };
+
+    const loadForUser = async (userId: string, generation: number) => {
       const { data, error } = await supabase
         .from("notifications")
         .select("id,event_key,title,body,action_url,read_at,created_at")
         .eq("recipient_id", userId)
         .order("created_at", { ascending: false })
         .limit(20);
-      if (!active || error) return;
+
+      if (!active || generation !== authGeneration) return;
+      if (error) {
+        setItems([]);
+        setUnread(0);
+        setReady(true);
+        return;
+      }
+
       const rows = (data ?? []) as NotificationRow[];
       setItems(rows);
       setUnread(rows.filter((row) => !row.read_at).length);
       setReady(true);
-    };
 
-    void (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!active || !user) return;
-      if (!active) return;
-      await load(user.id);
-      if (!active) return;
       channel = supabase
-        .channel(`notifications:${user.id}`)
+        .channel(`notifications:${userId}:${generation}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${user.id}` },
+          { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${userId}` },
           (payload) => {
+            if (!active || generation !== authGeneration) return;
             const row = payload.new as NotificationRow;
             setItems((current) => [row, ...current].slice(0, 20));
-            setUnread((count) => count + 1);
+            if (!row.read_at) setUnread((count) => count + 1);
           },
         )
         .subscribe();
-    })();
+    };
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const generation = ++authGeneration;
+      if (channel) {
+        void supabase.removeChannel(channel);
+        channel = null;
+      }
+      clearForAccountChange();
+
+      if (!session?.user) {
+        setReady(true);
+        return;
+      }
+
+      // Defer Supabase data queries until after the auth callback completes.
+      queueMicrotask(() => {
+        if (active && generation === authGeneration) {
+          void loadForUser(session.user.id, generation);
+        }
+      });
+    });
 
     const closeOnOutside = (event: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
@@ -67,7 +98,9 @@ export default function NotificationBell() {
 
     return () => {
       active = false;
+      authGeneration += 1;
       document.removeEventListener("mousedown", closeOnOutside);
+      authListener.subscription.unsubscribe();
       if (channel) void supabase.removeChannel(channel);
     };
   }, []);
