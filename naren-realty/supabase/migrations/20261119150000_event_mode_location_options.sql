@@ -31,7 +31,8 @@ create or replace function public.update_own_event_details(
   p_locality text,
   p_venue_address text,
   p_map_link text,
-  p_online_event_link text
+  p_online_event_link text,
+  p_location_status text
 )
 returns void
 language plpgsql
@@ -56,6 +57,8 @@ begin
     raise exception 'Event policies must be 5000 characters or fewer';
   end if;
 
+  if p_location_status not in ('confirmed','tba') then raise exception 'Invalid location status'; end if;
+
   select event_mode, location_status into v_event_mode, v_location_status
     from public.event_submissions
    where id = p_event_id and submitted_by = auth.uid();
@@ -65,7 +68,7 @@ begin
   end if;
 
   if v_event_mode <> 'online' and (nullif(trim(coalesce(p_locality,'')), '') is null
-      or (v_location_status = 'confirmed' and nullif(trim(coalesce(p_venue,'')), '') is null)) then
+      or (p_location_status = 'confirmed' and nullif(trim(coalesce(p_venue,'')), '') is null)) then
     raise exception 'A city/locality and confirmed venue are required';
   end if;
 
@@ -73,8 +76,9 @@ begin
      set total_capacity = p_total_capacity,
          available_seats = p_available_seats,
          event_policies = nullif(trim(coalesce(p_event_policies, '')), ''),
+         location_status = case when v_event_mode = 'online' then 'not_required' else p_location_status end,
          venue = case when v_event_mode = 'online' then 'Online Event'
-                      when v_location_status = 'tba' then 'To Be Announced'
+                      when p_location_status = 'tba' then 'To Be Announced'
                       else trim(p_venue) end,
          locality = case when v_event_mode = 'online' then null else nullif(trim(p_locality), '') end,
          venue_address = case when v_location_status = 'confirmed' then nullif(trim(coalesce(p_venue_address,'')), '') else null end,
@@ -86,5 +90,5 @@ end;
 $$;
 
 revoke all on function public.update_own_event_details(uuid, integer, integer, text) from public, anon, authenticated;
-revoke all on function public.update_own_event_details(uuid, integer, integer, text, text, text, text, text, text) from public, anon;
-grant execute on function public.update_own_event_details(uuid, integer, integer, text, text, text, text, text, text) to authenticated;
+revoke all on function public.update_own_event_details(uuid, integer, integer, text, text, text, text, text, text, text) from public, anon;
+grant execute on function public.update_own_event_details(uuid, integer, integer, text, text, text, text, text, text, text) to authenticated;
