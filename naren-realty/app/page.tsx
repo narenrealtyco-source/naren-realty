@@ -103,18 +103,6 @@ export default function Home() {
         <CategorySection id="events" title="Events – Discover & Join" href="/events" items={eventCards} />
         <CategorySection id="health-checkup" title="Health Check-up" href="/health-checkup" items={healthCards} />
 
-        <section className="rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_3px_18px_rgba(15,35,65,0.05)] ring-1 ring-slate-100 sm:px-5">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="mr-1 flex items-center gap-2 text-sm font-extrabold text-[#10243A] sm:text-base">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-5 shrink-0 text-blue-900"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-              Popular Locations
-            </h2>
-            {["Wakad", "Hinjewadi", "Baner", "Balewadi"].map((place) => (
-              <Link key={place} href={`/properties?locality=${encodeURIComponent(place)}`} className="rounded-full border border-blue-100 bg-blue-50 px-3.5 py-2 text-xs font-semibold text-[#10243A] transition hover:border-amber-400 hover:bg-amber-50 sm:px-4 sm:text-sm">{place}</Link>
-            ))}
-          </div>
-        </section>
-
         <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#10243A] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
           <div className="min-w-0">
             <h2 className="text-xl font-extrabold sm:text-2xl"><span className="text-amber-400">Refer</span> &amp; Earn</h2>
