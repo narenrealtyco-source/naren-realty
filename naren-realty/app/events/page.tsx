@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const categories = [
   { key: "meetups", title: "Meetups", image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=85" },
@@ -11,10 +12,35 @@ const categories = [
   { key: "community", title: "Community Events", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=85" },
 ];
 
+type EventItem = { id: string; title: string; venue: string; locality: string; starts_at: string; ticket_price: number; description: string; image_url: string | null };
+
 function EventsContent() {
   const params = useSearchParams();
   const selected = params.get("category") ?? "";
   const selectedCategory = categories.find((category) => category.key === selected);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadEvents() {
+      setLoading(true);
+      let query = supabase.from("event_submissions")
+        .select("id,title,venue,locality,starts_at,ticket_price,description,image_url")
+        .eq("status", "approved")
+        .gte("starts_at", new Date().toISOString())
+        .order("starts_at", { ascending: true });
+      if (selected) query = query.eq("category", selected);
+      const { data, error } = await query;
+      if (active) {
+        if (error) console.error("[events] Approved event lookup failed", { code: error.code });
+        setEvents((data ?? []) as EventItem[]);
+        setLoading(false);
+      }
+    }
+    loadEvents();
+    return () => { active = false; };
+  }, [selected]);
 
   return (
     <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
@@ -47,9 +73,26 @@ function EventsContent() {
             <h2 className="text-xl font-bold text-[#10243A] sm:text-2xl">{selectedCategory ? `${selectedCategory.title} Events` : "All Events"}</h2>
             {selectedCategory && <Link href="/events" className="text-sm font-semibold text-blue-800 underline">View all</Link>}
           </div>
-          <p className="mt-3 rounded-xl bg-white px-4 py-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
-            {selectedCategory ? `No approved ${selectedCategory.title.toLowerCase()} events are listed yet.` : "No approved events are listed yet."} New events will appear here after NAREN REALTY admin approval.
-          </p>
+          {loading ? <p className="mt-4 text-sm text-slate-600">Loading events...</p> : events.length === 0 ? (
+            <p className="mt-3 rounded-xl bg-white px-4 py-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
+              {selectedCategory ? `No approved ${selectedCategory.title.toLowerCase()} events are listed yet.` : "No approved events are listed yet."}
+            </p>
+          ) : (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event) => (
+                <article key={event.id} className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                  {event.image_url && <img src={event.image_url} alt="" className="h-44 w-full object-cover" />}
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold text-[#10243A]">{event.title}</h3>
+                    <p className="mt-1 text-sm text-slate-600">{event.venue}, {event.locality}</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-700">{new Date(event.starts_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
+                    <p className="mt-2 text-sm text-slate-600">{event.description}</p>
+                    <p className="mt-3 text-sm font-extrabold text-[#10243A]">{event.ticket_price > 0 ? `₹${event.ticket_price}` : "Free entry"}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>
