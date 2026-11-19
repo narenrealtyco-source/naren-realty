@@ -42,10 +42,10 @@ function CategoryCard({ item }: { item: CategoryCardItem }) {
     <Link
       href={item.href}
       aria-label={item.title}
-      className="group relative aspect-[3/2] min-w-0 overflow-hidden rounded-lg bg-slate-200 shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
-      style={{ backgroundImage: `linear-gradient(to top, rgba(8,20,39,.88), rgba(8,20,39,.04) 62%), url("${item.image}")`, backgroundPosition: "center", backgroundSize: "cover" }}
+      className="group relative aspect-[16/9] min-w-0 overflow-hidden rounded-xl bg-slate-200 shadow-sm ring-1 ring-slate-900/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 sm:aspect-[3/2]"
+      style={{ backgroundImage: `linear-gradient(to top, rgba(8,20,39,.88), rgba(8,20,39,.04) 68%), url("${item.image}")`, backgroundPosition: "center", backgroundSize: "cover" }}
     >
-      <span className="absolute inset-x-1 bottom-2 text-center text-[10px] font-extrabold leading-tight text-white drop-shadow sm:inset-x-2 sm:bottom-3 sm:text-sm">
+      <span className="absolute inset-x-2 bottom-2 text-center text-xs font-bold leading-tight text-white drop-shadow sm:bottom-3 sm:text-sm">
         {item.title}
       </span>
     </Link>
@@ -54,12 +54,12 @@ function CategoryCard({ item }: { item: CategoryCardItem }) {
 
 function CategorySection({ title, href, items, id }: { title: string; href: string; items: CategoryCardItem[]; id: string }) {
   return (
-    <section id={id} className="rounded-2xl bg-white px-3 py-4 shadow-[0_3px_18px_rgba(15,35,65,0.06)] ring-1 ring-slate-100 sm:px-5 sm:py-5">
-      <div className="mb-3 flex items-center justify-between gap-2 sm:mb-4">
-        <h2 className="border-l-[5px] border-amber-400 pl-2.5 text-base font-extrabold tracking-tight text-[#10243A] sm:text-xl">{title}</h2>
-        <Link href={href} className="shrink-0 text-xs font-bold text-blue-700 hover:text-blue-900 sm:text-sm">View All <span aria-hidden="true">→</span></Link>
+    <section id={id} className="rounded-2xl bg-white px-3.5 py-4 shadow-[0_3px_18px_rgba(15,35,65,0.05)] ring-1 ring-slate-100 sm:px-5 sm:py-5">
+      <div className="mb-3.5 flex min-h-8 items-center justify-between gap-2 sm:mb-4">
+        <h2 className="min-w-0 border-l-[5px] border-amber-400 pl-2.5 text-[15px] font-extrabold tracking-tight text-[#10243A] sm:text-xl">{title}</h2>
+        <Link href={href} className="shrink-0 whitespace-nowrap text-xs font-bold text-blue-700 hover:text-blue-900 sm:text-sm">View All <span aria-hidden="true">→</span></Link>
       </div>
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3">
         {items.map((item) => <CategoryCard key={item.title} item={item} />)}
       </div>
     </section>
@@ -80,7 +80,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
       <HomeHeader />
 
-      <section className="bg-[#10243A] px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
+      <section className="bg-[#10243A] px-3.5 pb-4 pt-0 sm:px-6 sm:pb-6 sm:pt-1">
         <form onSubmit={submitSearch} className="mx-auto flex max-w-7xl items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg sm:rounded-xl sm:p-2">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-2 size-5 shrink-0 text-[#10243A] sm:size-6"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
           <LocalityAutocomplete
@@ -88,9 +88,9 @@ export default function Home() {
             onChange={(event) => setSearchText(event.target.value)}
             placeholder="Search location or property..."
             aria-label="Search location or property"
-            className="min-w-0 flex-1 border-0 bg-transparent px-1 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-500 sm:text-base"
+            className="min-w-0 flex-1 border-0 bg-transparent px-1 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-500 sm:py-3 sm:text-base"
           />
-          <button type="submit" aria-label="Open property filters" className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400 text-[#10243A] transition hover:bg-amber-300 sm:size-11">
+          <button type="submit" aria-label="Search properties" className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400 text-[#10243A] transition hover:bg-amber-300 sm:size-11">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" className="size-5"><path d="M4 6h16M7 12h10m-7 6h4" /><circle cx="8" cy="6" r="2" fill="currentColor" /><circle cx="15" cy="12" r="2" fill="currentColor" /><circle cx="12" cy="18" r="2" fill="currentColor" /></svg>
           </button>
         </form>
@@ -103,14 +103,14 @@ export default function Home() {
         <CategorySection id="events" title="Events – Discover & Join" href="/events" items={eventCards} />
         <CategorySection id="health-checkup" title="Health Check-up" href="/health-checkup" items={healthCards} />
 
-        <section className="rounded-2xl bg-white px-3 py-3 shadow-[0_3px_18px_rgba(15,35,65,0.06)] ring-1 ring-slate-100 sm:px-5">
-          <div className="flex flex-wrap items-center gap-2">
+        <section className="rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_3px_18px_rgba(15,35,65,0.05)] ring-1 ring-slate-100 sm:px-5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <h2 className="mr-1 flex items-center gap-2 text-sm font-extrabold text-[#10243A] sm:text-base">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-5 text-blue-900"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-5 shrink-0 text-blue-900"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
               Popular Locations
             </h2>
             {["Wakad", "Hinjewadi", "Baner", "Balewadi"].map((place) => (
-              <Link key={place} href={`/properties?locality=${encodeURIComponent(place)}`} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-semibold text-[#10243A] hover:border-amber-400 sm:px-4 sm:text-sm">{place}</Link>
+              <Link key={place} href={`/properties?locality=${encodeURIComponent(place)}`} className="rounded-full border border-blue-100 bg-blue-50 px-3.5 py-2 text-xs font-semibold text-[#10243A] transition hover:border-amber-400 hover:bg-amber-50 sm:px-4 sm:text-sm">{place}</Link>
             ))}
           </div>
         </section>
@@ -118,10 +118,10 @@ export default function Home() {
         <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#10243A] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
           <div className="min-w-0">
             <h2 className="text-xl font-extrabold sm:text-2xl"><span className="text-amber-400">Refer</span> &amp; Earn</h2>
-            <p className="mt-1 text-xs text-slate-200 sm:text-sm">Tenant referral ₹1,000 · Owner referral ₹2,000</p>
+            <p className="mt-1 text-xs leading-5 text-slate-200 sm:text-sm">Tenant referral ₹1,000 · Owner referral ₹2,000</p>
             <Link href="/account/referrals" className="mt-3 inline-flex min-h-9 items-center rounded-lg bg-amber-400 px-4 text-xs font-extrabold text-[#10243A] hover:bg-amber-300 sm:text-sm">Refer Now →</Link>
           </div>
-          <div aria-hidden="true" className="flex size-20 shrink-0 items-center justify-center rounded-full bg-white/10 text-4xl sm:size-24 sm:text-5xl">🎁</div>
+          <div aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-white/10 text-3xl sm:size-24 sm:text-5xl">🎁</div>
         </section>
       </div>
 
