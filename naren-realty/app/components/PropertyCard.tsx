@@ -224,7 +224,7 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
   const detailHref = `/properties/${encodeURIComponent(listing.id)}`;
 
   return <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg">
-    <div className="relative h-[220px] w-full shrink-0 bg-slate-100 sm:h-[280px]">
+    <div className="relative h-[190px] w-full shrink-0 bg-slate-100 sm:h-[240px]">
       <Link href={detailHref} aria-label={`View ${listing.title}`} className="absolute inset-0 overflow-hidden">
         {photos[0] && !photoFailed
           ? <Image src={photos[0]} alt={listing.title} fill sizes="(max-width: 767px) 100vw, 50vw" loading="lazy" decoding="async" onError={() => setPhotoFailed(true)} className="object-cover transition-transform duration-300 hover:scale-[1.03]" />
@@ -236,22 +236,23 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
       <div className="absolute right-2 top-2"><FavoriteButton propertyId={listing.id} title={listing.title} locality={listing.locality} type={category} price={price ?? ""} bedrooms={listing.bedrooms || undefined} /></div>
     </div>
 
-    <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4 sm:gap-2 sm:p-5 lg:p-6">
-      <div className="flex min-w-0 items-start gap-1">
-        <p className="mt-0.5 w-fit max-w-[42%] shrink-0 rounded-full bg-[#10243A] px-1.5 py-0.5 text-[8px] font-bold leading-tight text-amber-300 sm:px-2 sm:text-[9px]">{category}</p>
-        <h3 className="min-w-0 break-words text-[12px] font-bold leading-tight text-[#10243A] sm:text-base"><Link href={detailHref} className="hover:text-amber-800">{listing.title}</Link></h3>
+    <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3 sm:gap-2 sm:p-4 lg:p-5">
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <div className="flex min-w-0 items-start gap-1.5">
+          <p className="mt-0.5 w-fit max-w-[42%] shrink-0 rounded-full bg-[#10243A] px-1.5 py-0.5 text-[8px] font-bold leading-tight text-amber-300 sm:px-2 sm:text-[9px]">{category}</p>
+          <h3 className="min-w-0 break-words text-[13px] font-bold leading-tight text-[#10243A] sm:text-base"><Link href={detailHref} className="hover:text-amber-800">{listing.title}</Link></h3>
+        </div>
+        {price && <div className="min-w-[108px] shrink-0 border-l border-slate-200 pl-2 text-right">
+          <p className="text-[8px] font-semibold uppercase leading-tight tracking-wide text-slate-500 sm:text-[9px]">{priceLabel}</p>
+          <p className="text-[14px] font-extrabold leading-tight tracking-tight text-[#10243A] sm:text-base">{price}<span className="ml-1 text-[8px] font-semibold text-slate-500 sm:text-[10px]">{listing.type === "Rental" ? "/ month" : listing.type === "Resale" || listing.type === "PG" ? "" : "/ night"}</span></p>
+        </div>}
       </div>
-      <p className="mt-1 flex min-w-0 items-start gap-1 break-words text-[10px] leading-tight text-slate-600 sm:text-xs"><CardIcon kind="location" /><span>{listing.locality}, Pune</span></p>
-
-      {price && <div className="mt-1 border-y border-slate-100 py-0.5">
-        <p className="text-[8px] font-semibold uppercase leading-tight tracking-wide text-slate-500 sm:text-[9px]">{priceLabel}</p>
-        <p className="text-[15px] font-extrabold leading-tight tracking-tight text-[#10243A] sm:text-lg">{price}<span className="ml-1 text-[9px] font-semibold text-slate-500 sm:text-xs">{listing.type === "Rental" ? "/ month" : listing.type === "Resale" || listing.type === "PG" ? "" : "/ night"}</span></p>
-      </div>}
+      <p className="flex min-w-0 items-start gap-1 break-words text-[10px] leading-tight text-slate-600 sm:text-xs"><CardIcon kind="location" /><span>{listing.locality}, Pune</span></p>
 
       {displayedFacts.length > 0 && <dl className="mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5 xl:grid-cols-3">
         {displayedFacts.map((fact) => <div key={`${fact.label}-${fact.value}`} className="min-w-0">
-          <dt className="flex min-w-0 items-start gap-0.5 text-[8px] font-semibold uppercase leading-tight tracking-[0.02em] text-slate-500 sm:text-[9px]"><span className="hidden shrink-0 sm:inline-flex"><CardIcon kind="fact" /></span><span className="break-words">{fact.label}</span></dt>
-          <dd className="mt-0.5 break-words text-[10px] font-semibold leading-tight text-slate-800 sm:text-xs">{fact.value}</dd>
+          <dt className="flex min-w-0 items-start gap-0.5 text-[9px] font-semibold uppercase leading-tight tracking-[0.02em] text-slate-500 sm:text-[10px]"><span className="hidden shrink-0 sm:inline-flex"><CardIcon kind="fact" /></span><span className="break-words">{fact.label}</span></dt>
+          <dd className="mt-0.5 break-words text-[11px] font-semibold leading-tight text-slate-800 sm:text-[13px]">{fact.value}</dd>
         </div>)}
       </dl>}
 
