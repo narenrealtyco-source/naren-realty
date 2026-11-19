@@ -14,7 +14,7 @@ const categories = [
   { key: "community", title: "Community Events", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"lohri",title:"Lohri"},{key:"christmas",title:"Christmas"},{key:"holi",title:"Holi"},{key:"diwali",title:"Diwali"},{key:"local_celebrations",title:"Local Celebrations"}] },
 ];
 
-type EventItem = { id:string; title:string; category:string; subcategory:string|null; custom_event_type:string|null; venue:string; locality:string; starts_at:string; ticket_price:number; total_capacity:number|null; available_seats:number|null; description:string; event_policies:string|null; image_url:string|null; event_policies:string|null };
+type EventItem = { id:string; title:string; category:string; subcategory:string|null; custom_event_type:string|null; venue:string; locality:string; starts_at:string; ticket_price:number; total_capacity:number|null; available_seats:number|null; description:string; event_policies:string|null; image_url:string|null };
 
 function EventsContent() {
   const params=useSearchParams(); const selected=params.get("category")??""; const selectedSubcategory=params.get("subcategory")??"";
