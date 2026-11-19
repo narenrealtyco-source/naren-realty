@@ -91,7 +91,7 @@ export default function HomeHeader() {
   const itemClass = "block w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-slate-900 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-amber-600";
   return (
     <header className="relative z-30 bg-[#10243A] text-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-5">
         <Link href="/" aria-label="NAREN REALTY home" className="min-w-0">
           <span className="block whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></span>
         </Link>
