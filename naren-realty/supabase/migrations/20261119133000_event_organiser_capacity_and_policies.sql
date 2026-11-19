@@ -46,5 +46,5 @@ begin
 end;
 $$;
 
-revoke all on function public.update_own_event_details(uuid, integer, integer, text) from public;
+revoke all on function public.update_own_event_details(uuid, integer, integer, text) from public, anon;
 grant execute on function public.update_own_event_details(uuid, integer, integer, text) to authenticated;
