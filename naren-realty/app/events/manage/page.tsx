@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 
+type EventBooking = {id:string;event_id:string;booking_code:string;customer_name:string;customer_email:string|null;customer_phone:string|null;quantity:number;total_amount:number;status:string;created_at:string};
 type OwnEvent = { id:string; title:string; starts_at:string; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null };
 const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
 
@@ -13,6 +14,7 @@ export default function ManageEventsPage() {
   const [loading,setLoading] = useState(true);
   const [busy,setBusy] = useState<string|null>(null);
   const [message,setMessage] = useState("");
+  const [bookings,setBookings] = useState<Record<string,EventBooking[]>>({});
 
   useEffect(() => {
     let active = true;
@@ -27,6 +29,15 @@ export default function ManageEventsPage() {
       else {
         const rows = (data??[]) as OwnEvent[];
         setItems(rows);
+        const eventIds=rows.map(item=>item.id);
+        if(eventIds.length){
+          const {data:bookingRows}=await supabase.from("event_bookings")
+            .select("id,event_id,booking_code,customer_name,customer_email,customer_phone,quantity,total_amount,status,created_at")
+            .in("event_id",eventIds).order("created_at",{ascending:false});
+          const grouped:Record<string,EventBooking[]>={};
+          for(const booking of (bookingRows??[]) as EventBooking[]){(grouped[booking.event_id]??=[]).push(booking);}
+          setBookings(grouped);
+        }
         setValues(Object.fromEntries(rows.map(item=>[item.id,{
           capacity:String(item.total_capacity??""),
           seats:String(item.available_seats??""),
@@ -73,6 +84,10 @@ export default function ManageEventsPage() {
         <label className="mt-4 block text-sm font-semibold">Event rules & policies<textarea className={field} rows={5} maxLength={5000} value={values[item.id]?.policies??""} onChange={e=>setValues(v=>({...v,[item.id]:{...v[item.id],policies:e.target.value}}))} placeholder="Add entry rules, cancellation and refund terms, age limits, late arrival rules, prohibited items, photography guidelines, etc."/></label>
         <p className="mt-1 text-xs text-slate-500">These details are visible on your public listing. Maximum 5,000 characters.</p>
         <button disabled={busy===item.id} onClick={()=>save(item)} className="mt-4 min-h-11 rounded-lg bg-[#10243A] px-5 text-sm font-bold text-white disabled:opacity-50">{busy===item.id?"Saving...":"Save changes"}</button>
+        <div className="mt-5 border-t border-slate-100 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-extrabold text-[#10243A]">Attendee bookings</h3><span className="text-xs font-semibold text-slate-500">{(bookings[item.id]??[]).filter(b=>["confirmed","pending_payment","cancel_requested"].includes(b.status)).reduce((sum,b)=>sum+b.quantity,0)} seats booked</span></div>
+          {(bookings[item.id]??[]).length===0?<p className="mt-2 text-sm text-slate-500">No bookings yet.</p>:<div className="mt-3 space-y-2">{(bookings[item.id]??[]).map(booking=><div key={booking.id} className="rounded-xl bg-slate-50 p-3 text-sm"><div className="flex flex-wrap justify-between gap-2"><strong>{booking.customer_name}</strong><span className="text-xs font-bold capitalize text-slate-600">{booking.status.replaceAll("_"," ")}</span></div><p className="mt-1 text-xs text-slate-600">Booking: {booking.booking_code} · {booking.quantity} seats · {booking.total_amount===0?"Free":"₹"+booking.total_amount}</p>{booking.customer_email&&<p className="mt-1 text-xs text-slate-600">{booking.customer_email}</p>}{booking.customer_phone&&<p className="mt-1 text-xs text-slate-600">{booking.customer_phone}</p>}</div>)}</div>}
+        </div>
       </article>)}</div>}
     </section>
   </main>;
