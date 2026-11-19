@@ -42,10 +42,10 @@ function CategoryCard({ item }: { item: CategoryCardItem }) {
     <Link
       href={item.href}
       aria-label={item.title}
-      className="group relative aspect-[4/5] min-w-0 overflow-hidden rounded-xl bg-slate-200 shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+      className="group relative aspect-square sm:aspect-[5/4] min-w-0 overflow-hidden rounded-xl bg-slate-200 shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
       style={{ backgroundImage: `linear-gradient(to top, rgba(8,20,39,.88), rgba(8,20,39,.04) 62%), url("${item.image}")`, backgroundPosition: "center", backgroundSize: "cover" }}
     >
-      <span className="absolute inset-x-1 bottom-2 text-center text-[10px] font-extrabold leading-tight text-white drop-shadow sm:inset-x-2 sm:bottom-3 sm:text-sm">
+      <span className="absolute inset-x-1 bottom-2 px-0.5 text-center text-xs font-extrabold leading-tight text-white drop-shadow sm:inset-x-2 sm:bottom-3 sm:text-base">
         {item.title}
       </span>
     </Link>
