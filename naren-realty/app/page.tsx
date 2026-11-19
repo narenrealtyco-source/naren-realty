@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HomeHeader from "./components/HomeHeader";
@@ -70,7 +70,7 @@ export default function Home() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
 
-  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const query = searchText.trim();
     router.push(query ? `/properties?locality=${encodeURIComponent(query)}` : "/properties");
