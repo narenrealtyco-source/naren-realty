@@ -67,15 +67,21 @@ function EventDetailsContent() {
               <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Seats available</p><p className="mt-1 text-2xl font-black text-emerald-700">{event.available_seats??"Not specified"}</p><p className="text-xs text-slate-500">Total capacity: {event.total_capacity??"Not specified"}</p></div>
             </div>
           </div>
-          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Organiser profile</p>
-            <div className="mt-3 flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#10243A] text-lg font-black text-amber-300">{event.organizer_name?.trim()?.charAt(0)?.toUpperCase()||"O"}</div><div className="min-w-0"><h2 className="truncate text-lg font-extrabold text-[#10243A]">{event.organizer_name}</h2><p className="text-xs font-semibold text-emerald-700">Event organiser</p></div></div>
-            <p className="mt-4 text-sm leading-6 text-slate-600">Contact the organiser for event-related questions and participation details.</p>
-            <a href={"tel:"+event.contact_phone} className="mt-4 flex w-full items-center justify-center rounded-xl bg-amber-400 px-4 py-3 text-sm font-extrabold text-[#10243A] hover:bg-amber-300">Contact organiser</a>
-            {event.contact_email&&<a href={"mailto:"+event.contact_email} className="mt-2 flex w-full items-center justify-center rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-[#10243A] hover:bg-slate-50">Email organiser</a>}
-          </div>
         </aside>
       </div>
+      <section className="mt-7 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Organiser details</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="text-lg font-extrabold text-[#10243A]">{event.organizer_name}</h2>
+            <p className="mt-1 text-sm text-slate-600">Event organiser</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a href={"tel:"+event.contact_phone} className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-4 py-3 text-sm font-extrabold text-[#10243A] hover:bg-amber-300">Call organiser</a>
+            {event.contact_email&&<a href={"mailto:"+event.contact_email} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-[#10243A] hover:bg-slate-50">Email organiser</a>}
+          </div>
+        </div>
+      </section>
       <div className="mt-7"><Link href="/events" className="text-sm font-bold text-blue-800 underline">← Browse more events</Link></div>
     </div>
   </main>;
