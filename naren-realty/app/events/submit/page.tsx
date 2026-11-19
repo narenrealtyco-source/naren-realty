@@ -67,7 +67,7 @@ export default function SubmitEventPage() {
             <label className="block text-sm font-semibold">City / locality<input required maxLength={120} className={inputClass} value={form.locality} onChange={(e) => update("locality", e.target.value)} placeholder="e.g. Baner, Pune" /></label>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm font-semibold">Event date & time<input required type="datetime-local" min={new Date().toISOString().slice(0,16)} className={inputClass} value={form.startsAt} onChange={(e) => update("startsAt", e.target.value)} /></label>
+            <label className="block text-sm font-semibold">Event date & time<input required type="datetime-local" className={inputClass} value={form.startsAt} onChange={(e) => update("startsAt", e.target.value)} /></label>
             <label className="block text-sm font-semibold">Ticket price (₹, 0 for free)<input required type="number" min="0" max="1000000" className={inputClass} value={form.ticketPrice} onChange={(e) => update("ticketPrice", e.target.value)} /></label>
           </div>
           <label className="block text-sm font-semibold">Event description<textarea required minLength={10} maxLength={3000} rows={4} className={inputClass} value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="Tell people what to expect..." /></label>
