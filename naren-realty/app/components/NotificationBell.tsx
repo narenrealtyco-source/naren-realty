@@ -122,7 +122,7 @@ export default function NotificationBell() {
   if (!ready) return null;
 
   return (
-    <div ref={rootRef} className="fixed right-16 top-4 z-50">
+    <div ref={rootRef} className="fixed right-16 top-8 z-50 sm:top-4">
       <button
         type="button"
         aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
