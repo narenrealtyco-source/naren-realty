@@ -1,234 +1,152 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import HomeHeader from "./components/HomeHeader";
-import PropertyCard from "./components/PropertyCard";
-import { loadApprovedProperties } from "./properties/actions";
-import { visitRequestsReady } from "./properties/visit-actions";
-import type { PropertyListing } from "./lib/properties";
-import { matchesPropertyLocation } from "./lib/property-search";
-import WhyChoose from "./components/WhyChoose";
 import DesktopQuickNav from "./components/DesktopQuickNav";
 import LocalityAutocomplete from "./components/LocalityAutocomplete";
 
-const categories = [{ label: "All Properties", type: "All" }, { label: "Flat Rental", type: "Rental" }, { label: "Flat Resale", type: "Resale" }, { label: "PG / Hostel", type: "PG" }, { label: "Airbnb", type: "Airbnb" }] as const;
+type CategoryCardItem = { title: string; image: string; href: string };
+
+const propertyCards: CategoryCardItem[] = [
+  { title: "Flat Rental", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=85", href: "/properties?type=Rental" },
+  { title: "Flat Resale", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=85", href: "/properties?type=Resale" },
+  { title: "PG / Hostel", image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=85", href: "/properties?type=PG" },
+  { title: "Homestay / Airbnb", image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=85", href: "/properties?type=Airbnb" },
+];
+
+const serviceCards: CategoryCardItem[] = [
+  { title: "Painting", image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=600&q=85", href: "/home-services" },
+  { title: "Plumbing", image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=600&q=85", href: "/home-services" },
+  { title: "Electrical", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=85", href: "/home-services" },
+  { title: "Cleaning", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=85", href: "/home-services" },
+];
+
+const eventCards: CategoryCardItem[] = [
+  { title: "Meetups", image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=85", href: "/events?category=meetups" },
+  { title: "Party", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=85", href: "/events?category=party" },
+  { title: "Cultural Events", image: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=600&q=85", href: "/events?category=cultural" },
+  { title: "Community Events", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=85", href: "/events?category=community" },
+];
+
+const healthCards: CategoryCardItem[] = [
+  { title: "Full Body Check-up", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=85", href: "/health-checkup?category=full-body" },
+  { title: "Basic Health Package", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=85", href: "/health-checkup?category=basic" },
+  { title: "Men's Health", image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=600&q=85", href: "/health-checkup?category=men" },
+  { title: "Women's Health", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=85", href: "/health-checkup?category=women" },
+];
+
+function CategoryCard({ item }: { item: CategoryCardItem }) {
+  return (
+    <Link
+      href={item.href}
+      aria-label={item.title}
+      className="group relative aspect-[4/5] min-w-0 overflow-hidden rounded-xl bg-slate-200 shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+      style={{ backgroundImage: `linear-gradient(to top, rgba(8,20,39,.88), rgba(8,20,39,.04) 62%), url("${item.image}")`, backgroundPosition: "center", backgroundSize: "cover" }}
+    >
+      <span className="absolute inset-x-1 bottom-2 text-center text-[10px] font-extrabold leading-tight text-white drop-shadow sm:inset-x-2 sm:bottom-3 sm:text-sm">
+        {item.title}
+      </span>
+    </Link>
+  );
+}
+
+function CategorySection({ title, href, items, id }: { title: string; href: string; items: CategoryCardItem[]; id: string }) {
+  return (
+    <section id={id} className="rounded-2xl bg-white px-3 py-4 shadow-[0_3px_18px_rgba(15,35,65,0.06)] ring-1 ring-slate-100 sm:px-5 sm:py-5">
+      <div className="mb-3 flex items-center justify-between gap-2 sm:mb-4">
+        <h2 className="border-l-[5px] border-amber-400 pl-2.5 text-base font-extrabold tracking-tight text-[#10243A] sm:text-xl">{title}</h2>
+        <Link href={href} className="shrink-0 text-xs font-bold text-blue-700 hover:text-blue-900 sm:text-sm">View All <span aria-hidden="true">→</span></Link>
+      </div>
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+        {items.map((item) => <CategoryCard key={item.title} item={item} />)}
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
-  const [category, setCategory] = useState("All");
-  const [location, setLocation] = useState("");
-  const [search, setSearch] = useState(false);
-  const [properties, setProperties] = useState<PropertyListing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [visitsReady, setVisitsReady] = useState(false);
-  useEffect(() => {
-    let active = true;
-    loadApprovedProperties().then((items) => { if (active) setProperties(items); })
-      .catch(() => { if (active) setLoadError("Properties could not be loaded. Please try again."); })
-      .finally(() => { if (active) setLoading(false); });
-    visitRequestsReady().then((ready) => { if (active) setVisitsReady(ready); }).catch(() => { if (active) setVisitsReady(false); });
-    return () => { active = false; };
-  }, []);
-  const filtered = properties.filter((property) => {
-    const categoryMatch = category === "All" || property.type === category;
-    const locationMatch = matchesPropertyLocation(property, location);
-    return categoryMatch && locationMatch;
-  });
+  const router = useRouter();
+  const [searchText, setSearchText] = useState("");
+
+  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = searchText.trim();
+    router.push(query ? `/properties?locality=${encodeURIComponent(query)}` : "/properties");
+  }
 
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
       <HomeHeader />
 
-      <section id="home" className="bg-[#10243A] px-4 pb-10 pt-8 text-white sm:px-6 sm:pb-24 sm:pt-16">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight sm:text-4xl md:text-6xl">
-            Find a place that feels like <span className="text-amber-400">home.</span>
-          </h2>
-          <p className="mt-3 max-w-xl text-base text-slate-300 sm:mt-6 sm:text-lg">
-            Discover flats, resale properties, PG accommodation and short stays across Pune.
-          </p>
-
-          <div className="mt-5 flex flex-wrap gap-2" aria-label="Property purpose">
-            {[{ label: "All", type: "All" }, { label: "Buy", type: "Resale" }, { label: "Rent", type: "Rental" }].map((item) => <button key={item.type} type="button" onClick={() => setCategory(item.type)} aria-pressed={category === item.type} className={`min-h-11 rounded-full border px-5 text-sm font-bold ${category === item.type ? "border-amber-400 bg-amber-400 text-slate-950" : "border-white/40 text-white"}`}>{item.label}</button>)}
-          </div>
-          <div className="mt-6 flex max-w-4xl flex-col gap-3 rounded-2xl bg-white p-3 shadow-2xl sm:mt-10 sm:p-4 md:flex-row">
-            <label className="sr-only" htmlFor="homepage-category">Property category</label>
-            <select id="homepage-category" value={category} onChange={(event) => setCategory(event.target.value)} className="min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-3 text-slate-900">
-              {categories.map((item) => <option key={item.type} value={item.type}>{item.label}</option>)}
-            </select>
-            <LocalityAutocomplete
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Search Pune locality or landmark..."
-              aria-label="Locality or landmark"
-              className="min-w-0 flex-1 rounded-lg border border-slate-200 px-4 py-4 text-slate-900 outline-none focus:border-amber-500"
-            />
-            <button
-              onClick={() => {
-                setSearch(true);
-                document.getElementById("properties")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="rounded-lg bg-amber-400 px-8 py-4 font-bold text-slate-950 hover:bg-amber-300"
-            >
-              Search Properties
-            </button>
-          </div>
-          <DesktopQuickNav />
-        </div>
+      <section className="bg-[#10243A] px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
+        <form onSubmit={submitSearch} className="mx-auto flex max-w-7xl items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg sm:rounded-xl sm:p-2">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-2 size-5 shrink-0 text-[#10243A] sm:size-6"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
+          <LocalityAutocomplete
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            placeholder="Search location or property..."
+            aria-label="Search location or property"
+            className="min-w-0 flex-1 border-0 bg-transparent px-1 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-500 sm:text-base"
+          />
+          <button type="submit" aria-label="Open property filters" className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400 text-[#10243A] transition hover:bg-amber-300 sm:size-11">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" className="size-5"><path d="M4 6h16M7 12h10m-7 6h4" /><circle cx="8" cy="6" r="2" fill="currentColor" /><circle cx="15" cy="12" r="2" fill="currentColor" /><circle cx="12" cy="18" r="2" fill="currentColor" /></svg>
+          </button>
+        </form>
+        <div className="mx-auto max-w-7xl"><DesktopQuickNav /></div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6" aria-label="Owner and referral information">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-2xl bg-[#10243A] p-5 text-white"><h2 className="text-lg font-bold">Have a property to list?</h2><p className="mt-1 text-sm text-slate-300">Share your property for review by the Naren Realty team.</p><Link href="/list-property" className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-amber-400 px-4 text-sm font-bold text-slate-950">Post Your Property</Link></div>
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-3 rounded-2xl border border-amber-300 bg-gradient-to-br from-amber-50 to-amber-100 p-5 lg:flex lg:gap-4">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-[#10243A] text-amber-400"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="size-8"><path d="M3 9h18v4H3zM12 9v12M5 13v8h14v-8M12 9c-2 0-4-1-4-3a2 2 0 0 1 4 0c0 2 0 3 0 3Zm0 0c2 0 4-1 4-3a2 2 0 0 0-4 0" /></svg></span>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-xl font-extrabold text-[#10243A]">Refer &amp; Earn</h2>
-              <p className="mt-1 text-sm font-bold text-[#10243A]">Tenant Referral – <span className="text-amber-700">₹1,000</span></p>
-              <p className="text-sm font-bold text-[#10243A]">Owner Referral – <span className="text-amber-700">₹2,000</span></p>
-              <p className="mt-2 rounded-lg bg-[#10243A] px-3 py-2 text-xs font-extrabold text-amber-300">OFFER VALID TILL 31 DECEMBER 2026</p>
-              <p className="mt-1 text-xs font-semibold text-slate-700">Terms &amp; Conditions Apply.</p>
-            </div>
-            <Link href="/account/referrals" className="col-start-2 inline-flex min-h-11 shrink-0 items-center justify-self-start rounded-lg bg-[#10243A] px-4 text-sm font-bold text-amber-400 hover:bg-[#1b3a5a]">Refer Now</Link>
-          </div>
-        </div>
-      </section>
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-6 sm:py-6">
+        <CategorySection id="properties" title="Properties" href="/properties" items={propertyCards} />
+        <CategorySection id="home-services" title="Home Services" href="/home-services" items={serviceCards} />
+        <CategorySection id="events" title="Events – Discover & Join" href="/events" items={eventCards} />
+        <CategorySection id="health-checkup" title="Health Check-up" href="/health-checkup" items={healthCards} />
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-14">
-        <div className="mb-4 sm:mb-8">
-          <p className="font-semibold tracking-widest text-amber-600">EXPLORE</p>
-          <h2 className="mt-2 text-3xl font-bold">What are you looking for?</h2>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {[
-            ["🏠", "Flat Rental", "Find your next home"],
-            ["🏢", "Flat Resale", "Buy your dream home"],
-            ["🛏️", "PG / Hostel", "Comfortable accommodation"],
-            ["🔑", "Airbnb", "Short stay options"],
-          ].map(([icon, name, description]) => (
-            <button
-              key={name}
-              onClick={() => {
-                setCategory(categories.find((item) => item.label === name)?.type ?? "All");
-                setSearch(false);
-                document.getElementById("properties")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg sm:p-7"
-            >
-              <span className="text-2xl sm:text-4xl">{icon}</span>
-              <h3 className="mt-2 text-sm font-bold sm:mt-5 sm:text-xl">{name}</h3>
-              <p className="mt-1 text-xs text-slate-500 sm:mt-2 sm:text-sm">{description}</p>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section id="properties" className="bg-slate-50 px-6 py-16">
-        <div className="mx-auto max-w-7xl">
-          <p className="font-semibold tracking-widest text-amber-600">PROPERTY COLLECTION</p>
-          <h2 className="mt-2 text-3xl font-bold">Explore properties in Pune</h2>
-
-          <div className="mt-7 flex flex-wrap gap-2">
-            {categories.map((item) => (
-              <button
-                key={item.type}
-                onClick={() => setCategory(item.type)}
-                aria-pressed={category === item.type}
-                className={`rounded-full px-5 py-3 text-sm font-semibold ${
-                  category === item.type
-                    ? "bg-[#10243A] text-white"
-                    : "border border-slate-300 bg-white text-slate-700"
-                }`}
-              >
-                {item.label}
-              </button>
+        <section className="rounded-2xl bg-white px-3 py-3 shadow-[0_3px_18px_rgba(15,35,65,0.06)] ring-1 ring-slate-100 sm:px-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="mr-1 flex items-center gap-2 text-sm font-extrabold text-[#10243A] sm:text-base">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-5 text-blue-900"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              Popular Locations
+            </h2>
+            {["Wakad", "Hinjewadi", "Baner", "Balewadi"].map((place) => (
+              <Link key={place} href={`/properties?locality=${encodeURIComponent(place)}`} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-semibold text-[#10243A] hover:border-amber-400 sm:px-4 sm:text-sm">{place}</Link>
             ))}
           </div>
+        </section>
 
-          {search && location && (
-            <p className="mt-5 text-sm text-slate-600">Showing matching properties for: {location}</p>
-          )}
+        <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#10243A] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
+          <div className="min-w-0">
+            <h2 className="text-xl font-extrabold sm:text-2xl"><span className="text-amber-400">Refer</span> &amp; Earn</h2>
+            <p className="mt-1 text-xs text-slate-200 sm:text-sm">Tenant referral ₹1,000 · Owner referral ₹2,000</p>
+            <Link href="/account/referrals" className="mt-3 inline-flex min-h-9 items-center rounded-lg bg-amber-400 px-4 text-xs font-extrabold text-[#10243A] hover:bg-amber-300 sm:text-sm">Refer Now →</Link>
+          </div>
+          <div aria-hidden="true" className="flex size-20 shrink-0 items-center justify-center rounded-full bg-white/10 text-4xl sm:size-24 sm:text-5xl">🎁</div>
+        </section>
+      </div>
 
-          {loading && <p role="status" className="mt-8 text-slate-600">Loading properties...</p>}
-          {loadError && <p role="alert" className="mt-8 text-rose-700">{loadError}</p>}
-          {!loading && !loadError && (filtered.length ? <div className="mt-8 grid gap-6 md:grid-cols-2">{filtered.map((property) => <PropertyCard key={property.id} listing={property} listings={properties} visitsReady={visitsReady} />)}</div> : <p className="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-600">{properties.length ? "No matching properties. Try another locality or category." : "No properties available right now. Check back soon."}</p>)}
-        </div>
-      </section>
-
-      <WhyChoose />
-
-      <footer id="contact" className="bg-slate-950 px-5 py-10 text-white sm:px-6 sm:py-12">
+      <footer id="contact" className="bg-slate-950 px-4 py-8 text-white sm:px-6 sm:py-10">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 border-b border-slate-800 pb-8 md:grid-cols-[1fr_1.2fr] md:items-start">
+          <div className="flex flex-wrap items-start justify-between gap-6 border-b border-slate-800 pb-6">
             <div>
-              <h2 className="text-2xl font-bold tracking-widest">NAREN REALTY</h2>
-              <p className="mt-2 text-sm text-slate-400">Your property. Our priority.</p>
-              <p className="mt-5 text-sm font-semibold text-white">Pune, Maharashtra</p>
-              <p className="mt-1 max-w-sm text-sm leading-6 text-slate-400">For property enquiries, connect with our team.</p>
+              <h2 className="text-xl font-extrabold tracking-wide">NAREN REALTY</h2>
+              <p className="mt-2 text-sm text-slate-400">Pune, Maharashtra</p>
+              <p className="mt-1 text-xs text-slate-500">For property and service enquiries, connect with our team.</p>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white">Quick Links</p>
-              <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-3 text-sm sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
-                <Link href="/properties" className="text-amber-400 hover:text-amber-300">Live Properties</Link>
-                <Link href="/account" className="text-amber-400 hover:text-amber-300">My Account</Link>
-                <Link href="/list-property" className="text-amber-400 hover:text-amber-300">List Your Property</Link>
-                <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
-              </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <Link href="/properties" className="text-amber-400 hover:text-amber-300">Properties</Link>
+              <Link href="/home-services" className="text-amber-400 hover:text-amber-300">Home Services</Link>
+              <Link href="/list-property" className="text-amber-400 hover:text-amber-300">Post Your Property</Link>
+              <Link href="/account" className="text-amber-400 hover:text-amber-300">My Account</Link>
+              <Link href="/events" className="text-amber-400 hover:text-amber-300">Events</Link>
+              <Link href="/health-checkup" className="text-amber-400 hover:text-amber-300">Health Check-up</Link>
+              <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
+              <Link href="/legal-policies" className="text-amber-400 hover:text-amber-300">Legal &amp; Policies</Link>
             </div>
           </div>
-
-          <div className="pt-8">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-base font-bold text-white">Legal &amp; Policies</p>
-                <p className="mt-1 text-xs text-slate-400">Important terms and policies for using NAREN REALTY.</p>
-              </div>
-              <Link href="/legal-policies" className="text-sm font-semibold text-amber-400 hover:text-amber-300">View All Policies →</Link>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Platform Terms</p>
-                <ul className="mt-3 space-y-3 text-sm">
-                  <li><Link href="/customer-terms" className="text-slate-400 hover:text-amber-300">Customer Terms</Link></li>
-                  <li><Link href="/owner-terms" className="text-slate-400 hover:text-amber-300">Owner Terms</Link></li>
-                  <li><Link href="/brokerage-policy" className="text-slate-400 hover:text-amber-300">Brokerage Policy</Link></li>
-                  <li><Link href="/user-conduct-policy" className="text-slate-400 hover:text-amber-300">User Conduct</Link></li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Property &amp; Payments</p>
-                <ul className="mt-3 space-y-3 text-sm">
-                  <li><Link href="/property-listing-verification-policy" className="text-slate-400 hover:text-amber-300">Listing &amp; Verification</Link></li>
-                  <li><Link href="/site-visit-policy" className="text-slate-400 hover:text-amber-300">Enquiry &amp; Site Visit</Link></li>
-                  <li><Link href="/payment-policy" className="text-slate-400 hover:text-amber-300">Payment Policy</Link></li>
-                  <li><Link href="/cancellation-refund-policy" className="text-slate-400 hover:text-amber-300">Cancellation &amp; Refund</Link></li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Privacy &amp; Support</p>
-                <ul className="mt-3 space-y-3 text-sm">
-                  <li><Link href="/privacy-policy" className="text-slate-400 hover:text-amber-300">Privacy Policy</Link></li>
-                  <li><Link href="/cookie-policy" className="text-slate-400 hover:text-amber-300">Cookie Policy</Link></li>
-                  <li><Link href="/third-party-services-policy" className="text-slate-400 hover:text-amber-300">Third-Party Services</Link></li>
-                  <li><Link href="/grievance-redressal-policy" className="text-slate-400 hover:text-amber-300">Grievance Redressal</Link></li>
-                  <li><Link href="/disclaimer" className="text-slate-400 hover:text-amber-300">Disclaimer</Link></li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Other Services</p>
-                <ul className="mt-3 space-y-3 text-sm">
-                  <li><Link href="/pg-hostel-policy" className="text-slate-400 hover:text-amber-300">PG / Hostel Policy</Link></li>
-                  <li><Link href="/airbnb-policy" className="text-slate-400 hover:text-amber-300">Airbnb / Short-Stay</Link></li>
-                  <li><Link href="/referral-policy" className="text-slate-400 hover:text-amber-300">Referral &amp; Reward</Link></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <p className="mt-9 border-t border-slate-800 pt-5 text-xs text-slate-500">© 2026 Naren Realty. All rights reserved.</p>
+          <p className="pt-5 text-xs text-slate-500">© 2026 NAREN REALTY. All rights reserved.</p>
         </div>
       </footer>
-
     </main>
   );
 }
