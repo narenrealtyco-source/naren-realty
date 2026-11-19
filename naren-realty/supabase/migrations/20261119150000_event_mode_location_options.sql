@@ -57,7 +57,7 @@ begin
     raise exception 'Event policies must be 5000 characters or fewer';
   end if;
 
-  if p_location_status not in ('confirmed','tba') then raise exception 'Invalid location status'; end if;
+  if p_location_status is null or p_location_status not in ('confirmed','tba') then raise exception 'Invalid location status'; end if;
 
   select event_mode, location_status into v_event_mode, v_location_status
     from public.event_submissions
