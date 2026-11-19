@@ -81,8 +81,8 @@ begin
                       when p_location_status = 'tba' then 'To Be Announced'
                       else trim(p_venue) end,
          locality = case when v_event_mode = 'online' then null else nullif(trim(p_locality), '') end,
-         venue_address = case when v_location_status = 'confirmed' then nullif(trim(coalesce(p_venue_address,'')), '') else null end,
-         map_link = case when v_location_status = 'confirmed' then nullif(trim(coalesce(p_map_link,'')), '') else null end,
+         venue_address = case when p_location_status = 'confirmed' then nullif(trim(coalesce(p_venue_address,'')), '') else null end,
+         map_link = case when p_location_status = 'confirmed' then nullif(trim(coalesce(p_map_link,'')), '') else null end,
          online_event_link = case when v_event_mode <> 'offline' then nullif(trim(coalesce(p_online_event_link,'')), '') else null end,
          updated_at = now()
    where id = p_event_id and submitted_by = auth.uid();
