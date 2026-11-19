@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 type EventRecord = {
@@ -14,7 +14,7 @@ type EventRecord = {
 
 const pretty = (value:string) => value.replaceAll("_"," ").replace(/\b\w/g, letter=>letter.toUpperCase());
 
-export default function EventDetailsPage() {
+function EventDetailsContent() {
   const params=useParams<{id:string}>();
   const [event,setEvent]=useState<EventRecord|null>(null);
   const [loading,setLoading]=useState(true);
@@ -79,4 +79,8 @@ export default function EventDetailsPage() {
       <div className="mt-7"><Link href="/events" className="text-sm font-bold text-blue-800 underline">← Browse more events</Link></div>
     </div>
   </main>;
+}
+
+export default function EventDetailsPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading event details...</main>}><EventDetailsContent /></Suspense>;
 }
