@@ -56,7 +56,7 @@ export default function ManageEventsPage() {
     });
     if(error) setMessage("Changes could not be saved. Please try again.");
     else {
-      setItems(current=>current.map(row=>row.id===item.id?{...row,total_capacity:capacity,available_seats:seats,event_policies:value.policies.trim()||null,venue:item.event_mode==="online"?"Online Event":value.locationStatus==="tba"?"To Be Announced":value.venue.trim(),locality:item.event_mode==="online"?null:value.locality.trim(),venue_address:value.venueAddress.trim()||null,map_link:value.mapLink.trim()||null,online_event_link:value.onlineLink.trim()||null}:row));
+      setItems(current=>current.map(row=>row.id===item.id?{...row,total_capacity:capacity,available_seats:seats,event_policies:value.policies.trim()||null,venue:item.event_mode==="online"?"Online Event":value.locationStatus==="tba"?"To Be Announced":value.venue.trim(),locality:item.event_mode==="online"?"Online":value.locality.trim(),location_status:item.event_mode==="online"?"not_required":value.locationStatus,venue_address:value.venueAddress.trim()||null,map_link:value.mapLink.trim()||null,online_event_link:value.onlineLink.trim()||null}:row));
       setMessage("Event details updated successfully.");
     }
     setBusy(null);
