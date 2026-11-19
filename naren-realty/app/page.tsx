@@ -125,26 +125,36 @@ export default function Home() {
         </section>
       </div>
 
-      <footer id="contact" className="bg-slate-950 px-4 py-8 text-white sm:px-6 sm:py-10">
+      <footer id="contact" className="bg-[#10243A] px-4 pb-6 pt-8 text-white sm:px-6 sm:pb-7 sm:pt-10">
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-wrap items-start justify-between gap-6 border-b border-slate-800 pb-6">
-            <div>
-              <h2 className="text-xl font-extrabold tracking-wide">NAREN REALTY</h2>
-              <p className="mt-2 text-sm text-slate-400">Pune, Maharashtra</p>
-              <p className="mt-1 text-xs text-slate-500">For property and service enquiries, connect with our team.</p>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 border-b border-white/15 pb-7 sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+            <div className="col-span-2 sm:col-span-2 lg:col-span-1">
+              <Link href="/" className="inline-block text-xl font-extrabold tracking-wide">NAREN <span className="text-amber-400">REALTY</span></Link>
+              <p className="mt-2 text-sm text-slate-300">Pune, Maharashtra</p>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-slate-400">For property and service enquiries, connect with our team.</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              <Link href="/properties" className="text-amber-400 hover:text-amber-300">Properties</Link>
-              <Link href="/home-services" className="text-amber-400 hover:text-amber-300">Home Services</Link>
-              <Link href="/list-property" className="text-amber-400 hover:text-amber-300">Post Your Property</Link>
-              <Link href="/account" className="text-amber-400 hover:text-amber-300">My Account</Link>
-              <Link href="/events" className="text-amber-400 hover:text-amber-300">Events</Link>
-              <Link href="/health-checkup" className="text-amber-400 hover:text-amber-300">Health Check-up</Link>
-              <Link href="/admin/login" className="text-amber-400 hover:text-amber-300">Admin Login</Link>
-              <Link href="/legal-policies" className="text-amber-400 hover:text-amber-300">Legal &amp; Policies</Link>
-            </div>
+            <nav aria-label="Explore" className="flex flex-col items-start gap-3">
+              <h3 className="mb-1 text-sm font-bold text-white">Explore</h3>
+              <Link href="/properties" className="text-sm text-slate-300 hover:text-amber-300">Properties</Link>
+              <Link href="/home-services" className="text-sm text-slate-300 hover:text-amber-300">Home Services</Link>
+              <Link href="/events" className="text-sm text-slate-300 hover:text-amber-300">Events</Link>
+              <Link href="/health-checkup" className="text-sm text-slate-300 hover:text-amber-300">Health Check-up</Link>
+            </nav>
+            <nav aria-label="Account and listings" className="flex flex-col items-start gap-3">
+              <h3 className="mb-1 text-sm font-bold text-white">Account & Listings</h3>
+              <Link href="/list-property" className="text-sm text-slate-300 hover:text-amber-300">Post Your Property</Link>
+              <Link href="/account" className="text-sm text-slate-300 hover:text-amber-300">My Account</Link>
+              <Link href="/admin/login" className="text-sm text-slate-300 hover:text-amber-300">Admin Login</Link>
+            </nav>
+            <nav aria-label="Information" className="col-span-2 flex flex-col items-start gap-3 sm:col-span-1">
+              <h3 className="mb-1 text-sm font-bold text-white">Information</h3>
+              <Link href="/legal-policies" className="text-sm text-slate-300 hover:text-amber-300">Legal & Policies</Link>
+            </nav>
           </div>
-          <p className="pt-5 text-xs text-slate-500">© 2026 NAREN REALTY. All rights reserved.</p>
+          <div className="flex flex-col gap-2 pt-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+            <p>© 2026 NAREN REALTY. All rights reserved.</p>
+            <p>Pune, Maharashtra, India</p>
+          </div>
         </div>
       </footer>
     </main>
