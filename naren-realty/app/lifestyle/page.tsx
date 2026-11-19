@@ -1,41 +1,57 @@
-import Link from "next/link";
+"use client";
 
-const services = [
-  { title: "Yoga Classes", detail: "Group yoga, beginner sessions and guided practice.", icon: "🧘" },
-  { title: "Meditation & Mindfulness", detail: "Guided meditation, breathing and mindfulness sessions.", icon: "🌿" },
-  { title: "Fitness & Personal Training", detail: "Personal trainers, group workouts and fitness programmes.", icon: "💪" },
-  { title: "Zumba & Dance Fitness", detail: "Energetic group classes and dance-based workouts.", icon: "💃" },
-  { title: "Diet & Nutrition", detail: "Consultations and practical nutrition guidance from professionals.", icon: "🥗" },
-  { title: "Wellness Workshops & Retreats", detail: "Stress management, sound healing and wellness experiences.", icon: "✨" },
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+const categories = [
+  { key: "yoga", title: "Yoga", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1100&q=90" },
+  { key: "meditation", title: "Meditation", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1100&q=90" },
+  { key: "fitness-personal-training", title: "Fitness & Personal Training", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1100&q=90" },
+  { key: "zumba-dance-fitness", title: "Zumba & Dance Fitness", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1100&q=90" },
+  { key: "diet-nutrition", title: "Diet & Nutrition", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1100&q=90" },
+  { key: "wellness-workshops", title: "Wellness Workshops", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1100&q=90" },
 ];
 
-export default function LifestylePage() {
+function LifestyleContent() {
+  const params = useSearchParams();
+  const selected = params.get("category") ?? "";
   return (
     <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
       <header className="bg-[#10243A] px-4 py-4 text-white sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <Link href="/" className="text-lg font-extrabold sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></Link>
-          <Link href="/" className="text-sm font-semibold text-amber-300">← Home</Link>
+          <Link href="/" className="text-sm font-semibold text-amber-300 hover:text-amber-200">← Home</Link>
         </div>
       </header>
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Lifestyle & wellness</p>
-        <h1 className="mt-2 text-3xl font-extrabold text-[#10243A] sm:text-4xl">Lifestyle</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">Discover classes, trainers and experiences that support an active and balanced lifestyle.</p>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {services.map((item) => (
-            <article key={item.title} className="flex gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
-              <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-amber-50 text-2xl">{item.icon}</span>
-              <div><h2 className="font-bold text-[#10243A]">{item.title}</h2><p className="mt-1 text-sm leading-5 text-slate-600">{item.detail}</p></div>
-            </article>
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Discover your lifestyle</p>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#10243A] sm:text-4xl">Lifestyle & Wellness</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Explore fitness, mindfulness and everyday wellness.</p>
+          </div>
+          <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#10243A] shadow-sm ring-1 ring-slate-200">Lifestyle</span>
+        </div>
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
+          {categories.map((category) => (
+            <Link key={category.key} href={selected === category.key ? "/lifestyle" : `/lifestyle?category=${category.key}`} aria-label={category.title} aria-current={selected === category.key ? "page" : undefined}
+              className={`group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-[#10243A] shadow-md ring-1 transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 ${selected === category.key ? "ring-2 ring-amber-400" : "ring-slate-900/10"}`}>
+              <img src={category.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07182b]/95 via-[#07182b]/15 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+                <h2 className="text-sm font-extrabold leading-tight text-white drop-shadow sm:text-base lg:text-lg">{category.title}</h2>
+                <span className="mb-0.5 grid size-7 shrink-0 place-items-center rounded-full border border-white/40 bg-white/15 text-sm font-bold text-white backdrop-blur-sm transition group-hover:bg-amber-400 group-hover:text-[#10243A]">↗</span>
+              </div>
+            </Link>
           ))}
         </div>
-        <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
-          <h2 className="font-bold text-[#10243A]">Classes & bookings coming soon</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-700">Trainer profiles, class schedules, event seats and booking options will be enabled as verified instructors and organisers join NAREN REALTY.</p>
-          <Link href="/events" className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#10243A] px-4 text-sm font-bold text-white hover:bg-[#193a5c]">Explore Events <span className="ml-2" aria-hidden="true">→</span></Link>
-        </div>
+        <p className="mt-6 text-center text-xs text-slate-500">Verified wellness partners and booking options will appear here as they join.</p>
       </div>
     </main>
   );
+}
+
+export default function LifestylePage() {
+  return <Suspense fallback={<main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading lifestyle services...</main>}><LifestyleContent /></Suspense>;
 }

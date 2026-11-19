@@ -23,6 +23,11 @@ const serviceCards: CategoryCardItem[] = [
   { title: "Cleaning", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=85", href: "/home-services" },
 ];
 
+const wellnessCards: CategoryCardItem[] = [
+  { title: "Health", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85", href: "/health-checkup" },
+  { title: "Lifestyle", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=900&q=85", href: "/lifestyle" },
+];
+
 const eventCards: CategoryCardItem[] = [
   { title: "Meetups", image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=85", href: "/events?category=meetups" },
   { title: "Party", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=85", href: "/events?category=party" },
@@ -94,19 +99,7 @@ export default function Home() {
         <CategorySection id="properties" title="Properties" href="/properties" items={propertyCards} />
         <CategorySection id="home-services" title="Home Services" href="/home-services" items={serviceCards} />
         <CategorySection id="events" title="Events Near Me" href="/events" items={eventCards} />
-        <section className="rounded-2xl bg-white px-3.5 py-4 shadow-[0_3px_18px_rgba(15,35,65,0.05)] ring-1 ring-slate-100 sm:px-5 sm:py-5">
-          <h2 className="border-l-[5px] border-amber-400 pl-2.5 text-[15px] font-extrabold tracking-tight text-[#10243A] sm:text-xl">Explore More</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4">
-            <Link href="/health-checkup" className="group flex min-h-24 items-center justify-between gap-2 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white px-3 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md sm:min-h-28 sm:px-5">
-              <span className="min-w-0"><span className="block text-sm font-extrabold text-[#10243A] sm:text-lg">Health</span><span className="mt-1 block text-[11px] leading-4 text-slate-600 sm:text-sm">Tests & check-ups</span></span>
-              <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-[#10243A] text-lg text-amber-300 sm:size-11">＋</span>
-            </Link>
-            <Link href="/lifestyle" className="group flex min-h-24 items-center justify-between gap-2 rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white px-3 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md sm:min-h-28 sm:px-5">
-              <span className="min-w-0"><span className="block text-sm font-extrabold text-[#10243A] sm:text-lg">Lifestyle</span><span className="mt-1 block text-[11px] leading-4 text-slate-600 sm:text-sm">Yoga, fitness & wellness</span></span>
-              <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-400 text-lg text-[#10243A] sm:size-11">＋</span>
-            </Link>
-          </div>
-        </section>
+        <CategorySection id="health-lifestyle" title="Health & Lifestyle" href="/health-checkup" items={wellnessCards} />
 
         <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#10243A] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
           <div className="min-w-0">
