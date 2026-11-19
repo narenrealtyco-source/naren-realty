@@ -29,7 +29,13 @@ export default function SubmitEventPage() {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) { router.push("/account?next=/events/submit"); return; }
-      const isOnline = form.eventMode === "online";\n      if (!isOnline && form.locationStatus === "confirmed" && !form.venue.trim()) { setError("Please enter the confirmed venue name, or select Location To Be Announced."); return; }\n      if (!isOnline && !form.locality.trim()) { setError("Please enter the city or locality for this event."); return; }\n      if (form.eventMode !== "offline" && form.eventMode !== "online" && form.eventMode !== "hybrid") { setError("Select a valid event mode."); return; }\n      if (form.eventMode !== "offline" && form.onlineLink.trim() && !/^https?:\\/\\//i.test(form.onlineLink.trim())) { setError("Enter a valid online meeting link starting with https:// or http://."); return; }\n      if (form.mapLink.trim() && !/^https?:\\/\\//i.test(form.mapLink.trim())) { setError("Enter a valid Google Maps link."); return; }\n      const capacity = Number(form.totalCapacity);
+      const isOnline = form.eventMode === "online";
+      if (!isOnline && form.locationStatus === "confirmed" && !form.venue.trim()) { setError("Please enter the confirmed venue name, or select Location To Be Announced."); return; }
+      if (!isOnline && !form.locality.trim()) { setError("Please enter the city or locality for this event."); return; }
+      if (form.eventMode !== "offline" && form.eventMode !== "online" && form.eventMode !== "hybrid") { setError("Select a valid event mode."); return; }
+      if (form.eventMode !== "offline" && form.onlineLink.trim() && !/^https?:\/\//i.test(form.onlineLink.trim())) { setError("Enter a valid online meeting link starting with https:// or http://."); return; }
+      if (form.mapLink.trim() && !/^https?:\/\//i.test(form.mapLink.trim())) { setError("Enter a valid Google Maps link."); return; }
+      const capacity = Number(form.totalCapacity);
       const seats = Number(form.availableSeats);
       if (!Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(seats) || seats < 0 || seats > capacity) {
         setError("Enter a valid total capacity and available seat count. Available seats cannot exceed total capacity."); return;
