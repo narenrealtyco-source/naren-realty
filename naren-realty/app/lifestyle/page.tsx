@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-const services = [
-  { title: "Yoga Classes", detail: "Group yoga, beginner sessions and guided practice.", icon: "🧘" },
-  { title: "Meditation & Mindfulness", detail: "Guided meditation, breathing and mindfulness sessions.", icon: "🌿" },
-  { title: "Fitness & Personal Training", detail: "Personal trainers, group workouts and fitness programmes.", icon: "💪" },
-  { title: "Zumba & Dance Fitness", detail: "Energetic group classes and dance-based workouts.", icon: "💃" },
-  { title: "Diet & Nutrition", detail: "Consultations and practical nutrition guidance from professionals.", icon: "🥗" },
-  { title: "Wellness Workshops & Retreats", detail: "Stress management, sound healing and wellness experiences.", icon: "✨" },
+const categories = [
+  { title: "Yoga", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=900&q=85" },
+  { title: "Meditation", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=85" },
+  { title: "Fitness & Personal Training", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85" },
+  { title: "Zumba & Dance Fitness", image: "https://images.unsplash.com/photo- dance?auto=format&fit=crop&w=900&q=85" },
+  { title: "Diet & Nutrition", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" },
+  { title: "Wellness Workshops", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85" },
 ];
 
 export default function LifestylePage() {
@@ -18,23 +18,19 @@ export default function LifestylePage() {
           <Link href="/" className="text-sm font-semibold text-amber-300">← Home</Link>
         </div>
       </header>
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Lifestyle & wellness</p>
         <h1 className="mt-2 text-3xl font-extrabold text-[#10243A] sm:text-4xl">Lifestyle</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">Discover classes, trainers and experiences that support an active and balanced lifestyle.</p>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {services.map((item) => (
-            <article key={item.title} className="flex gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
-              <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-amber-50 text-2xl">{item.icon}</span>
-              <div><h2 className="font-bold text-[#10243A]">{item.title}</h2><p className="mt-1 text-sm leading-5 text-slate-600">{item.detail}</p></div>
-            </article>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3">
+          {categories.map((category) => (
+            <Link key={category.title} href="/contact" aria-label={category.title} className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500">
+              <div className="relative aspect-[4/3] bg-cover bg-center" style={{ backgroundImage: `linear-gradient(to top, rgba(8,20,39,.86), rgba(8,20,39,.02) 68%), url("${category.image}")` }}>
+                <h2 className="absolute bottom-3 left-3 right-3 text-sm font-extrabold leading-tight text-white drop-shadow sm:bottom-4 sm:left-4 sm:text-base">{category.title}</h2>
+              </div>
+            </Link>
           ))}
         </div>
-        <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
-          <h2 className="font-bold text-[#10243A]">Classes & bookings coming soon</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-700">Trainer profiles, class schedules, event seats and booking options will be enabled as verified instructors and organisers join NAREN REALTY.</p>
-          <Link href="/events" className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#10243A] px-4 text-sm font-bold text-white hover:bg-[#193a5c]">Explore Events <span className="ml-2" aria-hidden="true">→</span></Link>
-        </div>
+        <p className="mt-5 text-xs text-slate-500">Service listings and bookings will be available as verified partners join.</p>
       </div>
     </main>
   );
