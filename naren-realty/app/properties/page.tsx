@@ -28,6 +28,16 @@ export default function BrowsePropertiesPage() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialLocality = params.get("locality");
+    const initialType = params.get("type");
+    if (initialLocality) setLocality(initialLocality);
+    if (initialType === "Rental" || initialType === "Resale" || initialType === "PG" || initialType === "Airbnb") {
+      setType(initialType);
+    }
+  }, []);
+
   const filtered = listings.filter((listing) => {
     const localityMatch = matchesPropertyLocation(listing, locality);
     const typeMatch = type === "All" || listing.type === type;
