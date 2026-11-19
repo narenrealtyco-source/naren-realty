@@ -89,19 +89,14 @@ export default function HomeHeader() {
   }
 
   const itemClass = "block w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-slate-900 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-amber-600";
-  return <header className="relative z-30 bg-[#10243A] text-white">
-    <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:gap-3 sm:px-6 sm:py-5">
-      <Link href="/" aria-label="Naren Realty home" className="min-w-0">
-        <span className="block whitespace-nowrap text-xs font-bold tracking-normal sm:text-2xl sm:tracking-widest">NAREN <span className="text-amber-400">REALTY</span></span>
-        <span className="hidden text-xs tracking-widest text-slate-300 sm:block">YOUR PROPERTY. OUR PRIORITY.</span>
-      </Link>
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <Link href="/#contact" aria-label="Contact Naren Realty" className="flex size-11 items-center justify-center rounded-full text-amber-400 hover:bg-white/10">
-          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-6"><path d="M4 5h16v12H9l-5 4V5Z" /><path d="M8 9h8M8 13h5" /></svg>
+  return (
+    <header className="relative z-30 bg-[#10243A] text-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+        <Link href="/" aria-label="NAREN REALTY home" className="min-w-0">
+          <span className="block whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></span>
         </Link>
-        <Link href="/list-property" className="whitespace-nowrap rounded-lg bg-amber-400 px-2 py-3 text-[11px] font-bold text-slate-950 hover:bg-amber-300 sm:px-5 sm:text-sm">Post Your Property</Link>
         <div ref={container} className="relative">
-          <button ref={button} type="button" aria-label="Account menu" aria-expanded={open} aria-controls="home-account-menu" onClick={() => setOpen((value) => !value)} className="flex size-11 items-center justify-center rounded-full border border-amber-400 text-amber-400 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+          <button ref={button} type="button" aria-label="Account menu" aria-expanded={open} aria-controls="home-account-menu" onClick={() => setOpen((value) => !value)} className="flex size-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 sm:size-11">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>
           </button>
           {open && <div id="home-account-menu" className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 shadow-xl">
@@ -116,6 +111,6 @@ export default function HomeHeader() {
           </div>}
         </div>
       </div>
-    </div>
-  </header>;
+    </header>
+  );
 }
