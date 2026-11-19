@@ -19,6 +19,9 @@ function EventDetailsContent() {
   const [event,setEvent]=useState<EventRecord|null>(null);
   const [loading,setLoading]=useState(true);
   const [notFound,setNotFound]=useState(false);
+  const [quantity,setQuantity]=useState(1);
+  const [bookingBusy,setBookingBusy]=useState(false);
+  const [bookingMessage,setBookingMessage]=useState("");
 
   useEffect(()=>{
     let active=true;
@@ -40,6 +43,21 @@ function EventDetailsContent() {
 
   const date=new Date(event.starts_at);
   const category=event.custom_event_type||event.subcategory||event.category;
+  const seats=event.available_seats??0;
+  const canBook=event.ticket_price===0 && seats>0 && date.getTime()>Date.now() && (!event.event_details?.registration_deadline || new Date(event.event_details.registration_deadline).getTime()>Date.now());
+  async function bookEvent(){
+    setBookingBusy(true);setBookingMessage("");
+    try{
+      const {data:{session}}=await supabase.auth.getSession();
+      if(!session){window.location.href="/account?next="+encodeURIComponent("/events/"+event.id);return;}
+      const response=await fetch("/api/events/book",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({eventId:event.id,quantity,requestKey:crypto.randomUUID()})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Booking could not be completed.");
+      setEvent(current=>current?{...current,available_seats:Math.max(0,(current.available_seats??0)-quantity)}:current);
+      setBookingMessage("Booking confirmed! Your booking ID is "+result.booking.booking_code+". Check your email for confirmation.");
+    }catch(error){setBookingMessage(error instanceof Error?error.message:"Booking could not be completed.");}
+    finally{setBookingBusy(false);}
+  }
 
   return <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
     <header className="bg-[#10243A] px-4 py-4 text-white"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3"><Link href="/" className="text-lg font-extrabold sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></Link><Link href="/events" className="text-sm font-semibold text-amber-300">← All Events</Link></div></header>
@@ -66,6 +84,11 @@ function EventDetailsContent() {
             <div className="mt-5 space-y-4 border-t border-slate-100 pt-4">
               <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Date & time</p><p className="mt-1 text-sm font-bold text-[#10243A]">{date.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p><p className="text-sm text-slate-600">{date.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})}{event.ends_at?" – "+new Date(event.ends_at).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"}):""}</p></div>
               <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Seats available</p><p className="mt-1 text-2xl font-black text-emerald-700">{event.available_seats??"Not specified"}</p><p className="text-xs text-slate-500">Total capacity: {event.total_capacity??"Not specified"}</p></div>
+            </div>
+            <div className="mt-5 border-t border-slate-100 pt-4">
+              {event.ticket_price>0?<div className="rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900">Online payment booking is temporarily on hold. Paid event booking will be enabled later.</div>:<><label className="block text-sm font-bold text-[#10243A]">Number of seats<select value={quantity} onChange={e=>setQuantity(Number(e.target.value))} className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm" disabled={!canBook}>{Array.from({length:Math.min(20,seats)},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} {n===1?"seat":"seats"}</option>)}</select></label><button onClick={bookEvent} disabled={!canBook||bookingBusy} className="mt-3 min-h-12 w-full rounded-xl bg-amber-400 px-4 py-3 text-sm font-extrabold text-[#10243A] disabled:cursor-not-allowed disabled:opacity-50">{bookingBusy?"Confirming booking...":seats===0?"Sold out":date.getTime()<=Date.now()?"Bookings closed":"Book free seats"}</button></>}
+              {bookingMessage&&<p role="status" className="mt-3 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-700">{bookingMessage}</p>}
+              <Link href="/events/my-bookings" className="mt-3 inline-block text-sm font-bold text-blue-800 underline">View my bookings</Link>
             </div>
           </div>
         </aside>
