@@ -45,7 +45,11 @@ export default function ManageEventsPage() {
     if (!Number.isInteger(capacity)||capacity<1||capacity>100000||!Number.isInteger(seats)||seats<0||seats>capacity) {
       setMessage("Enter a valid capacity. Available seats must be between 0 and total capacity."); return;
     }
-    if (value.policies.length>5000) {setMessage("Rules and policies must be 5,000 characters or fewer.");return;}\n    if(item.event_mode!=="online"&&!value.locality.trim()){setMessage("Please enter the city/locality.");return;}\n    if(item.event_mode!=="online"&&value.locationStatus==="confirmed"&&!value.venue.trim()){setMessage("Please enter the venue name or mark the location as TBA.");return;}\n    if(value.mapLink.trim()&&!/^https?:\\/\\//i.test(value.mapLink.trim())){setMessage("Enter a valid Google Maps link.");return;}\n    if(value.onlineLink.trim()&&!/^https?:\\/\\//i.test(value.onlineLink.trim())){setMessage("Enter a valid online meeting link.");return;}
+    if (value.policies.length>5000) {setMessage("Rules and policies must be 5,000 characters or fewer.");return;}
+    if(item.event_mode!=="online"&&!value.locality.trim()){setMessage("Please enter the city/locality.");return;}
+    if(item.event_mode!=="online"&&value.locationStatus==="confirmed"&&!value.venue.trim()){setMessage("Please enter the venue name or mark the location as TBA.");return;}
+    if(value.mapLink.trim()&&!/^https?:\/\//i.test(value.mapLink.trim())){setMessage("Enter a valid Google Maps link.");return;}
+    if(value.onlineLink.trim()&&!/^https?:\/\//i.test(value.onlineLink.trim())){setMessage("Enter a valid online meeting link.");return;}
     setBusy(item.id);setMessage("");
     const {error}=await supabase.rpc("update_own_event_details",{
       p_event_id:item.id,p_total_capacity:capacity,p_available_seats:seats,p_event_policies:value.policies,p_venue:item.event_mode==="online"?"Online Event":value.locationStatus==="tba"?"To Be Announced":value.venue.trim(),p_locality:item.event_mode==="online"?null:value.locality.trim(),p_venue_address:value.locationStatus==="confirmed"?value.venueAddress.trim():null,p_map_link:value.locationStatus==="confirmed"?value.mapLink.trim():null,p_online_event_link:item.event_mode!=="offline"?value.onlineLink.trim():null,p_location_status:value.locationStatus
