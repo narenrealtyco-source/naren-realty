@@ -100,8 +100,8 @@ export default function Home() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-6 sm:py-6">
         <CategorySection id="properties" title="Properties" href="/properties" items={propertyCards} />
         <CategorySection id="home-services" title="Home Services" href="/home-services" items={serviceCards} />
-        <CategorySection id="events" title="Events – Discover & Join" href="/events" items={eventCards} />
-        <CategorySection id="health-checkup" title="Health Check-up" href="/health-checkup" items={healthCards} />
+        <CategorySection id="events" title="Events Near Me" href="/events" items={eventCards} />
+        <CategorySection id="health-checkup" title="Health & Lifestyle" href="/health-checkup" items={healthCards} />
 
         <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#10243A] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
           <div className="min-w-0">
