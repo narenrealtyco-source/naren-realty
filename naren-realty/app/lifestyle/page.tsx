@@ -4,7 +4,7 @@ const categories = [
   { title: "Yoga", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=900&q=85" },
   { title: "Meditation", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=85" },
   { title: "Fitness & Personal Training", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85" },
-  { title: "Zumba & Dance Fitness", image: "https://images.unsplash.com/photo- dance?auto=format&fit=crop&w=900&q=85" },
+  { title: "Zumba & Dance Fitness", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85" },
   { title: "Diet & Nutrition", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" },
   { title: "Wellness Workshops", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85" },
 ];
