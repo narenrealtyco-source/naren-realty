@@ -19,7 +19,7 @@ update public.event_submissions
    set event_mode = 'online',
        location_status = 'not_required',
        venue = 'Online Event',
-       locality = null
+       locality = 'Online'
  where event_mode = 'online';
 
 create or replace function public.update_own_event_details(
@@ -80,7 +80,7 @@ begin
          venue = case when v_event_mode = 'online' then 'Online Event'
                       when p_location_status = 'tba' then 'To Be Announced'
                       else trim(p_venue) end,
-         locality = case when v_event_mode = 'online' then null else nullif(trim(p_locality), '') end,
+         locality = case when v_event_mode = 'online' then 'Online' else nullif(trim(p_locality), '') end,
          venue_address = case when p_location_status = 'confirmed' then nullif(trim(coalesce(p_venue_address,'')), '') else null end,
          map_link = case when p_location_status = 'confirmed' then nullif(trim(coalesce(p_map_link,'')), '') else null end,
          online_event_link = case when v_event_mode <> 'offline' then nullif(trim(coalesce(p_online_event_link,'')), '') else null end,
