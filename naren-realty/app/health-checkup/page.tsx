@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const quickActions = [
-  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "#packages", tone: "bg-[#eaf8f7] text-[#078b8d]" },
+  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/full-body-checkup", tone: "bg-[#eaf8f7] text-[#078b8d]" },
   { title: "Book via", subtitle: "Call", symbol: "☎", href: "#contact", tone: "bg-[#edf5ff] text-[#2476bd]" },
   { title: "Book via", subtitle: "WhatsApp", symbol: "◉", href: "#contact", tone: "bg-[#eaf8ef] text-[#23965a]" },
   { title: "Upload", subtitle: "Prescription", symbol: "▤", href: "#prescription", tone: "bg-[#fff0f5] text-[#c45a87]" },
@@ -122,7 +122,7 @@ export default function HealthPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {filtered.map((item) => (
-            <a key={item.title} href="#contact" className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+            <a key={item.title} href={item.title === "Full Body Checkup" ? "/health-checkup/full-body-checkup" : "#contact"} className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
               <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span></div>
               <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span></div>
             </a>
