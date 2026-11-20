@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-type CatalogItem = {
+export type CatalogItem = {
   id: string;
   slug: string;
   item_type: "test" | "package";
@@ -61,7 +61,7 @@ function SectionHeading({ eyebrow, title, href, linkLabel = "View all" }: { eyeb
   );
 }
 
-function ProductCard({ item, onAddToCart }: { item: CatalogItem; onAddToCart: (slug:string)=>void }) {
+export function ProductCard({ item, onAddToCart }: { item: CatalogItem; onAddToCart: (slug:string)=>void }) {
   const href = item.item_type === "test"
     ? `/health-checkup/test/${encodeURIComponent(item.slug)}`
     : `/health-checkup/package/${encodeURIComponent(item.slug)}`;
