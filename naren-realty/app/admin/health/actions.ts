@@ -22,6 +22,7 @@ export async function bulkImportHealthCatalog(formData: FormData) {
       sample_type: item.sample_type ? String(item.sample_type).slice(0,200) : null,
       preparation: item.preparation ? String(item.preparation).slice(0,2000) : null,
       report_tat: item.report_tat ? String(item.report_tat).slice(0,200) : "To be confirmed by the processing laboratory",
+      report_tat_hours: item.report_tat_hours===undefined||item.report_tat_hours===null||item.report_tat_hours===""?null:Number(item.report_tat_hours),
       price: null, mrp: null, is_active: false, provider_verified: false, updated_at: new Date().toISOString()
     };
   });
@@ -42,7 +43,9 @@ export async function updateHealthCatalogItem(formData: FormData) {
   const mrpRaw=String(formData.get("mrp")||"").trim();
   const price=priceRaw===""?null:Number(priceRaw);
   const mrp=mrpRaw===""?null:Number(mrpRaw);
-  if(!slug || (price!==null&&(!Number.isFinite(price)||price<0)) || (mrp!==null&&(!Number.isFinite(mrp)||mrp<0))) throw new Error("Invalid item or price.");
+  const tatRaw=String(formData.get("report_tat_hours")||"").trim();
+  const report_tat_hours=tatRaw===""?null:Number(tatRaw);
+  if(!slug || (price!==null&&(!Number.isFinite(price)||price<0)) || (mrp!==null&&(!Number.isFinite(mrp)||mrp<0)) || (report_tat_hours!==null&&(!Number.isFinite(report_tat_hours)||report_tat_hours<0.25||report_tat_hours>720))) throw new Error("Invalid item or price.");
   const is_active=formData.get("is_active")==="on";
   const provider_verified=formData.get("provider_verified")==="on";
   if(is_active && price===null) throw new Error("Set a customer-facing price before publishing.");
@@ -52,6 +55,7 @@ export async function updateHealthCatalogItem(formData: FormData) {
     description:String(formData.get("description")||"").slice(0,3000),
     preparation:String(formData.get("preparation")||"").slice(0,2000),
     report_tat:String(formData.get("report_tat")||"").slice(0,200),
+    report_tat_hours,
     sample_type:String(formData.get("sample_type")||"").slice(0,200),
     updated_at:new Date().toISOString()
   }).eq("slug",slug);
