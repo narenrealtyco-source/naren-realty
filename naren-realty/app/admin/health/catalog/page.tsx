@@ -9,7 +9,7 @@ async function HealthCatalogAdminPageContent(){
   await connection();
  const {supabase}=await requireAdmin();
  const [{data,error},{data:mappings}]=await Promise.all([
-  supabase.from("health_catalog_items").select("id,slug,item_type,title,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").order("item_type").order("category").order("title"),
+  supabase.from("health_catalog_items").select("id,slug,item_type,title,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified,price_source,price_checked_at").order("item_type").order("category").order("title"),
   supabase.from("health_package_test_items").select("package_id,test_id,sort_order")
  ]);
  if(error) throw new Error("Could not load MFIT catalogue.");
