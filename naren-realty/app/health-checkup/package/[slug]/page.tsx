@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useState,Suspense} from "react";
+import HealthStoreHeader from "../../_components/HealthStoreHeader";
 import Link from "next/link";
 import {useParams} from "next/navigation";
 import { addHealthCartItem } from "../../_components/cart";
@@ -22,7 +23,7 @@ function PackageDetailContent(){
   const parameterCount=tests.reduce((sum,t)=>sum+(t.inclusions?.length||0),0);
   const mappingPending=tests.some(t=>t.mappingStatus!=="confirmed"||!t.provider_verified);
   return <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
-    <header className="sticky top-0 z-20 border-b bg-white/95 px-4 py-4 backdrop-blur"><div className="mx-auto flex max-w-3xl items-center gap-3"><Link href="/health-checkup" aria-label="Back to health home" className="grid size-10 place-items-center rounded-full border text-2xl">‹</Link><div><p className="text-[10px] font-bold uppercase tracking-widest text-[#078b8d]">MFIT Healthcare</p><h1 className="text-lg font-extrabold">Package details</h1></div></div></header>
+    <HealthStoreHeader title="Package Details" backHref="/health-checkup/packages" />
     <section className="mx-auto max-w-3xl space-y-4 px-4 py-6">
       {loading?<div className="rounded-2xl bg-white p-6 text-sm text-slate-500">Loading package details…</div>:error?<div className="rounded-2xl bg-white p-6"><p className="text-sm text-rose-700">{error}</p><Link href="/health-checkup/packages" className="mt-4 inline-block font-bold text-[#078b8d]">Browse packages →</Link></div>:item&&<>
         <div className="rounded-3xl bg-gradient-to-br from-[#dff7f4] to-[#edf5ff] p-6"><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#078b8d]">{item.category}</span><h2 className="mt-4 text-2xl font-extrabold">{item.title}</h2><p className="mt-3 text-sm leading-6 text-slate-600">{item.description||"Review the package components and booking information."}</p><div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-slate-500">Package price</p><p className="text-2xl font-extrabold">{!item.provider_verified||item.price===null?"Price on confirmation":"₹"+Number(item.price).toLocaleString("en-IN")}</p>{item.mrp!==null&&item.price!==null&&item.mrp>item.price&&<p className="text-xs text-slate-500 line-through">₹{Number(item.mrp).toLocaleString("en-IN")}</p>}</div><span className="rounded-full bg-white px-3 py-2 text-xs font-bold text-[#087f82]">Health package</span></div><div className="mt-5 grid grid-cols-2 gap-2"><div className="rounded-xl bg-white/80 p-3"><p className="text-xl font-extrabold">{tests.length}</p><p className="text-[11px] text-slate-600">Included tests</p></div><div className="rounded-xl bg-white/80 p-3"><p className="text-xl font-extrabold">{parameterCount}</p><p className="text-[11px] text-slate-600">Listed test parameters</p></div></div></div>
