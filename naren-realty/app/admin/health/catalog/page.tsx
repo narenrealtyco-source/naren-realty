@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireAdmin } from "../../lib/supabase-server";
+import { requireAdmin } from "../../../lib/supabase-server";
 import { bulkImportHealthCatalog, updateHealthCatalogItem } from "../actions";
 
 export const metadata={title:"MFIT Catalogue Management"};
