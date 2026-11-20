@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "../../lib/supabase-server";
 
 export const metadata = { title: "MFIT Healthcare Admin | NAREN REALTY" };
 
-export default async function MfitAdminPage() {
+async function MfitAdminPageContent() {
   let supabase;
   try { ({ supabase } = await requireAdmin()); } catch { redirect("/admin/login"); }
   const [catalog, orders, partners, slots] = await Promise.all([
@@ -42,4 +43,8 @@ export default async function MfitAdminPage() {
       <p className="mt-6 rounded-xl bg-amber-50 p-4 text-xs leading-5 text-amber-900">Catalogue items remain unpublished until MFIT verifies the exact panel, preparation, report time and price with its diagnostic partner. Cashfree is not enabled.</p>
     </div>
   </main>;
+}
+
+export default function MfitAdminPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-slate-50 p-8 text-center text-sm text-slate-500">Loading MFIT Healthcare admin…</main>}><MfitAdminPageContent /></Suspense>;
 }
