@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
     });
 
     const orderId = "mfit_" + randomUUID().replace(/-/g, "").slice(0, 24);
+    const orderNumber = "MFIT-" + randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase();
     const isProduction = process.env.CASHFREE_ENV === "production";
     const apiBase = isProduction ? "https://api.cashfree.com/pg" : "https://sandbox.cashfree.com/pg";
     const origin = request.nextUrl.origin;
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: insertError } = await supabase.from("health_orders").insert({
-      order_number: orderId,
+      order_number: orderNumber,
       customer_name: name,
       customer_phone: phone,
       customer_email: email || null,
@@ -189,6 +190,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       orderId,
+      orderNumber,
       paymentSessionId: cashfree.payment_session_id,
       environment: isProduction ? "production" : "sandbox",
       amount: total
