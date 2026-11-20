@@ -1,11 +1,12 @@
 import {redirect} from "next/navigation";
+import {Suspense} from "react";
 import {connection} from "next/server";
 import {revalidatePath} from "next/cache";
 import {requireMfitLab} from "../lib/mfit-lab";
 import {updateLabOrderStatus,uploadMfitReport,updateLabRequestStatus,uploadMfitRequestReport} from "../admin/health/lab-actions";
 export const instant = false;
 export const metadata={title:"MFIT Lab Operations"};
-export default async function LabDashboard(){
+async function LabDashboardContent(){
  await connection();
  let ctx;try{ctx=await requireMfitLab();}catch{redirect("/lab/login");}
  const {admin,staff}=ctx;
@@ -31,3 +32,5 @@ export default async function LabDashboard(){
 </div></article>)}</div>{!requests?.length&&<p className="mt-3 rounded-xl bg-white p-5 text-sm text-slate-500">No booking requests assigned yet.</p>}
 </div></main>;
 }
+
+export default function LabDashboard(){return <Suspense fallback={<main className="min-h-screen bg-slate-50 p-8 text-center text-sm text-slate-500">Loading MFIT Healthcare…</main>}><LabDashboardContent/></Suspense>;}
