@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireAdmin } from "../../lib/supabase-server";
+import { requireAdmin } from "../../../lib/supabase-server";
 import { updateHealthBooking } from "../actions";
 export default async function HealthBookingsPage(){
  const {supabase}=await requireAdmin();
