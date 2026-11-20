@@ -63,7 +63,7 @@ export async function assignMfitOrder(formData:FormData) {
   db.from("health_collection_boys").select("id,lab_partner_id,is_active").eq("id",boy_id).single()
  ]);
  if(boyError||!boy?.is_active||boy.lab_partner_id!==partner?.id) throw new Error("Invalid collection boy.");
- const {error}=await db.from("health_orders").update({lab_partner_id:partner.id,assigned_collection_boy_id:boy_id,assigned_collection_boy:undefined,assigned_at:new Date().toISOString(),sample_status:"assigned",fulfilment_status:"collection_scheduled",updated_at:new Date().toISOString()}).eq("id",order_id);
+ const {error}=await db.from("health_orders").update({lab_partner_id:partner.id,assigned_collection_boy_id:boy_id,assigned_at:new Date().toISOString(),sample_status:"assigned",fulfilment_status:"collection_scheduled",updated_at:new Date().toISOString()}).eq("id",order_id);
  if(error) throw new Error("Could not assign collection.");
  revalidatePath("/admin/health/bookings"); revalidatePath("/lab");
 }
