@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
-type Item={id:string;slug:string;item_type:"test"|"package";title:string;category:string;description:string;price:number|null;mrp:number|null;report_tat:string|null;sample_type:string|null;preparation:string|null;is_active:boolean};
+type Item={id:string;slug:string;item_type:"test"|"package";title:string;category:string;description:string;price:number|null;mrp:number|null;report_tat:string|null;sample_type:string|null;preparation:string|null;is_active:boolean;provider_verified:boolean};
 export default function HealthSearchPage(){
  const [items,setItems]=useState<Item[]>([]),[query,setQuery]=useState(""),[kind,setKind]=useState("All"),[loading,setLoading]=useState(true),[error,setError]=useState("");
  useEffect(()=>{const p=new URLSearchParams(window.location.search);setQuery(p.get("q")||"");fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Unable to load catalogue");setItems((d.items||[]).filter((x:Item)=>x.is_active));}).catch(e=>setError(e.message||"Search is unavailable")).finally(()=>setLoading(false));},[]);
