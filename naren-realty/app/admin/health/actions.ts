@@ -60,3 +60,52 @@ export async function updateHealthCatalogItem(formData: FormData) {
   revalidatePath("/health-checkup/packages");
   revalidatePath("/health-checkup/tests");
 }
+
+export async function updateHealthBooking(formData: FormData) {
+  const id=String(formData.get("order_id")||"");
+  const status=String(formData.get("fulfilment_status")||"");
+  const allowed=new Set(["new_booking","confirmed","collection_scheduled","sample_collected","processing","report_ready","completed","cancelled"]);
+  if(!id || !allowed.has(status)) throw new Error("Invalid booking update.");
+  const collectionDate=String(formData.get("collection_date")||"").trim();
+  const collectionSlot=String(formData.get("collection_slot")||"").trim();
+  const notes=String(formData.get("admin_notes")||"").slice(0,3000);
+  if(status==="collection_scheduled" && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(collectionDate)||!collectionSlot)) throw new Error("Collection date and slot are required.");
+  const {supabase,user}=await requireAdmin();
+  const {data:before,error:readError}=await supabase.from("health_orders").select("fulfilment_status").eq("id",id).single();
+  if(readError) throw new Error("Booking not found.");
+  const update:any={fulfilment_status:status,admin_notes:notes,updated_at:new Date().toISOString()};
+  if(collectionDate) update.collection_date=collectionDate;
+  if(collectionSlot) update.collection_slot=collectionSlot;
+  if(status==="report_ready") update.report_ready_at=new Date().toISOString();
+  if(status==="cancelled") update.cancelled_at=new Date().toISOString();
+  const {error}=await supabase.from("health_orders").update(update).eq("id",id);
+  if(error) throw new Error("Could not update booking: "+error.message);
+  await supabase.from("health_order_status_history").insert({order_id:id,from_status:before.fulfilment_status,to_status:status,note:notes||null,changed_by:user.id});
+  revalidatePath("/admin/health");
+  revalidatePath("/admin/health/bookings");
+}
+
+export async function addHealthCollectionSlot(formData: FormData) {
+  const service_area=String(formData.get("service_area")||"").trim();
+  const collection_date=String(formData.get("collection_date")||"");
+  const slot_label=String(formData.get("slot_label")||"").trim();
+  const capacity=Number(formData.get("capacity")||1);
+  if(!service_area||!/\\d{4}-\\d{2}-\\d{2}/.test(collection_date)||!slot_label||!Number.isInteger(capacity)||capacity<1||capacity>100) throw new Error("Enter valid collection slot details.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_collection_slots").insert({service_area,collection_date,slot_label,capacity,is_active:false});
+  if(error) throw new Error("Could not create slot: "+error.message);
+  revalidatePath("/admin/health/slots");
+}
+
+export async function addHealthLabPartner(formData: FormData) {
+  const name=String(formData.get("name")||"").trim();
+  const contact_name=String(formData.get("contact_name")||"").trim();
+  const phone=String(formData.get("phone")||"").replace(/\\D/g,"").slice(-10);
+  const email=String(formData.get("email")||"").trim();
+  const service_areas=String(formData.get("service_areas")||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,50);
+  if(name.length<2 || (phone && phone.length!==10) || (email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))) throw new Error("Enter valid lab partner details.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_lab_partners").insert({name,contact_name:contact_name||null,phone:phone||null,email:email||null,service_areas,is_active:false});
+  if(error) throw new Error("Could not add lab partner: "+error.message);
+  revalidatePath("/admin/health/labs");
+}
