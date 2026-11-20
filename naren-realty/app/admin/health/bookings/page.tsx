@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { requireAdmin } from "../../../lib/supabase-server";
 import { updateHealthBooking } from "../actions";
 async function HealthBookingsPageContent(){
+  await connection();
  const {supabase}=await requireAdmin();
  const {data,error}=await supabase.from("health_orders").select("id,order_number,customer_name,customer_phone,items,total_amount,booking_status,payment_status,fulfilment_status,collection_date,collection_slot,admin_notes,created_at").order("created_at",{ascending:false}).limit(200);
  if(error) throw new Error("Could not load diagnostic bookings.");
