@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import HealthStoreHeader from "../../_components/HealthStoreHeader";
 import Link from "next/link";
-import { addHealthCartItem } from "../../_components/cart";
+import { ProductCard } from "../../_components/HealthStoreHome";
 
-type PackageItem = { id:string; item_type:string; slug:string; title:string; category:string; description:string; inclusions:string[]; package_tests:Array<{slug:string;title:string;mappingStatus:string}>; sample_type:string|null; preparation:string|null; report_tat:string|null; price:number|null; mrp:number|null; is_active:boolean; provider_verified:boolean };
+type PackageItem = { id:string; item_type:"package"; slug:string; title:string; category:string; description:string; inclusions:string[]; package_tests:Array<{slug:string;title:string;mappingStatus:string}>; sample_type:string|null; preparation:string|null; report_tat:string|null; price:number|null; mrp:number|null; is_active:boolean; provider_verified:boolean };
 
 const collections: Record<string,{title:string;eyebrow:string;description:string;slugs:string[]}> = {
   "full-body": { title:"Full Body Health Checkup Packages", eyebrow:"Complete health screening", description:"Choose from our curated full body health checkup packages, from essential screening to more comprehensive options.", slugs:["basic-full-body-checkup","advanced-full-body-checkup","comprehensive-silver-full-body","comprehensive-gold-full-body","comprehensive-diamond-full-body","comprehensive-platinum-full-body","executive-health-checkup"] },
@@ -45,11 +45,7 @@ export default function HealthPackageCollectionPage() {
       <div className="rounded-3xl bg-gradient-to-br from-[#dff7f4] to-[#edf5ff] p-6 sm:p-8"><p className="text-xs font-bold uppercase tracking-widest text-[#078b8d]">{collection.eyebrow}</p><h1 className="mt-2 text-2xl font-extrabold sm:text-3xl">{collection.title}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{collection.description}</p></div>
       <div className="mt-6 flex items-center justify-between"><h2 className="text-lg font-extrabold">Available packages</h2><span className="text-xs font-semibold text-slate-500">{loading?"Loading…":`${visible.length} packages`}</span></div>
       {error&&<p className="mt-4 rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}
-      <div className="mt-4 space-y-3">{visible.map((p,index)=><article key={p.slug} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div className="flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#eaf8f7] text-lg font-black text-[#078b8d]">{index+1}</span><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-wide text-[#078b8d]">{p.category}</p><h3 className="mt-1 text-base font-extrabold leading-snug">{p.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{p.description||"Preventive health screening package"}</p></div></div>
-        <div className="mt-4 rounded-xl bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-800">MFIT Healthcare · In-house collection & report workflow</div>
-        <div className="mt-4 flex items-center justify-between gap-3"><span className="text-sm font-extrabold text-slate-800">{!p.provider_verified||p.price===null?"Price on confirmation":"₹"+Number(p.price).toLocaleString("en-IN")}</span><Link href={`/health-checkup/checkout?item=${encodeURIComponent(p.slug)}`} className="rounded-xl bg-[#08aeb1] px-5 py-3 text-xs font-extrabold text-white">VIEW PACKAGE</Link></div>
-      </article>)}</div>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{visible.map(p=><ProductCard key={p.slug} item={p} onAddToCart={(slug)=>{ const current=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const next=Array.isArray(current)?current.filter((x):x is string=>typeof x==="string"):[]; if(!next.includes(slug))next.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(next)); window.dispatchEvent(new Event("mfit-cart-updated")); }} />)}</div>
       {!loading&&!error&&visible.length===0&&<p className="mt-4 rounded-xl bg-white p-6 text-center text-sm text-slate-500">Packages for this collection are being added. Please check back soon.</p>}
       <p className="mt-6 text-[11px] leading-5 text-slate-400">Prices and package components are displayed only after MFIT verifies them with the performing laboratory.</p>
     </section>
