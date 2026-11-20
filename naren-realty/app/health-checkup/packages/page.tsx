@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { healthPackages } from "@/lib/health-catalog";
 
-const categories = ["All", "Full Body", "Men", "Women", "Senior Citizens", "Children", "Lifestyle", "Fitness"];
+const categories = ["All", "Full Body", "Men", "Women", "Senior Citizens", "Children", "Lifestyle", "Fitness", "Heart Health", "Diabetes", "Hormones", "Organ Health"];
 
 export default function HealthPackagesPage() {
   const [category, setCategory] = useState("All");
