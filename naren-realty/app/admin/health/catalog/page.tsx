@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { requireAdmin } from "../../../lib/supabase-server";
 import { bulkImportHealthCatalog, updateHealthCatalogItem } from "../actions";
 
 export const metadata={title:"MFIT Catalogue Management"};
-export default async function HealthCatalogAdminPage(){
+async function HealthCatalogAdminPageContent(){
  const {supabase}=await requireAdmin();
  const {data,error}=await supabase.from("health_catalog_items").select("slug,item_type,title,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").order("item_type").order("category").order("title");
  if(error) throw new Error("Could not load MFIT catalogue.");
@@ -19,4 +20,8 @@ export default async function HealthCatalogAdminPage(){
  <form action={updateHealthCatalogItem} className="mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2"><input type="hidden" name="slug" value={item.slug}/><label className="text-xs font-semibold">Price (INR)<input name="price" type="number" min="0" step="0.01" defaultValue={item.price??""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-xs font-semibold">MRP (INR)<input name="mrp" type="number" min="0" step="0.01" defaultValue={item.mrp??""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-xs font-semibold sm:col-span-2">Description<textarea name="description" rows={2} defaultValue={item.description||""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-xs font-semibold">Sample type<input name="sample_type" defaultValue={item.sample_type||""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-xs font-semibold">Report TAT<input name="report_tat" defaultValue={item.report_tat||""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-xs font-semibold sm:col-span-2">Preparation<textarea name="preparation" rows={2} defaultValue={item.preparation||""} className="mt-1 w-full rounded-lg border p-2"/></label><label className="flex items-center gap-2 text-xs"><input type="checkbox" name="provider_verified" defaultChecked={item.provider_verified}/> Lab partner verified</label><label className="flex items-center gap-2 text-xs"><input type="checkbox" name="is_active" defaultChecked={item.is_active}/> Publish to customer catalogue</label><div className="sm:col-span-2"><button className="rounded-lg bg-[#087f82] px-4 py-2 text-xs font-bold text-white">Save item</button></div></form>
  <p className="mt-2 text-[10px] text-slate-400">Slug: {item.slug} · Included markers: {(item.inclusions||[]).join(", ")||"Not yet specified"}</p></details>)}</section>
  </div></main>;
+}
+
+export default function HealthCatalogAdminPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-slate-50 p-8 text-center text-sm text-slate-500">Loading MFIT Healthcare admin…</main>}><HealthCatalogAdminPageContent /></Suspense>;
 }
