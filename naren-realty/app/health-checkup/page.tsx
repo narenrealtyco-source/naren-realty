@@ -219,6 +219,45 @@ export default function HealthPage() {
         </div>
       </section>
 
+
+      <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="rounded-2xl bg-white p-5 shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100 sm:p-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Simple steps, from home</p>
+          <h2 className="mt-2 max-w-3xl text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">How does home sample collection for lab tests work?</h2>
+          <div className="mt-6 space-y-6 sm:mt-8">
+            <div className="flex gap-4">
+              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#e8f8f6] text-2xl text-[#078b8d]">▣</span>
+              <div><h3 className="text-base font-extrabold">Booking completion</h3><p className="mt-1 text-sm leading-6 text-slate-600">Select the required tests or package and share your preferred home collection date and time.</p></div>
+            </div>
+            <div className="flex gap-4">
+              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#fff0ee] text-2xl text-[#c76c69]">⌂</span>
+              <div><h3 className="text-base font-extrabold">Home sample collection</h3><p className="mt-1 text-sm leading-6 text-slate-600">A collection professional visits your address at the confirmed time, subject to service availability in your area.</p></div>
+            </div>
+            <div className="flex gap-4">
+              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#f4f6df] text-2xl text-[#7c8a35]">➜</span>
+              <div><h3 className="text-base font-extrabold">Sample transfer to the lab</h3><p className="mt-1 text-sm leading-6 text-slate-600">Your sample is transported to the assigned laboratory following the applicable handling process.</p></div>
+            </div>
+            <div className="flex gap-4">
+              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#fff1e8] text-2xl text-[#d97842]">▤</span>
+              <div><h3 className="text-base font-extrabold">Online report delivery</h3><p className="mt-1 text-sm leading-6 text-slate-600">Reports are shared digitally through the contact details provided at booking. Report timelines and consultation options depend on the selected test or package.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#f0faf9] p-4 sm:grid-cols-4 sm:gap-4 sm:p-6">
+          <div className="flex flex-col items-center gap-2 px-1 py-2 text-center"><span className="text-3xl">⚗️</span><span className="text-xs font-semibold leading-5 text-[#27383a] sm:text-sm">Laboratory partner network</span></div>
+          <div className="flex flex-col items-center gap-2 px-1 py-2 text-center"><span className="text-3xl">🧪</span><span className="text-xs font-semibold leading-5 text-[#27383a] sm:text-sm">Test and package options</span></div>
+          <div className="flex flex-col items-center gap-2 px-1 py-2 text-center"><span className="text-3xl">🏠</span><span className="text-xs font-semibold leading-5 text-[#27383a] sm:text-sm">Home collection where available</span></div>
+          <div className="flex flex-col items-center gap-2 px-1 py-2 text-center"><span className="text-3xl">📋</span><span className="text-xs font-semibold leading-5 text-[#27383a] sm:text-sm">Digital report access</span></div>
+        </div>
+
+        <div className="mx-auto mt-8 max-w-2xl py-5 text-center">
+          <div className="mx-auto mb-5 h-px w-3/4 bg-gradient-to-r from-transparent via-[#b9d9d7] to-transparent" />
+          <p className="text-xl font-extrabold leading-relaxed tracking-tight text-[#aab8c0] sm:text-2xl">Making healthcare more understandable, accessible and convenient.</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">Service availability, collection slots and report timelines are confirmed during booking.</p>
+        </div>
+      </section>
+
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p></div>
