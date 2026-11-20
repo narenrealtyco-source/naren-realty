@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-async function signedReports(db: ReturnType<typeof createClient>, reports: Array<{report_title:string;storage_path:string;uploaded_at:string}>) {
+async function signedReports(db: any, reports: Array<{report_title:string;storage_path:string;uploaded_at:string}>) {
   return Promise.all(reports.map(async (report) => {
     const { data } = await db.storage.from("mfit-private-reports").createSignedUrl(report.storage_path, 300);
     return { title: report.report_title, uploadedAt: report.uploaded_at, url: data?.signedUrl || null };
