@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
 
-export const runtime = "nodejs";
-
 type CartLine = { slug: string; quantity: number };
 
 export async function POST(request: NextRequest) {
