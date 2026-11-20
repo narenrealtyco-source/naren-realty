@@ -25,6 +25,24 @@ const CBC_REFERENCE_PARAMETERS = [
   "Absolute Eosinophil Count"
 ];
 
+
+ // Public Tata 1mg homepage-listed individual test prices checked 21 Nov 2026.
+ // Reference-only, not MFIT selling prices or partner rates.
+const TATA1MG_SINGLE_TEST_REFERENCE: Record<string, { price: number; url: string }> = {
+  "complete blood count (cbc)": { price: 349, url: "https://www.1mg.com/labs" },
+  "cbc (complete blood count)": { price: 349, url: "https://www.1mg.com/labs" },
+  "liver function test (lft)": { price: 439, url: "https://www.1mg.com/labs" },
+  "lft (liver function test)": { price: 439, url: "https://www.1mg.com/labs" },
+  "thyroid profile total (t3, t4 & tsh)": { price: 539, url: "https://www.1mg.com/labs" },
+  "hba1c (glycosylated hemoglobin)": { price: 419, url: "https://www.1mg.com/labs" },
+  "pt inr (prothrombin time with inr)": { price: 379, url: "https://www.1mg.com/labs" },
+  "lipid profile": { price: 439, url: "https://www.1mg.com/labs" },
+  "fbs (fasting blood sugar)": { price: 89, url: "https://www.1mg.com/labs" },
+  "testosterone total": { price: 659, url: "https://www.1mg.com/labs" },
+  "lh & fsh": { price: 949, url: "https://www.1mg.com/labs" },
+  "dengue fever ns1 antigen": { price: 600, url: "https://www.1mg.com/labs" }
+};
+
 // Public Tata 1mg Pune catalogue facts checked on 21 Nov 2026.
  // Reference-only records are served by the Preview app; they are not written to Supabase
  // and must not be treated as MFIT-verified panels, MFIT prices, or bookable items.
@@ -140,8 +158,17 @@ export async function GET() {
   return NextResponse.json({
     items: [...(items || []).map(item => {
       const enriched = enrichTest(item);
+      const reference = item.item_type === "test"
+        ? TATA1MG_SINGLE_TEST_REFERENCE[String(item.title || "").trim().toLowerCase()]
+        : undefined;
       return {
         ...item,
+        ...(reference ? {
+          tata1mg_reference_price: reference.price,
+          tata1mg_reference_source: "Tata 1mg listing",
+          tata1mg_reference_checked_at: "2026-11-21",
+          tata1mg_reference_url: reference.url
+        } : {}),
         inclusions: enriched.inclusions,
         inclusionsNote: enriched.inclusionsNote,
         package_tests: (packageTests[item.id] || []).sort((a,b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title))
