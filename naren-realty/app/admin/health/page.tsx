@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "../../lib/supabase-server";
 
 export const metadata = { title: "MFIT Healthcare Admin | NAREN REALTY" };
 
 async function MfitAdminPageContent() {
+  await connection();
   let supabase;
   try { ({ supabase } = await requireAdmin()); } catch { redirect("/admin/login"); }
   const [catalog, orders, partners, slots] = await Promise.all([
