@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { addHealthCartItem } from "../_components/cart";
 
 type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];package_tests:Array<{slug:string;title:string;mappingStatus:string}>;sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 const categories=["All","Full Body","Men","Women","Senior Citizens","Children","Lifestyle","Fitness","Heart Health","Diabetes","Hormones","Organ Health"];
@@ -25,7 +26,7 @@ export default function HealthPackagesPage(){
       {p.inclusions?.length>0&&<><p className="mt-4 border-t border-slate-200 pt-3 text-xs font-bold text-slate-700">Package components currently listed</p><ul className="mt-2 grid gap-2 sm:grid-cols-2">{p.inclusions.map((x,i)=><li key={i} className="flex gap-2 text-xs leading-5 text-slate-600"><span className="text-[#078b8d]">•</span>{x}</li>)}</ul></>}
       <div className="mt-4 grid gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600"><p><b>Sample:</b> {p.sample_type||"To be confirmed"}</p><p><b>Preparation:</b> {p.preparation||"To be confirmed"}</p><p><b>Report time:</b> {p.report_tat||"To be confirmed"}</p></div>
     </div>}
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] text-slate-400">Price</p><p className="text-sm font-extrabold">{!p.provider_verified||p.price===null?"Price on confirmation":"₹"+Number(p.price).toLocaleString("en-IN")}</p></div><div className="flex gap-2"><Link href={`/health-checkup/package/${encodeURIComponent(p.slug)}`} className="rounded-xl border border-[#08aeb1] px-4 py-3 text-xs font-extrabold text-[#078b8d]">VIEW DETAILS</Link><Link href={`/health-checkup/checkout?item=${encodeURIComponent(p.slug)}`} className="rounded-xl bg-[#08aeb1] px-4 py-3 text-xs font-extrabold text-white">BOOK</Link></div></div>
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] text-slate-400">Price</p><p className="text-sm font-extrabold">{!p.provider_verified||p.price===null?"Price on confirmation":"₹"+Number(p.price).toLocaleString("en-IN")}</p></div><div className="grid grid-cols-3 gap-2"><button type="button" onClick={()=>addHealthCartItem(p.slug)} className="rounded-xl border border-[#08aeb1] px-2 py-3 text-[10px] font-extrabold text-[#078b8d]">ADD</button><Link href={`/health-checkup/package/${encodeURIComponent(p.slug)}`} className="rounded-xl border border-[#08aeb1] px-2 py-3 text-center text-[10px] font-extrabold text-[#078b8d]">DETAILS</Link><Link href={`/health-checkup/checkout?item=${encodeURIComponent(p.slug)}`} className="rounded-xl bg-[#08aeb1] px-2 py-3 text-center text-[10px] font-extrabold text-white">BOOK</Link></div></div>
    </article>)}</div>
    {!loading&&!error&&visible.length===0&&<p className="rounded-xl bg-white p-6 text-center text-sm text-slate-500">No matching packages found.</p>}
    <p className="mt-6 text-[11px] leading-5 text-slate-400">Prices and package panels are displayed only after MFIT verifies them with the performing laboratory. Clinical suitability should be confirmed with a qualified healthcare professional.</p>
