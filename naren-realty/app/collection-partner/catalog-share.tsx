@@ -28,7 +28,7 @@ export default function PartnerCatalogShare({partnerSlug}:{partnerSlug:string}){
    const png=await makePng(item),file=new File([png],item.slug+"-health-card.png",{type:"image/png"});
    if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:item.title,text,files:[file]});}
    else{window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener,noreferrer");}
-  }catch(e:any){if(e?.name!=="AbortError")window.open("https://wa.me/?text="+encodeURIComponent(text)," _blank");}
+  }catch(e:any){if(e?.name!=="AbortError")window.location.assign("https://wa.me/?text="+encodeURIComponent(text));}
   finally{setSharing(null);}
  }
  return <section className="mt-6 rounded-xl border bg-white p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="font-extrabold">Share Packages & Single Tests</h2><p className="mt-1 text-xs text-slate-500">Homepage catalogue · share a graphic card with a direct Book Now link</p></div><span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800">{items.length} items</span></div>
