@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-export default function PaymentReturnPage(){
+function PaymentReturnContent(){
   const params=useSearchParams();
   const orderId=params.get("order_id")||"";
   const [state,setState]=useState<"loading"|"paid"|"pending"|"error">("loading");
@@ -22,4 +22,9 @@ export default function PaymentReturnPage(){
     {reference&&<p className="mt-4 rounded-xl bg-slate-50 p-3 text-xs font-semibold">Reference: {reference}</p>}
     <Link href="/health-checkup" className="mt-6 inline-flex rounded-xl bg-[#078b8d] px-6 py-3 text-sm font-bold text-white">Back to MFIT Healthcare</Link>
   </section></main>;
+}
+
+
+export default function PaymentReturnPage(){
+  return <Suspense fallback={<main className="grid min-h-screen place-items-center bg-[#f7fafb] text-sm text-slate-500">Checking payment status…</main>}><PaymentReturnContent /></Suspense>;
 }
