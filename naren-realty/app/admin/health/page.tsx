@@ -36,14 +36,14 @@ async function MfitAdminPageContent() {
         {[
           ["Packages & Tests","Review catalogue items, update inclusions, prices and verification status","/admin/health/catalog"],
           ["Bookings & Fulfilment","Track booking, collection, sample processing and report status","/admin/health/bookings"],
-          ["Lab Partners","Maintain partner contacts, service areas and verification","/admin/health/labs"],
+          ["MFIT Lab Team","Create lab logins, manage collection boys and assignments","/admin/health/team"],
           ["Collection Slots","Manage collection areas, dates, capacity and time slots","/admin/health/slots"],
           ["Coupons & Family Discounts","Configure coupon campaigns and family member discounts","/admin/health/coupons"],
           ["Reports","Manage secure diagnostic report records","/admin/health/reports"],
           ["Customer Catalogue","Preview customer-facing packages and tests","/health-checkup/packages"]
         ].map(([title,desc,href])=><Link key={href} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-400"><h2 className="font-extrabold text-[#126d70]">{title}</h2><p className="mt-2 text-sm leading-5 text-slate-500">{desc}</p><span className="mt-4 inline-block text-xs font-bold text-teal-700">Open →</span></Link>)}
       </section>
-      <p className="mt-6 rounded-xl bg-amber-50 p-4 text-xs leading-5 text-amber-900">Catalogue items remain unpublished until MFIT verifies the exact panel, preparation, report time and price with its diagnostic partner. Cashfree is not enabled.</p>
+      <p className="mt-6 rounded-xl bg-amber-50 p-4 text-xs leading-5 text-amber-900">MFIT runs its own lab workflow. Prices are indicative reference prices and can be edited by Admin. Lab users only see orders assigned to the MFIT team.</p>
     </div>
   </main>;
 }

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     let couponDiscount = 0;
     let familyDiscount = 0;
     let couponCode: string | null = String(body?.couponCode || "").trim().toUpperCase() || null;
-    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.provider_verified && item.price !== null);
+    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.price !== null);
     if (allPricedAndVerified) {
       subtotal = Number(catalog.reduce((sum:number,item:any)=>sum + Number(item.price),0).toFixed(2));
       if (String(patient.relation || "Self") !== "Self") {
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success:true,reference,status:"pending_confirmation",
       quoteAvailable:subtotal !== null,subtotal,discount:couponDiscount,familyDiscount,total:subtotal === null ? null : Number((subtotal-couponDiscount-familyDiscount).toFixed(2)),
-      message:"Your request has been received. MFIT will verify the lab partner, exact test panel, final price and collection availability before confirming the booking."
+      message:"Your request has been received. MFIT will confirm collection availability and the selected test panel before confirming your booking."
     }, { status: 201 });
   } catch (error) {
     console.error("MFIT booking request error",error);
