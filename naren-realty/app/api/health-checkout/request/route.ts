@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     const dateParts = preferredDate.split("-").map(Number);
-    const date = /^\\d{4}-\\d{2}-\\d{2}$/.test(preferredDate) ? new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2])) : new Date(NaN);
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(preferredDate) ? new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2])) : new Date(NaN);
     if (Number.isNaN(date.getTime()) || date.getUTCFullYear() !== dateParts[0] || date.getUTCMonth() !== dateParts[1] - 1 || date.getUTCDate() !== dateParts[2]) return NextResponse.json({ error: "Please select a valid collection date." }, { status: 400 });
     if (lines.some((x:any) => typeof x.slug !== "string" || !Number.isInteger(x.quantity) || x.quantity !== 1) || new Set(lines.map((x:any)=>x.slug)).size !== lines.length) {
       return NextResponse.json({ error: "Invalid selected items." }, { status: 400 });
