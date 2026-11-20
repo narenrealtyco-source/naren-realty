@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/supabase-server";
+import { requireAdmin } from "../../lib/supabase-server";
 
 export const metadata = { title: "MFIT Healthcare Admin | NAREN REALTY" };
 
