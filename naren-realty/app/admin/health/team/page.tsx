@@ -3,6 +3,7 @@ import {redirect} from "next/navigation";
 import {connection} from "next/server";
 import {requireAdmin} from "../../../lib/supabase-server";
 import {createMfitLabStaff,setMfitLabStaffActive,createCollectionBoy} from "../lab-actions";
+export const instant = false;
 export const metadata={title:"MFIT Lab Team Management"};
 export default async function MfitTeamPage(){
  await connection();
