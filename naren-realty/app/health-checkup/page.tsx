@@ -302,7 +302,7 @@ export default function HealthPage() {
       <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 rounded-b-[28px] border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)]">
         <div className="mx-auto grid h-[76px] max-w-3xl grid-cols-4">
           <a href="#top" className="flex flex-col items-center justify-center gap-1.5 font-bold text-[#078b8d]" aria-label="Home">
-            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="24" cy="24" r="20"/><path d="M27 15 18 24l9 9M18 24h17"/></svg><span className="text-[13px] font-bold leading-none">Home</span>
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="m5 22 19-16 19 16"/><path d="M10 19v22h28V19M19 41V27h10v14"/></svg><span className="text-[13px] font-bold leading-none">Home</span>
           </a>
           <a href="/health-checkup/tests" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Lab Tests">
             <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 5h12M20 5v15L9 39a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 20V5"/><path d="M14 33h20M18 27h12"/></svg><span className="text-[13px] leading-none">Lab Tests</span>
