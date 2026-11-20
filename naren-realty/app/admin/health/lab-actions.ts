@@ -110,7 +110,7 @@ export async function assignMfitRequest(formData:FormData) {
   db.from("health_lab_partners").select("id").eq("is_internal",true).single(),
   db.from("health_collection_boys").select("id,lab_partner_id,is_active").eq("id",boy_id).single()
  ]);
- if(boyError||!boy?.is_active||boy.lab_partner_id!==partner?.id) throw new Error("Invalid collection boy.");
+ if(!partner||boyError||!boy?.is_active||boy.lab_partner_id!==partner.id) throw new Error("Invalid collection boy.");
  const {error}=await db.from("health_booking_requests").update({lab_partner_id:partner.id,assigned_collection_boy_id:boy_id,assigned_at:new Date().toISOString(),sample_status:"assigned",status:"confirmed",updated_at:new Date().toISOString()}).eq("id",request_id);
  if(error) throw new Error("Could not assign booking request.");
  revalidatePath("/admin/health/bookings"); revalidatePath("/lab");
