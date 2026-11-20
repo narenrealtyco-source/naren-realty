@@ -120,7 +120,7 @@ export default function HealthPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {filtered.map((item) => (
-            <a key={item.title} href={item.title === "Full Body Checkup" ? "/health-checkup/full-body-checkup" : "#contact"} className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+            <a key={item.title} href="/health-checkup/packages" className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
               <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span></div>
               <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span></div>
             </a>
@@ -132,7 +132,7 @@ export default function HealthPage() {
       <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {services.map((item) => <a key={item.title} href="#contact" className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></a>)}
+          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/packages"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
         </div>
       </section>
 
@@ -155,7 +155,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><a href="#contact" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">ENQUIRE</a></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/tests" : "/health-checkup/packages"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
           </article>)}
         </div>
       </section>
@@ -180,7 +180,7 @@ export default function HealthPage() {
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <a href="#contact" className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">BOOK</a>
+                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages" : "/health-checkup/tests"} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
               </div>
             </article>
           ))}
