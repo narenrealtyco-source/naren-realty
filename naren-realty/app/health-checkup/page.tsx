@@ -1,57 +1,161 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
-const categories = [
-  { key: "blood-tests", title: "Blood Tests", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1100&q=90" },
-  { key: "full-body-checkups", title: "Full Body Check-ups", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1100&q=90" },
-  { key: "home-sample-collection", title: "Home Sample Collection", image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=1100&q=90" },
-  { key: "specialist-consultation", title: "Specialist Consultation", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1100&q=90" },
-  { key: "womens-mens-health", title: "Women's & Men's Health", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1100&q=90" },
-  { key: "physiotherapy", title: "Physiotherapy", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1100&q=90" },
+const quickActions = [
+  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "#packages", tone: "bg-[#eaf8f7] text-[#078b8d]" },
+  { title: "Book via", subtitle: "Call", symbol: "☎", href: "#contact", tone: "bg-[#edf5ff] text-[#2476bd]" },
+  { title: "Book via", subtitle: "WhatsApp", symbol: "◉", href: "#contact", tone: "bg-[#eaf8ef] text-[#23965a]" },
+  { title: "Upload", subtitle: "Prescription", symbol: "▤", href: "#prescription", tone: "bg-[#fff0f5] text-[#c45a87]" },
 ];
 
-function HealthContent() {
-  const params = useSearchParams();
-  const selected = params.get("category") ?? "";
+const categories = [
+  { title: "Full Body Checkup", subtitle: "Explore preventive health packages", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85", tag: "Popular" },
+  { title: "Lifestyle Checkup", subtitle: "Health screening for everyday wellbeing", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+  { title: "Women's Health", subtitle: "Screening and wellness options", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+  { title: "Senior Citizen Care", subtitle: "Health checkup options for seniors", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+];
+
+const services = [
+  { title: "Blood Tests", description: "Browse individual lab tests", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85" },
+  { title: "Home Sample Collection", description: "Ask about sample collection at home", image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" },
+  { title: "Doctor Consultation", description: "Explore consultation options", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=85" },
+];
+
+function Brand() {
   return (
-    <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
-      <header className="bg-[#10243A] px-4 py-4 text-white sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-          <Link href="/" className="text-lg font-extrabold sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></Link>
-          <Link href="/" className="text-sm font-semibold text-amber-300 hover:text-amber-200">← Home</Link>
-        </div>
-      </header>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Discover health services</p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#10243A] sm:text-4xl">Health & Care</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Explore health services and care options.</p>
-          </div>
-          <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#10243A] shadow-sm ring-1 ring-slate-200">Health</span>
-        </div>
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
-          {categories.map((category) => (
-            <Link key={category.key} href={selected === category.key ? "/health-checkup" : `/health-checkup?category=${category.key}`} aria-label={category.title} aria-current={selected === category.key ? "page" : undefined}
-              className={`group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-[#10243A] shadow-md ring-1 transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 ${selected === category.key ? "ring-2 ring-amber-400" : "ring-slate-900/10"}`}>
-              <img src={category.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07182b]/95 via-[#07182b]/15 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
-                <h2 className="text-sm font-extrabold leading-tight text-white drop-shadow sm:text-base lg:text-lg">{category.title}</h2>
-                <span className="mb-0.5 grid size-7 shrink-0 place-items-center rounded-full border border-white/40 bg-white/15 text-sm font-bold text-white backdrop-blur-sm transition group-hover:bg-amber-400 group-hover:text-[#10243A]">↗</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-        <p className="mt-6 text-center text-xs text-slate-500">Verified service partners and booking options will appear here as they join.</p>
-      </div>
-    </main>
+    <Link href="/health-checkup" aria-label="MFIT Healthcare home" className="flex shrink-0 items-center gap-2.5">
+      <span className="grid size-11 place-items-center rounded-md bg-[#08b8bb] text-3xl font-black leading-none text-white">M</span>
+      <span className="leading-none">
+        <span className="block text-[25px] font-extrabold tracking-[-0.07em] text-[#15191b]">FIT</span>
+        <span className="mt-1 block text-[12px] font-semibold tracking-[0.01em] text-[#222729]">Healthcare</span>
+      </span>
+    </Link>
   );
 }
 
 export default function HealthPage() {
-  return <Suspense fallback={<main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading health services...</main>}><HealthContent /></Suspense>;
+  const [query, setQuery] = useState("");
+  const [fileName, setFileName] = useState("");
+  const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
+
+  return (
+    <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
+      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
+          <Brand />
+          <a href="#contact" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82] sm:text-sm">Contact us</a>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8">
+        <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
+        <label className="flex h-14 items-center gap-3 rounded-full border border-[#aab6c2] bg-white px-5 shadow-[0_4px_16px_rgba(15,40,55,0.04)] focus-within:border-[#08aeb1] focus-within:ring-2 focus-within:ring-[#08b8bb]/15">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search health packages and services" className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
+        </label>
+
+        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
+          {quickActions.map((action) => (
+            <a key={action.subtitle} href={action.href} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
+              <span className="mb-2 text-[30px] font-semibold leading-none sm:text-[38px]">{action.symbol}</span>
+              <span className="text-[11px] leading-tight opacity-80 sm:text-sm">{action.title}</span>
+              <strong className="mt-1 text-[12px] leading-tight sm:text-base">{action.subtitle}</strong>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
+        <div className="relative isolate min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
+          <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85" alt="Healthcare professional" className="absolute inset-y-0 right-0 -z-10 h-full w-[52%] object-cover object-center opacity-55 sm:w-[42%]" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#075c78] via-[#087f98]/95 to-transparent" />
+          <div className="max-w-[72%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#baf4ee] sm:text-xs">Your health, in focus</p>
+            <h1 className="mt-2 text-[25px] font-extrabold leading-[1.08] tracking-tight sm:text-4xl">Make your health a priority.</h1>
+            <p className="mt-2 max-w-md text-xs leading-5 text-white/90 sm:text-base">Explore checkup options and healthcare services with MFIT Healthcare.</p>
+            <a href="#packages" className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-xs font-extrabold text-[#075c78] shadow-sm transition hover:bg-[#e9fbf8] sm:text-sm">Explore packages <span className="ml-2">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section id="packages" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p>
+            <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health checkup packages</h2>
+          </div>
+          <span className="pb-1 text-xs font-semibold text-slate-500">{filtered.length} options</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {filtered.map((item) => (
+            <a key={item.title} href="#contact" className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+              <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]">
+                <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span>
+              </div>
+              <div className="p-3">
+                <h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3>
+                <p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p>
+                <span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span>
+              </div>
+            </a>
+          ))}
+        </div>
+        {filtered.length === 0 && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No matching packages found. Try another search.</p>}
+      </section>
+
+      <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
+        <div className="mb-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          {services.map((item) => (
+            <a key={item.title} href="#contact" className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
+              <img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" />
+              <span className="flex min-w-0 flex-col justify-center p-3">
+                <strong className="text-sm font-extrabold">{item.title}</strong>
+                <span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span>
+                <span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <h2 className="font-extrabold">Have a prescription?</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p>
+          </div>
+          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white transition hover:bg-[#066c70]">
+            Select prescription
+            <input type="file" accept="image/*,.pdf" className="sr-only" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")} />
+          </label>
+          {fileName && <p className="text-xs font-semibold text-[#087f82]" role="status">Selected: {fileName}</p>}
+        </div>
+      </section>
+
+      <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6">
+        <div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p>
+          <h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p>
+          <p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p>
+        </div>
+      </section>
+
+      <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)] backdrop-blur">
+        <div className="mx-auto grid h-[66px] max-w-xl grid-cols-4">
+          <a href="#top" className="flex flex-col items-center justify-center gap-1 text-[#078b8d]"><span className="text-xl">⌂</span><span className="text-[10px] font-bold">Home</span></a>
+          <a href="#packages" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">⚕</span><span className="text-[10px] font-semibold">Packages</span></a>
+          <a href="#prescription" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">▤</span><span className="text-[10px] font-semibold">Prescription</span></a>
+          <a href="#contact" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">♡</span><span className="text-[10px] font-semibold">Contact</span></a>
+        </div>
+      </nav>
+    </main>
+  );
 }
