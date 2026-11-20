@@ -1,9 +1,11 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
+import {connection} from "next/server";
 import {requireAdmin} from "../../../lib/supabase-server";
 import {createMfitLabStaff,setMfitLabStaffActive,createCollectionBoy} from "../lab-actions";
 export const metadata={title:"MFIT Lab Team Management"};
 export default async function MfitTeamPage(){
+ await connection();
  let supabase;try{({supabase}=await requireAdmin())}catch{redirect("/admin/login")}
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!key)throw new Error("Admin service unavailable.");
  const {createClient}=await import("@supabase/supabase-js");const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}});
