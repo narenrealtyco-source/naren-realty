@@ -6,6 +6,7 @@ type Item={id:string;slug:string;item_type:string;title:string;category:string;d
 const categories=["All","Full Body","Men","Women","Senior Citizens","Children","Lifestyle","Fitness","Heart Health","Diabetes","Hormones","Organ Health"];
 export default function HealthPackagesPage(){
  const [items,setItems]=useState<Item[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[category,setCategory]=useState("All"),[query,setQuery]=useState(""),[expanded,setExpanded]=useState<string|null>(null);
+ useEffect(()=>{const params=new URLSearchParams(window.location.search);const initialCategory=params.get("category");const initialQuery=params.get("q");if(initialCategory)setCategory(initialCategory);if(initialQuery)setQuery(initialQuery);},[]);
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Unable to load packages");setItems((d.items||[]).filter((x:Item)=>x.item_type==="package"));}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[]);
  const visible=useMemo(()=>items.filter(p=>(category==="All"||p.category===category)&&(p.title+" "+p.description+" "+(p.inclusions||[]).join(" ")).toLowerCase().includes(query.toLowerCase())).sort((a,b)=>a.title.localeCompare(b.title)),[items,category,query]);
  return <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
