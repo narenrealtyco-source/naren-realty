@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
 import { addHealthCartItem } from "../_components/cart";
 
@@ -12,7 +13,7 @@ export default function ScansPage(){
  const [error,setError]=useState("");
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error||"Unable to load imaging catalogue.");setScans((data.items||[]).filter((item:ScanItem)=>item.item_type==="scan"&&item.is_active));}).catch(reason=>setError(reason instanceof Error?reason.message:"Unable to load scans.")).finally(()=>setLoading(false));},[]);
  return <main className="min-h-screen bg-[#f6f9fa] pb-24 text-[#172326]">
-  <header className="border-b border-slate-100 bg-white px-4 py-4"><div className="mx-auto flex max-w-5xl items-center gap-3"><Link href="/health-checkup" className="grid size-10 place-items-center rounded-full border text-2xl">‹</Link><div><p className="text-[10px] font-extrabold uppercase tracking-widest text-[#078b8d]">MFIT Healthcare</p><h1 className="text-lg font-extrabold">Scans & imaging</h1></div><Link href="/health-checkup/cart" className="ml-auto rounded-lg border border-[#b9dedd] px-3 py-2 text-xs font-extrabold text-[#087f82]">Cart</Link></div></header>
+  <HealthStoreHeader title="Scans & Imaging" backHref="/health-checkup" />
   <section className="mx-auto max-w-5xl px-4 py-6">
    <div className="grid overflow-hidden rounded-3xl bg-gradient-to-r from-[#075c78] to-[#4bb9be] text-white md:grid-cols-[1fr_.8fr]"><div className="p-6 sm:p-8"><p className="text-[10px] font-extrabold uppercase tracking-widest text-[#baf4ee]">Diagnostic imaging</p><h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Imaging services, made easier to explore.</h2><p className="mt-3 text-sm leading-6 text-white/85">Review available scans and imaging services listed by MFIT. Centre, appointment and pricing details are confirmed before booking.</p></div><div className="hidden min-h-48 md:block"><img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" alt="Healthcare diagnostic service" className="h-full w-full object-cover"/></div></div>
    <div className="mt-6 flex items-center justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-widest text-[#078b8d]">MFIT catalogue</p><h2 className="mt-1 text-xl font-extrabold">Available scans</h2></div><Link href="/health-checkup/my-orders" className="text-xs font-bold text-[#078b8d]">Track order →</Link></div>
