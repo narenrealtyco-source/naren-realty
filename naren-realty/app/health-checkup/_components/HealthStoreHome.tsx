@@ -213,7 +213,7 @@ export default function HealthStoreHome() {
       <section className="mx-auto mt-10 max-w-7xl px-4 sm:px-6">
         <SectionHeading eyebrow="Individual diagnostics" title="Popular lab tests" href="/health-checkup/tests" />
         {loading ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{[1,2,3,4].map((x) => <div key={x} className="h-64 animate-pulse rounded-2xl bg-white" />)}</div>
-          : <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{popularTests.map((item) => <ProductCard key={item.slug} item={item} />)}</div>}
+          : <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{popularTests.map((item) => <ProductCard key={item.slug} item={item} onAddToCart={addToCart} />)}</div>}
         {!loading && popularTests.length === 0 && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Individual tests will appear here when they are activated in the MFIT catalogue.</p>}
       </section>
 
