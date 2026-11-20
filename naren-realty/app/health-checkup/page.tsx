@@ -17,6 +17,18 @@ const categories = [
   { title: "Senior Citizen Care", subtitle: "Health checkup options for seniors", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
 ];
 
+const audienceCategories = [
+  { title: "Adult Women", image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=85" },
+  { title: "Senior Women", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=700&q=85" },
+  { title: "Fitness", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=85" },
+];
+
+const recommendedPackages = [
+  { title: "Comprehensive Full Body Checkup", detail: "Explore a broad preventive screening option", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=85", label: "Full body" },
+  { title: "Complete Blood Count (CBC)", detail: "Ask about this individual blood test", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=85", label: "Lab test" },
+  { title: "Women's Health Checkup", detail: "Explore available women's health options", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=800&q=85", label: "Women's health" },
+];
+
 const services = [
   { title: "Blood Tests", description: "Browse individual lab tests", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85" },
   { title: "Home Sample Collection", description: "Ask about sample collection at home", image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" },
@@ -41,7 +53,7 @@ export default function HealthPage() {
   const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
 
   return (
-    <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
+    <main id="top" className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
       <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
@@ -55,7 +67,6 @@ export default function HealthPage() {
           <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search health packages and services" className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
         </label>
-
         <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map((action) => (
             <a key={action.subtitle} href={action.href} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
@@ -82,24 +93,14 @@ export default function HealthPage() {
 
       <section id="packages" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
         <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p>
-            <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health checkup packages</h2>
-          </div>
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health checkup packages</h2></div>
           <span className="pb-1 text-xs font-semibold text-slate-500">{filtered.length} options</span>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {filtered.map((item) => (
             <a key={item.title} href="#contact" className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]">
-                <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span>
-              </div>
-              <div className="p-3">
-                <h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3>
-                <p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p>
-                <span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span>
-              </div>
+              <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span></div>
+              <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span></div>
             </a>
           ))}
         </div>
@@ -107,46 +108,45 @@ export default function HealthPage() {
       </section>
 
       <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
-        <div className="mb-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2>
-        </div>
+        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {services.map((item) => (
-            <a key={item.title} href="#contact" className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
-              <img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" />
-              <span className="flex min-w-0 flex-col justify-center p-3">
-                <strong className="text-sm font-extrabold">{item.title}</strong>
-                <span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span>
-                <span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span>
-              </span>
-            </a>
-          ))}
+          {services.map((item) => <a key={item.title} href="#contact" className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></a>)}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">Explore health categories</h2><span className="text-xs font-semibold text-slate-400">Swipe to explore</span></div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {audienceCategories.map((item) => <a key={item.title} href="#recommended" className="w-[72%] shrink-0 snap-start sm:w-auto">
+            <div className="overflow-hidden rounded-2xl bg-[#fbeef0]"><img src={item.image} alt={item.title} loading="lazy" className="h-[145px] w-full object-cover sm:h-[175px]" /></div>
+            <h3 className="mt-2 text-center text-base font-semibold text-[#252b2e]">{item.title}</h3>
+          </a>)}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
+        <a href="#recommended" className="flex min-h-[76px] items-center justify-center rounded-2xl bg-[#08b8bb] px-4 py-5 text-center text-base font-extrabold text-white shadow-[0_8px_18px_rgba(8,184,187,0.2)] transition hover:bg-[#079da0] sm:text-lg">Explore Packages for Women <span className="ml-2">→</span></a>
+      </section>
+
+      <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
+        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended for you</h2></div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><a href="#contact" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">ENQUIRE</a></div>
+          </article>)}
         </div>
       </section>
 
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div>
-            <h2 className="font-extrabold">Have a prescription?</h2>
-            <p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p>
-          </div>
-          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white transition hover:bg-[#066c70]">
-            Select prescription
-            <input type="file" accept="image/*,.pdf" className="sr-only" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")} />
-          </label>
+          <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p></div>
+          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white transition hover:bg-[#066c70]">Select prescription<input type="file" accept="image/*,.pdf" className="sr-only" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")} /></label>
           {fileName && <p className="text-xs font-semibold text-[#087f82]" role="status">Selected: {fileName}</p>}
         </div>
       </section>
 
-      <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6">
-        <div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p>
-          <h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p>
-          <p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p>
-        </div>
-      </section>
+      <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6"><div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p><p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p></div></section>
 
       <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)] backdrop-blur">
         <div className="mx-auto grid h-[66px] max-w-xl grid-cols-4">
