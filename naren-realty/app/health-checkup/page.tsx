@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 const quickActions = [
@@ -73,6 +73,18 @@ export default function HealthPage() {
   const [query, setQuery] = useState("");
   const [fileName, setFileName] = useState("");
   const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
+  const [catalogItems, setCatalogItems] = useState<Array<{id:string;slug:string;item_type:string;title:string;category:string;description:string|null;inclusions:string[];inclusionsNote:string|null;price:number|null;mrp:number|null;is_active:boolean;package_tests?:Array<{slug:string;title:string;inclusions:string[];inclusionsNote:string|null}>}>>([]);
+  useEffect(() => {
+    fetch("/api/health-catalog", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Catalogue unavailable");
+        const data = await response.json();
+        setCatalogItems((data.items || []).filter((item: {is_active:boolean}) => item.is_active));
+      })
+      .catch(() => setCatalogItems([]));
+  }, []);
+  const homepageTests = catalogItems.filter((item) => item.item_type === "test").slice(0, 6);
+  const homepagePackages = catalogItems.filter((item) => item.item_type === "package").slice(0, 6);
   const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
 
   return (
@@ -133,7 +145,7 @@ export default function HealthPage() {
       <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/packages?category=Full%20Body"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
+          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/packages?category=Full%20Body"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#e1f7f3] via-[#effbfa] to-[#e7f0ff] sm:h-32 sm:w-32">{item.title === "Blood Tests" ? <svg viewBox="0 0 96 96" className="h-16 w-16 sm:h-[76px] sm:w-[76px]" aria-hidden="true"><path d="M48 9C38 25 22 43 22 59a26 26 0 0 0 52 0C74 43 58 25 48 9Z" fill="#0aa6a4" opacity=".16"/><path d="M48 19C39 34 29 46 29 59a19 19 0 0 0 38 0C67 46 57 34 48 19Z" fill="#07999b"/><path d="M39 59c0-7 4-13 9-19" fill="none" stroke="white" strokeLinecap="round" strokeWidth="5"/><circle cx="63" cy="31" r="8" fill="#fff" opacity=".8"/></svg> : <svg viewBox="0 0 96 96" className="h-16 w-16 sm:h-[76px] sm:w-[76px]" aria-hidden="true"><rect x="17" y="20" width="62" height="56" rx="16" fill="#0aa6a4" opacity=".16"/><path d="M30 48h36M48 30v36" stroke="#07999b" strokeWidth="8" strokeLinecap="round"/><circle cx="70" cy="27" r="7" fill="#5bc7c0"/></svg>}</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
         </div>
       </section>
 
@@ -154,41 +166,51 @@ export default function HealthPage() {
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended for you</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/test/cbc-complete-blood-count" : item.label === "Women's health" ? "/health-checkup/packages?category=Women" : "/health-checkup/packages?category=Full%20Body"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
-          </article>)}
+          {homepagePackages.slice(0, 3).map((item, index) => (
+            <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-[#dceeed] bg-white shadow-[0_5px_18px_rgba(15,40,55,0.06)] sm:w-auto">
+              <div className="relative flex h-[142px] items-end overflow-hidden bg-gradient-to-br from-[#e5f8f5] via-[#effafa] to-[#e7f0ff] p-4">
+                <span className="absolute right-5 top-3 grid size-20 place-items-center rounded-[28px] border border-white/80 bg-white/70 text-4xl font-black text-[#07999b] shadow-sm">{index === 0 ? "✚" : index === 1 ? "♡" : "◈"}</span>
+                <span className="relative rounded-full bg-white px-3 py-1.5 text-[10px] font-bold text-[#087f82]">MFIT HEALTH CHECKUP</span>
+              </div>
+              <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || "Explore package details and included tests."}</p><p className="mt-3 text-sm font-bold text-[#172326]">{item.price == null ? "Price on enquiry" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-[#078b8d] text-sm font-extrabold text-white">VIEW PACKAGE</Link></div>
+            </article>
+          ))}
+          {homepagePackages.length === 0 && <p className="rounded-xl bg-white p-4 text-sm text-slate-500">Health packages will appear here when the catalogue is available.</p>}
         </div>
       </section>
 
       <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-        <div className="mb-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Most booked health checkups</h2>
-        </div>
+        <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health packages & individual tests</h2></div>
         <div className="mb-5 flex gap-2">
-          <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
-          <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Tests</button>
+          <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#087f82] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
+          <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#087f82] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Individual tests</button>
         </div>
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {(mostBookedTab === "packages" ? mostBookedPackages : mostBookedTests).map((item) => (
-            <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-              <div className="relative h-[205px] overflow-hidden bg-[#eaf7f8]">
-                <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
-                <span className="absolute left-3 top-3 rounded-br-xl rounded-tl-xl bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">{item.tag}</span>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {(mostBookedTab === "packages" ? homepagePackages : homepageTests).map((item, index) => (
+            <article key={item.slug} className="overflow-hidden rounded-2xl border border-[#dceeed] bg-white shadow-[0_4px_18px_rgba(15,40,55,0.055)]">
+              <div className="flex min-h-[116px] items-center justify-between gap-3 bg-gradient-to-r from-[#e8f8f5] via-[#f1fbfa] to-[#edf3ff] px-5 py-4">
+                <div><span className="inline-flex rounded-full bg-white px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#087f82]">{mostBookedTab === "tests" ? "MFIT LAB TEST" : "MFIT PACKAGE"}</span><p className="mt-3 text-xs font-semibold text-[#5c7475]">{item.category || "Health"}</p></div>
+                <span aria-hidden="true" className="grid size-[68px] shrink-0 place-items-center rounded-[22px] border border-white bg-white/80 text-3xl font-black text-[#07999b] shadow-sm">{mostBookedTab === "tests" ? (item.slug === "cbc-complete-blood-count" ? "＋" : "◈") : "✚"}</span>
               </div>
               <div className="p-4">
-                <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
-                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages?category=Full%20Body" : "/health-checkup/test/" + ("slug" in item ? item.slug : "cbc-complete-blood-count")} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <h3 className="min-h-[48px] text-base font-extrabold leading-snug text-[#202629]">{item.title}</h3>
+                <p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.description || (mostBookedTab === "tests" ? "Individual diagnostic test" : "Preventive health screening package")}</p>
+                <p className="mt-3 text-sm font-bold text-[#172326]">{item.price == null ? "Price on enquiry" : "₹" + Number(item.price).toLocaleString("en-IN")}</p>
+                {mostBookedTab === "tests" && item.inclusions?.length > 0 && <details className="mt-4 rounded-xl border border-[#dceeed] bg-[#f8fcfb]">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 text-xs font-extrabold text-[#087f82] [&::-webkit-details-marker]:hidden"><span>View test parameters ({item.inclusions.length})</span><span className="text-base">⌄</span></summary>
+                  <div className="border-t border-[#e3efed] px-3 py-3"><ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">{item.inclusions.map((parameter, i) => <li key={i} className="flex items-start gap-2 text-xs leading-5 text-slate-700"><span className="font-bold text-[#08a7a5]">✓</span>{parameter}</li>)}</ul>{item.inclusionsNote && <p className="mt-3 text-[11px] leading-5 text-amber-800">{item.inclusionsNote}</p>}</div>
+                </details>}
+                {mostBookedTab === "packages" && (item.package_tests?.length ?? 0) > 0 && <details className="mt-4 rounded-xl border border-[#dceeed] bg-[#f8fcfb]">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 text-xs font-extrabold text-[#087f82] [&::-webkit-details-marker]:hidden"><span>View included tests ({(item.package_tests?.length ?? 0)})</span><span className="text-base">⌄</span></summary>
+                  <div className="space-y-2 border-t border-[#e3efed] px-3 py-3">{(item.package_tests || []).map((test) => <details key={test.slug} className="rounded-lg bg-white p-2"><summary className="cursor-pointer text-xs font-bold text-slate-700">{test.title} <span className="font-normal text-slate-400">({test.inclusions?.length || 0} parameters)</span></summary>{test.inclusions?.length > 0 && <ul className="mt-2 grid gap-1 pl-2">{test.inclusions.map((parameter, i) => <li key={i} className="text-[11px] leading-4 text-slate-600">• {parameter}</li>)}</ul>}{test.inclusionsNote && <p className="mt-2 text-[10px] leading-4 text-amber-800">{test.inclusionsNote}</p>}</details>)}</div>
+                </details>}
+                <Link href={mostBookedTab === "tests" ? "/health-checkup/test/" + encodeURIComponent(item.slug) : "/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-[#078b8d] px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#066f72]">{mostBookedTab === "tests" ? "VIEW TEST & BOOK" : "VIEW PACKAGE & BOOK"}</Link>
               </div>
             </article>
           ))}
+          {(mostBookedTab === "packages" ? homepagePackages : homepageTests).length === 0 && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Catalogue items will appear here when available.</p>}
         </div>
-        <div className="mx-auto h-1 w-2/3 rounded-full bg-slate-200 sm:hidden"><div className="h-1 w-1/4 rounded-full bg-[#172326]" /></div>
       </section>
-
 
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl bg-[#fde4e1]">
