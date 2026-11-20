@@ -109,3 +109,85 @@ export async function addHealthLabPartner(formData: FormData) {
   if(error) throw new Error("Could not add lab partner: "+error.message);
   revalidatePath("/admin/health/labs");
 }
+
+export async function updateHealthPackageTests(formData: FormData) {
+  const packageSlug=String(formData.get("package_slug")||"");
+  const raw=String(formData.get("test_slugs")||"");
+  const slugs=[...new Set(raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
+  if(!packageSlug || slugs.length>150 || slugs.some(x=>!/^[a-z0-9-]{3,100}$/.test(x))) throw new Error("Enter valid test slugs, one per line.");
+  const {supabase}=await requireAdmin();
+  const {data:pkg,error:pkgError}=await supabase.from("health_catalog_items").select("id,item_type").eq("slug",packageSlug).single();
+  if(pkgError || pkg?.item_type!=="package") throw new Error("Package not found.");
+  const {data:tests,error:testError}=slugs.length?await supabase.from("health_catalog_items").select("id,slug,item_type").in("slug",slugs):{data:[],error:null};
+  if(testError || (tests||[]).length!==slugs.length || (tests||[]).some(x=>x.item_type!=="test")) throw new Error("Every mapped slug must belong to an existing single test.");
+  const {error:deleteError}=await supabase.from("health_package_test_items").delete().eq("package_id",pkg.id);
+  if(deleteError) throw new Error("Could not replace package test mapping.");
+  if(tests?.length){
+    const rows=tests.map((x:any,index:number)=>({package_id:pkg.id,test_id:x.id,sort_order:index,mapping_status:"pending",mapping_source:"admin_verified_slug"}));
+    const {error}=await supabase.from("health_package_test_items").insert(rows);
+    if(error) throw new Error("Could not save package test mapping: "+error.message);
+  }
+  revalidatePath("/admin/health/catalog");
+  revalidatePath("/health-checkup/packages");
+  revalidatePath("/health-checkup/checkout");
+}
+
+export async function createHealthCoupon(formData: FormData) {
+  const code=String(formData.get("code")||"").trim().toUpperCase();
+  const discount_type=String(formData.get("discount_type")||"percentage");
+  const discount_value=Number(formData.get("discount_value")||0);
+  const maxRaw=String(formData.get("max_discount")||"").trim();
+  const min_order_amount=Number(formData.get("min_order_amount")||0);
+  const usageRaw=String(formData.get("usage_limit")||"").trim();
+  const applicable_item_types=["package","test","scan"].filter(x=>formData.get("type_"+x)==="on");
+  if(!/^[A-Z0-9_-]{3,30}$/.test(code) || !["percentage","fixed"].includes(discount_type) || !Number.isFinite(discount_value) || discount_value<=0 || (discount_type==="percentage"&&discount_value>100) || !Number.isFinite(min_order_amount) || min_order_amount<0 || !applicable_item_types.length) throw new Error("Enter valid coupon settings.");
+  const max_discount=maxRaw===""?null:Number(maxRaw),usage_limit=usageRaw===""?null:Number(usageRaw);
+  if((max_discount!==null&&(!Number.isFinite(max_discount)||max_discount<0))||(usage_limit!==null&&(!Number.isInteger(usage_limit)||usage_limit<1))) throw new Error("Invalid maximum discount or usage limit.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_coupons").insert({code,discount_type,discount_value,max_discount,min_order_amount,usage_limit,applicable_item_types,is_active:formData.get("is_active")==="on",valid_from:String(formData.get("valid_from")||"")||null,valid_until:String(formData.get("valid_until")||"")||null});
+  if(error) throw new Error("Could not create coupon: "+error.message);
+  revalidatePath("/admin/health/coupons");
+}
+
+export async function toggleHealthCoupon(formData: FormData) {
+  const id=String(formData.get("coupon_id")||"");
+  const is_active=String(formData.get("is_active")||"")==="true";
+  if(!id) throw new Error("Coupon ID is required.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_coupons").update({is_active}).eq("id",id);
+  if(error) throw new Error("Could not update coupon: "+error.message);
+  revalidatePath("/admin/health/coupons");
+}
+
+export async function updateFamilyDiscountRule(formData: FormData) {
+  const discount_value=Number(formData.get("discount_value")||0);
+  const maxRaw=String(formData.get("max_discount")||"").trim();
+  const max_discount=maxRaw===""?null:Number(maxRaw);
+  const is_active=formData.get("is_active")==="on";
+  if(!Number.isFinite(discount_value)||discount_value<0||discount_value>100||(max_discount!==null&&(!Number.isFinite(max_discount)||max_discount<0))) throw new Error("Family discount must be 0–100 percent.");
+  if(is_active&&discount_value<=0) throw new Error("Set a positive family discount before activating it.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_discount_rules").update({discount_type:"percentage",discount_value,max_discount,is_active,updated_at:new Date().toISOString()}).eq("rule_key","family_member");
+  if(error) throw new Error("Could not update family discount: "+error.message);
+  revalidatePath("/admin/health/coupons");
+}
+
+export async function updateHealthCollectionSlot(formData: FormData) {
+  const id=String(formData.get("slot_id")||"");
+  const is_active=formData.get("is_active")==="on";
+  if(!id) throw new Error("Slot ID is required.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_collection_slots").update({is_active}).eq("id",id);
+  if(error) throw new Error("Could not update collection slot: "+error.message);
+  revalidatePath("/admin/health/slots");
+}
+
+export async function updateHealthLabPartner(formData: FormData) {
+  const id=String(formData.get("partner_id")||"");
+  const is_active=formData.get("is_active")==="on";
+  if(!id) throw new Error("Partner ID is required.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_lab_partners").update({is_active,verified_at:is_active?new Date().toISOString():null,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error) throw new Error("Could not update lab partner: "+error.message);
+  revalidatePath("/admin/health/labs");
+}
