@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "nodejs";
-
 export async function GET(request: NextRequest) {
   const orderId = request.nextUrl.searchParams.get("order_id") || "";
   if (!/^mfit_[a-f0-9]{24}$/.test(orderId)) return NextResponse.json({error:"Invalid order reference."},{status:400});
