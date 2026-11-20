@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { requireAdmin } from "../../../lib/supabase-server";
 import { bulkImportHealthCatalog, updateHealthCatalogItem } from "../actions";
 
 export const metadata={title:"MFIT Catalogue Management"};
 async function HealthCatalogAdminPageContent(){
+  await connection();
  const {supabase}=await requireAdmin();
  const {data,error}=await supabase.from("health_catalog_items").select("slug,item_type,title,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").order("item_type").order("category").order("title");
  if(error) throw new Error("Could not load MFIT catalogue.");
