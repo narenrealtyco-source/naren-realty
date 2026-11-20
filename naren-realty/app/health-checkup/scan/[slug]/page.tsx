@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { addHealthCartItem } from "../../_components/cart";
 
 type ScanItem={slug:string;item_type:string;title:string;category:string;description:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean;preparation:string|null;report_tat:string|null};
 
-export default function ScanDetailPage(){
+function ScanDetailContent(){
  const params=useParams<{slug:string}>();
  const [item,setItem]=useState<ScanItem|null>(null);
  const [loading,setLoading]=useState(true);
@@ -23,4 +23,9 @@ export default function ScanDetailPage(){
    </>}
   </section>
  </main>;
+}
+
+
+export default function ScanDetailPage(){
+ return <Suspense fallback={<main className="min-h-screen bg-[#f6f9fa] p-6 text-sm text-slate-500">Loading scan details…</main>}><ScanDetailContent /></Suspense>;
 }
