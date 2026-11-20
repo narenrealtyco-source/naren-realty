@@ -44,10 +44,19 @@ export async function POST(request: NextRequest) {
 
     let subtotal: number | null = null;
     let couponDiscount = 0;
+    let familyDiscount = 0;
     let couponCode: string | null = String(body?.couponCode || "").trim().toUpperCase() || null;
     const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.provider_verified && item.price !== null);
     if (allPricedAndVerified) {
       subtotal = Number(catalog.reduce((sum:number,item:any)=>sum + Number(item.price),0).toFixed(2));
+      if (patientName !== name) {
+        const {data:rule}=await supabase.from("health_discount_rules").select("*").eq("rule_key","family_member").eq("is_active",true).maybeSingle();
+        const now=Date.now();
+        if(rule && (!rule.valid_from||new Date(rule.valid_from).getTime()<=now) && (!rule.valid_until||new Date(rule.valid_until).getTime()>=now)) {
+          const rawFamily=subtotal*Number(rule.discount_value)/100;
+          familyDiscount=Number(Math.min(rawFamily,rule.max_discount==null?rawFamily:Number(rule.max_discount),subtotal).toFixed(2));
+        }
+      }
       if (couponCode) {
         const { data: coupon, error: couponError } = await supabase.from("health_coupons").select("*").eq("code",couponCode).eq("is_active",true).maybeSingle();
         if (couponError) throw couponError;
@@ -73,13 +82,13 @@ export async function POST(request: NextRequest) {
       reference,customer_name:name,customer_phone:phone,customer_email:email || null,
       pincode,address,selected_items:snapshots,
       patient_details:{name:patientName,relation:String(patient.relation || "Self"),age:patient.age ? String(patient.age).slice(0,3) : null,gender:String(patient.gender || "")},
-      coupon_code:couponCode,coupon_discount:couponDiscount,
+      coupon_code:couponCode,coupon_discount:couponDiscount,family_discount:familyDiscount,
       preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation"
     });
     if (insertError) throw insertError;
     return NextResponse.json({
       success:true,reference,status:"pending_confirmation",
-      quoteAvailable:subtotal !== null,subtotal,discount:couponDiscount,total:subtotal === null ? null : Number((subtotal-couponDiscount).toFixed(2)),
+      quoteAvailable:subtotal !== null,subtotal,discount:couponDiscount,familyDiscount,total:subtotal === null ? null : Number((subtotal-couponDiscount-familyDiscount).toFixed(2)),
       message:"Your request has been received. MFIT will verify the lab partner, exact test panel, final price and collection availability before confirming the booking."
     }, { status: 201 });
   } catch (error) {
