@@ -79,7 +79,7 @@ export default function HealthPage() {
       <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
           <Brand />
-          <a href="#contact" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82] sm:text-sm">Contact us</a>
+          <a href="#contact" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82] sm:text-sm">Need help?</a>
         </div>
       </header>
 
@@ -87,7 +87,7 @@ export default function HealthPage() {
         <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
         <label className="flex h-14 items-center gap-3 rounded-full border border-[#aab6c2] bg-white px-5 shadow-[0_4px_16px_rgba(15,40,55,0.04)] focus-within:border-[#08aeb1] focus-within:ring-2 focus-within:ring-[#08b8bb]/15">
           <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search health packages and services" className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && query.trim()) window.location.href = `/health-checkup/tests?q=${encodeURIComponent(query.trim())}`; }} placeholder="Search CBC, Thyroid, Vitamin D, health packages..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
         </label>
         <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map((action) => (
@@ -120,7 +120,7 @@ export default function HealthPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {filtered.map((item) => (
-            <a key={item.title} href={`/health-checkup/collections/${item.collection}`} className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+            <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
               <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span></div>
               <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span></div>
             </a>
@@ -132,7 +132,7 @@ export default function HealthPage() {
       <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/collections/full-body"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
+          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/packages?category=Full%20Body"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
         </div>
       </section>
 
@@ -147,7 +147,7 @@ export default function HealthPage() {
       </section>
 
       <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <Link href="/health-checkup/collections/womens-health" className="flex min-h-[76px] items-center justify-center rounded-2xl bg-[#08b8bb] px-4 py-5 text-center text-base font-extrabold text-white shadow-[0_8px_18px_rgba(8,184,187,0.2)] transition hover:bg-[#079da0] sm:text-lg">Explore Packages for Women <span className="ml-2">→</span></Link>
+        <Link href="/health-checkup/packages?category=Women" className="flex min-h-[76px] items-center justify-center rounded-2xl bg-[#08b8bb] px-4 py-5 text-center text-base font-extrabold text-white shadow-[0_8px_18px_rgba(8,184,187,0.2)] transition hover:bg-[#079da0] sm:text-lg">Explore Packages for Women <span className="ml-2">→</span></Link>
       </section>
 
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
@@ -155,7 +155,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/tests" : item.label === "Women's health" ? "/health-checkup/collections/womens-health" : "/health-checkup/collections/full-body"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/test/cbc-complete-blood-count" : item.label === "Women's health" ? "/health-checkup/packages?category=Women" : "/health-checkup/packages?category=Full%20Body"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
           </article>)}
         </div>
       </section>
@@ -180,7 +180,7 @@ export default function HealthPage() {
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/collections/full-body" : "/health-checkup/test/" + ("slug" in item ? item.slug : "cbc-complete-blood-count")} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages?category=Full%20Body" : "/health-checkup/test/" + ("slug" in item ? item.slug : "cbc-complete-blood-count")} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
               </div>
             </article>
           ))}
@@ -212,7 +212,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {lifestylePackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <img src={item.image} alt={item.title} loading="lazy" className="h-[190px] w-full object-cover" />
-            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><Link href="/health-checkup/collections/lifestyle" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><Link href="/health-checkup/packages?category=Lifestyle" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
           </article>)}
         </div>
       </section>
@@ -300,11 +300,11 @@ export default function HealthPage() {
 
       <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 rounded-b-[28px] border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)]">
         <div className="mx-auto grid h-[76px] max-w-3xl grid-cols-4">
-          <a href="#top" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Home">
-            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="24" cy="24" r="20"/><path d="M27 15 18 24l9 9M18 24h17"/></svg><span className="text-[13px] leading-none">Home</span>
+          <a href="#top" className="flex flex-col items-center justify-center gap-1.5 font-bold text-[#078b8d]" aria-label="Home">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="24" cy="24" r="20"/><path d="M27 15 18 24l9 9M18 24h17"/></svg><span className="text-[13px] font-bold leading-none">Home</span>
           </a>
-          <a href="/health-checkup/tests" className="flex flex-col items-center justify-center gap-1.5 text-slate-900" aria-label="Lab Tests">
-            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 5h12M20 5v15L9 39a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 20V5"/><path d="M14 33h20M18 27h12"/></svg><span className="text-[13px] font-bold leading-none">Lab Tests</span>
+          <a href="/health-checkup/tests" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Lab Tests">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 5h12M20 5v15L9 39a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 20V5"/><path d="M14 33h20M18 27h12"/></svg><span className="text-[13px] leading-none">Lab Tests</span>
           </a>
           <a href="/health-checkup/scans" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Scans">
             <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="38" height="38" rx="5"/><path d="M13 14h8M13 21h8M13 28h8M29 12l3 4-3 4M32 16h5M29 24l3 4-3 4M32 28h5"/></svg><span className="text-[13px] leading-none">Scans</span>
