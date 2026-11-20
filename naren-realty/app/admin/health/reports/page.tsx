@@ -1,10 +1,12 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
+import {connection} from "next/server";
 import {createClient} from "@supabase/supabase-js";
 import {requireAdmin} from "../../../lib/supabase-server";
 import {setHealthBookingRequestReportVisibility} from "../lab-actions";
 export const metadata={title:"MFIT Diagnostic Reports"};
 export default async function HealthReportsPage(){
+ await connection();
  try{await requireAdmin()}catch{redirect("/admin/login")}
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!key)throw new Error("Report service unavailable.");
  const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}});
