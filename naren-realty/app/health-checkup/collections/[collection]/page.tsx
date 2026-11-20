@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-type PackageItem = { id:string; slug:string; title:string; category:string; description:string; inclusions:string[]; package_tests:Array<{slug:string;title:string;mappingStatus:string}>; sample_type:string|null; preparation:string|null; report_tat:string|null; price:number|null; mrp:number|null; is_active:boolean; provider_verified:boolean };
+type PackageItem = { id:string; item_type:string; slug:string; title:string; category:string; description:string; inclusions:string[]; package_tests:Array<{slug:string;title:string;mappingStatus:string}>; sample_type:string|null; preparation:string|null; report_tat:string|null; price:number|null; mrp:number|null; is_active:boolean; provider_verified:boolean };
 
 const collections: Record<string,{title:string;eyebrow:string;description:string;slugs:string[]}> = {
   "full-body": { title:"Full Body Health Checkup Packages", eyebrow:"Complete health screening", description:"Choose from our curated full body health checkup packages, from essential screening to more comprehensive options.", slugs:["basic-full-body-checkup","advanced-full-body-checkup","comprehensive-silver-full-body","comprehensive-gold-full-body","comprehensive-diamond-full-body","comprehensive-platinum-full-body","executive-health-checkup"] },
