@@ -11,6 +11,6 @@ export async function GET(request:Request){
  ]);
  if(catalogError)return NextResponse.json({error:"Unable to load the test catalogue."},{status:500});
  const rateMap=new Map((rates||[]).map(r=>[r.catalog_item_id,r]));
- const items=(catalog||[]).filter(x=>x.price!==null||rateMap.has(x.id)).map(x=>{const r=rateMap.get(x.id);return {id:x.id,slug:x.slug,title:x.title,item_type:x.item_type,category:x.category,description:x.description,inclusions:x.inclusions,sample_type:x.sample_type,preparation:x.preparation,report_tat:x.report_tat,price:Number(r?.customer_price??x.price),available:Number(r?.customer_price??x.price)>=0};});
+ const items=(catalog||[]).map(x=>{const r=rateMap.get(x.id);const raw=r?.customer_price??x.price;return {id:x.id,slug:x.slug,title:x.title,item_type:x.item_type,category:x.category,description:x.description,inclusions:x.inclusions,sample_type:x.sample_type,preparation:x.preparation,report_tat:x.report_tat,price:raw===null?null:Number(raw),available:raw!==null&&Number(raw)>=0};});
  return NextResponse.json({partner:{display_name:p.display_name,public_slug:p.public_slug,service_areas:p.service_areas},items});
 }
