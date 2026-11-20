@@ -24,7 +24,7 @@ export default function LabTestsPage(){
     <div className="mt-4 flex items-center justify-between gap-3"><p className="text-xs font-semibold text-slate-600">MFIT booking request</p><Link href={`/health-checkup/test/${encodeURIComponent(t.slug)}`} className="rounded-xl bg-[#078b8d] px-5 py-3 text-xs font-extrabold text-white">VIEW & BOOK</Link></div>
    </article>)}</div>
    {!loading&&!error&&visible.length===0&&<p className="rounded-xl bg-white p-6 text-center text-sm text-slate-500">No matching tests found.</p>}
-   <p className="mt-5 text-[11px] leading-5 text-slate-400">Displayed prices are reference prices based on Tata 1mg listings and may be adjusted by MFIT Admin. Test information is not medical advice.</p>
+   <p className="mt-5 text-[11px] leading-5 text-slate-400">Prices are displayed only after MFIT verifies them with the performing laboratory. Test information is not medical advice.</p>
   </section>
   <HealthNav active="tests"/>
  </main>;
