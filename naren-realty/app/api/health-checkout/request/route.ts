@@ -23,8 +23,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Please complete contact, address, patient and preferred collection details." }, { status: 400 });
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
-    const date = new Date(preferredDate + "T00:00:00+05:30");
-    if (Number.isNaN(date.getTime()) || date.toISOString().slice(0,10) !== preferredDate) return NextResponse.json({ error: "Please select a valid collection date." }, { status: 400 });
+    const dateParts = preferredDate.split("-").map(Number);
+    const date = /^\\d{4}-\\d{2}-\\d{2}$/.test(preferredDate) ? new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2])) : new Date(NaN);
+    if (Number.isNaN(date.getTime()) || date.getUTCFullYear() !== dateParts[0] || date.getUTCMonth() !== dateParts[1] - 1 || date.getUTCDate() !== dateParts[2]) return NextResponse.json({ error: "Please select a valid collection date." }, { status: 400 });
     if (lines.some((x:any) => typeof x.slug !== "string" || !Number.isInteger(x.quantity) || x.quantity !== 1) || new Set(lines.map((x:any)=>x.slug)).size !== lines.length) {
       return NextResponse.json({ error: "Invalid selected items." }, { status: 400 });
     }
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     let couponDiscount = 0;
     let familyDiscount = 0;
     let couponCode: string | null = String(body?.couponCode || "").trim().toUpperCase() || null;
-    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.price !== null);
+    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.provider_verified && item.price !== null);
     if (allPricedAndVerified) {
       subtotal = Number(catalog.reduce((sum:number,item:any)=>sum + Number(item.price),0).toFixed(2));
       if (String(patient.relation || "Self") !== "Self") {
