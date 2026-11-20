@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/supabase-server";
+import { requireAdmin } from "../../lib/supabase-server";
 
 export async function bulkImportHealthCatalog(formData: FormData) {
   const raw = String(formData.get("catalog_json") || "");
