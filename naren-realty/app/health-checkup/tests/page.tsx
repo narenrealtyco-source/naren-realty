@@ -19,7 +19,7 @@ export default function LabTestsPage(){
    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">{categories.map(c=><button key={c} onClick={()=>setCategory(c)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold ${category===c?"border-[#078b8d] bg-[#e8f8f6] text-[#067d80]":"border-slate-200 bg-white"}`}>{c}</button>)}</div>
    <p className="my-3 text-xs text-slate-500">{loading?"Loading catalogue…":`${visible.length} tests listed`}</p>
    {error&&<p className="rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}
-   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{visible.map(t=><ProductCard key={t.slug} item={t} onAddToCart={(slug)=>{ const current=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const next=Array.isArray(current)?current.filter((x):x is string=>typeof x==="string"):[]; if(!next.includes(slug))next.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(next)); window.dispatchEvent(new Event("mfit-cart-updated")); }} />)}</div>
+   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{visible.map(t=><ProductCard key={t.slug} item={t} onAddToCart={addHealthCartItem} />)}</div>
    {!loading&&!error&&visible.length===0&&<p className="rounded-xl bg-white p-6 text-center text-sm text-slate-500">No matching tests found.</p>}
    <p className="mt-5 text-[11px] leading-5 text-slate-400">Prices are displayed only after MFIT verifies them with the performing laboratory. Test information is not medical advice.</p>
   </section>
