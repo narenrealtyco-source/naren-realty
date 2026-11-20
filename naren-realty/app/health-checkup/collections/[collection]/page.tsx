@@ -42,7 +42,7 @@ export default function HealthPackageCollectionPage() {
   },[items,collection]);
   return <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
     <HealthStoreHeader title="Health Packages" backHref="/health-checkup/packages" />
-    <section className="mx-auto max-w-4xl px-4 py-6">
+    <section className="mx-auto max-w-7xl px-4 py-6">
       <div className="rounded-3xl bg-gradient-to-br from-[#dff7f4] to-[#edf5ff] p-6 sm:p-8"><p className="text-xs font-bold uppercase tracking-widest text-[#078b8d]">{collection.eyebrow}</p><h1 className="mt-2 text-2xl font-extrabold sm:text-3xl">{collection.title}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{collection.description}</p></div>
       <div className="mt-6 flex items-center justify-between"><h2 className="text-lg font-extrabold">Available packages</h2><span className="text-xs font-semibold text-slate-500">{loading?"Loading…":`${visible.length} packages`}</span></div>
       {error&&<p className="mt-4 rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}
