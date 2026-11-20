@@ -29,6 +29,17 @@ const recommendedPackages = [
   { title: "Women's Health Checkup", detail: "Explore available women's health options", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=800&q=85", label: "Women's health" },
 ];
 
+const mostBookedPackages = [
+  { title: "Comprehensive Gold Full Body Checkup", detail: "Full body preventive health screening", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Comprehensive Silver Full Body Checkup", detail: "Essential health screening package", image: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Comprehensive Full Body Checkup", detail: "Explore a complete health screening option", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", tag: "Recommended" },
+];
+const mostBookedTests = [
+  { title: "Complete Blood Count (CBC)", detail: "Common blood screening test", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Thyroid Profile", detail: "Thyroid function blood test", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Vitamin D Test", detail: "Vitamin D level assessment", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+];
+
 const services = [
   { title: "Blood Tests", description: "Browse individual lab tests", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85" },
   { title: "Home Sample Collection", description: "Ask about sample collection at home", image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" },
@@ -50,6 +61,7 @@ function Brand() {
 export default function HealthPage() {
   const [query, setQuery] = useState("");
   const [fileName, setFileName] = useState("");
+  const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
   const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
 
   return (
@@ -136,6 +148,34 @@ export default function HealthPage() {
             <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><a href="#contact" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">ENQUIRE</a></div>
           </article>)}
         </div>
+      </section>
+
+      <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="mb-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Most booked health checkups</h2>
+        </div>
+        <div className="mb-5 flex gap-2">
+          <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
+          <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Tests</button>
+        </div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {(mostBookedTab === "packages" ? mostBookedPackages : mostBookedTests).map((item) => (
+            <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+              <div className="relative h-[205px] overflow-hidden bg-[#eaf7f8]">
+                <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
+                <span className="absolute left-3 top-3 rounded-br-xl rounded-tl-xl bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">{item.tag}</span>
+              </div>
+              <div className="p-4">
+                <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
+                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
+                <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
+                <a href="#contact" className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">BOOK</a>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="mx-auto h-1 w-2/3 rounded-full bg-slate-200 sm:hidden"><div className="h-1 w-1/4 rounded-full bg-[#172326]" /></div>
       </section>
 
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
