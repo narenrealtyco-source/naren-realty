@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
 type PackageItem = { id:string; item_type:string; slug:string; title:string; category:string; description:string; inclusions:string[]; package_tests:Array<{slug:string;title:string;mappingStatus:string}>; sample_type:string|null; preparation:string|null; report_tat:string|null; price:number|null; mrp:number|null; is_active:boolean; provider_verified:boolean };
 
@@ -22,8 +21,9 @@ const collections: Record<string,{title:string;eyebrow:string;description:string
 };
 
 export default function HealthPackageCollectionPage() {
-  const params = useParams<{collection:string}>();
-  const collection = collections[params.collection] || collections["full-body"];
+  const [collectionKey,setCollectionKey] = useState("full-body");
+  const collection = collections[collectionKey] || collections["full-body"];
+  useEffect(() => { const key=window.location.pathname.split("/").filter(Boolean).pop()||"full-body"; if(collections[key]) setCollectionKey(key); },[]);
   const [items,setItems] = useState<PackageItem[]>([]);
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState("");
