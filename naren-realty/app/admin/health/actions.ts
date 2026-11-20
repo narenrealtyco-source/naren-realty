@@ -48,7 +48,7 @@ export async function updateHealthCatalogItem(formData: FormData) {
   if(is_active && price===null) throw new Error("Set a customer-facing price before publishing.");
   const {supabase}=await requireAdmin();
   const {error}=await supabase.from("health_catalog_items").update({
-    price,mrp,is_active,provider_verified,
+    price,mrp,is_active,provider_verified,price_source:priceRaw!==""?"Admin adjusted":"Not set",price_checked_at:priceRaw!==""?new Date().toISOString():null,
     description:String(formData.get("description")||"").slice(0,3000),
     preparation:String(formData.get("preparation")||"").slice(0,2000),
     report_tat:String(formData.get("report_tat")||"").slice(0,200),
