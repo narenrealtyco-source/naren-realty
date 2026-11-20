@@ -1,9 +1,14 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { requireAdmin } from "../../../lib/supabase-server";
 import { updateHealthBooking } from "../actions";
-export default async function HealthBookingsPage(){
+async function HealthBookingsPageContent(){
  const {supabase}=await requireAdmin();
  const {data,error}=await supabase.from("health_orders").select("id,order_number,customer_name,customer_phone,items,total_amount,booking_status,payment_status,fulfilment_status,collection_date,collection_slot,admin_notes,created_at").order("created_at",{ascending:false}).limit(200);
  if(error) throw new Error("Could not load diagnostic bookings.");
  return <main className="min-h-screen bg-slate-50 p-4"><div className="mx-auto max-w-6xl"><Link href="/admin/health" className="text-sm">‹ MFIT Admin</Link><h1 className="mt-4 text-2xl font-extrabold">Bookings & Fulfilment</h1><p className="mt-1 text-sm text-slate-500">Latest 200 bookings. Customer online booking remains closed until workflow testing is complete.</p><div className="mt-5 space-y-3">{(data||[]).map(o=><article key={o.id} className="rounded-xl border bg-white p-4"><div className="flex flex-wrap justify-between gap-2"><b>{o.order_number}</b><span className="text-xs text-teal-700">{o.fulfilment_status}</span></div><p className="mt-2 text-sm">{o.customer_name} · {o.customer_phone}</p><p className="mt-1 text-xs text-slate-500">{(o.items||[]).map((x:any)=>x.title).join(", ")}</p><p className="mt-2 text-xs text-slate-500">Booking: {o.booking_status} · Payment: {o.payment_status} · Collection: {o.collection_date||"Not scheduled"} {o.collection_slot||""}</p></article>)}</div>{!data?.length&&<p className="mt-5 rounded-xl bg-white p-5 text-sm text-slate-500">No diagnostic bookings yet.</p>}</div></main>;
+}
+
+export default function HealthBookingsPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-slate-50 p-8 text-center text-sm text-slate-500">Loading MFIT Healthcare admin…</main>}><HealthBookingsPageContent /></Suspense>;
 }
