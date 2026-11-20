@@ -37,6 +37,11 @@ export async function POST(request: NextRequest) {
     if (catalogError) throw catalogError;
     if (!catalog || catalog.length !== slugs.length) return NextResponse.json({ error: "One or more selected tests or packages could not be found. Please refresh and try again." }, { status: 404 });
 
+    const { data: packageMappings } = await supabase.from("health_package_test_items").select("package_id,test_id,mapping_status").in("package_id",catalog.map((x:any)=>x.id));
+    const catalogById = new Map(catalog.map((x:any)=>[x.id,x]));
+    const packageTests = new Map<string,Array<{slug:string;title:string;mappingStatus:string}>>();
+    for (const mapping of packageMappings || []) { const test:any = catalogById.get(mapping.test_id); if(test) (packageTests.get(mapping.package_id) || (packageTests.set(mapping.package_id,[]),packageTests.get(mapping.package_id)!)).push({slug:test.slug,title:test.title,mappingStatus:mapping.mapping_status}); }
+
     let subtotal: number | null = null;
     let couponDiscount = 0;
     let couponCode: string | null = String(body?.couponCode || "").trim().toUpperCase() || null;
@@ -59,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const snapshots = catalog.map((item:any)=>({
       slug:item.slug,title:item.title,type:item.item_type,category:item.category,
-      inclusions:item.inclusions || [],package_tests:[],
+      inclusions:item.inclusions || [],package_tests:(packageTests.get(item.id) || []),
       price:item.price === null ? null : Number(item.price),
       provider_verified:item.provider_verified,is_active:item.is_active
     }));
