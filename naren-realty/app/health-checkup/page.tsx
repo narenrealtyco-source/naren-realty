@@ -300,12 +300,20 @@ export default function HealthPage() {
         </section>
       </footer>
 
-      <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)] backdrop-blur">
-        <div className="mx-auto grid h-[66px] max-w-xl grid-cols-4">
-          <a href="#top" className="flex flex-col items-center justify-center gap-1 text-[#078b8d]"><span className="text-xl">⌂</span><span className="text-[10px] font-bold">Home</span></a>
-          <a href="#packages" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">⚕</span><span className="text-[10px] font-semibold">Packages</span></a>
-          <a href="#prescription" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">▤</span><span className="text-[10px] font-semibold">Prescription</span></a>
-          <a href="#contact" className="flex flex-col items-center justify-center gap-1 text-slate-600"><span className="text-xl">♡</span><span className="text-[10px] font-semibold">Contact</span></a>
+      <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 rounded-b-[28px] border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)]">
+        <div className="mx-auto grid h-[76px] max-w-3xl grid-cols-4">
+          <a href="#top" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Home">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="24" cy="24" r="20"/><path d="M27 15 18 24l9 9M18 24h17"/></svg><span className="text-[13px] leading-none">Home</span>
+          </a>
+          <a href="#most-booked" className="flex flex-col items-center justify-center gap-1.5 text-slate-900" aria-label="Lab Tests">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 5h12M20 5v15L9 39a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 20V5"/><path d="M14 33h20M18 27h12"/></svg><span className="text-[13px] font-bold leading-none">Lab Tests</span>
+          </a>
+          <a href="#scans" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="Scans">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="5" width="38" height="38" rx="5"/><path d="M13 14h8M13 21h8M13 28h8M29 12l3 4-3 4M32 16h5M29 24l3 4-3 4M32 28h5"/></svg><span className="text-[13px] leading-none">Scans</span>
+          </a>
+          <a href="#my-orders" className="flex flex-col items-center justify-center gap-1.5 text-slate-600" aria-label="My Orders">
+            <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 5h17l8 8v25a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4Z"/><path d="M29 5v9h9M16 20h13M16 26h8"/><circle cx="31" cy="32" r="7"/><path d="M31 28v4l3 2"/></svg><span className="text-[13px] leading-none">My Orders</span>
+          </a>
         </div>
       </nav>
     </main>
