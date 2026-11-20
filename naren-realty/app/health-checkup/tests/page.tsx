@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { addHealthCartItem } from "../_components/cart";
 
 type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 export default function LabTestsPage(){
@@ -21,7 +22,7 @@ export default function LabTestsPage(){
     <div className="mt-3 flex flex-wrap items-center gap-2"><span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-bold text-teal-800">MFIT Healthcare</span><span className="text-xs font-semibold text-slate-600">{t.price===null?"Price to be updated":"₹"+Number(t.price).toLocaleString("en-IN")}</span></div>
     <button type="button" onClick={()=>setExpanded(expanded===t.slug?null:t.slug)} aria-expanded={expanded===t.slug} className="mt-3 flex w-full items-center justify-between border-t border-slate-100 pt-3 text-xs font-bold text-[#078b8d]">Test details & preparation <span>{expanded===t.slug?"−":"+"}</span></button>
     {expanded===t.slug&&<div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600"><p><b>Sample type:</b> {t.sample_type||"To be confirmed by laboratory"}</p><p className="mt-2"><b>Preparation:</b> {t.preparation||"To be confirmed by laboratory"}</p><p className="mt-2"><b>Expected report time:</b> {t.report_tat||"To be confirmed by laboratory"}</p>{t.inclusions?.length>0&&<><p className="mt-2 font-bold text-slate-700">Components listed</p><ul className="mt-1 list-disc pl-5">{t.inclusions.map(i=><li key={i}>{i}</li>)}</ul></>}</div>}
-    <div className="mt-4 flex items-center justify-between gap-3"><p className="text-xs font-semibold text-slate-600">MFIT booking request</p><Link href={`/health-checkup/test/${encodeURIComponent(t.slug)}`} className="rounded-xl bg-[#078b8d] px-5 py-3 text-xs font-extrabold text-white">VIEW & BOOK</Link></div>
+    <div className="mt-4 flex items-center justify-between gap-3"><p className="text-xs font-semibold text-slate-600">MFIT booking request</p><div className="flex gap-2"><button type="button" onClick={()=>addHealthCartItem(t.slug)} className="rounded-xl border border-[#078b8d] px-3 py-3 text-[10px] font-extrabold text-[#078b8d]">ADD</button><Link href={`/health-checkup/test/${encodeURIComponent(t.slug)}`} className="rounded-xl bg-[#078b8d] px-4 py-3 text-xs font-extrabold text-white">VIEW & BOOK</Link></div></div>
    </article>)}</div>
    {!loading&&!error&&visible.length===0&&<p className="rounded-xl bg-white p-6 text-center text-sm text-slate-500">No matching tests found.</p>}
    <p className="mt-5 text-[11px] leading-5 text-slate-400">Prices are displayed only after MFIT verifies them with the performing laboratory. Test information is not medical advice.</p>
