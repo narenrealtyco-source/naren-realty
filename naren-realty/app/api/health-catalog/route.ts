@@ -40,7 +40,10 @@ const TATA1MG_SINGLE_TEST_REFERENCE: Record<string, { price: number; url: string
   "fbs (fasting blood sugar)": { price: 89, url: "https://www.1mg.com/labs" },
   "testosterone total": { price: 659, url: "https://www.1mg.com/labs" },
   "lh & fsh": { price: 949, url: "https://www.1mg.com/labs" },
-  "dengue fever ns1 antigen": { price: 600, url: "https://www.1mg.com/labs" }
+  "dengue fever ns1 antigen": { price: 600, url: "https://www.1mg.com/labs" },
+  "vitamin d (25-oh)": { price: 549, url: "https://www.1mg.com/labs/test/vitamin-d-25-hydroxy-1972" },
+  "urine r/m (urine routine & microscopy)": { price: 129, url: "https://www.1mg.com/labs" },
+  "urine routine & microscopy": { price: 129, url: "https://www.1mg.com/labs" }
 };
 
 // Public Tata 1mg Pune catalogue facts checked on 21 Nov 2026.
