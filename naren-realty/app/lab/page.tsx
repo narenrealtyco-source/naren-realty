@@ -3,6 +3,7 @@ import {connection} from "next/server";
 import {revalidatePath} from "next/cache";
 import {requireMfitLab} from "../lib/mfit-lab";
 import {updateLabOrderStatus,uploadMfitReport,updateLabRequestStatus,uploadMfitRequestReport} from "../admin/health/lab-actions";
+export const instant = false;
 export const metadata={title:"MFIT Lab Operations"};
 export default async function LabDashboard(){
  await connection();
