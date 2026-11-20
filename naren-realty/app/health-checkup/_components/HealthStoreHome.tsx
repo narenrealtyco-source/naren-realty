@@ -61,7 +61,7 @@ function SectionHeading({ eyebrow, title, href, linkLabel = "View all" }: { eyeb
   );
 }
 
-function ProductCard({ item }: { item: CatalogItem }) {
+function ProductCard({ item, onAddToCart }: { item: CatalogItem; onAddToCart: (slug:string)=>void }) {
   const href = item.item_type === "test"
     ? `/health-checkup/test/${encodeURIComponent(item.slug)}`
     : `/health-checkup/package/${encodeURIComponent(item.slug)}`;
@@ -98,7 +98,7 @@ export default function HealthStoreHome() {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"packages" | "tests">("packages");
+  const [activeTab, setActiveTab] = useState<"packages" | "tests">("packages");\n  const [cartCount,setCartCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/health-catalog", { cache: "no-store" })
@@ -111,7 +111,7 @@ export default function HealthStoreHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  const packages = useMemo(() => items.filter((item) => item.item_type === "package"), [items]);
+  useEffect(() => { const syncCart=()=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); setCartCount(Array.isArray(value)?value.length:0); } catch { setCartCount(0); } }; syncCart(); window.addEventListener("mfit-cart-updated",syncCart); return ()=>window.removeEventListener("mfit-cart-updated",syncCart); }, []);\n\n  const addToCart=(slug:string)=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const current=Array.isArray(value)?value.filter((x):x is string=>typeof x==="string"):[]; if(!current.includes(slug)) current.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(current)); window.dispatchEvent(new Event("mfit-cart-updated")); } catch { window.localStorage.setItem("mfit-health-cart",JSON.stringify([slug])); window.dispatchEvent(new Event("mfit-cart-updated")); } };\n\n  const packages = useMemo(() => items.filter((item) => item.item_type === "package"), [items]);
   const tests = useMemo(() => items.filter((item) => item.item_type === "test"), [items]);
   const popularPackages = packages.slice(0, 6);
   const popularTests = tests.slice(0, 6);
@@ -139,7 +139,7 @@ export default function HealthStoreHome() {
           <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-4">
             <Link href="/health-checkup/my-orders" className="hidden text-xs font-bold text-slate-600 hover:text-[#078b8d] sm:block">My Orders</Link>
             <Link href="/account" className="hidden text-xs font-bold text-slate-600 hover:text-[#078b8d] sm:block">Login / Sign up</Link>
-            <Link href="/health-checkup/checkout" className="flex items-center gap-2 rounded-lg border border-[#b9dedd] px-3 py-2.5 text-xs font-extrabold text-[#087f82]"><span className="text-base">▣</span><span className="hidden sm:inline">Cart</span></Link>
+            <Link href="/health-checkup/cart" className="flex items-center gap-2 rounded-lg border border-[#b9dedd] px-3 py-2.5 text-xs font-extrabold text-[#087f82]"><span className="text-base">▣</span><span className="hidden sm:inline">Cart</span><span className="grid min-w-5 place-items-center rounded-full bg-[#078b8d] px-1.5 py-0.5 text-[10px] text-white">{cartCount}</span></Link>
           </div>
         </div>
         <div className="border-t border-slate-100 md:hidden">
@@ -201,7 +201,7 @@ export default function HealthStoreHome() {
       <section className="mx-auto mt-10 max-w-7xl px-4 sm:px-6">
         <SectionHeading eyebrow="Popular choices" title="Most booked health packages" href="/health-checkup/packages" />
         {loading ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{[1,2,3,4].map((x) => <div key={x} className="h-64 animate-pulse rounded-2xl bg-white" />)}</div>
-          : <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{popularPackages.map((item) => <ProductCard key={item.slug} item={item} />)}</div>}
+          : <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{popularPackages.map((item) => <ProductCard key={item.slug} item={item} onAddToCart={addToCart} />)}</div>}
         {!loading && popularPackages.length === 0 && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">MFIT packages are being prepared. Please contact our team for availability.</p>}
       </section>
 
