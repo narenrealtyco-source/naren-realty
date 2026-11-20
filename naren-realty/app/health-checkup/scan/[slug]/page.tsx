@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import HealthStoreHeader from "../../_components/HealthStoreHeader";
 import { useParams } from "next/navigation";
 import { addHealthCartItem } from "../../_components/cart";
 
@@ -14,7 +15,7 @@ function ScanDetailContent(){
  const [error,setError]=useState("");
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error||"Imaging catalogue unavailable.");const found=(data.items||[]).find((x:ScanItem)=>x.slug===params.slug&&x.item_type==="scan"&&x.is_active);if(!found)throw new Error("This scan is not currently available for online booking.");setItem(found);}).catch(reason=>setError(reason instanceof Error?reason.message:"Unable to load scan details.")).finally(()=>setLoading(false));},[params.slug]);
  return <main className="min-h-screen bg-[#f6f9fa] pb-24 text-[#172326]">
-  <header className="border-b border-slate-100 bg-white px-4 py-4"><div className="mx-auto flex max-w-4xl items-center gap-3"><Link href="/health-checkup/scans" className="grid size-10 place-items-center rounded-full border text-2xl">‹</Link><div><p className="text-[10px] font-extrabold uppercase tracking-widest text-[#078b8d]">MFIT Healthcare</p><h1 className="text-lg font-extrabold">Scan details</h1></div><Link href="/health-checkup/cart" className="ml-auto text-xs font-bold text-[#078b8d]">Cart</Link></div></header>
+  <HealthStoreHeader title="Scan Details" backHref="/health-checkup/scans" />
   <section className="mx-auto max-w-4xl space-y-4 px-4 py-6">
    {loading?<div className="rounded-2xl bg-white p-6 text-sm text-slate-500">Loading scan details…</div>:error?<div className="rounded-2xl bg-white p-6"><p className="text-sm text-rose-700">{error}</p><Link href="/health-checkup/scans" className="mt-4 inline-block text-sm font-bold text-[#078b8d]">Browse scans →</Link></div>:item&&<>
     <div className="grid overflow-hidden rounded-3xl bg-white shadow-sm md:grid-cols-[.8fr_1.2fr]"><div className="grid min-h-52 place-items-center bg-[#e9f8f6] text-6xl text-[#078b8d]">▣</div><div className="p-6 sm:p-8"><span className="rounded-full bg-[#e9f8f6] px-3 py-1 text-xs font-bold text-[#078b8d]">{item.category}</span><h2 className="mt-4 text-2xl font-extrabold">{item.title}</h2><p className="mt-3 text-sm leading-6 text-slate-600">{item.description||"Review scan information and booking details below."}</p><p className="mt-5 text-xs text-slate-500">MFIT price</p><p className="text-2xl font-extrabold">{item.provider_verified&&item.price!==null?"₹"+Number(item.price).toLocaleString("en-IN"):"Price on confirmation"}</p></div></div>
