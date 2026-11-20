@@ -268,6 +268,38 @@ export default function HealthPage() {
 
       <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6"><div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p><p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p></div></section>
 
+      <footer className="mt-10">
+        <section className="bg-[#17191d] px-5 py-9 text-white sm:px-8 sm:py-12">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-lg font-medium text-white/90 sm:text-xl">Healthcare made easier with MFIT</p>
+            <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-7 sm:grid-cols-3">
+              <div><p className="text-2xl font-extrabold text-[#65d2cf] sm:text-3xl">Care</p><p className="mt-1 text-sm text-white/75">Health checkup options</p></div>
+              <div><p className="text-2xl font-extrabold text-[#65d2cf] sm:text-3xl">Convenience</p><p className="mt-1 text-sm text-white/75">Booking support</p></div>
+              <div className="col-span-2 sm:col-span-1"><p className="text-2xl font-extrabold text-[#65d2cf] sm:text-3xl">Access</p><p className="mt-1 text-sm text-white/75">Home collection where available</p></div>
+            </div>
+            <div className="my-8 h-px bg-white/25" />
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-extrabold sm:text-lg">
+                Know more about MFIT Healthcare
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-slate-200 text-xl text-[#17191d] transition group-open:rotate-180">⌄</span>
+              </summary>
+              <p className="mt-4 max-w-3xl text-sm leading-6 text-white/70">MFIT Healthcare provides a digital place to explore health checkup packages, lab test options and related healthcare services. Availability, collection locations, report timelines and service terms are confirmed during the booking process.</p>
+            </details>
+          </div>
+        </section>
+        <section className="bg-[#f0f2f5] px-5 py-7 pb-28 sm:px-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex items-center gap-2" aria-label="MFIT Healthcare">
+              <span className="grid size-12 place-items-center rounded-sm bg-[#08b8bb] text-3xl font-black leading-none text-white">M</span>
+              <span className="leading-none"><span className="block text-2xl font-black tracking-[-0.07em] text-[#17191d]">FIT</span><span className="mt-1 block text-xs font-semibold text-[#343a40]">Healthcare</span></span>
+            </div>
+            <p className="mt-6 text-xs leading-5 text-slate-500">© 2026 MFIT Healthcare. All rights reserved.</p>
+            <p className="mt-2 max-w-4xl text-[11px] leading-5 text-slate-500">Healthcare services and diagnostic tests are subject to availability and the terms of the respective service providers. Test information is not a substitute for medical advice, diagnosis or treatment.</p>
+            <p className="mt-3 text-[11px] font-semibold text-slate-500">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p>
+          </div>
+        </section>
+      </footer>
+
       <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)] backdrop-blur">
         <div className="mx-auto grid h-[66px] max-w-xl grid-cols-4">
           <a href="#top" className="flex flex-col items-center justify-center gap-1 text-[#078b8d]"><span className="text-xl">⌂</span><span className="text-[10px] font-bold">Home</span></a>
