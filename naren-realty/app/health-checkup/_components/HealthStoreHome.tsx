@@ -249,7 +249,7 @@ export default function HealthStoreHome() {
         <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-[1.4fr_1fr_1fr]">
           <div><Brand /><p className="mt-4 max-w-sm text-xs leading-5 text-white/65">MFIT Healthcare helps customers explore diagnostic tests, health packages and available home collection services.</p><p className="mt-3 text-[10px] font-semibold text-white/50">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p></div>
           <div><h3 className="text-sm font-extrabold">Explore</h3><div className="mt-3 grid gap-2 text-xs text-white/70"><Link href="/health-checkup/packages">Health packages</Link><Link href="/health-checkup/tests">Individual lab tests</Link><Link href="/health-checkup/scans">Scans & imaging</Link></div></div>
-          <div><h3 className="text-sm font-extrabold">Customer support</h3><div className="mt-3 grid gap-2 text-xs text-white/70"><Link href="/health-checkup/my-orders">Track booking</Link><Link href="/privacy-policy">Privacy policy</Link><Link href="/terms">Terms & conditions</Link></div></div>
+          <div><h3 className="text-sm font-extrabold">Customer support</h3><div className="mt-3 grid gap-2 text-xs text-white/70"><Link href="/health-checkup/my-orders">Track booking</Link><Link href="/privacy-policy">Privacy policy</Link><Link href="/customer-terms">Terms & conditions</Link></div></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-white/15 pt-5 text-[10px] leading-5 text-white/45">© 2026 MFIT Healthcare. All rights reserved. Test information is not a substitute for medical advice, diagnosis or treatment. Service availability, collection slots and report timelines are confirmed during booking.</div>
       </footer>
