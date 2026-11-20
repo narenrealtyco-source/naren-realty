@@ -12,7 +12,7 @@ function PaymentReturnContent(){
   useEffect(()=>{
     if(!orderId){setState("error");return;}
     fetch("/api/health-checkout/status?order_id="+encodeURIComponent(orderId),{cache:"no-store"})
-      .then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not verify payment.");setReference(data.orderId||orderId);setState(data.status==="paid"?"paid":"pending");})
+      .then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not verify payment.");setReference(data.orderId||orderId);if(data.status==="paid"){window.localStorage.removeItem("mfit-health-cart");window.dispatchEvent(new Event("mfit-cart-updated"));}setState(data.status==="paid"?"paid":"pending");})
       .catch(()=>setState("error"));
   },[orderId]);
   return <main className="grid min-h-screen place-items-center bg-[#f7fafb] px-4 text-[#172326]"><section className="w-full max-w-md rounded-3xl bg-white p-7 text-center shadow-sm">
