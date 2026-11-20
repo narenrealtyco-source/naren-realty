@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function HealthCheckoutPage() {
+function CheckoutContent() {
   return (
     <main className="min-h-screen bg-[#f7fafb] px-4 py-8 text-[#172326]">
       <div className="mx-auto max-w-xl">
@@ -15,4 +16,8 @@ export default function HealthCheckoutPage() {
       </div>
     </main>
   );
+}
+
+export default function HealthCheckoutPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-[#f7fafb] p-8 text-center">Loading MFIT Healthcare…</main>}><CheckoutContent /></Suspense>;
 }
