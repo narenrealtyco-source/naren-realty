@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
 import { ProductCard } from "../_components/HealthStoreHome";
+import { addHealthCartItem } from "../_components/cart";
 
 type Item={id:string;slug:string;item_type:"test";title:string;category:string;description:string;inclusions:string[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 export default function LabTestsPage(){
