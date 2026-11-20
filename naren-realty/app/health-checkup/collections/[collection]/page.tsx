@@ -32,7 +32,7 @@ export default function HealthPackageCollectionPage() {
   const [error,setError] = useState("");
   useEffect(() => {
     fetch("/api/health-catalog",{cache:"no-store"})
-      .then(async r => { const d=await r.json(); if(!r.ok) throw new Error(d.error||"Unable to load packages"); setItems((d.items||[]).filter((x:PackageItem)=>x.item_type==="package")); })
+      .then(async r => { const d=await r.json(); if(!r.ok) throw new Error(d.error||"Unable to load packages"); setItems((d.items||[]).filter((x:PackageItem)=>x.item_type==="package"&&x.is_active)); })
       .catch(e=>setError(e.message))
       .finally(()=>setLoading(false));
   },[]);
