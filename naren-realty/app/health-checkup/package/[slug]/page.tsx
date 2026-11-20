@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useParams} from "next/navigation";
 
 type PackageTest={slug:string;title:string;description:string|null;inclusions:string[];inclusionsNote:string|null;sample_type:string|null;preparation:string|null;report_tat:string|null;provider_verified:boolean;mappingStatus:string;sortOrder:number};
-type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];inclusionsNote:string|null;package_tests:PackageTest[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean};
+type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];inclusionsNote:string|null;package_tests:PackageTest[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 
 function PackageDetailContent(){
   const params=useParams<{slug:string}>();
