@@ -3,6 +3,7 @@ import {useEffect,useMemo,useState} from "react";
 import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
 import { ProductCard } from "../_components/HealthStoreHome";
+import { addHealthCartItem } from "../_components/cart";
 type Item={id:string;slug:string;item_type:"test"|"package";title:string;category:string;description:string;price:number|null;mrp:number|null;report_tat:string|null;sample_type:string|null;preparation:string|null;is_active:boolean;provider_verified:boolean};
 export default function HealthSearchPage(){
  const [items,setItems]=useState<Item[]>([]),[query,setQuery]=useState(""),[kind,setKind]=useState("All"),[loading,setLoading]=useState(true),[error,setError]=useState("");
