@@ -45,7 +45,7 @@ export async function updateHealthCatalogItem(formData: FormData) {
   if(!slug || (price!==null&&(!Number.isFinite(price)||price<0)) || (mrp!==null&&(!Number.isFinite(mrp)||mrp<0))) throw new Error("Invalid item or price.");
   const is_active=formData.get("is_active")==="on";
   const provider_verified=formData.get("provider_verified")==="on";
-  if(is_active && (!provider_verified || price===null)) throw new Error("Verify the lab partner and set a confirmed price before publishing.");
+  if(is_active && price===null) throw new Error("Set a customer-facing price before publishing.");
   const {supabase}=await requireAdmin();
   const {error}=await supabase.from("health_catalog_items").update({
     price,mrp,is_active,provider_verified,
