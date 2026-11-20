@@ -46,9 +46,9 @@ const lifestylePackages = [
 ];
 
 const mostBookedTests = [
-  { title: "Complete Blood Count (CBC)", detail: "Common blood screening test", category: "Blood", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Thyroid Profile", detail: "Thyroid function blood test", category: "Thyroid", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Vitamin D Test", detail: "Vitamin D level assessment", category: "Vitamins", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Complete Blood Count (CBC)", slug: "cbc-complete-blood-count", detail: "Common blood screening test", category: "Blood", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Thyroid Profile", slug: "thyroid-profile-total", detail: "Thyroid function blood test", category: "Thyroid", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Vitamin D Test", slug: "vitamin-d", detail: "Vitamin D level assessment", category: "Vitamins", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
 ];
 
 const services = [
@@ -180,7 +180,7 @@ export default function HealthPage() {
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/collections/full-body" : "/health-checkup/tests"} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <Link href={mostBookedTab === "packages" ? "/health-checkup/collections/full-body" : `/health-checkup/test/${item.slug}`} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
               </div>
             </article>
           ))}
