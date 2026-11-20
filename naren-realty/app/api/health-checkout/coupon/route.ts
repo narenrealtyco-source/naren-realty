@@ -20,8 +20,8 @@ export async function POST(request:NextRequest){
    if((coupon.valid_from&&new Date(coupon.valid_from).getTime()>now)||(coupon.valid_until&&new Date(coupon.valid_until).getTime()<now)||(coupon.usage_limit&&coupon.usage_count>=coupon.usage_limit))return NextResponse.json({error:"This coupon has expired or reached its usage limit."},{status:400});
    if(items.some((x:any)=>!coupon.applicable_item_types.includes(x.item_type)))return NextResponse.json({error:"This coupon does not apply to the selected items."},{status:400});
   }
-  const allPriced=items.every((x:any)=>x.is_active&&x.provider_verified&&x.price!==null);
-  if(!allPriced)return NextResponse.json({valid:true,applied:false,code:code||null,discount:0,familyDiscount:0,message:"Offer saved. Coupon and family discounts will be calculated after MFIT verifies the lab price."});
+  const allPriced=items.every((x:any)=>x.is_active&&x.price!==null);
+  if(!allPriced)return NextResponse.json({valid:true,applied:false,code:code||null,discount:0,familyDiscount:0,message:"Offer saved. Coupon and family discounts will be calculated once MFIT catalogue prices are available."});
   const subtotal=items.reduce((s:number,x:any)=>s+Number(x.price),0);
   let discount=0,familyDiscount=0;
   if(code){
