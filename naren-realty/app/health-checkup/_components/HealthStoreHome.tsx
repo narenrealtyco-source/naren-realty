@@ -98,7 +98,7 @@ export default function HealthStoreHome() {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"packages" | "tests">("packages");\n  const [cartCount,setCartCount] = useState(0);
+  const [cartCount,setCartCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/health-catalog", { cache: "no-store" })
@@ -111,7 +111,11 @@ export default function HealthStoreHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { const syncCart=()=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); setCartCount(Array.isArray(value)?value.length:0); } catch { setCartCount(0); } }; syncCart(); window.addEventListener("mfit-cart-updated",syncCart); return ()=>window.removeEventListener("mfit-cart-updated",syncCart); }, []);\n\n  const addToCart=(slug:string)=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const current=Array.isArray(value)?value.filter((x):x is string=>typeof x==="string"):[]; if(!current.includes(slug)) current.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(current)); window.dispatchEvent(new Event("mfit-cart-updated")); } catch { window.localStorage.setItem("mfit-health-cart",JSON.stringify([slug])); window.dispatchEvent(new Event("mfit-cart-updated")); } };\n\n  const packages = useMemo(() => items.filter((item) => item.item_type === "package"), [items]);
+  useEffect(() => { const syncCart=()=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); setCartCount(Array.isArray(value)?value.length:0); } catch { setCartCount(0); } }; syncCart(); window.addEventListener("mfit-cart-updated",syncCart); return ()=>window.removeEventListener("mfit-cart-updated",syncCart); }, []);
+
+  const addToCart=(slug:string)=>{ try { const value=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const current=Array.isArray(value)?value.filter((x):x is string=>typeof x==="string"):[]; if(!current.includes(slug)) current.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(current)); window.dispatchEvent(new Event("mfit-cart-updated")); } catch { window.localStorage.setItem("mfit-health-cart",JSON.stringify([slug])); window.dispatchEvent(new Event("mfit-cart-updated")); } };
+
+  const packages = useMemo(() => items.filter((item) => item.item_type === "package"), [items]);
   const tests = useMemo(() => items.filter((item) => item.item_type === "test"), [items]);
   const popularPackages = packages.slice(0, 6);
   const popularTests = tests.slice(0, 6);
