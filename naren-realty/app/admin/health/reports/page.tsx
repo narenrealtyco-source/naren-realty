@@ -4,6 +4,7 @@ import {connection} from "next/server";
 import {createClient} from "@supabase/supabase-js";
 import {requireAdmin} from "../../../lib/supabase-server";
 import {setHealthBookingRequestReportVisibility} from "../lab-actions";
+export const instant = false;
 export const metadata={title:"MFIT Diagnostic Reports"};
 export default async function HealthReportsPage(){
  await connection();
