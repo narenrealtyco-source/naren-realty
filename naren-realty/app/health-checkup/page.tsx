@@ -103,7 +103,12 @@ function HealthContent() {
     const term = search.trim().toLowerCase();
     return services.filter((item) => {
       const matchesSearch = !term || `${item.title} ${item.subtitle}`.toLowerCase().includes(term);
-      const matchesCategory = !selected || selected === "lab-tests" ? (!selected || item.key === "blood-tests" || item.key === "health-packages") : selected === "scans" ? item.key === "scans" : true;
+      let matchesCategory = true;
+      if (selected === "lab-tests") {
+        matchesCategory = item.key === "blood-tests" || item.key === "health-packages";
+      } else if (selected && !["full-body-checkup", "lifestyle-checkup", "health-packages"].includes(selected)) {
+        matchesCategory = item.key === selected;
+      }
       return matchesSearch && matchesCategory;
     });
   }, [search, selected]);
