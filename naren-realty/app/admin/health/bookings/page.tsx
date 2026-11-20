@@ -2,10 +2,13 @@ import Link from "next/link";
 import {Suspense} from "react";
 import {connection} from "next/server";
 import {requireAdmin} from "../../../lib/supabase-server";
-import {updateHealthBooking,updateHealthBookingRequest} from "../actions";\nimport {assignMfitOrder,assignMfitRequest} from "../lab-actions";\nimport {createClient} from "@supabase/supabase-js";
+import {updateHealthBooking,updateHealthBookingRequest} from "../actions";
+import {assignMfitOrder,assignMfitRequest} from "../lab-actions";
+import {createClient} from "@supabase/supabase-js";
 async function HealthBookingsContent(){
  await connection();const {supabase}=await requireAdmin();
- const key=process.env.SUPABASE_SERVICE_ROLE_KEY;const service=key?createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}}):null;\n const [{data:orders,error:orderError},{data:requests,error:requestError},{data:boys}]=await Promise.all([
+ const key=process.env.SUPABASE_SERVICE_ROLE_KEY;const service=key?createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}}):null;
+ const [{data:orders,error:orderError},{data:requests,error:requestError},{data:boys}]=await Promise.all([
   supabase.from("health_orders").select("id,order_number,customer_name,customer_phone,items,total_amount,booking_status,payment_status,fulfilment_status,collection_date,collection_slot,admin_notes,created_at").order("created_at",{ascending:false}).limit(200),
   supabase.from("health_booking_requests").select("id,reference,customer_name,customer_phone,customer_email,pincode,address,selected_items,patient_details,coupon_code,coupon_discount,family_discount,preferred_date,preferred_slot,status,admin_notes,created_at").order("created_at",{ascending:false}).limit(200)
  ]);
