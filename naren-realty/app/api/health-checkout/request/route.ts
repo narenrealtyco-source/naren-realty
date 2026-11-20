@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.provider_verified && item.price !== null);
     if (allPricedAndVerified) {
       subtotal = Number(catalog.reduce((sum:number,item:any)=>sum + Number(item.price),0).toFixed(2));
-      if (patientName !== name) {
+      if (String(patient.relation || "Self") !== "Self") {
         const {data:rule}=await supabase.from("health_discount_rules").select("*").eq("rule_key","family_member").eq("is_active",true).maybeSingle();
         const now=Date.now();
         if(rule && (!rule.valid_from||new Date(rule.valid_from).getTime()<=now) && (!rule.valid_until||new Date(rule.valid_until).getTime()>=now)) {
