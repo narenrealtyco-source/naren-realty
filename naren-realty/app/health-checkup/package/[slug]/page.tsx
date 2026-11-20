@@ -2,6 +2,7 @@
 import {useEffect,useState,Suspense} from "react";
 import Link from "next/link";
 import {useParams} from "next/navigation";
+import { addHealthCartItem } from "../../_components/cart";
 
 type PackageTest={slug:string;title:string;description:string|null;inclusions:string[];inclusionsNote:string|null;sample_type:string|null;preparation:string|null;report_tat:string|null;provider_verified:boolean;mappingStatus:string;sortOrder:number};
 type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];inclusionsNote:string|null;package_tests:PackageTest[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
@@ -34,7 +35,7 @@ function PackageDetailContent(){
               <Link href={"/health-checkup/test/"+encodeURIComponent(t.slug)} className="mt-4 inline-flex text-xs font-bold text-[#078b8d]">View full test information →</Link>
             </div></details>)}</div>:<p className="mt-4 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-800">Individual test mapping is not yet available for this package. Please confirm the final panel with MFIT before collection.</p>}
         </article>
-        <article className="rounded-2xl bg-white p-5 shadow-sm"><h3 className="font-extrabold">Book this package</h3><p className="mt-2 text-sm leading-6 text-slate-600">Continue to patient details and preferred collection date and time. Availability is confirmed by MFIT.</p><Link href={"/health-checkup/checkout?item="+encodeURIComponent(item.slug)} className="mt-5 flex min-h-12 items-center justify-center rounded-xl bg-[#078b8d] px-5 text-sm font-extrabold text-white">BOOK THIS PACKAGE</Link></article>
+        <article className="rounded-2xl bg-white p-5 shadow-sm"><h3 className="font-extrabold">Book this package</h3><p className="mt-2 text-sm leading-6 text-slate-600">Continue to patient details and preferred collection date and time. Availability is confirmed by MFIT.</p><div className="mt-5 grid grid-cols-2 gap-3"><button type="button" onClick={()=>addHealthCartItem(item.slug)} className="flex min-h-12 items-center justify-center rounded-xl border border-[#078b8d] px-4 text-sm font-extrabold text-[#078b8d]">ADD TO CART</button><Link href={"/health-checkup/checkout?item="+encodeURIComponent(item.slug)} className="flex min-h-12 items-center justify-center rounded-xl bg-[#078b8d] px-4 text-sm font-extrabold text-white">BOOK THIS PACKAGE</Link></div></article>
       </>}
     </section>
     <nav className="fixed inset-x-0 bottom-0 z-30 grid h-[68px] grid-cols-4 border-t bg-white pb-[env(safe-area-inset-bottom)] text-[11px]"><Link href="/health-checkup" className="flex flex-col items-center justify-center gap-1">⌂<span>Home</span></Link><Link href="/health-checkup/tests" className="flex flex-col items-center justify-center gap-1">⚗<span>Lab Tests</span></Link><Link href="/health-checkup/scans" className="flex flex-col items-center justify-center gap-1">▣<span>Scans</span></Link><Link href="/health-checkup/my-orders" className="flex flex-col items-center justify-center gap-1">▤<span>My Orders</span></Link></nav>
