@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
 import { ProductCard } from "../_components/HealthStoreHome";
+import { addHealthCartItem } from "../_components/cart";
 
 type Item={id:string;slug:string;item_type:"package";title:string;category:string;description:string;inclusions:string[];package_tests:Array<{slug:string;title:string;mappingStatus:string}>;sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 const categories=["All","Full Body","Men","Women","Senior Citizens","Children","Lifestyle","Fitness","Heart Health","Diabetes","Hormones","Organ Health"];
