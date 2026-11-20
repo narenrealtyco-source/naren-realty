@@ -10,6 +10,21 @@ function serviceClient() {
  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}});
 }
 
+async function notifyCollectionPartner(admin:any,requestId:string,subject:string,message:string){
+ try{
+  const key=process.env.RESEND_API_KEY,from=process.env.MFIT_RESEND_FROM_EMAIL;
+  if(!key||!from)return;
+  const {data:request}=await admin.from("health_booking_requests").select("reference,collection_partner_id").eq("id",requestId).single();
+  if(!request?.collection_partner_id)return;
+  const {data:partner}=await admin.from("health_collection_partners").select("email,display_name").eq("id",request.collection_partner_id).single();
+  if(!partner?.email)return;
+  const safe=(value:string)=>value.replace(/[&<>"']/g,(ch:string)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch));
+  const html=`<p>Dear ${safe(partner.display_name||"Collection Partner")},</p><p>${safe(message)}</p><p><b>Booking ID:</b> ${safe(request.reference||requestId)}</p><p>You can see the latest sample and report status in your MFIT Collection Partner Dashboard.</p><p>Regards,<br>MFIT Healthcare Support</p>`;
+  const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({from,to:[partner.email],subject,html})});
+  if(!response.ok)console.error("MFIT partner notification email failed",response.status);
+ }catch(error){console.error("MFIT partner notification error",error);}
+}
+
 export async function createMfitLabStaff(formData:FormData) {
  await requireAdmin();
  const full_name=String(formData.get("full_name")||"").trim();
@@ -150,6 +165,7 @@ export async function updateLabRequestStatus(formData:FormData) {
  if(eventError)throw new Error("Status was saved but the tracking event could not be recorded. Contact MFIT Admin.");
  const {error:activityError}=await admin.from("health_lab_request_activity").insert({request_id,lab_user_id:user.id,from_status:request.sample_status,to_status:status,note:note||null});
  if(activityError)throw new Error("Status was saved but the lab activity log could not be recorded. Contact MFIT Admin.");
+ if(status==="received_at_lab"){const due=update.report_due_at?new Date(update.report_due_at).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"}):"not configured yet";await notifyCollectionPartner(admin,request_id,"MFIT Healthcare – Sample Received at Lab",`Your sample has been received by MFIT Lab. Expected report deadline: ${due}.`);}else{await notifyCollectionPartner(admin,request_id,"MFIT Healthcare – Testing in Progress","Your sample is received and testing is now in progress.");}
  revalidatePath("/lab"); revalidatePath("/collection-partner"); revalidatePath("/admin/health/bookings");
 }
 
@@ -171,16 +187,24 @@ export async function uploadMfitRequestReport(formData:FormData) {
  if(updateError)throw new Error("Report was uploaded but booking status could not be updated. Contact MFIT Admin.");
  const {error:eventError}=await admin.from("health_booking_request_tracking_events").insert({request_id,actor_user_id:user.id,actor_role:"lab",event_key:"report_submitted",from_status:request.sample_status,to_status:"report_ready",note:"Lab team submitted the report for MFIT Admin review."});
  if(eventError)throw new Error("Report was uploaded but tracking event could not be recorded. Contact MFIT Admin.");
+ await notifyCollectionPartner(admin,request_id,"MFIT Healthcare – Report Submitted","The lab has submitted your booking report to MFIT Admin for review. The report will become available according to approval and partner payment rules.");
  revalidatePath("/lab"); revalidatePath("/collection-partner"); revalidatePath("/admin/health/reports"); revalidatePath("/admin/health/bookings");
 }
 
 export async function setHealthBookingRequestReportVisibility(formData:FormData) {
- await requireAdmin();
+ const {user}=await requireAdmin();
  const id=String(formData.get("report_id")||"");
  const visible_to_customer=formData.get("visible_to_customer")==="on";
  if(!id) throw new Error("Report ID is required.");
  const db=serviceClient();
+ const {data:report,error:readError}=await db.from("health_booking_request_reports").select("id,request_id,visible_to_customer").eq("id",id).single();
+ if(readError||!report)throw new Error("Report not found.");
  const {error}=await db.from("health_booking_request_reports").update({visible_to_customer}).eq("id",id);
  if(error) throw new Error("Could not update report visibility.");
- revalidatePath("/admin/health/reports");
+ if(visible_to_customer&&!report.visible_to_customer){
+  const {error:eventError}=await db.from("health_booking_request_tracking_events").insert({request_id:report.request_id,actor_user_id:user.id,actor_role:"admin",event_key:"report_approved",from_status:"report_ready",to_status:"report_approved",note:"MFIT Admin approved report visibility."});
+  if(eventError)throw new Error("Report visibility saved but approval event could not be recorded.");
+  await notifyCollectionPartner(db,report.request_id,"MFIT Healthcare – Report Approved","MFIT Admin has approved the report. Customer access will follow the partner B2B payment and report-release rules.");
+ }
+ revalidatePath("/admin/health/reports");revalidatePath("/collection-partner");
 }
