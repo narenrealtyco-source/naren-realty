@@ -229,7 +229,7 @@ export default function HealthStoreHome() {
         </div>
       </section>
 
-      <section className="mx-auto mt-10 max-w-7xl px-4 sm:px-6">
+      <section id="contact" className="mx-auto mt-10 max-w-7xl px-4 sm:px-6">
         <div className="grid gap-4 overflow-hidden rounded-2xl bg-[#e8f8f6] p-5 sm:grid-cols-[1.2fr_.8fr] sm:items-center sm:p-8">
           <div><p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[#078b8d]">Need a little help?</p><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Have a prescription or a question?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">Our MFIT Healthcare team can help you understand available tests, packages and collection options.</p><Link href="/health-checkup/my-orders" className="mt-4 inline-flex rounded-lg bg-[#087f82] px-5 py-3 text-xs font-extrabold text-white">Track an existing request</Link></div>
           <div className="relative min-h-36 overflow-hidden rounded-xl"><img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" alt="Home sample collection" className="absolute inset-0 h-full w-full object-cover" /></div>
