@@ -86,8 +86,9 @@ function ProductCard({ item, onAddToCart }: { item: CatalogItem; onAddToCart: (s
           </div>
         </div>
       </Link>
-      <div className="px-3 pb-3 sm:px-4 sm:pb-4">
-        <Link href={`/health-checkup/checkout?item=${encodeURIComponent(item.slug)}`} className="flex min-h-10 items-center justify-center rounded-xl bg-[#08aeb1] px-3 text-xs font-extrabold text-white transition hover:bg-[#078b8d]">BOOK NOW</Link>
+      <div className="grid grid-cols-2 gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
+        <button type="button" onClick={() => onAddToCart(item.slug)} className="min-h-10 rounded-xl border border-[#08aeb1] px-2 text-[10px] font-extrabold text-[#078b8d] transition hover:bg-[#e9f8f6] sm:text-xs">ADD TO CART</button>
+        <Link href={`/health-checkup/checkout?item=${encodeURIComponent(item.slug)}`} className="flex min-h-10 items-center justify-center rounded-xl bg-[#08aeb1] px-2 text-[10px] font-extrabold text-white transition hover:bg-[#078b8d] sm:text-xs">BOOK NOW</Link>
       </div>
     </article>
   );
