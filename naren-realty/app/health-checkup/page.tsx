@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const quickActions = [
-  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/collections/full-body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
-  { title: "Book via", subtitle: "Call", symbol: "☎", href: "#contact", tone: "bg-[#edf5ff] text-[#2476bd]" },
-  { title: "Book via", subtitle: "WhatsApp", symbol: "◉", href: "#contact", tone: "bg-[#eaf8ef] text-[#23965a]" },
+  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages?category=Full%20Body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
+  { title: "Individual", subtitle: "Lab Tests", symbol: "⚗", href: "/health-checkup/tests", tone: "bg-[#edf5ff] text-[#2476bd]" },
+  { title: "Scans &", subtitle: "Imaging", symbol: "▣", href: "/health-checkup/scans", tone: "bg-[#eaf8ef] text-[#23965a]" },
+  { title: "Track", subtitle: "My Orders", symbol: "▤", href: "/health-checkup/my-orders", tone: "bg-[#fff3e9] text-[#b66a2a]" },
 ];
 
 const categories = [
@@ -139,7 +140,7 @@ export default function HealthPage() {
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">Explore health categories</h2><span className="text-xs font-semibold text-slate-400">Swipe to explore</span></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {audienceCategories.map((item) => <a key={item.title} href={`/health-checkup/collections/${item.collection}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
+          {audienceCategories.map((item) => <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
             <div className="overflow-hidden rounded-2xl bg-[#fbeef0]"><img src={item.image} alt={item.title} loading="lazy" className="h-[145px] w-full object-cover sm:h-[175px]" /></div>
             <h3 className="mt-2 text-center text-base font-semibold text-[#252b2e]">{item.title}</h3>
           </a>)}
@@ -200,7 +201,7 @@ export default function HealthPage() {
           </div>
         </div>
         <div className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {childrenCategories.map((item) => <a key={item.title} href={`/health-checkup/collections/${item.collection}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
+          {childrenCategories.map((item) => <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
             <div className="overflow-hidden rounded-xl bg-[#fde4e1]"><img src={item.image} alt={item.title} loading="lazy" className="h-[175px] w-full object-cover sm:h-[210px]" /></div>
             <h3 className="mt-2 text-center text-sm font-semibold text-[#252b2e] sm:text-base">{item.title}</h3>
           </a>)}
