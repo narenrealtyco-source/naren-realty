@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useState } from "react";
 import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
-import { addHealthCartItem } from "../_components/cart";
+import { ProductCard } from "../_components/HealthStoreHome";
 
-type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
+type Item={id:string;slug:string;item_type:"test";title:string;category:string;description:string;inclusions:string[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 export default function LabTestsPage(){
- const [items,setItems]=useState<Item[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[query,setQuery]=useState(""),[category,setCategory]=useState("All"),[expanded,setExpanded]=useState<string|null>(null);
+ const [items,setItems]=useState<Item[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[query,setQuery]=useState(""),[category,setCategory]=useState("All");
  useEffect(()=>{const params=new URLSearchParams(window.location.search);const initialCategory=params.get("category");const initialQuery=params.get("q");if(initialCategory)setCategory(initialCategory);if(initialQuery)setQuery(initialQuery);},[]);
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Unable to load tests");setItems((d.items||[]).filter((x:Item)=>x.item_type==="test"));}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[]);
  const categories=useMemo(()=>["All",...Array.from(new Set(items.map(x=>x.category))).sort()], [items]);
@@ -18,13 +18,7 @@ export default function LabTestsPage(){
    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">{categories.map(c=><button key={c} onClick={()=>setCategory(c)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold ${category===c?"border-[#078b8d] bg-[#e8f8f6] text-[#067d80]":"border-slate-200 bg-white"}`}>{c}</button>)}</div>
    <p className="my-3 text-xs text-slate-500">{loading?"Loading catalogue…":`${visible.length} tests listed`}</p>
    {error&&<p className="rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}
-   <div className="space-y-3">{visible.map(t=><article key={t.slug} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-    <div className="flex items-start justify-between gap-3"><div><span className="rounded-full bg-[#eff8f7] px-2.5 py-1 text-[10px] font-bold text-[#078b8d]">{t.category}</span><h3 className="mt-2 font-extrabold"><Link href={`/health-checkup/test/${encodeURIComponent(t.slug)}`} className="hover:text-[#078b8d]">{t.title}</Link></h3><p className="mt-1 text-xs leading-5 text-slate-500">{t.description}</p></div><span className="text-2xl text-[#078b8d]">⌁</span></div>
-    <div className="mt-3 flex flex-wrap items-center gap-2"><span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-bold text-teal-800">MFIT Healthcare</span><span className="text-xs font-semibold text-slate-600">{t.price===null?"Price to be updated":"₹"+Number(t.price).toLocaleString("en-IN")}</span></div>
-    <button type="button" onClick={()=>setExpanded(expanded===t.slug?null:t.slug)} aria-expanded={expanded===t.slug} className="mt-3 flex w-full items-center justify-between border-t border-slate-100 pt-3 text-xs font-bold text-[#078b8d]">Test details & preparation <span>{expanded===t.slug?"−":"+"}</span></button>
-    {expanded===t.slug&&<div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600"><p><b>Sample type:</b> {t.sample_type||"To be confirmed by laboratory"}</p><p className="mt-2"><b>Preparation:</b> {t.preparation||"To be confirmed by laboratory"}</p><p className="mt-2"><b>Expected report time:</b> {t.report_tat||"To be confirmed by laboratory"}</p>{t.inclusions?.length>0&&<><p className="mt-2 font-bold text-slate-700">Components listed</p><ul className="mt-1 list-disc pl-5">{t.inclusions.map(i=><li key={i}>{i}</li>)}</ul></>}</div>}
-    <div className="mt-4 flex items-center justify-between gap-3"><p className="text-xs font-semibold text-slate-600">MFIT booking request</p><div className="flex gap-2"><button type="button" onClick={()=>addHealthCartItem(t.slug)} className="rounded-xl border border-[#078b8d] px-3 py-3 text-[10px] font-extrabold text-[#078b8d]">ADD</button><Link href={`/health-checkup/test/${encodeURIComponent(t.slug)}`} className="rounded-xl bg-[#078b8d] px-4 py-3 text-xs font-extrabold text-white">VIEW & BOOK</Link></div></div>
-   </article>)}</div>
+   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{visible.map(t=><ProductCard key={t.slug} item={t} onAddToCart={(slug)=>{ const current=JSON.parse(window.localStorage.getItem("mfit-health-cart")||"[]"); const next=Array.isArray(current)?current.filter((x):x is string=>typeof x==="string"):[]; if(!next.includes(slug))next.push(slug); window.localStorage.setItem("mfit-health-cart",JSON.stringify(next)); window.dispatchEvent(new Event("mfit-cart-updated")); }} />)}</div>
    {!loading&&!error&&visible.length===0&&<p className="rounded-xl bg-white p-6 text-center text-sm text-slate-500">No matching tests found.</p>}
    <p className="mt-5 text-[11px] leading-5 text-slate-400">Prices are displayed only after MFIT verifies them with the performing laboratory. Test information is not medical advice.</p>
   </section>
