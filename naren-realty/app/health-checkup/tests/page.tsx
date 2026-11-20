@@ -5,6 +5,7 @@ import Link from "next/link";
 type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 export default function LabTestsPage(){
  const [items,setItems]=useState<Item[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[query,setQuery]=useState(""),[category,setCategory]=useState("All"),[expanded,setExpanded]=useState<string|null>(null);
+ useEffect(()=>{const params=new URLSearchParams(window.location.search);const initialCategory=params.get("category");const initialQuery=params.get("q");if(initialCategory)setCategory(initialCategory);if(initialQuery)setQuery(initialQuery);},[]);
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Unable to load tests");setItems((d.items||[]).filter((x:Item)=>x.item_type==="test"));}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[]);
  const categories=useMemo(()=>["All",...Array.from(new Set(items.map(x=>x.category))).sort()], [items]);
  const visible=useMemo(()=>items.filter(x=>(category==="All"||x.category===category)&&(x.title+" "+x.description+" "+x.category).toLowerCase().includes(query.toLowerCase())).sort((a,b)=>a.title.localeCompare(b.title)),[items,category,query]);

@@ -4,22 +4,22 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const quickActions = [
-  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages", tone: "bg-[#eaf8f7] text-[#078b8d]" },
+  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages?category=Full%20Body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
   { title: "Book via", subtitle: "Call", symbol: "☎", href: "#contact", tone: "bg-[#edf5ff] text-[#2476bd]" },
   { title: "Book via", subtitle: "WhatsApp", symbol: "◉", href: "#contact", tone: "bg-[#eaf8ef] text-[#23965a]" },
 ];
 
 const categories = [
-  { title: "Full Body Checkup", subtitle: "Explore preventive health packages", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85", tag: "Popular" },
-  { title: "Lifestyle Checkup", subtitle: "Health screening for everyday wellbeing", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
-  { title: "Women's Health", subtitle: "Screening and wellness options", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
-  { title: "Senior Citizen Care", subtitle: "Health checkup options for seniors", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+  { title: "Full Body Checkup", subtitle: "Explore preventive health packages", category: "Full Body", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85", tag: "Popular" },
+  { title: "Lifestyle Checkup", subtitle: "Health screening for everyday wellbeing", category: "Lifestyle", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+  { title: "Women's Health", subtitle: "Screening and wellness options", category: "Women", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
+  { title: "Senior Citizen Care", subtitle: "Health checkup options for seniors", category: "Senior Citizens", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=1000&q=85", tag: "Explore" },
 ];
 
 const audienceCategories = [
-  { title: "Adult Women", image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=85" },
-  { title: "Senior Women", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=700&q=85" },
-  { title: "Fitness", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=85" },
+  { title: "Adult Women", category: "Women", image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=85" },
+  { title: "Senior Women", category: "Senior Citizens", image: "https://images.unsplash.com/photo-1576765608866-5b510464521b?auto=format&fit=crop&w=700&q=85" },
+  { title: "Fitness", category: "Fitness", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=85" },
 ];
 
 const recommendedPackages = [
@@ -29,26 +29,26 @@ const recommendedPackages = [
 ];
 
 const mostBookedPackages = [
-  { title: "Comprehensive Gold Full Body Checkup", detail: "Full body preventive health screening", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Comprehensive Silver Full Body Checkup", detail: "Essential health screening package", image: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Comprehensive Full Body Checkup", detail: "Explore a complete health screening option", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", tag: "Recommended" },
+  { title: "Comprehensive Gold Full Body Checkup", detail: "Full body preventive health screening", category: "Full Body", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Comprehensive Silver Full Body Checkup", detail: "Essential health screening package", category: "Full Body", image: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Comprehensive Full Body Checkup", detail: "Explore a complete health screening option", category: "Full Body", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", tag: "Recommended" },
 ];
 
 const childrenCategories = [
-  { title: "Full Body Checkup", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=85" },
-  { title: "Growth & Nutrition", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
-  { title: "Allergy & Infection", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
+  { title: "Full Body Checkup", category: "Children", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=85" },
+  { title: "Growth & Nutrition", category: "Children", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
+  { title: "Allergy & Infection", category: "Children", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
 ];
 const lifestylePackages = [
-  { title: "Fatigue Monitoring Checkup", detail: "Explore screening options for common causes of fatigue", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=85" },
-  { title: "Nutrition Checkup", detail: "Nutrition-focused health screening options", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" },
-  { title: "Weight Management Checkup", detail: "Explore health assessments related to weight management", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85" },
+  { title: "Fatigue Monitoring Checkup", category: "Lifestyle", detail: "Explore screening options for common causes of fatigue", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=85" },
+  { title: "Nutrition Checkup", category: "Lifestyle", detail: "Nutrition-focused health screening options", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" },
+  { title: "Weight Management Checkup", category: "Lifestyle", detail: "Explore health assessments related to weight management", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85" },
 ];
 
 const mostBookedTests = [
-  { title: "Complete Blood Count (CBC)", detail: "Common blood screening test", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Thyroid Profile", detail: "Thyroid function blood test", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
-  { title: "Vitamin D Test", detail: "Vitamin D level assessment", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Complete Blood Count (CBC)", detail: "Common blood screening test", category: "Blood", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Thyroid Profile", detail: "Thyroid function blood test", category: "Thyroid", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
+  { title: "Vitamin D Test", detail: "Vitamin D level assessment", category: "Vitamins", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
 ];
 
 const services = [
@@ -120,7 +120,7 @@ export default function HealthPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {filtered.map((item) => (
-            <a key={item.title} href="/health-checkup/packages" className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+            <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="group overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
               <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#087f82]">{item.tag}</span></div>
               <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{item.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{item.subtitle}</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Enquire now <span className="ml-1">→</span></span></div>
             </a>
@@ -132,14 +132,14 @@ export default function HealthPage() {
       <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests" : "/health-checkup/packages"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
+          {services.map((item) => <Link key={item.title} href={item.title === "Blood Tests" ? "/health-checkup/tests?category=Blood" : "/health-checkup/packages?category=Full%20Body"} className="group flex overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100"><img src={item.image} alt="" loading="lazy" className="h-28 w-28 shrink-0 object-cover sm:h-32 sm:w-32" /><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">{item.title}</strong><span className="mt-1 text-xs leading-4 text-slate-500">{item.description}</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span></Link>)}
         </div>
       </section>
 
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">Explore health categories</h2><span className="text-xs font-semibold text-slate-400">Swipe to explore</span></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {audienceCategories.map((item) => <a key={item.title} href="#recommended" className="w-[72%] shrink-0 snap-start sm:w-auto">
+          {audienceCategories.map((item) => <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
             <div className="overflow-hidden rounded-2xl bg-[#fbeef0]"><img src={item.image} alt={item.title} loading="lazy" className="h-[145px] w-full object-cover sm:h-[175px]" /></div>
             <h3 className="mt-2 text-center text-base font-semibold text-[#252b2e]">{item.title}</h3>
           </a>)}
@@ -147,7 +147,7 @@ export default function HealthPage() {
       </section>
 
       <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <a href="#recommended" className="flex min-h-[76px] items-center justify-center rounded-2xl bg-[#08b8bb] px-4 py-5 text-center text-base font-extrabold text-white shadow-[0_8px_18px_rgba(8,184,187,0.2)] transition hover:bg-[#079da0] sm:text-lg">Explore Packages for Women <span className="ml-2">→</span></a>
+        <Link href="/health-checkup/packages?category=Women" className="flex min-h-[76px] items-center justify-center rounded-2xl bg-[#08b8bb] px-4 py-5 text-center text-base font-extrabold text-white shadow-[0_8px_18px_rgba(8,184,187,0.2)] transition hover:bg-[#079da0] sm:text-lg">Explore Packages for Women <span className="ml-2">→</span></Link>
       </section>
 
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
@@ -155,7 +155,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/tests" : "/health-checkup/packages"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? `/health-checkup/tests?category=Blood` : `/health-checkup/packages?category=${encodeURIComponent(item.label === "Women's health" ? "Women" : "Full Body")}`} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
           </article>)}
         </div>
       </section>
@@ -180,7 +180,7 @@ export default function HealthPage() {
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages" : "/health-checkup/tests"} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <Link href={mostBookedTab === "packages" ? `/health-checkup/packages?category=${encodeURIComponent(item.category || "Full Body")}` : `/health-checkup/tests?category=${encodeURIComponent(item.category || "Blood")}`} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
               </div>
             </article>
           ))}
@@ -200,7 +200,7 @@ export default function HealthPage() {
           </div>
         </div>
         <div className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {childrenCategories.map((item) => <a key={item.title} href="#contact" className="w-[72%] shrink-0 snap-start sm:w-auto">
+          {childrenCategories.map((item) => <a key={item.title} href={`/health-checkup/packages?category=${encodeURIComponent(item.category)}`} className="w-[72%] shrink-0 snap-start sm:w-auto">
             <div className="overflow-hidden rounded-xl bg-[#fde4e1]"><img src={item.image} alt={item.title} loading="lazy" className="h-[175px] w-full object-cover sm:h-[210px]" /></div>
             <h3 className="mt-2 text-center text-sm font-semibold text-[#252b2e] sm:text-base">{item.title}</h3>
           </a>)}
@@ -212,7 +212,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {lifestylePackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <img src={item.image} alt={item.title} loading="lazy" className="h-[190px] w-full object-cover" />
-            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><a href="#contact" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">ENQUIRE</a></div>
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><Link href="/health-checkup/packages?category=Lifestyle" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
           </article>)}
         </div>
       </section>
