@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import HealthStoreHeader from "../_components/HealthStoreHeader";
 import Link from "next/link";
 import { addHealthCartItem } from "../_components/cart";
 
@@ -11,7 +12,7 @@ export default function HealthPackagesPage(){
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Unable to load packages");setItems((d.items||[]).filter((x:Item)=>x.item_type==="package"));}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[]);
  const visible=useMemo(()=>items.filter(p=>(category==="All"||p.category===category)&&(p.title+" "+p.description+" "+(p.inclusions||[]).join(" ")).toLowerCase().includes(query.toLowerCase())).sort((a,b)=>a.title.localeCompare(b.title)),[items,category,query]);
  return <main className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
-  <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 px-4 py-4 backdrop-blur"><div className="mx-auto flex max-w-4xl items-center gap-3"><Link href="/health-checkup" aria-label="Back" className="grid size-10 place-items-center rounded-full border border-slate-200 text-2xl">‹</Link><div className="flex-1"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#078b8d]">MFIT Healthcare</p><h1 className="text-lg font-extrabold">Health Checkup Packages</h1></div><Link href="/health-checkup/tests" className="text-xs font-bold text-[#078b8d]">Single Tests</Link></div></header>
+  <HealthStoreHeader title="Health Checkup Packages" backHref="/health-checkup" />
   <section className="mx-auto max-w-4xl px-4 py-6"><div className="rounded-3xl bg-gradient-to-br from-[#dff7f4] to-[#edf5ff] p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#078b8d]">Choose by health goal</p><h2 className="mt-2 text-2xl font-extrabold">Explore diagnostic packages</h2><p className="mt-2 text-sm leading-6 text-slate-600">Open each package to review its listed components, linked single tests, sample and preparation information before booking.</p></div>
    <label className="mt-5 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3"><span className="text-xl">⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search packages or included tests" className="w-full bg-transparent text-sm outline-none"/></label>
    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">{categories.map(c=><button key={c} onClick={()=>setCategory(c)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-bold ${category===c?"border-[#078b8d] bg-[#e8f8f6] text-[#067d80]":"border-slate-200 bg-white text-slate-600"}`}>{c}</button>)}</div>
