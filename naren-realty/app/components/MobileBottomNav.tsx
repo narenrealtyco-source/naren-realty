@@ -13,7 +13,8 @@ const links = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  if (pathname === "/health-checkup") return null;\n  const isHomeSection = pathname === "/" || pathname === "/events";
+  if (pathname === "/health-checkup") return null;
+  const isHomeSection = pathname === "/" || pathname === "/events";
   if (!isHomeSection && !links.some(({ href }) => pathname === href || pathname.startsWith(`${href}/`))) return null;
 
   return <>
