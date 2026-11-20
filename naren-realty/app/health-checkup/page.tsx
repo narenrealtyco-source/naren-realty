@@ -34,6 +34,18 @@ const mostBookedPackages = [
   { title: "Comprehensive Silver Full Body Checkup", detail: "Essential health screening package", image: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
   { title: "Comprehensive Full Body Checkup", detail: "Explore a complete health screening option", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", tag: "Recommended" },
 ];
+
+const childrenCategories = [
+  { title: "Full Body Checkup", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=85" },
+  { title: "Growth & Nutrition", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
+  { title: "Allergy & Infection", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" },
+];
+const lifestylePackages = [
+  { title: "Fatigue Monitoring Checkup", detail: "Explore screening options for common causes of fatigue", image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=85" },
+  { title: "Nutrition Checkup", detail: "Nutrition-focused health screening options", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" },
+  { title: "Weight Management Checkup", detail: "Explore health assessments related to weight management", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85" },
+];
+
 const mostBookedTests = [
   { title: "Complete Blood Count (CBC)", detail: "Common blood screening test", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
   { title: "Thyroid Profile", detail: "Thyroid function blood test", image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=85", tag: "Popular" },
@@ -176,6 +188,35 @@ export default function HealthPage() {
           ))}
         </div>
         <div className="mx-auto h-1 w-2/3 rounded-full bg-slate-200 sm:hidden"><div className="h-1 w-1/4 rounded-full bg-[#172326]" /></div>
+      </section>
+
+
+      <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-2xl bg-[#fde4e1]">
+          <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=85" alt="Doctor with parent and child" loading="lazy" className="absolute inset-y-0 right-0 h-full w-[48%] object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fde4e1] via-[#fde4e1]/95 to-transparent" />
+          <div className="relative max-w-[68%] px-5 py-7 sm:px-8 sm:py-10">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a53e4c] sm:text-xs">MFIT Healthcare</p>
+            <h2 className="mt-2 text-xl font-extrabold leading-tight text-[#7d2335] sm:text-3xl">Introducing Children's Health Checkup Range</h2>
+            <p className="mt-2 text-xs leading-5 text-[#392c30] sm:text-base">Packages for growth, nutrition, allergies and more</p>
+          </div>
+        </div>
+        <div className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {childrenCategories.map((item) => <a key={item.title} href="#contact" className="w-[72%] shrink-0 snap-start sm:w-auto">
+            <div className="overflow-hidden rounded-xl bg-[#fde4e1]"><img src={item.image} alt={item.title} loading="lazy" className="h-[175px] w-full object-cover sm:h-[210px]" /></div>
+            <h3 className="mt-2 text-center text-sm font-semibold text-[#252b2e] sm:text-base">{item.title}</h3>
+          </a>)}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Personalised wellness</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Packages for lifestyle concerns</h2></div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {lifestylePackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <img src={item.image} alt={item.title} loading="lazy" className="h-[190px] w-full object-cover" />
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><a href="#contact" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">ENQUIRE</a></div>
+          </article>)}
+        </div>
       </section>
 
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
