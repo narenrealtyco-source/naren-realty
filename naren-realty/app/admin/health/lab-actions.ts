@@ -119,17 +119,38 @@ export async function assignMfitRequest(formData:FormData) {
 export async function updateLabRequestStatus(formData:FormData) {
  const request_id=String(formData.get("request_id")||"");
  const status=String(formData.get("sample_status")||"");
- const note=String(formData.get("note")||"").slice(0,1000);
- const allowed=["assigned","boy_reached","sample_collected","received_at_lab","processing","report_ready"];
- if(!request_id||!allowed.includes(status)) throw new Error("Invalid status.");
+ const note=String(formData.get("note")||"").trim().slice(0,1000);
+ if(!request_id||!["received_at_lab","processing"].includes(status)) throw new Error("Choose sample receipt or processing status.");
  const {admin,user,staff}=await requireMfitLab();
- const {data:request,error:readError}=await admin.from("health_booking_requests").select("id,lab_partner_id,sample_status").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
+ const {data:request,error:readError}=await admin.from("health_booking_requests").select("id,lab_partner_id,sample_status,sample_collected_at,lab_received_at,selected_items").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
  if(readError||!request) throw new Error("Request is not assigned to this MFIT lab.");
- const statusMap:any={assigned:"confirmed",boy_reached:"confirmed",sample_collected:"confirmed",received_at_lab:"confirmed",processing:"confirmed",report_ready:"confirmed"};
- const {error}=await admin.from("health_booking_requests").update({sample_status:status,status:statusMap[status],updated_at:new Date().toISOString()}).eq("id",request_id);
+ const now=new Date();
+ const nowIso=now.toISOString();
+ const update:any={sample_status:status,updated_at:nowIso};
+ if(status==="received_at_lab"){
+  if(!request.sample_collected_at) throw new Error("Collection Partner must confirm sample collection before Lab receiving.");
+  if(request.lab_received_at) throw new Error("Lab receiving is already confirmed.");
+  const items=Array.isArray(request.selected_items)?request.selected_items:[];
+  const hours=items.map((x:any)=>Number(x.report_tat_hours)).filter((n:number)=>Number.isFinite(n)&&n>=0.25&&n<=720);
+  const allConfigured=items.length>0&&hours.length===items.length;
+  const tatHours=allConfigured?Math.max(...hours):null;
+  update.lab_received_at=nowIso;
+  update.lab_received_by=user.id;
+  update.report_tat_hours=tatHours;
+  update.report_due_at=tatHours===null?null:new Date(now.getTime()+tatHours*60*60*1000).toISOString();
+  update.partner_tracking_note=note||null;
+ }else{
+  if(!request.lab_received_at) throw new Error("Confirm Lab Receiving before starting processing.");
+  if(request.sample_status==="report_ready") throw new Error("A submitted report cannot be moved back to processing.");
+  if(note)update.partner_tracking_note=note;
+ }
+ const {error}=await admin.from("health_booking_requests").update(update).eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id);
  if(error) throw new Error("Could not update request status.");
- await admin.from("health_lab_request_activity").insert({request_id,lab_user_id:user.id,from_status:request.sample_status,to_status:status,note:note||null});
- revalidatePath("/lab"); revalidatePath("/admin/health/bookings");
+ const {error:eventError}=await admin.from("health_booking_request_tracking_events").insert({request_id,actor_user_id:user.id,actor_role:"lab",event_key:status,from_status:request.sample_status,to_status:status,note:note||null});
+ if(eventError)throw new Error("Status was saved but the tracking event could not be recorded. Contact MFIT Admin.");
+ const {error:activityError}=await admin.from("health_lab_request_activity").insert({request_id,lab_user_id:user.id,from_status:request.sample_status,to_status:status,note:note||null});
+ if(activityError)throw new Error("Status was saved but the lab activity log could not be recorded. Contact MFIT Admin.");
+ revalidatePath("/lab"); revalidatePath("/collection-partner"); revalidatePath("/admin/health/bookings");
 }
 
 export async function uploadMfitRequestReport(formData:FormData) {
@@ -137,15 +158,20 @@ export async function uploadMfitRequestReport(formData:FormData) {
  const file=formData.get("report");
  if(!request_id||!(file instanceof File)||file.type!=="application/pdf"||file.size<1||file.size>15*1024*1024) throw new Error("Upload a PDF report up to 15 MB.");
  const {admin,user,staff}=await requireMfitLab();
- const {data:request,error}=await admin.from("health_booking_requests").select("id,lab_partner_id,reference").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
+ const {data:request,error}=await admin.from("health_booking_requests").select("id,lab_partner_id,reference,sample_status,lab_received_at").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
  if(error||!request) throw new Error("Request is not assigned to this MFIT lab.");
+ if(!request.lab_received_at)throw new Error("Confirm sample receipt at the lab before uploading a report.");
  const path="requests/"+request.id+"/"+Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
  const {error:uploadError}=await admin.storage.from("mfit-private-reports").upload(path,file,{contentType:"application/pdf",upsert:false});
  if(uploadError) throw new Error("Report upload failed: "+uploadError.message);
  const {error:insertError}=await admin.from("health_booking_request_reports").insert({request_id,report_title:file.name,storage_path:path,uploaded_by:user.id,visible_to_customer:false});
  if(insertError){await admin.storage.from("mfit-private-reports").remove([path]);throw new Error("Report record could not be saved.");}
- await admin.from("health_booking_requests").update({sample_status:"report_ready",updated_at:new Date().toISOString()}).eq("id",request_id);
- revalidatePath("/lab"); revalidatePath("/admin/health/reports"); revalidatePath("/admin/health/bookings");
+ const now=new Date().toISOString();
+ const {error:updateError}=await admin.from("health_booking_requests").update({sample_status:"report_ready",report_submitted_at:now,updated_at:now}).eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id);
+ if(updateError)throw new Error("Report was uploaded but booking status could not be updated. Contact MFIT Admin.");
+ const {error:eventError}=await admin.from("health_booking_request_tracking_events").insert({request_id,actor_user_id:user.id,actor_role:"lab",event_key:"report_submitted",from_status:request.sample_status,to_status:"report_ready",note:"Lab team submitted the report for MFIT Admin review."});
+ if(eventError)throw new Error("Report was uploaded but tracking event could not be recorded. Contact MFIT Admin.");
+ revalidatePath("/lab"); revalidatePath("/collection-partner"); revalidatePath("/admin/health/reports"); revalidatePath("/admin/health/bookings");
 }
 
 export async function setHealthBookingRequestReportVisibility(formData:FormData) {
