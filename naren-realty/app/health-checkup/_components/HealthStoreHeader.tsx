@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 
 export default function HealthStoreHeader({ title, backHref = "/health-checkup" }: { title?: string; backHref?: string }) {
@@ -19,7 +19,7 @@ export default function HealthStoreHeader({ title, backHref = "/health-checkup" 
     return () => window.removeEventListener("mfit-cart-updated",sync);
   },[]);
 
-  const search = (event: React.FormEvent) => {
+  const search = (event: FormEvent) => {
     event.preventDefault();
     if(query.trim()) window.location.href = "/health-checkup/search?q=" + encodeURIComponent(query.trim());
   };
