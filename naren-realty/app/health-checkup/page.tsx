@@ -4,10 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const quickActions = [
-  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/full-body-checkup", tone: "bg-[#eaf8f7] text-[#078b8d]" },
+  { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages", tone: "bg-[#eaf8f7] text-[#078b8d]" },
   { title: "Book via", subtitle: "Call", symbol: "☎", href: "#contact", tone: "bg-[#edf5ff] text-[#2476bd]" },
   { title: "Book via", subtitle: "WhatsApp", symbol: "◉", href: "#contact", tone: "bg-[#eaf8ef] text-[#23965a]" },
-  { title: "Upload", subtitle: "Prescription", symbol: "▤", href: "#prescription", tone: "bg-[#fff0f5] text-[#c45a87]" },
 ];
 
 const categories = [
@@ -55,7 +54,6 @@ const mostBookedTests = [
 const services = [
   { title: "Blood Tests", description: "Browse individual lab tests", image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=85" },
   { title: "Home Sample Collection", description: "Ask about sample collection at home", image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=85" },
-  { title: "Doctor Consultation", description: "Explore consultation options", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=85" },
 ];
 
 function Brand() {
