@@ -7,7 +7,7 @@ async function HealthBookingsContent(){
  await connection();const {supabase}=await requireAdmin();
  const [{data:orders,error:orderError},{data:requests,error:requestError}]=await Promise.all([
   supabase.from("health_orders").select("id,order_number,customer_name,customer_phone,items,total_amount,booking_status,payment_status,fulfilment_status,collection_date,collection_slot,admin_notes,created_at").order("created_at",{ascending:false}).limit(200),
-  supabase.from("health_booking_requests").select("id,reference,customer_name,customer_phone,customer_email,selected_items,patient_details,coupon_code,coupon_discount,family_discount,preferred_date,preferred_slot,status,admin_notes,created_at").order("created_at",{ascending:false}).limit(200)
+  supabase.from("health_booking_requests").select("id,reference,customer_name,customer_phone,customer_email,pincode,address,selected_items,patient_details,coupon_code,coupon_discount,family_discount,preferred_date,preferred_slot,status,admin_notes,created_at").order("created_at",{ascending:false}).limit(200)
  ]);
  if(orderError||requestError)throw new Error("Could not load MFIT bookings and requests.");
  return <main className="min-h-screen bg-slate-50 p-4"><div className="mx-auto max-w-6xl"><Link href="/admin/health" className="text-sm font-semibold">‹ MFIT Admin</Link><h1 className="mt-4 text-2xl font-extrabold">Bookings & Fulfilment</h1><p className="mt-1 text-sm text-slate-500">Review customer requests, confirm lab pricing and collection capacity, then manage paid orders separately.</p>
