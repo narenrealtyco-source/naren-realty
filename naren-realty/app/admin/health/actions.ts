@@ -191,3 +191,14 @@ export async function updateHealthLabPartner(formData: FormData) {
   if(error) throw new Error("Could not update lab partner: "+error.message);
   revalidatePath("/admin/health/labs");
 }
+
+export async function updateHealthBookingRequest(formData: FormData) {
+  const id=String(formData.get("request_id")||"");
+  const status=String(formData.get("status")||"pending_confirmation");
+  const notes=String(formData.get("admin_notes")||"").slice(0,3000);
+  if(!id||!["pending_confirmation","quote_ready","payment_pending","confirmed","cancelled"].includes(status)) throw new Error("Invalid booking request update.");
+  const {supabase}=await requireAdmin();
+  const {error}=await supabase.from("health_booking_requests").update({status,admin_notes:notes,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error) throw new Error("Could not update booking request: "+error.message);
+  revalidatePath("/admin/health/bookings");
+}
