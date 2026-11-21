@@ -197,9 +197,9 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
           <span className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-50 text-3xl font-bold text-emerald-700">✓</span>
           <p className="mt-5 text-xs font-extrabold uppercase tracking-[.18em] text-emerald-700">Booking request received</p>
           <h1 className="mt-2 text-2xl font-extrabold">Thank you for your booking</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600">Your collection partner will contact you to confirm the collection visit.</p>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Your booking is confirmed. Your collection partner may contact you if the visit time needs to be rescheduled.</p>
           <p className="mt-5 rounded-xl bg-[#f7fafb] p-4 text-sm font-extrabold">Booking reference: {success}</p>
-          <p className="mt-4 text-xs leading-5 text-slate-500">Your preferred date and time will be confirmed by the collection partner.</p>
+          <p className="mt-4 text-xs leading-5 text-slate-500">Your selected visit time is booked. If the collection partner is busy, they can reschedule it and share the revised time with you.</p>
         </section>
       </main>
     );
