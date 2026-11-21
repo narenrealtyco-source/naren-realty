@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { getCustomerSession, supabase, updateCustomerPassword } from "../../lib/customers";
+import { supabase, updateCustomerPassword } from "../../lib/customers";
 
 export default function CustomerResetPasswordPage() {
   const [checkingSession, setCheckingSession] = useState(true);
@@ -19,16 +19,16 @@ export default function CustomerResetPasswordPage() {
 
     async function validateRecoverySession() {
       try {
-        const customer = await getCustomerSession();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (!active) return;
-        if (!customer) {
-          setError("This password reset link is invalid or has expired.");
+        if (userError || !user) {
+          setError("This password reset link is invalid or has expired. Please request a fresh link.");
           return;
         }
         setValidSession(true);
         setError("");
       } catch {
-        if (active) setError("This password reset link is invalid or not available for a customer account.");
+        if (active) setError("This password reset link could not be verified. Please request a fresh link.");
       } finally {
         if (active) setCheckingSession(false);
       }
@@ -101,7 +101,7 @@ export default function CustomerResetPasswordPage() {
           <label className="block text-sm font-semibold">Confirm new password<input required type="password" minLength={8} autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal outline-none focus:border-amber-500" /></label>
           {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
           <button disabled={submitting} className="w-full rounded-lg bg-[#10243A] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{submitting ? "Updating..." : "Update password"}</button>
-        </form> : <div className="mt-4 space-y-4"><p role="alert" className="text-sm text-rose-700">{error}</p><Link href="/account#login" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#10243A] underline">Return to Customer Login</Link></div>}
+        </form> : <div className="mt-4 space-y-4"><p role="alert" className="text-sm text-rose-700">{error}</p><Link href="/account#login" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#10243A] underline">Return to Login</Link></div>}
       </section>
     </main>
   );
