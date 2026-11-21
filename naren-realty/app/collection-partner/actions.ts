@@ -33,21 +33,22 @@ export async function updatePartnerBooking(formData:FormData){
   if(eventError)throw eventError;
  }else if(action==="reschedule"){
   const date=String(formData.get("new_date")||"");
-  const slot=String(formData.get("new_slot")||"").trim();
+  const time=String(formData.get("new_time")||"");
   const reason=String(formData.get("reason")||"").trim();
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!slot||reason.length<3)throw new Error("Choose a new visit date, time and reason.");
-  const dateTime=new Date(date+"T00:00:00");
-  const today=new Date();today.setHours(0,0,0,0);
-  if(Number.isNaN(dateTime.getTime())||dateTime<today)throw new Error("New visit date must be today or later.");
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||reason.length<3)throw new Error("Choose a new visit date, time and reason.");
+  const [hours,minutes]=time.split(":").map(Number);
+  const label=(hours%12||12)+":"+String(minutes).padStart(2,"0")+" "+(hours>=12?"PM":"AM");
+  const dateTime=new Date(date+"T"+time+":00+05:30");
+  if(Number.isNaN(dateTime.getTime())||dateTime.getTime()<=Date.now())throw new Error("New visit time must be in the future.");
   const now=new Date().toISOString();
   const {error}=await admin.from("health_booking_requests").update({
-   preferred_date:date,preferred_slot:slot,updated_at:now
+   preferred_date:date,preferred_slot:label,updated_at:now
   }).eq("id",id).eq("collection_partner_id",partner.id);
   if(error)throw error;
   const {error:eventError}=await admin.from("health_booking_request_tracking_events").insert({
    request_id:id,actor_user_id:user.id,actor_role:"collection_partner",actor_partner_id:partner.id,
    event_key:"visit_rescheduled",from_status:b.status,to_status:b.status,
-   note:"Visit rescheduled from "+b.preferred_date+" ("+b.preferred_slot+") to "+date+" ("+slot+"). Reason: "+reason
+   note:"Visit rescheduled from "+b.preferred_date+" ("+b.preferred_slot+") to "+date+" ("+label+"). Reason: "+reason
   });
   if(eventError)throw eventError;
  }else throw new Error("Invalid action.");
