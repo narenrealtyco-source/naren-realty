@@ -347,9 +347,6 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
               <button type="button" onClick={() => document.getElementById("collection-steps")?.scrollIntoView({ behavior: "smooth" })} className="group flex overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
                 <span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#e1f7f3] via-[#effbfa] to-[#e7f0ff] text-4xl text-[#07999b] sm:h-32 sm:w-32">⌂</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">Home Sample Collection</strong><span className="mt-1 text-xs leading-4 text-slate-500">Ask about sample collection at home</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span>
               </button>
-              <button type="button" onClick={() => selected.length ? setBookingOpen(true) : setError("Please add a test or package first.")} className="group flex overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
-                <span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#fff1e8] via-[#fff8f1] to-[#fff0ee] text-4xl text-[#c76c69] sm:h-32 sm:w-32">▤</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">My Booking</strong><span className="mt-1 text-xs leading-4 text-slate-500">Review selected tests and packages</span><span className="mt-2 text-xs font-bold text-[#078b8d]">View booking →</span></span>
-              </button>
             </div>
           </section>
 
