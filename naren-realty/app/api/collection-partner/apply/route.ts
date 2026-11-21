@@ -8,8 +8,12 @@ export async function POST(req: NextRequest) {
     const phone = String(body.phone || "").replace(/\D/g, "");
     const email = String(body.email || "").trim().toLowerCase();
     const address = String(body.address || "").trim();
-    const service_areas = String(body.service_areas || "")
-      .split(",").map((area: string) => area.trim()).filter(Boolean);
+    const rawAreas = Array.isArray(body.service_areas)
+      ? body.service_areas
+      : String(body.service_areas || "").split(",");
+    const service_areas = Array.from(new Set(
+      rawAreas.map((area: unknown) => String(area).trim().replace(/\s+/g, " ")).filter(Boolean)
+    ));
 
     if (
       contact_name.length < 2 ||
@@ -19,7 +23,7 @@ export async function POST(req: NextRequest) {
       !service_areas.length
     ) {
       return NextResponse.json(
-        { error: "Please enter valid contact name, mobile, email, address and service areas." },
+        { error: "Please enter valid contact name, mobile, email, address and at least one service area." },
         { status: 400 }
       );
     }
