@@ -44,9 +44,12 @@ export default function CustomerResetPasswordPage() {
 
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const queryParams = new URLSearchParams(window.location.search);
-    const isRecoveryLink = hashParams.get("type") === "recovery" || queryParams.get("type") === "recovery";
+    const isRecoveryLink = hashParams.get("type") === "recovery" || queryParams.get("type") === "recovery" || queryParams.has("code") || queryParams.get("recovery") === "1";
 
-    if (isRecoveryLink) {
+    if (queryParams.get("auth_error") === "code_exchange") {
+      setCheckingSession(false);
+      setError("This reset link could not be verified. Please request a new password reset email.");
+    } else if (isRecoveryLink) {
       void supabase.auth.getSession().then(({ data: { session } }) => {
         if (!active || !session || recoveryDetected) return;
         recoveryDetected = true;
