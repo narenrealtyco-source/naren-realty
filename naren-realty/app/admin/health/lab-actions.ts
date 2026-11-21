@@ -155,7 +155,7 @@ export async function updateLabRequestStatus(formData:FormData) {
   if(!request.sample_collected_at) throw new Error("Collection Partner must confirm sample collection before Lab receiving.");
   if(request.lab_received_at) throw new Error("Lab receiving is already confirmed.");
   const items=Array.isArray(request.selected_items)?request.selected_items:[];
-  const parseTatHours=(value:any,label:any)=>{const direct=Number(value);if(value!==null&&value!==undefined&&Number.isFinite(direct)&&direct>=0.25&&direct<=720)return direct;const text=String(label||"");const range=text.match(/(\\d+(?:\\.\\d+)?)\\s*(?:-|–|to)\\s*(\\d+(?:\\.\\d+)?)\\s*hours?/i);if(range)return Math.max(Number(range[1]),Number(range[2]));const single=text.match(/(\\d+(?:\\.\\d+)?)\\s*hours?/i);return single?Number(single[1]):null;};
+  const parseTatHours=(value:any,label:any)=>{const direct=Number(value);if(value!==null&&value!==undefined&&Number.isFinite(direct)&&direct>=0.25&&direct<=720)return direct;const text=String(label||"");const range=text.match(/(\d+(?:\.\d+)?)\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*hours?/i);if(range)return Math.max(Number(range[1]),Number(range[2]));const single=text.match(/(\d+(?:\.\d+)?)\s*hours?/i);return single?Number(single[1]):null;};
   const hours=items.map((x:any)=>parseTatHours(x.report_tat_hours,x.report_tat)).filter((n:number|null)=>n!==null) as number[];
   const allConfigured=items.length>0&&hours.length===items.length;
   const tatHours=allConfigured?Math.max(...hours):null;
