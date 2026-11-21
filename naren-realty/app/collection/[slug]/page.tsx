@@ -133,6 +133,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [detailSlug, setDetailSlug] = useState<string | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   useEffect(() => {
     params.then((value) => setSlug(value.slug));
@@ -270,76 +271,82 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      {error && <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-6"><p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p></div>}
-
-      {selectedDetail ? (
-        <section className="mx-auto mt-8 max-w-4xl px-4 sm:px-6">
-          <button type="button" onClick={() => setDetailSlug(null)} className="mb-4 text-sm font-bold text-[#078b8d]">← Back to health catalogue</button>
-          <article className="overflow-hidden rounded-3xl border border-[#dceeed] bg-white shadow-lg">
-            <div className="bg-gradient-to-r from-[#e8f8f5] via-[#f1fbfa] to-[#edf3ff] px-5 py-6 sm:px-7">
-              <span className="rounded-full bg-white px-3 py-1 text-[10px] font-extrabold uppercase text-[#087f82]">{selectedDetail.item_type === "package" ? "HEALTH PACKAGE" : "INDIVIDUAL LAB TEST"}</span>
-              <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">{selectedDetail.title}</h2>
-              {selectedDetail.category && <p className="mt-2 text-sm font-semibold text-[#5c7475]">{selectedDetail.category}</p>}
-              {cleanCatalogueText(selectedDetail.description) && <p className="mt-3 text-sm leading-6 text-slate-600">{cleanCatalogueText(selectedDetail.description)}</p>}
-              <strong className="mt-4 block text-xl">{formatPrice(selectedDetail.customer_price)}</strong>
-            </div>
-            <div className="space-y-5 p-5 sm:p-7">
-              <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#f7fafb] p-4"><div><p className="text-[10px] font-bold uppercase text-slate-400">Sample</p><p className="mt-1 text-xs">{selectedDetail.sample_type || "To be confirmed"}</p></div><div><p className="text-[10px] font-bold uppercase text-slate-400">Preparation</p><p className="mt-1 text-xs">{selectedDetail.preparation || "To be confirmed"}</p></div><div><p className="text-[10px] font-bold uppercase text-slate-400">Report time</p><p className="mt-1 text-xs">{selectedDetail.report_tat || "To be confirmed"}</p></div></div>
-              {selectedDetail.item_type === "test" ? <ParameterList values={selectedDetail.inclusions || []} note={selectedDetail.inclusionsNote} /> : <div><h3 className="mb-3 text-base font-extrabold">Included tests & parameters</h3>{selectedDetail.package_tests?.length ? <div className="space-y-3">{selectedDetail.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : selectedDetail.inclusions?.length ? <PackageInclusionList values={selectedDetail.inclusions} /> : <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Included test and parameter details are awaiting confirmation from the performing laboratory.</p>}{selectedDetail.inclusionsNote && <p className="mt-3 text-[11px] text-amber-800">{cleanCatalogueText(selectedDetail.inclusionsNote)}</p>}</div>}
-              <button type="button" disabled={selectedDetail.customer_price === null} onClick={() => { setSelected((current) => current.includes(selectedDetail.slug) ? current : [...current, selectedDetail.slug]); setDetailSlug(null); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#078b8d] px-5 text-sm font-extrabold text-white disabled:opacity-50">{selected.includes(selectedDetail.slug) ? "Already added to booking" : "ADD TO BOOKING"}</button>
-            </div>
-          </article>
-        </section>
-      ) : (
+      {error && <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-6"><p role="alert" className="rounded-xl border border-rose-200 b      {!bookingOpen && (
         <>
-          <section className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
-            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health package categories</h2></div><span className="pb-1 text-xs font-semibold text-slate-500">{loading ? "Loading…" : generalCategories.length + " categories"}</span></div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {generalCategories.map((category, index) => <button key={category} type="button" onClick={() => { setActiveCategory(category); setKind("package"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="group overflow-hidden rounded-2xl border border-slate-100 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                <div className="relative flex aspect-[1.55/1] items-end overflow-hidden bg-[#e7f5f7] p-3"><img src={/women|female|gynae/i.test(category) ? "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85" : /men|male/i.test(category) ? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85" : /child|paediatric|pediatric/i.test(category) ? "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85" : /lifestyle|fitness|nutrition/i.test(category) ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85"} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#082b3a]/75 to-transparent" /><span className="relative rounded-full bg-white/95 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#087f82]">Health category</span></div>
-                <div className="p-3"><h3 className="text-sm font-extrabold leading-tight">{category}</h3><p className="mt-1 text-[11px] text-slate-500">{packageItems.filter((item) => item.category === category).length} packages available</p><span className="mt-2 inline-flex text-xs font-bold text-[#078b8d]">Explore packages →</span></div>
-              </button>)}
-              {!loading && generalCategories.length === 0 && <p className="col-span-full rounded-xl bg-white p-5 text-sm text-slate-500">Health package categories will appear here when available.</p>}
-            </div>
+g-rose-50 p-3 text-sm text-rose-700">{error}</p></div>}
+
+        {selectedDetail ? (
+          <section className="mx-auto mt-8 max-w-4xl px-4 sm:px-6">
+            <button type="button" onClick={() => setDetailSlug(null)} className="mb-4 text-sm font-bold text-[#078b8d]">← Back to health catalogue</button>
+            <article className="overflow-hidden rounded-3xl border border-[#dceeed] bg-white shadow-lg">
+              <div className="bg-gradient-to-r from-[#e8f8f5] via-[#f1fbfa] to-[#edf3ff] px-5 py-6 sm:px-7">
+                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-extrabold uppercase text-[#087f82]">{selectedDetail.item_type === "package" ? "HEALTH PACKAGE" : "INDIVIDUAL LAB TEST"}</span>
+                <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">{selectedDetail.title}</h2>
+                {selectedDetail.category && <p className="mt-2 text-sm font-semibold text-[#5c7475]">{selectedDetail.category}</p>}
+                {cleanCatalogueText(selectedDetail.description) && <p className="mt-3 text-sm leading-6 text-slate-600">{cleanCatalogueText(selectedDetail.description)}</p>}
+                <strong className="mt-4 block text-xl">{formatPrice(selectedDetail.customer_price)}</strong>
+              </div>
+              <div className="space-y-5 p-5 sm:p-7">
+                <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#f7fafb] p-4"><div><p className="text-[10px] font-bold uppercase text-slate-400">Sample</p><p className="mt-1 text-xs">{selectedDetail.sample_type || "To be confirmed"}</p></div><div><p className="text-[10px] font-bold uppercase text-slate-400">Preparation</p><p className="mt-1 text-xs">{selectedDetail.preparation || "To be confirmed"}</p></div><div><p className="text-[10px] font-bold uppercase text-slate-400">Report time</p><p className="mt-1 text-xs">{selectedDetail.report_tat || "To be confirmed"}</p></div></div>
+                {selectedDetail.item_type === "test" ? <ParameterList values={selectedDetail.inclusions || []} note={selectedDetail.inclusionsNote} /> : <div><h3 className="mb-3 text-base font-extrabold">Included tests & parameters</h3>{selectedDetail.package_tests?.length ? <div className="space-y-3">{selectedDetail.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : selectedDetail.inclusions?.length ? <PackageInclusionList values={selectedDetail.inclusions} /> : <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Included test and parameter details are awaiting confirmation from the performing laboratory.</p>}{selectedDetail.inclusionsNote && <p className="mt-3 text-[11px] text-amber-800">{cleanCatalogueText(selectedDetail.inclusionsNote)}</p>}</div>}
+                <button type="button" disabled={selectedDetail.customer_price === null} onClick={() => { setSelected((current) => current.includes(selectedDetail.slug) ? current : [...current, selectedDetail.slug]); setDetailSlug(null); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#078b8d] px-5 text-sm font-extrabold text-white disabled:opacity-50">{selected.includes(selectedDetail.slug) ? "Already added to booking" : "ADD TO BOOKING"}</button>
+              </div>
+            </article>
           </section>
+        ) : (
+          <>
+            <section className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
+              <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health package categories</h2></div><span className="pb-1 text-xs font-semibold text-slate-500">{loading ? "Loading…" : generalCategories.length + " categories"}</span></div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {generalCategories.map((category, index) => <button key={category} type="button" onClick={() => { setActiveCategory(category); setKind("package"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="group overflow-hidden rounded-2xl border border-slate-100 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                  <div className="relative flex aspect-[1.55/1] items-end overflow-hidden bg-[#e7f5f7] p-3"><img src={/women|female|gynae/i.test(category) ? "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85" : /men|male/i.test(category) ? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85" : /child|paediatric|pediatric/i.test(category) ? "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85" : /lifestyle|fitness|nutrition/i.test(category) ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85"} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#082b3a]/75 to-transparent" /><span className="relative rounded-full bg-white/95 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#087f82]">Health category</span></div>
+                  <div className="p-3"><h3 className="text-sm font-extrabold leading-tight">{category}</h3><p className="mt-1 text-[11px] text-slate-500">{packageItems.filter((item) => item.category === category).length} packages available</p><span className="mt-2 inline-flex text-xs font-bold text-[#078b8d]">Explore packages →</span></div>
+                </button>)}
+                {!loading && generalCategories.length === 0 && <p className="col-span-full rounded-xl bg-white p-5 text-sm text-slate-500">Health package categories will appear here when available.</p>}
+              </div>
+            </section>
 
-          {[
-            { title: "Women’s Health", subtitle: "Health packages for women", items: womenPackages, image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", icon: "♡" },
-            { title: "Men’s Health", subtitle: "Health packages for men", items: menPackages, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85", icon: "◈" },
-            { title: "Children’s Health", subtitle: "Health packages for children", items: childrenPackages, image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85", icon: "✚" },
-          ].map((section) => <section key={section.title} className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
-            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by audience</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {section.items.map(renderItemCard)}
-              {!loading && section.items.length === 0 && <div className="flex min-h-28 items-center rounded-2xl border border-dashed border-slate-200 bg-white px-5 text-sm text-slate-500">No dedicated packages are currently listed in this section.</div>}
-            </div>
-          </section>)}
+            {[
+              { title: "Women’s Health", subtitle: "Health packages for women", items: womenPackages, image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", icon: "♡" },
+              { title: "Men’s Health", subtitle: "Health packages for men", items: menPackages, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85", icon: "◈" },
+              { title: "Children’s Health", subtitle: "Health packages for children", items: childrenPackages, image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85", icon: "✚" },
+            ].map((section) => <section key={section.title} className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
+              <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by audience</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {section.items.map(renderItemCard)}
+                {!loading && section.items.length === 0 && <div className="flex min-h-28 items-center rounded-2xl border border-dashed border-slate-200 bg-white px-5 text-sm text-slate-500">No dedicated packages are currently listed in this section.</div>}
+              </div>
+            </section>)}
 
-          <section id="catalogue" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-            <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Browse catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health packages</h2></div>
-            <div className="mb-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} aria-pressed={kind === "package"} className={`rounded-full px-5 py-2.5 text-sm font-bold ${kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>All packages ({packageItems.length})</button>
-              {generalCategories.map((category) => <button key={category} type="button" onClick={() => { setKind("package"); setActiveCategory(category); }} aria-pressed={activeCategory === category && kind === "package"} className={`rounded-full px-4 py-2.5 text-sm font-semibold ${activeCategory === category && kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>{category}</button>)}
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading health packages…</p>}
-              {!loading && visiblePackages.map(renderItemCard)}
-              {!loading && !visiblePackages.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No packages match this category or search.</p>}
-            </div>
-          </section>
+            <section id="catalogue" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+              <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Browse catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health packages</h2></div>
+              <div className="mb-4 flex flex-wrap gap-2">
+                <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} aria-pressed={kind === "package"} className={`rounded-full px-5 py-2.5 text-sm font-bold ${kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>All packages ({packageItems.length})</button>
+                {generalCategories.map((category) => <button key={category} type="button" onClick={() => { setKind("package"); setActiveCategory(category); }} aria-pressed={activeCategory === category && kind === "package"} className={`rounded-full px-4 py-2.5 text-sm font-semibold ${activeCategory === category && kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>{category}</button>)}
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading health packages…</p>}
+                {!loading && visiblePackages.map(renderItemCard)}
+                {!loading && !visiblePackages.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No packages match this category or search.</p>}
+              </div>
+            </section>
 
-          <section id="individual-tests" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-            <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Single Lab Tests</h2><p className="mt-1 text-xs text-slate-500">Browse and book individual tests separately from health packages.</p></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading individual tests…</p>}
-              {!loading && visibleTests.map(renderItemCard)}
-              {!loading && !visibleTests.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No individual tests match your search.</p>}
-            </div>
+            <section id="individual-tests" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+              <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Single Lab Tests</h2><p className="mt-1 text-xs text-slate-500">Browse and book individual tests separately from health packages.</p></div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading individual tests…</p>}
+                {!loading && visibleTests.map(renderItemCard)}
+                {!loading && !visibleTests.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No individual tests match your search.</p>}
+     
+        </>
+      )}
+
+       </div>
           </section>
         </>
       )}
 
-      {selected.length > 0 && <section id="booking" className="mx-auto mt-10 max-w-4xl px-4 sm:px-6"><form onSubmit={submit} className="space-y-4">
+      {bookingOpen && selected.length > 0 && <section id="booking" className="mx-auto min-h-[calc(100vh-150px)] max-w-4xl px-4 py-6 sm:px-6"><button type="button" onClick={() => setBookingOpen(false)} className="mb-5 text-sm font-bold text-[#078b8d]">← Back to health catalogue</button><div className="mb-5"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Complete your request</p><h1 className="mt-1 text-2xl font-extrabold">Book your lab tests</h1><div className="mt-4 grid grid-cols-3 gap-2">{["Review","Your details","Schedule"].map((label,index)=><div key={label} className="rounded-xl bg-[#e9f7f5] px-2 py-3 text-center"><span className="mx-auto grid size-6 place-items-center rounded-full bg-[#078b8d] text-xs font-bold text-white">{index+1}</span><span className="mt-1 block text-[11px] font-bold text-[#126c6d]">{label}</span></div>)}</div></div><form onSubmit={submit} className="space-y-4">
         <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 1</p><h2 className="mt-1 text-lg font-extrabold">Your selected tests & packages</h2><div className="mt-4 space-y-3">{chosenItems.map((item) => <div key={item.slug} className="flex items-center justify-between gap-3 rounded-xl bg-[#f7fafb] p-3"><div><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{formatPrice(item.customer_price)}</p></div><button type="button" onClick={() => setSelected((current) => current.filter((value) => value !== item.slug))} className="text-xs font-bold text-rose-600">Remove</button></div>)}</div><div className="mt-4 flex justify-between border-t pt-4"><span className="text-sm font-bold">Total payable to partner</span><strong className="text-xl">{formatPrice(total)}</strong></div></section>
         <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 2</p><h2 className="mt-1 text-lg font-extrabold">Customer details</h2><div className="mt-4 grid gap-3 sm:grid-cols-2">{(["name", "phone", "email", "pincode"] as const).map((key) => <label key={key} className="text-xs font-semibold text-slate-600">{key === "name" ? "Full name" : key === "phone" ? "Mobile number" : key === "pincode" ? "Pincode" : "Email (optional)"}<input required={key !== "email"} type={key === "email" ? "email" : "text"} inputMode={key === "phone" || key === "pincode" ? "numeric" : undefined} placeholder={key === "phone" ? "10-digit mobile number" : key === "pincode" ? "6-digit pincode" : key === "email" ? "Email address" : "Enter your full name"} value={customer[key]} onChange={(event) => setCustomer((current) => ({ ...current, [key]: event.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1]" /></label>)}<label className="text-xs font-semibold text-slate-600 sm:col-span-2">Full collection address<textarea required value={customer.address} onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))} rows={3} placeholder="Flat / house, street, area and city" className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1]" /></label></div></section>
         <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 3</p><h2 className="mt-1 text-lg font-extrabold">Preferred date & time</h2><div className="mt-4 grid gap-3 sm:grid-cols-2"><label className="text-xs font-semibold text-slate-600">Preferred collection date<input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label><label className="text-xs font-semibold text-slate-600">Preferred time window<select value={slot} onChange={(event) => setSlot(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{collectionSlots.map((value) => <option key={value}>{value}</option>)}</select></label></div><p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Your selected date and time are preferences. The collection partner will confirm the visit based on service availability.</p><p className="mt-3 text-[11px] text-slate-500">Payment is collected by your collection partner.</p><button type="submit" disabled={busy || !selected.length || loading} className="mt-5 min-h-12 w-full rounded-xl bg-[#078b8d] text-sm font-extrabold text-white disabled:opacity-50">{busy ? "Submitting…" : "Submit booking request"}</button></section>
@@ -350,7 +357,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         <button type="button" onClick={() => { setDetailSlug(null); setKind("all"); setActiveCategory("All"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 font-bold text-[#078b8d]"><span className="text-2xl">⌂</span><span className="text-[13px]">Home</span></button>
         <button type="button" onClick={() => { setDetailSlug(null); setKind("test"); document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">⚗</span><span className="text-[13px]">Lab Tests</span></button>
         <button type="button" onClick={() => { setDetailSlug(null); setKind("package"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">✚</span><span className="text-[13px]">Packages</span></button>
-        <button type="button" onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">▤</span><span className="text-[13px]">My Booking</span></button>
+        <button type="button" onClick={() => { if (selected.length) { setBookingOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); } else { setError("Please add a test or package first."); } }} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">▤</span><span className="text-[13px]">My Booking{selected.length ? ` (${selected.length})` : ""}</span></button>
       </div></nav>
     </main>
   );
