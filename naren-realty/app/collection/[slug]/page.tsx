@@ -39,7 +39,10 @@ const collectionSlots = [
 ];
 
 function cleanCatalogueText(value?: string | null) {
-  return (value || "").replace(/Pune listing:\s*[^.]*\.?\s*/gi, "").trim();
+  return (value || "")
+    .replace(/\\bPune listing(?:\\s+confirmed)?\\b\\s*[:,.-]?\\s*/gi, "")
+    .replace(/\\s{2,}/g, " ")
+    .trim();
 }
 
 function parameterLabel(value: Parameter) {
@@ -67,6 +70,25 @@ function ParameterList({ values, note }: { values: Parameter[]; note?: string | 
         ))}
       </ul>
       {note && <p className="mt-2 text-[11px] leading-5 text-amber-800">{cleanCatalogueText(note)}</p>}
+    </div>
+  );
+}
+
+function PackageInclusionList({ values }: { values: Parameter[] }) {
+  return (
+    <div className="space-y-2">
+      {values.map((value, index) => {
+        const label = parameterLabel(value);
+        const separator = label.indexOf(":");
+        const heading = separator > 0 ? label.slice(0, separator).trim() : label;
+        const detail = separator > 0 ? label.slice(separator + 1).trim() : "";
+        return (
+          <div key={index} className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+            <p className="text-xs font-extrabold text-[#172326]">{heading}</p>
+            {detail && <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -260,8 +282,8 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
                         {!isPackage && <ParameterList values={item.inclusions || []} note={item.inclusionsNote} />}
                         {isPackage && <div>
                           <p className="mb-2 text-xs font-extrabold text-[#172326]">Tests included ({item.package_tests?.length || 0})</p>
-                          {item.package_tests?.length ? <div className="space-y-2">{item.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Included test mapping is not available yet. Please confirm the final panel with the collection partner.</p>}
-                          {item.inclusions?.length > 0 && <div className="mt-3"><p className="mb-2 text-xs font-extrabold text-[#172326]">Additional package inclusions</p><ParameterList values={item.inclusions} note={item.inclusionsNote} /></div>}
+                          {item.package_tests?.length ? <div className="space-y-2">{item.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : item.inclusions?.length ? <PackageInclusionList values={item.inclusions} /> : <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Included test and parameter details are awaiting confirmation from the performing laboratory.</p>}
+                          {item.inclusionsNote && <p className="mt-3 text-[11px] leading-5 text-amber-800">{cleanCatalogueText(item.inclusionsNote)}</p>}
                         </div>}
                       </div>
                     </details>
