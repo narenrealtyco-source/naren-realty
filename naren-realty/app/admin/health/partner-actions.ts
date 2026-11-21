@@ -20,7 +20,7 @@ export async function createCollectionPartner(formData:FormData){
  if(profileError){await db.auth.admin.deleteUser(data.user.id);throw new Error("Could not create partner profile.");}
  const {data:partner,error:insertError}=await db.from("health_collection_partners").insert({user_id:data.user.id,public_slug,display_name,contact_name:contact_name||null,phone,email,service_areas,is_active:true,verified_at:new Date().toISOString()}).select("id").single();
  if(insertError){await db.auth.admin.deleteUser(data.user.id);throw new Error(insertError.message);}
- const {data:items}=await db.from("health_catalog_items").select("id,price").eq("is_active",true).in("item_type",["package","test"]);
+ const {data:items}=await db.from("health_catalog_items").select("id,price").eq("is_active",true).eq("provider_verified",true).in("item_type",["package","test"]);
  if(items?.length)await db.from("health_collection_partner_rates").insert(items.filter(x=>x.price!==null).map(x=>({partner_id:partner.id,catalog_item_id:x.id,b2b_price:Number(x.price),customer_price:Number(x.price),is_active:true})));
  revalidatePath("/admin/health/collection-partners");
 }
