@@ -250,13 +250,16 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
           <span className="text-xl text-slate-500">⌕</span>
           <input value={search} onChange={(event) => { setSearch(event.target.value); setDetailSlug(null); }} placeholder="Search CBC, Thyroid, Vitamin D, health packages..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
         </label>
-        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="mt-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[
-            { title: "Health", subtitle: "Packages", symbol: "✚", action: () => { setKind("package"); setActiveCategory("All"); }, tone: "bg-[#eaf8f7] text-[#078b8d]" },
-            { title: "Individual", subtitle: "Lab Tests", symbol: "⚗", action: () => { setKind("test"); setActiveCategory("All"); }, tone: "bg-[#edf5ff] text-[#2476bd]" },
-            { title: "All", subtitle: "Catalogue", symbol: "▣", action: () => { setKind("all"); setActiveCategory("All"); }, tone: "bg-[#eaf8ef] text-[#23965a]" },
-            { title: "Review", subtitle: "My Booking", symbol: "▤", action: () => selected.length ? setBookingOpen(true) : setError("Please add a test or package first."), tone: "bg-[#fff3e9] text-[#b66a2a]" },
-          ].map((action) => <button key={action.subtitle} type="button" onClick={action.action} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-sm transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}><span className="mb-2 text-3xl sm:text-[38px]">{action.symbol}</span><span className="text-[11px] opacity-80 sm:text-sm">{action.title}</span><strong className="mt-1 text-xs sm:text-base">{action.subtitle}</strong></button>)}
+            { title: "All Tests", subtitle: "Browse all", symbol: "⌕", action: () => { setKind("all"); setActiveCategory("All"); }, tone: "bg-[#eef7ff] text-[#2675ad]" },
+            { title: "Packages", subtitle: packageCount + " available", symbol: "✚", action: () => { setKind("package"); setActiveCategory("All"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }, tone: "bg-[#eaf8f7] text-[#078b8d]" },
+            ...(womenPackages.length ? [{ title: "For Women", subtitle: womenPackages.length + " packages", symbol: "♡", action: () => document.getElementById("women-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#fff0f5] text-[#b84d78]" }] : []),
+            ...(menPackages.length ? [{ title: "For Men", subtitle: menPackages.length + " packages", symbol: "◈", action: () => document.getElementById("men-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#edf3ff] text-[#416bb2]" }] : []),
+            ...(childrenPackages.length ? [{ title: "For Children", subtitle: childrenPackages.length + " packages", symbol: "✿", action: () => document.getElementById("children-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#eff9ec] text-[#4c8b45]" }] : []),
+            { title: "Single Tests", subtitle: testCount + " tests", symbol: "⚗", action: () => document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#f2efff] text-[#7255ad]" },
+            { title: "My Booking", subtitle: selected.length ? selected.length + " selected" : "Review order", symbol: "▤", action: () => selected.length ? setBookingOpen(true) : setError("Please add a test or package first."), tone: "bg-[#fff3e9] text-[#b66a2a]" },
+          ].map((action) => <button key={action.title} type="button" onClick={action.action} className={`flex min-w-[118px] shrink-0 flex-col items-center justify-center rounded-2xl border border-slate-100 px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 sm:min-w-[140px] sm:rounded-3xl ${action.tone}`}><span className="mb-2 grid size-12 place-items-center rounded-2xl bg-white/80 text-2xl sm:size-14 sm:text-3xl">{action.symbol}</span><strong className="text-xs sm:text-sm">{action.title}</strong><span className="mt-1 text-[10px] opacity-75 sm:text-xs">{action.subtitle}</span></button>)}
         </div>
       </section>
 
@@ -308,15 +311,12 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
             { title: "Women’s Health", subtitle: "Health packages for women", items: womenPackages, image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", icon: "♡" },
             { title: "Men’s Health", subtitle: "Health packages for men", items: menPackages, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85", icon: "◈" },
             { title: "Children’s Health", subtitle: "Health packages for children", items: childrenPackages, image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85", icon: "✚" },
-          ].map((section) => <section key={section.title} className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
-            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by audience</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {section.items.map(renderItemCard)}
-              {!loading && section.items.length === 0 && <div className="flex min-h-28 items-center rounded-2xl border border-dashed border-slate-200 bg-white px-5 text-sm text-slate-500">No dedicated packages are currently listed in this section.</div>}
-            </div>
+          ].filter((section) => section.items.length > 0).map((section) => <section id={section.title.startsWith("Women") ? "women-health" : section.title.startsWith("Men") ? "men-health" : "children-health"} key={section.title} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Curated health packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{section.items.map(renderItemCard)}</div>
           </section>)}
 
-          <section id="catalogue" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+          <section id="catalogue" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
             <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Browse catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health packages</h2></div>
             <div className="mb-4 flex flex-wrap gap-2">
               <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} aria-pressed={kind === "package"} className={`rounded-full px-5 py-2.5 text-sm font-bold ${kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>All packages ({packageItems.length})</button>
@@ -329,7 +329,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
             </div>
           </section>
 
-          <section id="individual-tests" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+          <section id="individual-tests" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
             <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Single Lab Tests</h2><p className="mt-1 text-xs text-slate-500">Browse and book individual tests separately from health packages.</p></div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading individual tests…</p>}
