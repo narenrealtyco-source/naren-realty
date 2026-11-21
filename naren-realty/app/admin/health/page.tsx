@@ -37,6 +37,7 @@ async function MfitAdminPageContent() {
           ["Packages & Tests","Review catalogue items, update inclusions, prices and verification status","/admin/health/catalog"],
           ["Bookings & Fulfilment","Track booking, collection, sample processing and report status","/admin/health/bookings"],
           ["MFIT Lab Team","Create lab logins, manage collection boys and assignments","/admin/health/team"],
+          ["Collection Partners","Review applications, verify applicants and issue partner login invitations","/admin/health/collection-partners"],
           ["Collection Slots","Manage collection areas, dates, capacity and time slots","/admin/health/slots"],
           ["Coupons & Family Discounts","Configure coupon campaigns and family member discounts","/admin/health/coupons"],
           ["Reports","Manage secure diagnostic report records","/admin/health/reports"],
