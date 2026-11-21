@@ -1,25 +1,30 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import MultiLocalitySelect from "../../components/MultiLocalitySelect";
 
 export default function ApplyPartner() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState("");
+  const [serviceAreas, setServiceAreas] = useState<string[]>([]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!serviceAreas.length) {
+      setError("Please select at least one service area.");
+      return;
+    }
     setBusy(true);
     setError("");
     const form = new FormData(event.currentTarget);
     const body = Object.fromEntries(form.entries());
-
     try {
       const response = await fetch("/api/collection-partner/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, service_areas: serviceAreas }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Application could not be submitted.");
@@ -55,8 +60,8 @@ export default function ApplyPartner() {
               <input required name="contact_name" placeholder="Contact person full name" className="rounded-lg border p-3 text-sm sm:col-span-2" />
               <input required name="phone" inputMode="numeric" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" className="rounded-lg border p-3 text-sm" />
               <input required name="email" type="email" placeholder="Email address" className="rounded-lg border p-3 text-sm" />
-              <input required name="address" placeholder="Address" className="rounded-lg border p-3 text-sm sm:col-span-2" />
-              <input required name="service_areas" placeholder="Service areas (comma separated)" className="rounded-lg border p-3 text-sm sm:col-span-2" />
+              <input required name="address" placeholder="Full address" autoComplete="street-address" className="rounded-lg border p-3 text-sm sm:col-span-2" />
+              <MultiLocalitySelect value={serviceAreas} onChange={setServiceAreas} />
               <input name="gstin" placeholder="GSTIN (if applicable)" className="rounded-lg border p-3 text-sm" />
               <input name="pan" placeholder="PAN (optional)" className="rounded-lg border p-3 text-sm" />
               <textarea name="notes" placeholder="Experience / additional information (optional)" className="min-h-24 rounded-lg border p-3 text-sm sm:col-span-2" />
