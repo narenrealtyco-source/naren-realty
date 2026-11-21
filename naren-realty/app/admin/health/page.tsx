@@ -10,19 +10,6 @@ async function MfitAdminPageContent() {
   await connection();
   let supabase;
   try { ({ supabase } = await requireAdmin()); } catch { redirect("/admin/login"); }
-  const [catalog, orders, partners, slots] = await Promise.all([
-    supabase.from("health_catalog_items").select("id,item_type,is_active,provider_verified", { count: "exact" }),
-    supabase.from("health_orders").select("id,fulfilment_status", { count: "exact" }),
-    supabase.from("health_lab_partners").select("id", { count: "exact" }),
-    supabase.from("health_collection_slots").select("id", { count: "exact" }),
-  ]);
-  const count=(r:{count:number|null,error:unknown})=>r.error? "—":(r.count??0).toLocaleString("en-IN");
-  const stats=[
-    ["Catalogue items",count(catalog)],
-    ["Bookings",count(orders)],
-    ["Lab partners",count(partners)],
-    ["Collection slots",count(slots)]
-  ];
   return <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900">
     <div className="mx-auto max-w-6xl">
       <Link href="/admin" className="text-sm font-semibold text-slate-600">‹ Back to NAREN REALTY Admin</Link>
@@ -31,7 +18,6 @@ async function MfitAdminPageContent() {
         <h1 className="mt-2 text-2xl font-extrabold">Diagnostic Operations</h1>
         <p className="mt-2 max-w-2xl text-sm text-teal-50">Manage diagnostic catalogue, bookings, laboratory partners, sample collection and reports separately from NAREN REALTY property operations.</p>
       </header>
-      <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-2xl border bg-white p-4"><p className="text-xs text-slate-500">{label}</p><p className="mt-1 text-2xl font-extrabold">{value}</p></div>)}</section>
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {[
           ["Packages & Tests","Review catalogue items, update inclusions, prices and verification status","/admin/health/catalog"],
