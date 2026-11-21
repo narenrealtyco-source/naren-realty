@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { supabase, updateCustomerPassword } from "../../lib/customers";
+import { supabase } from "../../lib/customers";
 
 export default function CustomerResetPasswordPage() {
   const [checkingSession, setCheckingSession] = useState(true);
@@ -80,7 +80,8 @@ export default function CustomerResetPasswordPage() {
 
     setSubmitting(true);
     try {
-      await updateCustomerPassword(password);
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw new Error("Your password could not be updated. Please request a new reset link.");
       setSuccess(true);
       setPassword("");
       setConfirmation("");
