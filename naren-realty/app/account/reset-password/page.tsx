@@ -2,8 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { getCustomerSession, updateCustomerPassword } from "../../lib/customers";
-import { supabase } from "../../lib/supabase";
+import { getCustomerSession, supabase, updateCustomerPassword } from "../../lib/customers";
 
 export default function CustomerResetPasswordPage() {
   const [checkingSession, setCheckingSession] = useState(true);
