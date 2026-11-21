@@ -203,56 +203,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
     );
   }
 
-  return (
-    <main className="min-h-screen bg-[#f7fafb] pb-10 text-[#172326]">
-      <header className="bg-[#075c78] px-4 pb-7 pt-5 text-white shadow-md sm:pb-9">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex items-center justify-between gap-3 border-b border-white/15 pb-4">
-            <a href="/" className="text-lg font-extrabold tracking-wide">NAREN <span className="text-[#baf4ee]">REALTY</span></a>
-            <span className="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-bold tracking-wide text-slate-200">HEALTH CHECKUP</span>
-          </div>
-          <div className="pt-6 sm:pt-8">
-            <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#baf4ee]">Simple · Convenient · At home</p>
-            <h1 className="mt-2 max-w-2xl text-2xl font-extrabold leading-tight sm:text-4xl">Book your health checkup with confidence.</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Choose a package or individual test, review its included parameters and request a convenient collection time.</p>
-            {partner?.display_name && <p className="mt-4 inline-flex rounded-lg bg-white/10 px-3 py-2 text-xs text-slate-200">Booking assisted by <strong className="ml-1 text-white">{partner.display_name}</strong></p>}
-          </div>
-          <div className="mt-6 grid grid-cols-3 gap-2 sm:max-w-lg sm:gap-3">
-            <div className="rounded-xl bg-white/10 p-3"><p className="text-lg font-extrabold">{packageCount}</p><p className="text-[10px] text-slate-300">Packages</p></div>
-            <div className="rounded-xl bg-white/10 p-3"><p className="text-lg font-extrabold">{testCount}</p><p className="text-[10px] text-slate-300">Individual tests</p></div>
-            <div className="rounded-xl bg-white/10 p-3"><p className="text-lg font-extrabold">Home</p><p className="text-[10px] text-slate-300">Sample collection</p></div>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-5xl space-y-4 px-3 py-5 sm:px-5 sm:py-7">
-        {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
-
-        <form onSubmit={submit} className="space-y-4">
-          <section className="rounded-2xl bg-white p-4 shadow-[0_3px_18px_rgba(15,35,65,.05)] ring-1 ring-slate-100 sm:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <div><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Step 1 · Choose your tests</p><h2 className="mt-1 text-lg font-extrabold sm:text-xl">Packages & individual tests</h2><p className="mt-1 text-xs text-slate-500">Review the details and select what you need.</p></div>
-              <span className="rounded-full bg-[#f7fafb] px-3 py-1.5 text-xs font-bold text-slate-600">{loading ? "Loading…" : items.length + " options"}</span>
-            </div>
-            <label className="mt-4 flex h-12 items-center gap-3 rounded-xl border border-slate-200 px-3 focus-within:border-[#08aeb1] focus-within:ring-2 focus-within:ring-[#08b8bb]/15">
-              <span className="text-lg text-slate-400">⌕</span>
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search package or test name…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400" />
-            </label>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(["all", "package", "test"] as const).map((value) => (
-                <button key={value} type="button" onClick={() => setKind(value)} className={"rounded-full px-4 py-2 text-xs font-bold transition " + (kind === value ? "bg-[#075c78] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>
-                  {value === "all" ? "All" : value === "package" ? "Packages" : "Single tests"}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {loading && <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">Loading packages and tests…</div>}
-              {!loading && visibleItems.map((item) => {
-                const isSelected = selected.includes(item.slug);
-                const isPackage = item.item_type === "package";
-                const saving = item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price;
-                const categories = ["All", ...Array.from(new Set(items.map((item) => item.category).filter((value): value is string => Boolean(value))))];
+  const categories = ["All", ...Array.from(new Set(items.map((item) => item.category).filter((value): value is string => Boolean(value))))];
   const selectedDetail = items.find((item) => item.slug === detailSlug) || null;
   const featuredItems = items.filter((item) => item.item_type === (kind === "test" ? "test" : "package")).slice(0, 3);
 
