@@ -134,7 +134,7 @@ export async function assignMfitRequest(formData:FormData) {
 export async function updateLabRequestStatus(formData:FormData) {
  const request_id=String(formData.get("request_id")||"");
  const status=String(formData.get("sample_status")||"");
- const note=String(formData.get("note")||"").trim().slice(0,1000);
+ let note=String(formData.get("note")||"").trim().slice(0,1000);
  if(!request_id||!["received_at_lab","processing"].includes(status)) throw new Error("Choose sample receipt or processing status.");
  const {admin,user,staff}=await requireMfitLab();
  const {data:request,error:readError}=await admin.from("health_booking_requests").select("id,reference,lab_partner_id,sample_status,sample_collected_at,lab_received_at,selected_items").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
