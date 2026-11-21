@@ -40,8 +40,8 @@ const collectionSlots = [
 
 function cleanCatalogueText(value?: string | null) {
   return (value || "")
-    .replace(/\\bPune listing(?:\\s+confirmed)?\\b\\s*[:,.-]?\\s*/gi, "")
-    .replace(/\\s{2,}/g, " ")
+    .replace(/Pune listing(?: confirmed)?[ :,.–-]*/gi, "")
+    .replace(/\s{2,}/g, " ")
     .trim();
 }
 
