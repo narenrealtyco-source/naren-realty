@@ -210,24 +210,42 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
   const categoryNames = Array.from(new Set(packageItems.map((item) => item.category).filter((value): value is string => Boolean(value))));
   const audienceMatch = (item: Item, audience: "women" | "men" | "children") => {
     const value = (item.title + " " + (item.category || "") + " " + (item.description || "")).toLowerCase();
-    if (audience === "women") return /women|woman|female|gynaec|pregnan|maternal|pcos|pcod|breast|menstrual|fertility/.test(value);
-    if (audience === "men") return /\bmen\b|male|prostate|testosterone|mens/.test(value);
-    return /child|children|paediatric|pediatric|baby|infant|adolescent|teen/.test(value);
+    const explicitlyWomen = /\bwomen\b|\bwoman\b|female|gynaec|pregnan|maternal|pcos|pcod|breast|menstrual|fertility/.test(value);
+    const explicitlyMen = /\bmen\b|\bman\b|male|prostate|testosterone|mens/.test(value);
+    const explicitlyChildren = /child|children|paediatric|pediatric|baby|infant|adolescent|teen/.test(value);
+    if (audience === "women") return explicitlyWomen && !explicitlyMen;
+    if (audience === "men") return explicitlyMen && !explicitlyWomen;
+    return explicitlyChildren && !explicitlyWomen && !explicitlyMen;
   };
   const womenPackages = packageItems.filter((item) => audienceMatch(item, "women"));
   const menPackages = packageItems.filter((item) => audienceMatch(item, "men"));
   const childrenPackages = packageItems.filter((item) => audienceMatch(item, "children"));
   const generalCategories = categoryNames.filter((category) => !/women|men|child|paediatric|pediatric/i.test(category));
   const selectedDetail = items.find((item) => item.slug === detailSlug) || null;
-  const renderItemCard = (item: Item) => (
-    <article key={item.slug} className="group overflow-hidden rounded-2xl border border-[#dceeed] bg-white shadow-[0_4px_18px_rgba(15,40,55,0.055)] transition hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="flex min-h-[108px] items-center justify-between bg-gradient-to-r from-[#e8f8f5] via-[#f1fbfa] to-[#edf3ff] px-5 py-4">
-        <div><span className="inline-flex rounded-full bg-white px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#087f82]">{item.item_type === "test" ? "INDIVIDUAL LAB TEST" : "HEALTH PACKAGE"}</span><p className="mt-3 text-xs font-semibold text-[#5c7475]">{item.category || "Health"}</p></div>
-        <span aria-hidden="true" className="grid size-[62px] shrink-0 place-items-center rounded-[20px] border border-white bg-white/80 text-3xl font-black text-[#07999b] shadow-sm">{item.item_type === "test" ? "◈" : "✚"}</span>
-      </div>
-      <div className="p-4"><h3 className="min-h-[44px] text-base font-extrabold leading-snug text-[#202629]">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{cleanCatalogueText(item.description) || (item.item_type === "test" ? "Individual diagnostic test" : "Preventive health screening package")}</p><div className="mt-3 flex items-center gap-2">{item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price && <span className="text-xs text-slate-400 line-through">{formatPrice(item.mrp_price)}</span>}<strong className="text-sm">{formatPrice(item.customer_price)}</strong></div><button type="button" onClick={() => setDetailSlug(item.slug)} className="mt-4 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#078b8d] px-4 text-sm font-extrabold text-white">{item.item_type === "test" ? "VIEW TEST & BOOK" : "VIEW PACKAGE & BOOK"}</button></div>
-    </article>
-  );
+  const renderItemCard = (item: Item) => {
+    const discount = item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price
+      ? Math.round((1 - item.customer_price / item.mrp_price) * 100) : 0;
+    const includedCount = item.item_type === "package"
+      ? (item.package_tests?.length || item.inclusions?.length || 0) : item.inclusions?.length || 0;
+    return (
+      <article key={item.slug} className="group overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)]">
+        <div className="relative flex min-h-[126px] items-center justify-between overflow-hidden bg-[radial-gradient(circle_at_82%_24%,rgba(255,255,255,.9),transparent_25%),linear-gradient(115deg,#e4f6f3,#edf7fb_58%,#f2f0ff)] px-5 py-4">
+          <div className="relative z-10"><span className="inline-flex rounded-full border border-white/80 bg-white/90 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[.13em] text-[#087f82]">{item.item_type === "test" ? "Individual lab test" : "Health package"}</span><p className="mt-3 max-w-[190px] text-xs font-semibold text-[#547174]">{item.category || "Diagnostic care"}</p>{includedCount > 0 && <p className="mt-1 text-[11px] font-semibold text-[#547174]">{includedCount} {item.item_type === "test" ? "parameters listed" : "included tests / details"}</p>}</div>
+          <span aria-hidden="true" className="relative mr-1 grid size-[72px] shrink-0 place-items-center rounded-[24px] border border-white/90 bg-white/75 text-[34px] font-black text-[#078b8d] shadow-[0_8px_20px_rgba(7,127,130,.10)]">{item.item_type === "test" ? "⌬" : "✚"}</span>
+          {discount > 0 && <span className="absolute right-3 top-3 rounded-full bg-[#087f82] px-2.5 py-1 text-[10px] font-extrabold text-white">{discount}% OFF</span>}
+        </div>
+        <div className="p-4 sm:p-5">
+          <h3 className="min-h-[48px] text-[15px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
+          <p className="mt-2 min-h-[40px] text-xs leading-5 text-slate-500">{cleanCatalogueText(item.description) || (item.item_type === "test" ? "Individual diagnostic test" : "Preventive health screening package")}</p>
+          <div className="mt-4 flex min-h-10 items-end justify-between gap-2 border-t border-slate-100 pt-3">
+            <div><p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Partner price</p><div className="mt-1 flex flex-wrap items-baseline gap-2">{item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price && <span className="text-xs text-slate-400 line-through">{formatPrice(item.mrp_price)}</span>}<strong className="text-lg font-extrabold text-[#172326]">{formatPrice(item.customer_price)}</strong></div></div>
+            {discount > 0 && <span className="text-[10px] font-bold text-[#087f82]">You save {formatPrice((item.mrp_price || 0) - (item.customer_price || 0))}</span>}
+          </div>
+          <button type="button" onClick={() => setDetailSlug(item.slug)} className="mt-4 flex min-h-11 w-full items-center justify-center rounded-xl bg-[#087f82] px-4 text-sm font-extrabold text-white transition hover:bg-[#066c70]">{item.item_type === "test" ? "VIEW TEST DETAILS" : "VIEW PACKAGE DETAILS"} <span className="ml-2">→</span></button>
+        </div>
+      </article>
+    );
+  };
   const searched = (item: Item) => (item.title + " " + (item.category || "") + " " + cleanCatalogueText(item.description)).toLowerCase().includes(search.toLowerCase());
   const visiblePackages = packageItems.filter((item) => (activeCategory === "All" || item.category === activeCategory) && searched(item));
   const visibleTests = testItems.filter(searched);
@@ -264,12 +282,15 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
       </section>
 
       <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <div className="relative min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-lg sm:min-h-[230px]">
-          <div className="max-w-[78%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#baf4ee] sm:text-xs">Your health, in focus</p>
-            <h1 className="mt-2 text-[25px] font-extrabold leading-tight sm:text-4xl">Make your health a priority.</h1>
-            <p className="mt-2 text-xs leading-5 text-white/90 sm:text-base">Explore health checkup packages and individual lab tests with convenient collection booking.</p>
-            <button type="button" onClick={() => { setKind("package"); setDetailSlug(null); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-xs font-extrabold text-[#075c78]">Explore packages →</button>
+        <div className="relative min-h-[220px] overflow-hidden rounded-[28px] bg-[linear-gradient(112deg,#064d66_0%,#087e91_54%,#52c4c7_100%)] shadow-[0_16px_38px_rgba(4,84,104,.18)] sm:min-h-[270px]">
+          <div aria-hidden="true" className="absolute -right-12 -top-24 size-[330px] rounded-full border-[1px] border-white/15 sm:right-20 sm:size-[390px]" />
+          <div aria-hidden="true" className="absolute -right-3 top-8 size-[190px] rounded-full border-[28px] border-white/10 sm:right-36 sm:top-10 sm:size-[220px]" />
+          <div aria-hidden="true" className="absolute right-7 top-12 hidden h-[150px] w-[150px] rotate-12 items-center justify-center rounded-[34px] border border-white/30 bg-white/10 text-7xl text-white/90 shadow-2xl backdrop-blur-sm sm:flex">✚</div>
+          <div className="relative z-10 max-w-[82%] px-5 py-7 text-white sm:max-w-[65%] sm:px-9 sm:py-10">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c4fff2] sm:text-xs">Your health, in focus</p>
+            <h1 className="mt-2 text-[26px] font-extrabold leading-[1.12] sm:text-[40px]">A healthier you starts with a checkup.</h1>
+            <p className="mt-3 max-w-xl text-xs leading-5 text-white/90 sm:text-sm sm:leading-6">Browse preventive health packages and individual lab tests. Choose your tests and request a convenient home sample collection.</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3"><button type="button" onClick={() => { setKind("package"); setDetailSlug(null); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="inline-flex min-h-10 items-center rounded-xl bg-white px-4 text-xs font-extrabold text-[#075c78] shadow-sm">Explore packages <span className="ml-2">→</span></button><span className="text-[10px] font-semibold text-white/80">{packageCount} packages · {testCount} individual tests</span></div>
           </div>
         </div>
       </section>
