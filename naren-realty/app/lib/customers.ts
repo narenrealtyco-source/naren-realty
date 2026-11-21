@@ -58,7 +58,7 @@ function getCustomerAccountRedirectUrl(): string {
 }
 
 function getCustomerPasswordResetRedirectUrl(): string {
-  return "https://naren-realty-fw7y.vercel.app/account/reset-password";
+  return "https://narenrealty.co/account/reset-password";
 }
 
 export type CustomerFavorite = {
