@@ -143,7 +143,7 @@ export async function updateLabRequestStatus(formData:FormData) {
   const receiptCode=String(formData.get("receipt_code")||"").trim();
   const receiptMethod=String(formData.get("receipt_method")||"");
   if(!receiptCode||!["scan","manual"].includes(receiptMethod))throw new Error("Scan the sample QR/barcode or enter the booking ID manually.");
-  const normalized=receiptCode.replace(/\\/$/,"").split("/").filter(Boolean).pop()!.trim().toLowerCase();
+  const normalized=receiptCode.split("/").filter(Boolean).pop()!.trim().toLowerCase();
   if(normalized!==String(request.reference||"").trim().toLowerCase()&&normalized!==request_id.toLowerCase())throw new Error("Scanned code does not match this booking. Check the sample label and try again.");
   const methodLabel=receiptMethod==="scan"?"QR/Barcode scan":"Manual backup";
   note=(note?note+" · ":"")+"Lab receipt verified by "+methodLabel+" ("+receiptCode.slice(0,120)+").";
