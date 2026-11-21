@@ -228,7 +228,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
     const includedCount = item.item_type === "package"
       ? (item.package_tests?.length || item.inclusions?.length || 0) : item.inclusions?.length || 0;
     return (
-      <article key={item.slug} className="group overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)]">
+      <article key={item.slug} className="group w-[276px] shrink-0 overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)] sm:w-[300px]">
         <div className="relative flex min-h-[126px] items-center justify-between overflow-hidden bg-[radial-gradient(circle_at_82%_24%,rgba(255,255,255,.9),transparent_25%),linear-gradient(115deg,#e4f6f3,#edf7fb_58%,#f2f0ff)] px-5 py-4">
           <div className="relative z-10"><span className="inline-flex rounded-full border border-white/80 bg-white/90 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[.13em] text-[#087f82]">{item.item_type === "test" ? "Individual lab test" : "Health package"}</span><p className="mt-3 max-w-[190px] text-xs font-semibold text-[#547174]">{item.category || "Diagnostic care"}</p>{includedCount > 0 && <p className="mt-1 text-[11px] font-semibold text-[#547174]">{includedCount} {item.item_type === "test" ? "parameters listed" : "included tests / details"}</p>}</div>
           <span aria-hidden="true" className="relative mr-1 grid size-[72px] shrink-0 place-items-center rounded-[24px] border border-white/90 bg-white/75 text-[34px] font-black text-[#078b8d] shadow-[0_8px_20px_rgba(7,127,130,.10)]">{item.item_type === "test" ? "⌬" : "✚"}</span>
@@ -317,45 +317,76 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         </section>
       ) : (
         <>
-          <section className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
-            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health package categories</h2></div><span className="pb-1 text-xs font-semibold text-slate-500">{loading ? "Loading…" : generalCategories.length + " categories"}</span></div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {generalCategories.map((category, index) => <button key={category} type="button" onClick={() => { setActiveCategory(category); setKind("package"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="group overflow-hidden rounded-2xl border border-slate-100 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                <div className="relative flex aspect-[1.55/1] items-end overflow-hidden bg-[#e7f5f7] p-3"><img src={/women|female|gynae/i.test(category) ? "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85" : /men|male/i.test(category) ? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85" : /child|paediatric|pediatric/i.test(category) ? "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85" : /lifestyle|fitness|nutrition/i.test(category) ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85" : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85"} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#082b3a]/75 to-transparent" /><span className="relative rounded-full bg-white/95 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#087f82]">Health category</span></div>
-                <div className="p-3"><h3 className="text-sm font-extrabold leading-tight">{category}</h3><p className="mt-1 text-[11px] text-slate-500">{packageItems.filter((item) => item.category === category).length} packages available</p><span className="mt-2 inline-flex text-xs font-bold text-[#078b8d]">Explore packages →</span></div>
+          <section id="categories" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Lab tests & packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Explore health categories</h2></div><span className="text-xs text-slate-500">{categoryNames.length + (womenPackages.length ? 1 : 0) + (menPackages.length ? 1 : 0) + (childrenPackages.length ? 1 : 0)} categories</span></div>
+            <div className="flex gap-3 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[
+                ...(womenPackages.length ? [{ title: "For Women", count: womenPackages.length, target: "women-health", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=700&q=80" }] : []),
+                ...(menPackages.length ? [{ title: "For Men", count: menPackages.length, target: "men-health", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80" }] : []),
+                ...(childrenPackages.length ? [{ title: "For Children", count: childrenPackages.length, target: "children-health", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80" }] : []),
+                ...generalCategories.map((category) => ({ title: category, count: packageItems.filter((item) => item.category === category).length, target: "category-" + category.replace(/[^a-z0-9]+/gi, "-").toLowerCase(), image: /lifestyle|fitness|nutrition/i.test(category) ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=700&q=80" : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=700&q=80" }))
+              ].map((category) => <button key={category.title} type="button" onClick={() => document.getElementById(category.target)?.scrollIntoView({ behavior: "smooth" })} className="group w-[142px] shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:w-[164px]">
+                <div className="relative h-[100px] overflow-hidden bg-[#e9f5f5]"><img src={category.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-slate-900/35 to-transparent" /></div>
+                <div className="p-3"><p className="min-h-9 text-xs font-extrabold leading-4 text-[#202629]">{category.title}</p><p className="mt-1 text-[10px] text-slate-500">{category.count} packages</p></div>
               </button>)}
-              {!loading && generalCategories.length === 0 && <p className="col-span-full rounded-xl bg-white p-5 text-sm text-slate-500">Health package categories will appear here when available.</p>}
+              <button type="button" onClick={() => document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" })} className="flex w-[142px] shrink-0 flex-col items-center justify-center rounded-2xl border border-dashed border-[#a9cece] bg-[#eff9f8] p-4 text-center sm:w-[164px]"><span className="text-3xl text-[#078b8d]">⌬</span><strong className="mt-2 text-xs">Single Lab Tests</strong><span className="mt-1 text-[10px] text-slate-500">{testCount} tests</span></button>
+            </div>
+          </section>
+
+          <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Selected from the catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Recommended for you</h2></div><button type="button" onClick={() => { setKind("all"); setActiveCategory("All"); document.getElementById("most-booked")?.scrollIntoView({ behavior: "smooth" }); }} className="text-xs font-bold text-[#087f82]">View all →</button></div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{[...packageItems, ...testItems].slice(0, 8).map(renderItemCard)}</div>
+          </section>
+
+          <section id="most-booked" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="mb-4"><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Browse popular options</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Most booked health checkups</h2></div>
+            <div className="mb-4 inline-flex rounded-full bg-[#eaf1f2] p-1">
+              <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} className={`rounded-full px-5 py-2 text-xs font-extrabold transition ${kind !== "test" ? "bg-white text-[#087f82] shadow-sm" : "text-slate-600"}`}>Packages ({packageItems.length})</button>
+              <button type="button" onClick={() => setKind("test")} className={`rounded-full px-5 py-2 text-xs font-extrabold transition ${kind === "test" ? "bg-white text-[#087f82] shadow-sm" : "text-slate-600"}`}>Tests ({testItems.length})</button>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {(kind === "test" ? testItems : packageItems).filter(searched).slice(0, 10).map(renderItemCard)}
+              {!loading && !(kind === "test" ? testItems : packageItems).length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No catalogue items are available yet.</p>}
             </div>
           </section>
 
           {[
-            { title: "Women’s Health", subtitle: "Health packages for women", items: womenPackages, image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85", icon: "♡" },
-            { title: "Men’s Health", subtitle: "Health packages for men", items: menPackages, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85", icon: "◈" },
-            { title: "Children’s Health", subtitle: "Health packages for children", items: childrenPackages, image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85", icon: "✚" },
-          ].filter((section) => section.items.length > 0).map((section) => <section id={section.title.startsWith("Women") ? "women-health" : section.title.startsWith("Men") ? "men-health" : "children-health"} key={section.title} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
-            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Curated health packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{section.items.map(renderItemCard)}</div>
+            { id: "women-health", title: "Holistic women care", subtitle: "Health packages curated for women", items: womenPackages, links: ["Women’s health", "Fertility", "Pregnancy", "Hormonal health"], image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=85" },
+            { id: "men-health", title: "Health checkups for men", subtitle: "Screening options for men", items: menPackages, links: ["Adult men", "Senior men", "Fitness"], image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85" },
+            { id: "children-health", title: "Care for growing children", subtitle: "Available health packages for children", items: childrenPackages, links: ["Growth", "Nutrition", "Child wellness"], image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85" }
+          ].filter((section) => section.items.length > 0).map((section) => <section id={section.id} key={section.id} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Curated health packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
+            <div className="mb-4 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{section.links.map((label) => <span key={label} className="shrink-0 rounded-full border border-[#dce9e8] bg-white px-4 py-2 text-[11px] font-semibold text-slate-600">{label}</span>)}</div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{section.items.map(renderItemCard)}</div>
           </section>)}
 
-          <section id="catalogue" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
-            <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Browse catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health packages</h2></div>
-            <div className="mb-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} aria-pressed={kind === "package"} className={`rounded-full px-5 py-2.5 text-sm font-bold ${kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>All packages ({packageItems.length})</button>
-              {generalCategories.map((category) => <button key={category} type="button" onClick={() => { setKind("package"); setActiveCategory(category); }} aria-pressed={activeCategory === category && kind === "package"} className={`rounded-full px-4 py-2.5 text-sm font-semibold ${activeCategory === category && kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>{category}</button>)}
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading health packages…</p>}
-              {!loading && visiblePackages.map(renderItemCard)}
-              {!loading && !visiblePackages.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No packages match this category or search.</p>}
-            </div>
-          </section>
+          {generalCategories.map((category) => {
+            const categoryItems = packageItems.filter((item) => item.category === category && searched(item));
+            if (!categoryItems.length) return null;
+            const categoryId = "category-" + category.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+            return <section id={categoryId} key={category} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+              <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Explore by health concern</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{category}</h2></div><span className="text-xs text-slate-500">{categoryItems.length} packages</span></div>
+              <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{categoryItems.map(renderItemCard)}</div>
+            </section>;
+          })}
 
           <section id="individual-tests" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
-            <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Single Lab Tests</h2><p className="mt-1 text-xs text-slate-500">Browse and book individual tests separately from health packages.</p></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading individual tests…</p>}
-              {!loading && visibleTests.map(renderItemCard)}
-              {!loading && !visibleTests.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No individual tests match your search.</p>}
+            <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Popular single lab tests</h2><p className="mt-1 text-xs text-slate-500">Individual tests, separate from health packages.</p></div><span className="text-xs text-slate-500">{testItems.length} tests</span></div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{testItems.filter(searched).slice(0, 12).map(renderItemCard)}</div>
+            <button type="button" onClick={() => { setKind("test"); setActiveCategory("All"); setSearch(""); }} className="mt-2 rounded-full border border-[#087f82] px-5 py-2.5 text-xs font-bold text-[#087f82]">Browse all individual tests</button>
+          </section>
+
+          <section className="mx-auto mt-12 max-w-6xl px-4 sm:px-6">
+            <div className="rounded-[26px] bg-white p-5 shadow-sm sm:p-7">
+              <p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Simple & convenient</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">How home sample collection works</h2>
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { n: "01", title: "Choose tests", desc: "Browse packages or select individual lab tests.", icon: "⌕" },
+                  { n: "02", title: "Schedule a visit", desc: "Share your details and preferred collection time.", icon: "▦" },
+                  { n: "03", title: "Sample collection", desc: "The collection partner coordinates your sample visit.", icon: "♧" },
+                  { n: "04", title: "Report access", desc: "Get report updates through the available reporting process.", icon: "▤" }
+                ].map((step) => <div key={step.n} className="flex gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e9f7f5] text-xl font-bold text-[#087f82]">{step.icon}</span><div><p className="text-[10px] font-extrabold tracking-widest text-[#078b8d]">{step.n}</p><h3 className="mt-1 text-sm font-extrabold">{step.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{step.desc}</p></div></div>)}
+              </div>
             </div>
           </section>
         </>
