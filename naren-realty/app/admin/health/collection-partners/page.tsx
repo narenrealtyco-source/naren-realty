@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
@@ -8,8 +9,11 @@ import { approveAndInviteCollectionPartner, reviewCollectionPartnerApplication }
 export const metadata={title:"MFIT Collection Partners | NAREN REALTY"};
 async function CollectionPartnersContent(){
   await connection();
-  let supabase;try{({supabase}=await requireAdmin())}catch{redirect("/admin/login")}
-  const {data:apps,error}=await supabase.from("health_collection_partner_applications").select("id,business_name,contact_name,phone,email,address,service_areas,gstin,pan,notes,status,review_note,reviewed_at,created_partner_id,created_at").order("created_at",{ascending:false}).limit(300);
+  try{await requireAdmin()}catch{redirect("/admin/login")}
+  const serviceKey=process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if(!serviceKey) throw new Error("MFIT admin data access is not configured.");
+  const adminDb=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {data:apps,error}=await adminDb.from("health_collection_partner_applications").select("id,business_name,contact_name,phone,email,address,service_areas,gstin,pan,notes,status,review_note,reviewed_at,created_partner_id,created_at").order("created_at",{ascending:false}).limit(300);
   if(error) throw new Error("Could not load collection partner applications: "+error.message);
   const rows=apps||[];
   const pending=rows.filter(x=>x.status==="pending_review").length;
