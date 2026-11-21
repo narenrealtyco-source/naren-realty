@@ -147,8 +147,8 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         if (!response.ok) throw new Error(data.error || "Unable to load the catalogue.");
         setPartner(data.partner);
         setItems(data.items || []);
-        const requested = new URLSearchParams(window.location.search).get("item");
-        if (requested && (data.items || []).some((item: Item) => item.slug === requested)) { setSelected([requested]); setDetailSlug(requested); }
+        // Partner landing links always open the full category catalogue.
+        // Item details are opened only when a visitor selects a catalogue card.
       })
       .catch((cause) => setError(cause.message || "Unable to load the catalogue."))
       .finally(() => setLoading(false));
