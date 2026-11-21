@@ -1,3 +1,106 @@
-import {NextRequest,NextResponse} from "next/server";
-import {createClient} from "@supabase/supabase-js";
-export async function POST(req:NextRequest){try{const b=await req.json();const business_name=String(b.business_name||"").trim(),contact_name=String(b.contact_name||"").trim(),phone=String(b.phone||"").replace(/\D/g,""),email=String(b.email||"").trim().toLowerCase(),address=String(b.address||"").trim(),service_areas=String(b.service_areas||"").split(",").map((x:string)=>x.trim()).filter(Boolean);if(business_name.length<2||contact_name.length<2||! /^[6-9]\d{9}$/.test(phone)||! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||address.length<8||!service_areas.length)return NextResponse.json({error:"Please enter valid business, contact, mobile, email, address and service areas."},{status:400});const key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!key)return NextResponse.json({error:"Application service is temporarily unavailable."},{status:503});const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}});const {data:existing}=await db.from("health_collection_partner_applications").select("id").eq("email",email).in("status",["pending_review","approved"]).maybeSingle();if(existing)return NextResponse.json({error:"An active application already exists for this email."},{status:409});const {data,error}=await db.from("health_collection_partner_applications").insert({business_name,contact_name,phone,email,address,service_areas,gstin:String(b.gstin||"").trim()||null,pan:String(b.pan||"").trim().toUpperCase()||null,notes:String(b.notes||"").trim()||null}).select("id").single();if(error)throw error;const api=process.env.RESEND_API_KEY,from=process.env.RESEND_FROM_EMAIL;if(!api||!from){await db.from("health_collection_partner_applications").delete().eq("id",data.id);return NextResponse.json({error:"Email service is not configured. Please try again later."},{status:503});}const mail=await fetch("https://api.resend.com/emails",{method:"POST",headers:{"Authorization":"Bearer "+api,"Content-Type":"application/json"},body:JSON.stringify({from,to:[email],subject:"MFIT Healthcare – Collection Partner Application Received",html:`<p>Dear ${contact_name.replace(/[&<>"]/g,"")},</p><p>We have received your collection partner application for <b>MFIT Healthcare</b>.</p><p>Application reference: <b>${data.id}</b></p><p>Our team will review your details. Partner login credentials will be shared only after successful verification and approval.</p><p>Regards,<br>MFIT Healthcare</p>`})});if(!mail.ok){await db.from("health_collection_partner_applications").delete().eq("id",data.id);throw new Error("Application acknowledgement email could not be sent.");}return NextResponse.json({success:true,application_id:data.id});}catch(e){console.error("Partner application submission failed",e);return NextResponse.json({error:"Could not submit your application. Please try again."},{status:500});}}
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const business_name = String(body.business_name || "").trim();
+    const contact_name = String(body.contact_name || "").trim();
+    const phone = String(body.phone || "").replace(/\D/g, "");
+    const email = String(body.email || "").trim().toLowerCase();
+    const address = String(body.address || "").trim();
+    const service_areas = String(body.service_areas || "")
+      .split(",").map((area: string) => area.trim()).filter(Boolean);
+
+    if (
+      business_name.length < 2 ||
+      contact_name.length < 2 ||
+      !/^[6-9]\d{9}$/.test(phone) ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      address.length < 8 ||
+      !service_areas.length
+    ) {
+      return NextResponse.json(
+        { error: "Please enter valid business, contact, mobile, email, address and service areas." },
+        { status: 400 }
+      );
+    }
+
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!key || !supabaseUrl) {
+      return NextResponse.json({ error: "Application service is temporarily unavailable." }, { status: 503 });
+    }
+
+    const db = createClient(supabaseUrl, key, { auth: { persistSession: false } });
+    const { data: existing, error: lookupError } = await db
+      .from("health_collection_partner_applications")
+      .select("id")
+      .eq("email", email)
+      .in("status", ["pending_review", "approved"])
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
+    if (existing) {
+      return NextResponse.json({ error: "An active application already exists for this email." }, { status: 409 });
+    }
+
+    const { data, error } = await db
+      .from("health_collection_partner_applications")
+      .insert({
+        business_name,
+        contact_name,
+        phone,
+        email,
+        address,
+        service_areas,
+        gstin: String(body.gstin || "").trim() || null,
+        pan: String(body.pan || "").trim().toUpperCase() || null,
+        notes: String(body.notes || "").trim() || null,
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) throw error || new Error("Application could not be saved.");
+
+    // Keep the application even if Resend is temporarily unavailable.
+    // MFIT admin can still review and contact the applicant.
+    const apiKey = process.env.RESEND_API_KEY;
+    const from = process.env.MFIT_RESEND_FROM_EMAIL;
+    if (!apiKey || !from) {
+      return NextResponse.json({
+        success: true,
+        application_id: data.id,
+        email_sent: false,
+        message: "Your application was received. Email confirmation is temporarily unavailable; our team will contact you.",
+      });
+    }
+
+    const safeName = contact_name.replace(/[&<>"]/g, "");
+    const mail = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [email],
+        subject: "MFIT Healthcare – Collection Partner Application Received",
+        html: `<p>Dear ${safeName},</p><p>We have received your collection partner application for <b>MFIT Healthcare</b>.</p><p>Application reference: <b>${data.id}</b></p><p>Our team will review your details. Partner login credentials will be shared only after successful verification and approval.</p><p>Regards,<br>MFIT Healthcare</p>`,
+      }),
+    });
+
+    if (!mail.ok) {
+      console.error("Partner application acknowledgement email failed", await mail.text());
+      return NextResponse.json({
+        success: true,
+        application_id: data.id,
+        email_sent: false,
+        message: "Your application was received. Email confirmation could not be sent; our team will contact you.",
+      });
+    }
+
+    return NextResponse.json({ success: true, application_id: data.id, email_sent: true });
+  } catch (error) {
+    console.error("Partner application submission failed", error);
+    return NextResponse.json({ error: "Could not submit your application. Please try again." }, { status: 500 });
+  }
+}
