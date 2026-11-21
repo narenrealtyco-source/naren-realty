@@ -393,7 +393,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
           ].filter((section) => section.items.length > 0).map((section) => <section id={section.id} key={section.id} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
             <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Curated health packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{section.title}</h2><p className="mt-1 text-xs text-slate-500">{section.subtitle}</p></div><span className="text-xs font-semibold text-slate-500">{section.items.length} packages</span></div>
             <div className="mb-4 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{section.links.map((label) => <span key={label} className="shrink-0 rounded-full border border-[#dce9e8] bg-white px-4 py-2 text-[11px] font-semibold text-slate-600">{label}</span>)}</div>
-            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{section.items.map(renderItemCard)}</div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{section.items.map((item) => renderItemCard(item))}</div>
           </section>)}
 
           {generalCategories.map((category) => {
@@ -402,13 +402,13 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
             const categoryId = "category-" + category.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
             return <section id={categoryId} key={category} className="mx-auto mt-9 max-w-6xl scroll-mt-28 px-4 sm:px-6">
               <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Explore by health concern</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">{category}</h2></div><span className="text-xs text-slate-500">{categoryItems.length} packages</span></div>
-              <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{categoryItems.map(renderItemCard)}</div>
+              <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{categoryItems.map((item) => renderItemCard(item))}</div>
             </section>;
           })}
 
           <section id="individual-tests" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
             <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Individual diagnostics</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Popular single lab tests</h2><p className="mt-1 text-xs text-slate-500">Individual tests, separate from health packages.</p></div><span className="text-xs text-slate-500">{testItems.length} tests</span></div>
-            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{testItems.filter(searched).slice(0, 12).map(renderItemCard)}</div>
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{testItems.filter(searched).slice(0, 12).map((item) => renderItemCard(item))}</div>
             <button type="button" onClick={() => { setKind("test"); setActiveCategory("All"); setSearch(""); }} className="mt-2 rounded-full border border-[#087f82] px-5 py-2.5 text-xs font-bold text-[#087f82]">Browse all individual tests</button>
           </section>
 
