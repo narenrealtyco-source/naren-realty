@@ -52,11 +52,10 @@ export default function ApplyPartner() {
               Apply to join the independent sample collection partner network. Login access is issued only after verification and approval.
             </p>
             <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-2">
-              <input required name="business_name" placeholder="Business / centre name" className="rounded-lg border p-3 text-sm" />
-              <input required name="contact_name" placeholder="Contact person full name" className="rounded-lg border p-3 text-sm" />
+              <input required name="contact_name" placeholder="Contact person full name" className="rounded-lg border p-3 text-sm sm:col-span-2" />
               <input required name="phone" inputMode="numeric" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" className="rounded-lg border p-3 text-sm" />
               <input required name="email" type="email" placeholder="Email address" className="rounded-lg border p-3 text-sm" />
-              <input required name="address" placeholder="Business address" className="rounded-lg border p-3 text-sm sm:col-span-2" />
+              <input required name="address" placeholder="Address" className="rounded-lg border p-3 text-sm sm:col-span-2" />
               <input required name="service_areas" placeholder="Service areas (comma separated)" className="rounded-lg border p-3 text-sm sm:col-span-2" />
               <input name="gstin" placeholder="GSTIN (if applicable)" className="rounded-lg border p-3 text-sm" />
               <input name="pan" placeholder="PAN (optional)" className="rounded-lg border p-3 text-sm" />

@@ -4,7 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const business_name = String(body.business_name || "").trim();
     const contact_name = String(body.contact_name || "").trim();
     const phone = String(body.phone || "").replace(/\D/g, "");
     const email = String(body.email || "").trim().toLowerCase();
@@ -13,7 +12,6 @@ export async function POST(req: NextRequest) {
       .split(",").map((area: string) => area.trim()).filter(Boolean);
 
     if (
-      business_name.length < 2 ||
       contact_name.length < 2 ||
       !/^[6-9]\d{9}$/.test(phone) ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
@@ -21,7 +19,7 @@ export async function POST(req: NextRequest) {
       !service_areas.length
     ) {
       return NextResponse.json(
-        { error: "Please enter valid business, contact, mobile, email, address and service areas." },
+        { error: "Please enter valid contact name, mobile, email, address and service areas." },
         { status: 400 }
       );
     }
@@ -48,7 +46,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await db
       .from("health_collection_partner_applications")
       .insert({
-        business_name,
+        business_name: null,
         contact_name,
         phone,
         email,
@@ -63,8 +61,6 @@ export async function POST(req: NextRequest) {
 
     if (error || !data) throw error || new Error("Application could not be saved.");
 
-    // Keep the application even if Resend is temporarily unavailable.
-    // MFIT admin can still review and contact the applicant.
     const apiKey = process.env.RESEND_API_KEY;
     const from = process.env.MFIT_RESEND_FROM_EMAIL;
     if (!apiKey || !from) {
