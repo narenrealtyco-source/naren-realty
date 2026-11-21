@@ -4,6 +4,7 @@ import {connection} from "next/server";
 import {revalidatePath} from "next/cache";
 import {requireMfitLab} from "../lib/mfit-lab";
 import {updateLabOrderStatus,uploadMfitReport,updateLabRequestStatus,uploadMfitRequestReport} from "../admin/health/lab-actions";
+import LabReceiptConfirm from "./receipt-confirm";
 export const instant = false;
 export const metadata={title:"MFIT Lab Operations"};
 async function LabDashboardContent(){
@@ -27,7 +28,7 @@ async function LabDashboardContent(){
 <p className="mt-2 text-xs font-semibold text-slate-700">Test load: {(r.selected_items||[]).map((x:any)=>x.title+" · "+x.type).join(", ")}</p>
 <p className="mt-1 text-xs text-slate-500">Collection boy: {(boys||[]).filter(b=>b.id===r.assigned_collection_boy_id).map(b=>b.full_name+" · "+(b.phone||"")).join("")||"Not assigned"}</p>
 <div className="mt-4 grid gap-3 border-t pt-3 md:grid-cols-2">
-<form action={updateLabRequestStatus} className="flex flex-wrap gap-2"><input type="hidden" name="request_id" value={r.id}/><select name="sample_status" defaultValue={r.lab_received_at?"processing":"received_at_lab"} className="min-w-0 flex-1 rounded-lg border p-2 text-xs"><option value="received_at_lab" disabled={!!r.lab_received_at}>Confirm Sample Received</option><option value="processing" disabled={!r.lab_received_at}>Testing in Progress</option></select><input name="note" placeholder="Partner-visible update / delay reason" className="min-w-0 flex-1 rounded-lg border p-2 text-xs"/><button className="rounded-lg bg-teal-700 px-3 py-2 text-xs font-bold text-white">Confirm / Update</button></form>
+<div className="space-y-2"><LabReceiptConfirm requestId={r.id} reference={r.reference} action={updateLabRequestStatus}/>{r.lab_received_at&&<form action={updateLabRequestStatus} className="flex flex-wrap gap-2"><input type="hidden" name="request_id" value={r.id}/><input type="hidden" name="sample_status" value="processing"/><input name="note" placeholder="Partner-visible update / delay reason" className="min-w-0 flex-1 rounded-lg border p-2 text-xs"/><button className="rounded-lg bg-teal-700 px-3 py-2 text-xs font-bold text-white">Mark testing in progress</button></form>}</div>
 <form action={uploadMfitRequestReport} encType="multipart/form-data" className="flex flex-wrap items-center gap-2"><input type="hidden" name="request_id" value={r.id}/><input type="file" name="report" accept="application/pdf" required className="min-w-0 flex-1 text-xs"/><button disabled={!r.lab_received_at} className="rounded-lg border border-teal-700 px-3 py-2 text-xs font-bold text-teal-800 disabled:opacity-40">Upload PDF report</button></form>
 </div></article>)}</div>{!requests?.length&&<p className="mt-3 rounded-xl bg-white p-5 text-sm text-slate-500">No booking requests assigned yet.</p>}
 </div></main>;
