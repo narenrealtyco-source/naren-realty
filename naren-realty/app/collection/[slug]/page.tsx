@@ -282,15 +282,14 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
       </section>
 
       <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <div className="relative min-h-[220px] overflow-hidden rounded-[28px] bg-[linear-gradient(112deg,#064d66_0%,#087e91_54%,#52c4c7_100%)] shadow-[0_16px_38px_rgba(4,84,104,.18)] sm:min-h-[270px]">
-          <div aria-hidden="true" className="absolute -right-12 -top-24 size-[330px] rounded-full border-[1px] border-white/15 sm:right-20 sm:size-[390px]" />
-          <div aria-hidden="true" className="absolute -right-3 top-8 size-[190px] rounded-full border-[28px] border-white/10 sm:right-36 sm:top-10 sm:size-[220px]" />
-          <div aria-hidden="true" className="absolute right-7 top-12 hidden h-[150px] w-[150px] rotate-12 items-center justify-center rounded-[34px] border border-white/30 bg-white/10 text-7xl text-white/90 shadow-2xl backdrop-blur-sm sm:flex">✚</div>
-          <div className="relative z-10 max-w-[82%] px-5 py-7 text-white sm:max-w-[65%] sm:px-9 sm:py-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c4fff2] sm:text-xs">Your health, in focus</p>
-            <h1 className="mt-2 text-[26px] font-extrabold leading-[1.12] sm:text-[40px]">A healthier you starts with a checkup.</h1>
-            <p className="mt-3 max-w-xl text-xs leading-5 text-white/90 sm:text-sm sm:leading-6">Browse preventive health packages and individual lab tests. Choose your tests and request a convenient home sample collection.</p>
-            <div className="mt-4 flex flex-wrap items-center gap-3"><button type="button" onClick={() => { setKind("package"); setDetailSlug(null); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="inline-flex min-h-10 items-center rounded-xl bg-white px-4 text-xs font-extrabold text-[#075c78] shadow-sm">Explore packages <span className="ml-2">→</span></button><span className="text-[10px] font-semibold text-white/80">{packageCount} packages · {testCount} individual tests</span></div>
+        <div className="relative isolate min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
+          <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85" alt="Healthcare professional" className="absolute inset-y-0 right-0 -z-10 h-full w-[52%] object-cover object-center opacity-55 sm:w-[42%]" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#075c78] via-[#087f98]/95 to-transparent" />
+          <div className="max-w-[72%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#baf4ee] sm:text-xs">Your health, in focus</p>
+            <h1 className="mt-2 text-[25px] font-extrabold leading-[1.08] tracking-tight sm:text-4xl">Make your health a priority.</h1>
+            <p className="mt-2 max-w-md text-xs leading-5 text-white/90 sm:text-base">Explore available checkup options and individual lab tests. Choose your tests and request a convenient home sample collection.</p>
+            <button type="button" onClick={() => { setKind("package"); setDetailSlug(null); document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-xs font-extrabold text-[#075c78] shadow-sm transition hover:bg-[#e9fbf8] sm:text-sm">Explore packages <span className="ml-2">→</span></button>
           </div>
         </div>
       </section>
@@ -317,6 +316,40 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         </section>
       ) : (
         <>
+          <section id="packages" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health checkup packages</h2></div>
+              <span className="pb-1 text-xs font-semibold text-slate-500">{packageCount} options</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              {[
+                ...generalCategories.map((category) => ({ title: category, count: packageItems.filter((item) => item.category === category).length, target: "category-" + category.replace(/[^a-z0-9]+/gi, "-").toLowerCase(), image: /lifestyle|fitness|nutrition/i.test(category) ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=700&q=80" : "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=700&q=80" })),
+                ...(womenPackages.length ? [{ title: "Women's Health", count: womenPackages.length, target: "women-health", image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=700&q=80" }] : []),
+                ...(menPackages.length ? [{ title: "Men's Health", count: menPackages.length, target: "men-health", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80" }] : []),
+                ...(childrenPackages.length ? [{ title: "Children's Health", count: childrenPackages.length, target: "children-health", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80" }] : [])
+              ].slice(0, 4).map((need) => <button key={need.title} type="button" onClick={() => document.getElementById(need.target)?.scrollIntoView({ behavior: "smooth" })} className="group overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.06)] ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg">
+                <div className="relative aspect-[1.35/1] overflow-hidden bg-[#e7f5f7]"><img src={need.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-slate-900/25 to-transparent" /></div>
+                <div className="p-3"><h3 className="text-sm font-extrabold leading-tight sm:text-base">{need.title}</h3><p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs">{need.count} available options</p><span className="mt-3 inline-flex items-center text-xs font-bold text-[#078b8d]">Explore <span className="ml-1">→</span></span></div>
+              </button>)}
+              {!packageCount && <p className="col-span-2 rounded-xl bg-white p-4 text-sm text-slate-500 ring-1 ring-slate-100 sm:col-span-4">Health checkup packages will appear here when the catalogue is available.</p>}
+            </div>
+          </section>
+
+          <section className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
+            <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">More ways to care</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Health services</h2></div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+              <button type="button" onClick={() => document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" })} className="group flex overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
+                <span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#e1f7f3] via-[#effbfa] to-[#e7f0ff] text-4xl text-[#07999b] sm:h-32 sm:w-32">⚗</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">Blood Tests</strong><span className="mt-1 text-xs leading-4 text-slate-500">Browse individual lab tests</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span>
+              </button>
+              <button type="button" onClick={() => document.getElementById("collection-steps")?.scrollIntoView({ behavior: "smooth" })} className="group flex overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
+                <span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#e1f7f3] via-[#effbfa] to-[#e7f0ff] text-4xl text-[#07999b] sm:h-32 sm:w-32">⌂</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">Home Sample Collection</strong><span className="mt-1 text-xs leading-4 text-slate-500">Ask about sample collection at home</span><span className="mt-2 text-xs font-bold text-[#078b8d]">Know more →</span></span>
+              </button>
+              <button type="button" onClick={() => selected.length ? setBookingOpen(true) : setError("Please add a test or package first.")} className="group flex overflow-hidden rounded-2xl bg-white text-left shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100">
+                <span className="grid h-28 w-28 shrink-0 place-items-center bg-gradient-to-br from-[#fff1e8] via-[#fff8f1] to-[#fff0ee] text-4xl text-[#c76c69] sm:h-32 sm:w-32">▤</span><span className="flex min-w-0 flex-col justify-center p-3"><strong className="text-sm font-extrabold">My Booking</strong><span className="mt-1 text-xs leading-4 text-slate-500">Review selected tests and packages</span><span className="mt-2 text-xs font-bold text-[#078b8d]">View booking →</span></span>
+              </button>
+            </div>
+          </section>
+
           <section id="categories" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
             <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Lab tests & packages</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Explore health categories</h2></div><span className="text-xs text-slate-500">{categoryNames.length + (womenPackages.length ? 1 : 0) + (menPackages.length ? 1 : 0) + (childrenPackages.length ? 1 : 0)} categories</span></div>
             <div className="flex gap-3 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -376,17 +409,34 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
             <button type="button" onClick={() => { setKind("test"); setActiveCategory("All"); setSearch(""); }} className="mt-2 rounded-full border border-[#087f82] px-5 py-2.5 text-xs font-bold text-[#087f82]">Browse all individual tests</button>
           </section>
 
-          <section className="mx-auto mt-12 max-w-6xl px-4 sm:px-6">
-            <div className="rounded-[26px] bg-white p-5 shadow-sm sm:p-7">
-              <p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Simple & convenient</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">How home sample collection works</h2>
-              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <section id="collection-steps" className="mx-auto mt-10 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+            <div className="rounded-2xl bg-white p-5 shadow-[0_4px_18px_rgba(15,40,55,0.05)] ring-1 ring-slate-100 sm:p-8">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Simple steps, from home</p>
+              <h2 className="mt-2 max-w-3xl text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">How does home sample collection for lab tests work?</h2>
+              <div className="mt-6 space-y-6 sm:mt-8">
                 {[
-                  { n: "01", title: "Choose tests", desc: "Browse packages or select individual lab tests.", icon: "⌕" },
-                  { n: "02", title: "Schedule a visit", desc: "Share your details and preferred collection time.", icon: "▦" },
-                  { n: "03", title: "Sample collection", desc: "The collection partner coordinates your sample visit.", icon: "♧" },
-                  { n: "04", title: "Report access", desc: "Get report updates through the available reporting process.", icon: "▤" }
-                ].map((step) => <div key={step.n} className="flex gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e9f7f5] text-xl font-bold text-[#087f82]">{step.icon}</span><div><p className="text-[10px] font-extrabold tracking-widest text-[#078b8d]">{step.n}</p><h3 className="mt-1 text-sm font-extrabold">{step.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{step.desc}</p></div></div>)}
+                  { title: "Booking completion", desc: "Select the required tests or package and share your preferred home collection date and time.", icon: "▣", tone: "bg-[#e8f8f6] text-[#078b8d]" },
+                  { title: "Home sample collection", desc: "A collection professional visits your address at the confirmed time, subject to service availability in your area.", icon: "⌂", tone: "bg-[#fff0ee] text-[#c76c69]" },
+                  { title: "Sample transfer to the lab", desc: "Your sample is transported to the assigned laboratory following the applicable handling process.", icon: "➜", tone: "bg-[#f4f6df] text-[#7c8a35]" },
+                  { title: "Online report delivery", desc: "Reports are shared digitally through the available reporting process. Report timelines depend on the selected test or package.", icon: "▤", tone: "bg-[#fff1e8] text-[#d97842]" }
+                ].map((step, index) => <div key={step.title} className="flex gap-4"><span className={`grid size-12 shrink-0 place-items-center rounded-2xl text-2xl ${step.tone}`}>{step.icon}</span><div><h3 className="text-base font-extrabold">{step.title}</h3><p className="mt-1 text-sm leading-6 text-slate-600">{step.desc}</p></div></div>)}
               </div>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#f0faf9] p-4 sm:grid-cols-4 sm:gap-4 sm:p-6">
+              {[
+                { icon: "⚗️", label: "Laboratory partner network" },
+                { icon: "🧪", label: "Test and package options" },
+                { icon: "⌂", label: "Home collection where available" },
+                { icon: "▤", label: "Digital report access" }
+              ].map((item) => <div key={item.label} className="flex flex-col items-center gap-2 px-1 py-2 text-center"><span className="text-3xl">{item.icon}</span><span className="text-xs font-semibold leading-5 text-[#27383a] sm:text-sm">{item.label}</span></div>)}
+            </div>
+          </section>
+          <section className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6">
+            <div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">Booking support</p>
+              <h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Your collection partner can guide you through available packages, individual tests and booking options.</p>
+              <button type="button" onClick={() => selected.length ? setBookingOpen(true) : document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" })} className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-[#075c78]">{selected.length ? "Review my booking" : "Explore packages"} →</button>
             </div>
           </section>
         </>
