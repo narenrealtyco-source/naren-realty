@@ -228,7 +228,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
     const includedCount = item.item_type === "package"
       ? (item.package_tests?.length || item.inclusions?.length || 0) : item.inclusions?.length || 0;
     return (
-      <article key={item.slug} className="group w-[276px] shrink-0 overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)] sm:w-[300px]">
+      <article key={item.slug} className="group w-full overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)]">
         <div className="relative flex min-h-[126px] items-center justify-between overflow-hidden bg-[radial-gradient(circle_at_82%_24%,rgba(255,255,255,.9),transparent_25%),linear-gradient(115deg,#e4f6f3,#edf7fb_58%,#f2f0ff)] px-5 py-4">
           <div className="relative z-10"><span className="inline-flex rounded-full border border-white/80 bg-white/90 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[.13em] text-[#087f82]">{item.item_type === "test" ? "Individual lab test" : "Health package"}</span><p className="mt-3 max-w-[190px] text-xs font-semibold text-[#547174]">{item.category || "Diagnostic care"}</p>{includedCount > 0 && <p className="mt-1 text-[11px] font-semibold text-[#547174]">{includedCount} {item.item_type === "test" ? "parameters listed" : "included tests / details"}</p>}</div>
           <span aria-hidden="true" className="relative mr-1 grid size-[72px] shrink-0 place-items-center rounded-[24px] border border-white/90 bg-white/75 text-[34px] font-black text-[#078b8d] shadow-[0_8px_20px_rgba(7,127,130,.10)]">{item.item_type === "test" ? "⌬" : "✚"}</span>
@@ -268,16 +268,19 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
           <span className="text-xl text-slate-500">⌕</span>
           <input value={search} onChange={(event) => { setSearch(event.target.value); setDetailSlug(null); }} placeholder="Search CBC, Thyroid, Vitamin D, health packages..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
         </label>
-        <div className="mt-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
           {[
-            { title: "All Tests", subtitle: "Browse all", symbol: "⌕", action: () => { setKind("all"); setActiveCategory("All"); }, tone: "bg-[#eef7ff] text-[#2675ad]" },
-            { title: "Packages", subtitle: packageCount + " available", symbol: "✚", action: () => { setKind("package"); setActiveCategory("All"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }, tone: "bg-[#eaf8f7] text-[#078b8d]" },
-            ...(womenPackages.length ? [{ title: "For Women", subtitle: womenPackages.length + " packages", symbol: "♡", action: () => document.getElementById("women-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#fff0f5] text-[#b84d78]" }] : []),
-            ...(menPackages.length ? [{ title: "For Men", subtitle: menPackages.length + " packages", symbol: "◈", action: () => document.getElementById("men-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#edf3ff] text-[#416bb2]" }] : []),
-            ...(childrenPackages.length ? [{ title: "For Children", subtitle: childrenPackages.length + " packages", symbol: "✿", action: () => document.getElementById("children-health")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#eff9ec] text-[#4c8b45]" }] : []),
-            { title: "Single Tests", subtitle: testCount + " tests", symbol: "⚗", action: () => document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#f2efff] text-[#7255ad]" },
-            { title: "My Booking", subtitle: selected.length ? selected.length + " selected" : "Review order", symbol: "▤", action: () => selected.length ? setBookingOpen(true) : setError("Please add a test or package first."), tone: "bg-[#fff3e9] text-[#b66a2a]" },
-          ].map((action) => <button key={action.title} type="button" onClick={action.action} className={`flex min-w-[118px] shrink-0 flex-col items-center justify-center rounded-2xl border border-slate-100 px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 sm:min-w-[140px] sm:rounded-3xl ${action.tone}`}><span className="mb-2 grid size-12 place-items-center rounded-2xl bg-white/80 text-2xl sm:size-14 sm:text-3xl">{action.symbol}</span><strong className="text-xs sm:text-sm">{action.title}</strong><span className="mt-1 text-[10px] opacity-75 sm:text-xs">{action.subtitle}</span></button>)}
+            { title: "All Tests", subtitle: "Browse all", symbol: "⌕", action: () => { setKind("all"); setActiveCategory("All"); }, tone: "bg-[#edf5ff] text-[#2476bd]" },
+            { title: "Packages", subtitle: packageCount + " available", symbol: "✚", action: () => { setKind("package"); setActiveCategory("All"); document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }, tone: "bg-[#eaf8f7] text-[#078b8d]" },
+            { title: "Single", subtitle: "Lab Tests", symbol: "⚗", action: () => { setKind("test"); document.getElementById("individual-tests")?.scrollIntoView({ behavior: "smooth" }); }, tone: "bg-[#eaf8ef] text-[#23965a]" },
+            { title: "My", subtitle: "Booking", symbol: "▤", action: () => selected.length ? setBookingOpen(true) : setError("Please add a test or package first."), tone: "bg-[#fff3e9] text-[#b66a2a]" },
+          ].map((action) => (
+            <button key={action.title} type="button" onClick={action.action} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
+              <span className="mb-2 text-[30px] font-semibold leading-none sm:text-[38px]">{action.symbol}</span>
+              <span className="text-[11px] leading-tight opacity-80 sm:text-sm">{action.title}</span>
+              <strong className="mt-1 text-[12px] leading-tight sm:text-base">{action.subtitle}</strong>
+            </button>
+          ))}
         </div>
       </section>
 
@@ -368,7 +371,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
 
           <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
             <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Selected from the catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Recommended for you</h2></div><button type="button" onClick={() => { setKind("all"); setActiveCategory("All"); document.getElementById("most-booked")?.scrollIntoView({ behavior: "smooth" }); }} className="text-xs font-bold text-[#087f82]">View all →</button></div>
-            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{[...packageItems, ...testItems].slice(0, 8).map(renderItemCard)}</div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[...packageItems, ...testItems].slice(0, 6).map(renderItemCard)}</div>
           </section>
 
           <section id="most-booked" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
