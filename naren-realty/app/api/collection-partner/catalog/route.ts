@@ -20,7 +20,7 @@ export async function GET(request:Request){
  const {data:p}=await db.from("health_collection_partners").select("id,display_name,public_slug,service_areas").eq("public_slug",slug).eq("is_active",true).maybeSingle();
  if(!p)return NextResponse.json({error:"Booking page unavailable."},{status:404});
  const [{data:catalog,error:catalogError},{data:rates},{data:mappings,error:mappingError}]=await Promise.all([
-  db.from("health_catalog_items").select("id,slug,title,item_type,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").eq("is_active",true).in("item_type",["package","test"]).order("title"),
+  db.from("health_catalog_items").select("id,slug,title,item_type,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").eq("is_active",true).eq("provider_verified",true).in("item_type",["package","test"]).order("title"),
   db.from("health_collection_partner_rates").select("catalog_item_id,b2b_price,customer_price").eq("partner_id",p.id).eq("is_active",true),
   db.from("health_package_test_items").select("package_id,test_id,sort_order,mapping_status")
  ]);
