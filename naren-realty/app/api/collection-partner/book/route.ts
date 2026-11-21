@@ -12,7 +12,7 @@ export async function POST(req:NextRequest){
   const {data:p}=await db.from("health_collection_partners").select("id,display_name").eq("public_slug",slug).eq("is_active",true).single();if(!p)return NextResponse.json({error:"Partner link inactive."},{status:404});const {data:internalLab}=await db.from("health_lab_partners").select("id").eq("is_internal",true).single();if(!internalLab)return NextResponse.json({error:"Lab processing is not configured. Please contact the partner."},{status:503});
   const slugs=lines.map((x:any)=>String(x.slug||""));if(lines.some((x:any)=>x.quantity!==1)||new Set(slugs).size!==slugs.length)return NextResponse.json({error:"Invalid selection."},{status:400});
   const [{data:catalog},{data:rates}]=await Promise.all([
-   db.from("health_catalog_items").select("id,slug,title,item_type,category,inclusions,sample_type,preparation,report_tat,report_tat_hours,price,mrp,is_active").in("slug",slugs).eq("is_active",true).in("item_type",["package","test"]),
+   db.from("health_catalog_items").select("id,slug,title,item_type,category,inclusions,sample_type,preparation,report_tat,report_tat_hours,price,mrp,is_active,provider_verified").in("slug",slugs).eq("is_active",true).eq("provider_verified",true).in("item_type",["package","test"]),
    db.from("health_collection_partner_rates").select("catalog_item_id,b2b_price,customer_price").eq("partner_id",p.id).eq("is_active",true)
   ]);
   const rateMap=new Map((rates||[]).map((r:any)=>[r.catalog_item_id,r]));
