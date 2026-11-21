@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       .in("slug", slugs);
     if (catalogError) throw catalogError;
     if (!catalog || catalog.length !== slugs.length) return NextResponse.json({ error: "One or more selected tests or packages could not be found. Please refresh and try again." }, { status: 404 });
+    if (catalog.some((item:any)=>!item.is_active || item.price===null || !item.provider_verified)) return NextResponse.json({ error: "One or more selected items are awaiting MFIT approval and are not yet bookable." }, { status: 409 });
 
     const { data: packageMappings } = await supabase.from("health_package_test_items").select("package_id,test_id,mapping_status").in("package_id",catalog.map((x:any)=>x.id));
     const catalogById = new Map(catalog.map((x:any)=>[x.id,x]));
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     let couponDiscount = 0;
     let familyDiscount = 0;
     let couponCode: string | null = String(body?.couponCode || "").trim().toUpperCase() || null;
-    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.price !== null);
+    const allPricedAndVerified = catalog.every((item:any)=>item.is_active && item.price !== null && item.provider_verified);
     if (allPricedAndVerified) {
       subtotal = Number(catalog.reduce((sum:number,item:any)=>sum + Number(item.price),0).toFixed(2));
       if (String(patient.relation || "Self") !== "Self") {

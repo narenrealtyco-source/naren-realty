@@ -32,7 +32,7 @@ export async function GET() {
   const supabase = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
   const [{ data: items, error }, { data: mappings, error: mappingError }] = await Promise.all([
     supabase.from("health_catalog_items").select("id,slug,item_type,title,category,description,inclusions,sample_type,preparation,report_tat,price,mrp,is_active,provider_verified").order("title"),
-    supabase.from("health_package_test_items").select("package_id,test_id,sort_order,mapping_status")
+    supabase.from("health_package_test_items").select("package_id,test_id,sort_order,mapping_status").eq("mapping_status","confirmed")
   ]);
   if (error || mappingError) return NextResponse.json({ error: "Could not load the health catalogue." }, { status: 500 });
   const byId = new Map((items || []).map(item => [item.id, item]));

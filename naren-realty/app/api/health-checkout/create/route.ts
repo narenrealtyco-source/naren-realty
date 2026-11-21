@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const { data: catalog, error: catalogError } = await supabase.from("health_catalog_items")
       .select("slug,title,price,is_active,provider_verified").in("slug", slugs);
     if (catalogError) throw catalogError;
-    if (!catalog || catalog.length !== slugs.length || catalog.some(x => !x.is_active || x.price === null)) {
+    if (!catalog || catalog.length !== slugs.length || catalog.some(x => !x.is_active || x.price === null || !x.provider_verified)) {
       return NextResponse.json({ error: "One or more items are not yet available for online booking. Please enquire for confirmed rates." }, { status: 409 });
     }
 
