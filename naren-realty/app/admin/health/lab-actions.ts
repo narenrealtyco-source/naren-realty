@@ -138,6 +138,7 @@ export async function updateLabRequestStatus(formData:FormData) {
  if(!request_id||!["received_at_lab","processing"].includes(status)) throw new Error("Choose sample receipt or processing status.");
  const {admin,user,staff}=await requireMfitLab();
  const {data:request,error:readError}=await admin.from("health_booking_requests").select("id,reference,lab_partner_id,sample_status,sample_collected_at,lab_received_at,selected_items").eq("id",request_id).eq("lab_partner_id",staff.lab_partner_id).single();
+ if(readError||!request) throw new Error("Request is not assigned to this MFIT lab.");
  if(status==="received_at_lab"){
   const receiptCode=String(formData.get("receipt_code")||"").trim();
   const receiptMethod=String(formData.get("receipt_method")||"");
@@ -147,7 +148,6 @@ export async function updateLabRequestStatus(formData:FormData) {
   const methodLabel=receiptMethod==="scan"?"QR/Barcode scan":"Manual backup";
   note=(note?note+" · ":"")+"Lab receipt verified by "+methodLabel+" ("+receiptCode.slice(0,120)+").";
  }
- if(readError||!request) throw new Error("Request is not assigned to this MFIT lab.");
  const now=new Date();
  const nowIso=now.toISOString();
  const update:any={sample_status:status,updated_at:nowIso};
