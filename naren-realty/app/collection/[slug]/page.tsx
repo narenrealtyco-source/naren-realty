@@ -130,6 +130,8 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
   const [search, setSearch] = useState("");
   const [kind, setKind] = useState<"all" | "package" | "test">("all");
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [detailSlug, setDetailSlug] = useState<string | null>(null);
 
   useEffect(() => {
     params.then((value) => setSlug(value.slug));
@@ -153,8 +155,9 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
 
   const visibleItems = useMemo(() => items.filter((item) =>
     (kind === "all" || item.item_type === kind) &&
+    (activeCategory === "All" || item.category === activeCategory) &&
     (item.title + " " + (item.category || "") + " " + cleanCatalogueText(item.description)).toLowerCase().includes(search.toLowerCase())
-  ), [items, kind, search]);
+  ), [items, kind, activeCategory, search]);
 
   const chosenItems = useMemo(() => items.filter((item) => selected.includes(item.slug)), [items, selected]);
   const total = chosenItems.reduce((sum, item) => sum + Number(item.customer_price || 0), 0);
@@ -249,96 +252,119 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
                 const isSelected = selected.includes(item.slug);
                 const isPackage = item.item_type === "package";
                 const saving = item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price;
-                return (
-                  <article key={item.slug} className={"rounded-2xl border p-3.5 transition sm:p-4 " + (isSelected ? "border-[#08aeb1] bg-[#e8f8f6] shadow-sm" : "border-slate-200 bg-white")}>
-                    <div className="flex items-start gap-3">
-                      <input aria-label={"Select " + item.title} type="checkbox" checked={isSelected} disabled={item.customer_price === null} onChange={(event) => setSelected((current) => event.target.checked ? [...current, item.slug] : current.filter((value) => value !== item.slug))} className="mt-1 size-5 shrink-0 accent-[#078b8d]" />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full bg-[#eff8f7] px-2.5 py-1 text-[10px] font-bold text-[#172326]">{isPackage ? "PACKAGE" : "SINGLE TEST"}</span>
-                          {item.category && <span className="text-[10px] font-semibold text-slate-500">{item.category}</span>}
-                        </div>
-                        <h3 className="mt-2 text-sm font-extrabold leading-5 sm:text-base">{item.title}</h3>
-                        {cleanCatalogueText(item.description) && <p className="mt-1 text-xs leading-5 text-slate-600">{cleanCatalogueText(item.description)}</p>}
-                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-                          {item.mrp_price !== null && saving && <span className="text-xs text-slate-400 line-through">₹{Number(item.mrp_price).toLocaleString("en-IN")}</span>}
-                          <strong className="text-sm text-[#172326]">{formatPrice(item.customer_price)}</strong>
-                          {saving && <span className="text-[11px] font-bold text-emerald-700">Save ₹{(Number(item.mrp_price) - Number(item.customer_price)).toLocaleString("en-IN")}</span>}
-                        </div>
-                      </div>
-                    </div>
+                const categories = ["All", ...Array.from(new Set(items.map((item) => item.category).filter((value): value is string => Boolean(value))))];
+  const selectedDetail = items.find((item) => item.slug === detailSlug) || null;
+  const featuredItems = items.filter((item) => item.item_type === (kind === "test" ? "test" : "package")).slice(0, 3);
 
-                    <details className="mt-3 rounded-xl border border-slate-100 bg-[#f8fafc]">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-xs font-extrabold text-[#172326] [&::-webkit-details-marker]:hidden">
-                        <span>{isPackage ? "View included tests & parameters" : "View test parameters"}</span>
-                        <span className="text-base text-[#078b8d]">⌄</span>
-                      </summary>
-                      <div className="space-y-3 border-t border-slate-200 px-3 pb-3 pt-3">
-                        <div className="grid grid-cols-3 gap-2">
-                          <div><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Sample</p><p className="mt-1 text-[11px] leading-4 text-slate-700">{item.sample_type || "To be confirmed"}</p></div>
-                          <div><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Preparation</p><p className="mt-1 text-[11px] leading-4 text-slate-700">{item.preparation || "To be confirmed"}</p></div>
-                          <div><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Report time</p><p className="mt-1 text-[11px] leading-4 text-slate-700">{item.report_tat || "To be confirmed"}</p></div>
-                        </div>
-                        {!isPackage && <ParameterList values={item.inclusions || []} note={item.inclusionsNote} />}
-                        {isPackage && <div>
-                          <p className="mb-2 text-xs font-extrabold text-[#172326]">Tests included ({item.package_tests?.length || 0})</p>
-                          {item.package_tests?.length ? <div className="space-y-2">{item.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : item.inclusions?.length ? <PackageInclusionList values={item.inclusions} /> : <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Included test and parameter details are awaiting confirmation from the performing laboratory.</p>}
-                          {item.inclusionsNote && <p className="mt-3 text-[11px] leading-5 text-amber-800">{cleanCatalogueText(item.inclusionsNote)}</p>}
-                        </div>}
-                      </div>
-                    </details>
-                  </article>
-                );
-              })}
-              {!loading && !visibleItems.length && <p className="rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500">No matching packages or tests found.</p>}
+  return (
+    <main id="top" className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
+      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
+          <a href="#top" className="flex items-center gap-2.5" aria-label="MFIT Healthcare home">
+            <span className="grid size-11 place-items-center rounded-md bg-[#08b8bb] text-3xl font-black text-white">M</span>
+            <span className="leading-none"><span className="block text-[25px] font-extrabold tracking-[-0.07em] text-[#15191b]">FIT</span><span className="mt-1 block text-xs font-semibold text-[#222729]">Healthcare</span></span>
+          </a>
+          <a href="#booking" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82]">My booking</a>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8">
+        <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
+        <label className="flex h-14 items-center gap-3 rounded-full border border-[#aab6c2] bg-white px-5 shadow-sm focus-within:border-[#08aeb1] focus-within:ring-2 focus-within:ring-[#08b8bb]/15">
+          <span className="text-xl text-slate-500">⌕</span>
+          <input value={search} onChange={(event) => { setSearch(event.target.value); setDetailSlug(null); }} placeholder="Search CBC, Thyroid, Vitamin D, health packages..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
+        </label>
+        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
+          {[
+            { title: "Health", subtitle: "Packages", symbol: "✚", action: () => { setKind("package"); setActiveCategory("All"); }, tone: "bg-[#eaf8f7] text-[#078b8d]" },
+            { title: "Individual", subtitle: "Lab Tests", symbol: "⚗", action: () => { setKind("test"); setActiveCategory("All"); }, tone: "bg-[#edf5ff] text-[#2476bd]" },
+            { title: "All", subtitle: "Catalogue", symbol: "▣", action: () => { setKind("all"); setActiveCategory("All"); }, tone: "bg-[#eaf8ef] text-[#23965a]" },
+            { title: "Review", subtitle: "My Booking", symbol: "▤", action: () => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }), tone: "bg-[#fff3e9] text-[#b66a2a]" },
+          ].map((action) => <button key={action.subtitle} type="button" onClick={action.action} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-sm transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}><span className="mb-2 text-3xl sm:text-[38px]">{action.symbol}</span><span className="text-[11px] opacity-80 sm:text-sm">{action.title}</span><strong className="mt-1 text-xs sm:text-base">{action.subtitle}</strong></button>)}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
+        <div className="relative min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-lg sm:min-h-[230px]">
+          <div className="max-w-[78%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#baf4ee] sm:text-xs">Your health, in focus</p>
+            <h1 className="mt-2 text-[25px] font-extrabold leading-tight sm:text-4xl">Make your health a priority.</h1>
+            <p className="mt-2 text-xs leading-5 text-white/90 sm:text-base">Explore health checkup packages and individual lab tests with convenient collection booking.</p>
+            <button type="button" onClick={() => { setKind("package"); setDetailSlug(null); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-xs font-extrabold text-[#075c78]">Explore packages →</button>
+          </div>
+        </div>
+      </section>
+
+      {error && <div className="mx-auto mt-5 max-w-6xl px-4 sm:px-6"><p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p></div>}
+
+      {selectedDetail ? (
+        <section className="mx-auto mt-8 max-w-4xl px-4 sm:px-6">
+          <button type="button" onClick={() => setDetailSlug(null)} className="mb-4 text-sm font-bold text-[#078b8d]">← Back to health catalogue</button>
+          <article className="overflow-hidden rounded-3xl border border-[#dceeed] bg-white shadow-lg">
+            <div className="bg-gradient-to-r from-[#e8f8f5] via-[#f1fbfa] to-[#edf3ff] px-5 py-6 sm:px-7">
+              <span className="rounded-full bg-white px-3 py-1 text-[10px] font-extrabold uppercase text-[#087f82]">{selectedDetail.item_type === "package" ? "MFIT PACKAGE" : "MFIT LAB TEST"}</span>
+              <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">{selectedDetail.title}</h2>
+              {selectedDetail.category && <p className="mt-2 text-sm font-semibold text-[#5c7475]">{selectedDetail.category}</p>}
+              {cleanCatalogueText(selectedDetail.description) && <p className="mt-3 text-sm leading-6 text-slate-600">{cleanCatalogueText(selectedDetail.description)}</p>}
+              <strong className="mt-4 block text-xl">{formatPrice(selectedDetail.customer_price)}</strong>
             </div>
-            <p className="mt-4 text-[11px] leading-5 text-slate-500">Select one or more options. The displayed customer price is payable to your collection partner.</p>
-          </section>
-
-          <section className="rounded-2xl bg-white p-4 shadow-[0_3px_18px_rgba(15,35,65,.05)] ring-1 ring-slate-100 sm:p-6">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Step 2 · Your details</p>
-            <h2 className="mt-1 text-lg font-extrabold">Customer details</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {(["name", "phone", "email", "pincode"] as const).map((key) => (
-                <label key={key} className="text-xs font-semibold text-slate-600">
-                  {key === "name" ? "Full name" : key === "phone" ? "Mobile number" : key === "pincode" ? "Pincode" : "Email (optional)"}
-                  <input required={key !== "email"} type={key === "email" ? "email" : "text"} inputMode={key === "phone" || key === "pincode" ? "numeric" : undefined} placeholder={key === "phone" ? "10-digit mobile number" : key === "pincode" ? "6-digit pincode" : key === "email" ? "Email address" : "Enter your full name"} value={customer[key]} onChange={(event) => setCustomer((current) => ({ ...current, [key]: event.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1] focus:ring-2 focus:ring-[#08b8bb]/15" />
-                </label>
-              ))}
-              <label className="text-xs font-semibold text-slate-600 sm:col-span-2">Full collection address
-                <textarea required value={customer.address} onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))} rows={3} placeholder="Flat / house, street, area and city" className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1] focus:ring-2 focus:ring-[#08b8bb]/15" />
-              </label>
+            <div className="space-y-5 p-5 sm:p-7">
+              <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#f7fafb] p-4">
+                <div><p className="text-[10px] font-bold uppercase text-slate-400">Sample</p><p className="mt-1 text-xs">{selectedDetail.sample_type || "To be confirmed"}</p></div>
+                <div><p className="text-[10px] font-bold uppercase text-slate-400">Preparation</p><p className="mt-1 text-xs">{selectedDetail.preparation || "To be confirmed"}</p></div>
+                <div><p className="text-[10px] font-bold uppercase text-slate-400">Report time</p><p className="mt-1 text-xs">{selectedDetail.report_tat || "To be confirmed"}</p></div>
+              </div>
+              {selectedDetail.item_type === "test" ? <ParameterList values={selectedDetail.inclusions || []} note={selectedDetail.inclusionsNote} /> : <div><h3 className="mb-3 text-base font-extrabold">Included tests & parameters</h3>{selectedDetail.package_tests?.length ? <div className="space-y-3">{selectedDetail.package_tests.map((test) => <TestDetails key={test.slug} test={test} />)}</div> : selectedDetail.inclusions?.length ? <PackageInclusionList values={selectedDetail.inclusions} /> : <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Included test and parameter details are awaiting confirmation from the performing laboratory.</p>}{selectedDetail.inclusionsNote && <p className="mt-3 text-[11px] text-amber-800">{cleanCatalogueText(selectedDetail.inclusionsNote)}</p>}</div>}
+              <button type="button" disabled={selectedDetail.customer_price === null} onClick={() => { setSelected((current) => current.includes(selectedDetail.slug) ? current : [...current, selectedDetail.slug]); setDetailSlug(null); document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }); }} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#078b8d] px-5 text-sm font-extrabold text-white disabled:opacity-50">{selected.includes(selectedDetail.slug) ? "Already added to booking" : "ADD TO BOOKING"}</button>
+            </div>
+          </article>
+        </section>
+      ) : (
+        <>
+          <section className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
+            <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Explore by need</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health categories</h2></div><span className="text-xs text-slate-500">{loading ? "Loading…" : categories.length - 1 + " categories"}</span></div>
+            <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0">
+              {categories.map((category, index) => <button key={category} type="button" onClick={() => { setActiveCategory(category); setKind("all"); }} className={`w-[43%] shrink-0 snap-start rounded-2xl border p-4 text-left sm:w-auto sm:min-h-[120px] ${activeCategory === category ? "border-[#08b8bb] bg-[#eaf8f7]" : "border-slate-100 bg-white shadow-sm"}`}><span className="mb-3 grid size-10 place-items-center rounded-xl bg-[#eaf8f7] text-xl text-[#078b8d]">{index === 0 ? "✚" : "◈"}</span><strong className="block text-sm">{category === "All" ? "All categories" : category}</strong><span className="mt-1 block text-[11px] text-slate-500">Explore available options</span></button>)}
             </div>
           </section>
 
-          <section className="rounded-2xl bg-white p-4 shadow-[0_3px_18px_rgba(15,35,65,.05)] ring-1 ring-slate-100 sm:p-6">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Step 3 · Collection preference</p>
-            <h2 className="mt-1 text-lg font-extrabold">Preferred date & time</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="text-xs font-semibold text-slate-600">Preferred collection date
-                <input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-[#08aeb1] focus:ring-2 focus:ring-[#08b8bb]/15" />
-              </label>
-              <label className="text-xs font-semibold text-slate-600">Preferred time window
-                <select value={slot} onChange={(event) => setSlot(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-[#08aeb1] focus:ring-2 focus:ring-[#08b8bb]/15">
-                  {collectionSlots.map((value) => <option key={value}>{value}</option>)}
-                </select>
-              </label>
+          <section className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
+            <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Recommended for you</h2></div>
+            <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+              {featuredItems.map((item, index) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-[#dceeed] bg-white shadow-sm sm:w-auto"><div className="flex h-[125px] items-end bg-gradient-to-br from-[#e5f8f5] to-[#e7f0ff] p-4"><span className="rounded-full bg-white px-3 py-1.5 text-[10px] font-bold text-[#087f82]">MFIT HEALTH CHECKUP</span><span className="ml-auto text-4xl font-black text-[#07999b]">{index === 0 ? "✚" : "◈"}</span></div><div className="p-4"><h3 className="min-h-10 text-base font-extrabold">{item.title}</h3><p className="mt-1 text-xs text-slate-500">{cleanCatalogueText(item.description) || "Explore details and included parameters."}</p><p className="mt-3 text-sm font-bold">{formatPrice(item.customer_price)}</p><button type="button" onClick={() => setDetailSlug(item.slug)} className="mt-3 min-h-11 w-full rounded-xl bg-[#078b8d] text-sm font-extrabold text-white">VIEW DETAILS</button></div></article>)}
+              {!loading && featuredItems.length === 0 && <p className="rounded-xl bg-white p-4 text-sm text-slate-500">Catalogue options will appear here.</p>}
             </div>
-            <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Your selected date and time are preferences. The collection partner will confirm the visit based on service availability.</p>
           </section>
 
-          <section className="rounded-2xl bg-white p-4 shadow-[0_3px_18px_rgba(15,35,65,.05)] ring-1 ring-slate-100 sm:p-6">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Step 4 · Review</p>
-            <h2 className="mt-1 text-lg font-extrabold">Booking summary</h2>
-            {chosenItems.length ? <div className="mt-3 space-y-2">{chosenItems.map((item) => <div key={item.slug} className="flex items-start justify-between gap-3 text-sm"><span className="min-w-0 text-slate-600">{item.title}</span><strong className="shrink-0">{formatPrice(item.customer_price)}</strong></div>)}</div> : <p className="mt-3 text-xs text-slate-500">Your selected packages and tests will appear here.</p>}
-            <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4"><span className="text-sm font-bold">Total payable to partner</span><strong className="text-xl">{formatPrice(selected.length ? total : 0)}</strong></div>
-            <p className="mt-2 text-[11px] leading-5 text-slate-500">Payment is collected by your collection partner. Your booking request will be shared with the partner for confirmation.</p>
-            <button type="submit" disabled={busy || !selected.length || loading} className="mt-5 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#075c78] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#193b5e] disabled:cursor-not-allowed disabled:opacity-50">{busy ? "Submitting…" : "Submit booking request"}</button>
+          <section id="catalogue" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
+            <div className="mb-5"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Health packages & individual tests</h2></div>
+            <div className="mb-4 flex flex-wrap gap-2">
+              <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} aria-pressed={kind === "package"} className={`rounded-full px-6 py-3 text-sm font-bold ${kind === "package" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>Packages ({packageCount})</button>
+              <button type="button" onClick={() => { setKind("test"); setActiveCategory("All"); }} aria-pressed={kind === "test"} className={`rounded-full px-6 py-3 text-sm font-bold ${kind === "test" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>Individual tests ({testCount})</button>
+              <button type="button" onClick={() => { setKind("all"); setActiveCategory("All"); }} aria-pressed={kind === "all"} className={`rounded-full px-4 py-3 text-sm font-bold ${kind === "all" ? "bg-[#087f82] text-white" : "border border-slate-200 bg-white"}`}>All</button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {loading && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">Loading packages and tests…</p>}
+              {!loading && visibleItems.map((item) => <article key={item.slug} className="overflow-hidden rounded-2xl border border-[#dceeed] bg-white shadow-sm"><div className="flex min-h-[108px] items-center justify-between bg-gradient-to-r from-[#e8f8f5] to-[#edf3ff] px-5 py-4"><div><span className="rounded-full bg-white px-3 py-1 text-[10px] font-extrabold text-[#087f82]">{item.item_type === "test" ? "MFIT LAB TEST" : "MFIT PACKAGE"}</span><p className="mt-3 text-xs font-semibold text-[#5c7475]">{item.category || "Health"}</p></div><span className="text-4xl font-black text-[#07999b]">{item.item_type === "test" ? "◈" : "✚"}</span></div><div className="p-4"><h3 className="min-h-[48px] text-base font-extrabold">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{cleanCatalogueText(item.description) || (item.item_type === "test" ? "Individual diagnostic test" : "Preventive health screening package")}</p><div className="mt-3 flex items-center gap-2">{item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price && <span className="text-xs text-slate-400 line-through">{formatPrice(item.mrp_price)}</span>}<strong className="text-sm">{formatPrice(item.customer_price)}</strong></div><button type="button" onClick={() => setDetailSlug(item.slug)} className="mt-4 min-h-11 w-full rounded-xl bg-[#078b8d] text-sm font-extrabold text-white">VIEW {item.item_type === "test" ? "TEST" : "PACKAGE"} & BOOK</button></div></article>)}
+              {!loading && !visibleItems.length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No matching packages or tests found.</p>}
+            </div>
           </section>
-        </form>
+        </>
+      )}
 
-        <footer className="pb-4 pt-2 text-center text-[11px] leading-5 text-slate-400">Diagnostic services are fulfilled by the processing laboratory disclosed during booking or collection.</footer>
-      </div>
+      {selected.length > 0 && <section id="booking" className="mx-auto mt-10 max-w-4xl px-4 sm:px-6"><form onSubmit={submit} className="space-y-4">
+        <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 1</p><h2 className="mt-1 text-lg font-extrabold">Your selected tests & packages</h2><div className="mt-4 space-y-3">{chosenItems.map((item) => <div key={item.slug} className="flex items-center justify-between gap-3 rounded-xl bg-[#f7fafb] p-3"><div><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{formatPrice(item.customer_price)}</p></div><button type="button" onClick={() => setSelected((current) => current.filter((value) => value !== item.slug))} className="text-xs font-bold text-rose-600">Remove</button></div>)}</div><div className="mt-4 flex justify-between border-t pt-4"><span className="text-sm font-bold">Total payable to partner</span><strong className="text-xl">{formatPrice(total)}</strong></div></section>
+        <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 2</p><h2 className="mt-1 text-lg font-extrabold">Customer details</h2><div className="mt-4 grid gap-3 sm:grid-cols-2">{(["name", "phone", "email", "pincode"] as const).map((key) => <label key={key} className="text-xs font-semibold text-slate-600">{key === "name" ? "Full name" : key === "phone" ? "Mobile number" : key === "pincode" ? "Pincode" : "Email (optional)"}<input required={key !== "email"} type={key === "email" ? "email" : "text"} inputMode={key === "phone" || key === "pincode" ? "numeric" : undefined} placeholder={key === "phone" ? "10-digit mobile number" : key === "pincode" ? "6-digit pincode" : key === "email" ? "Email address" : "Enter your full name"} value={customer[key]} onChange={(event) => setCustomer((current) => ({ ...current, [key]: event.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1]" /></label>)}<label className="text-xs font-semibold text-slate-600 sm:col-span-2">Full collection address<textarea required value={customer.address} onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))} rows={3} placeholder="Flat / house, street, area and city" className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#08aeb1]" /></label></div></section>
+        <section className="rounded-2xl bg-white p-4 shadow-sm sm:p-6"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#078b8d]">Booking · Step 3</p><h2 className="mt-1 text-lg font-extrabold">Preferred date & time</h2><div className="mt-4 grid gap-3 sm:grid-cols-2"><label className="text-xs font-semibold text-slate-600">Preferred collection date<input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label><label className="text-xs font-semibold text-slate-600">Preferred time window<select value={slot} onChange={(event) => setSlot(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{collectionSlots.map((value) => <option key={value}>{value}</option>)}</select></label></div><p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">Your selected date and time are preferences. The collection partner will confirm the visit based on service availability.</p><p className="mt-3 text-[11px] text-slate-500">Payment is collected by your collection partner.</p><button type="submit" disabled={busy || !selected.length || loading} className="mt-5 min-h-12 w-full rounded-xl bg-[#078b8d] text-sm font-extrabold text-white disabled:opacity-50">{busy ? "Submitting…" : "Submit booking request"}</button></section>
+      </form></section>}
+
+      <footer className="mt-10 bg-[#17191d] px-5 py-8 text-white"><div className="mx-auto max-w-6xl"><p className="text-lg font-medium">Healthcare made easier with MFIT</p><p className="mt-3 text-xs leading-5 text-white/60">© 2026 MFIT Healthcare. Diagnostic services are subject to availability and confirmation by the collection partner and performing laboratory.</p></div></footer>
+      <nav aria-label="Health navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_22px_rgba(15,40,55,0.08)]"><div className="mx-auto grid h-[76px] max-w-3xl grid-cols-4">
+        <button type="button" onClick={() => { setDetailSlug(null); setKind("all"); setActiveCategory("All"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 font-bold text-[#078b8d]"><span className="text-2xl">⌂</span><span className="text-[13px]">Home</span></button>
+        <button type="button" onClick={() => { setDetailSlug(null); setKind("test"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">⚗</span><span className="text-[13px]">Lab Tests</span></button>
+        <button type="button" onClick={() => { setDetailSlug(null); setKind("package"); document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth" }); }} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">✚</span><span className="text-[13px]">Packages</span></button>
+        <button type="button" onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })} className="flex flex-col items-center justify-center gap-1.5 text-slate-600"><span className="text-2xl">▤</span><span className="text-[13px]">My Booking</span></button>
+      </div></nav>
     </main>
   );
 }
