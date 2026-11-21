@@ -222,13 +222,13 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
   const childrenPackages = packageItems.filter((item) => audienceMatch(item, "children"));
   const generalCategories = categoryNames.filter((category) => !/women|men|child|paediatric|pediatric/i.test(category));
   const selectedDetail = items.find((item) => item.slug === detailSlug) || null;
-  const renderItemCard = (item: Item) => {
+  const renderItemCard = (item: Item, grid = false) => {
     const discount = item.mrp_price !== null && item.customer_price !== null && item.mrp_price > item.customer_price
       ? Math.round((1 - item.customer_price / item.mrp_price) * 100) : 0;
     const includedCount = item.item_type === "package"
       ? (item.package_tests?.length || item.inclusions?.length || 0) : item.inclusions?.length || 0;
     return (
-      <article key={item.slug} className="group w-full overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)]">
+      <article key={item.slug} className={`group ${grid ? "w-full" : "w-[276px] shrink-0 sm:w-[300px]"} overflow-hidden rounded-[22px] border border-[#e2e9ed] bg-white shadow-[0_5px_22px_rgba(15,40,55,0.055)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,40,55,0.11)]`}>
         <div className="relative flex min-h-[126px] items-center justify-between overflow-hidden bg-[radial-gradient(circle_at_82%_24%,rgba(255,255,255,.9),transparent_25%),linear-gradient(115deg,#e4f6f3,#edf7fb_58%,#f2f0ff)] px-5 py-4">
           <div className="relative z-10"><span className="inline-flex rounded-full border border-white/80 bg-white/90 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[.13em] text-[#087f82]">{item.item_type === "test" ? "Individual lab test" : "Health package"}</span><p className="mt-3 max-w-[190px] text-xs font-semibold text-[#547174]">{item.category || "Diagnostic care"}</p>{includedCount > 0 && <p className="mt-1 text-[11px] font-semibold text-[#547174]">{includedCount} {item.item_type === "test" ? "parameters listed" : "included tests / details"}</p>}</div>
           <span aria-hidden="true" className="relative mr-1 grid size-[72px] shrink-0 place-items-center rounded-[24px] border border-white/90 bg-white/75 text-[34px] font-black text-[#078b8d] shadow-[0_8px_20px_rgba(7,127,130,.10)]">{item.item_type === "test" ? "⌬" : "✚"}</span>
@@ -371,7 +371,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
 
           <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
             <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.17em] text-[#078b8d]">Selected from the catalogue</p><h2 className="mt-1 text-xl font-extrabold sm:text-2xl">Recommended for you</h2></div><button type="button" onClick={() => { setKind("all"); setActiveCategory("All"); document.getElementById("most-booked")?.scrollIntoView({ behavior: "smooth" }); }} className="text-xs font-bold text-[#087f82]">View all →</button></div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[...packageItems, ...testItems].slice(0, 6).map(renderItemCard)}</div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[...packageItems, ...testItems].slice(0, 6).map((item) => renderItemCard(item, true))}</div>
           </section>
 
           <section id="most-booked" className="mx-auto mt-8 max-w-6xl scroll-mt-28 px-4 sm:px-6">
@@ -380,8 +380,8 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
               <button type="button" onClick={() => { setKind("package"); setActiveCategory("All"); }} className={`rounded-full px-5 py-2 text-xs font-extrabold transition ${kind !== "test" ? "bg-white text-[#087f82] shadow-sm" : "text-slate-600"}`}>Packages ({packageItems.length})</button>
               <button type="button" onClick={() => setKind("test")} className={`rounded-full px-5 py-2 text-xs font-extrabold transition ${kind === "test" ? "bg-white text-[#087f82] shadow-sm" : "text-slate-600"}`}>Tests ({testItems.length})</button>
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {(kind === "test" ? testItems : packageItems).filter(searched).slice(0, 10).map(renderItemCard)}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(kind === "test" ? testItems : packageItems).filter(searched).slice(0, 9).map((item) => renderItemCard(item, true))}
               {!loading && !(kind === "test" ? testItems : packageItems).length && <p className="rounded-xl bg-white p-5 text-sm text-slate-500">No catalogue items are available yet.</p>}
             </div>
           </section>
