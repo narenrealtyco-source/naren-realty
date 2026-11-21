@@ -147,7 +147,7 @@ export default function PartnerBookingPage({ params }: { params: Promise<{ slug:
         setPartner(data.partner);
         setItems(data.items || []);
         const requested = new URLSearchParams(window.location.search).get("item");
-        if (requested && (data.items || []).some((item: Item) => item.slug === requested)) setSelected([requested]);
+        if (requested && (data.items || []).some((item: Item) => item.slug === requested)) { setSelected([requested]); setDetailSlug(requested); }
       })
       .catch((cause) => setError(cause.message || "Unable to load the catalogue."))
       .finally(() => setLoading(false));
