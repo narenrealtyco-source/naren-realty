@@ -39,7 +39,7 @@ const collectionSlots = [
 ];
 
 function cleanCatalogueText(value?: string | null) {
-  return (value || "").replace(/Pune listing:\\s*[^.]*\\.?\\s*/gi, "").trim();
+  return (value || "").replace(/Pune listing:\s*[^.]*\.?\s*/gi, "").trim();
 }
 
 function parameterLabel(value: Parameter) {
