@@ -78,7 +78,25 @@ export default function ManageEventsPage() {
         <p className="mt-1 text-xs text-slate-500">These details are visible on your public listing. Maximum 5,000 characters.</p>
         <button disabled={busy===item.id} onClick={()=>save(item)} className="mt-4 min-h-11 rounded-lg bg-[#10243A] px-5 text-sm font-bold text-white disabled:opacity-50">{busy===item.id?"Saving...":"Save changes"}</button>
       </article>)}</div>}
-      <EventCommissionPanel events={items} />
+      <div id="sales-reports"><EventCommissionPanel events={items} /></div>
+      </div>
+      <aside className="lg:sticky lg:top-6">
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+          <p className="px-2 pb-3 text-xs font-extrabold uppercase tracking-widest text-slate-500">Dashboard menu</p>
+          <nav className="space-y-1">
+            <a href="#overview" className="flex items-center gap-3 rounded-xl bg-[#10243A] px-3 py-3 text-sm font-bold text-white">⌂ <span>Overview</span></a>
+            <a href="#my-events" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">▣ <span>My Events</span></a>
+            <a href="#sales-reports" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">▤ <span>Sales & Reports</span></a>
+            <a href="#commission-settlement" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">₹ <span>Commission Settlement</span></a>
+            <a href="#payment-settings" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">▧ <span>Attendee Payment Settings</span></a>
+            <Link href="/events/submit" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">＋ <span>Create New Event</span></Link>
+            <Link href="/account" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">♙ <span>My Account</span></Link>
+            <Link href="/contact" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">? <span>Support</span></Link>
+          </nav>
+          <div className="mt-4 rounded-xl bg-amber-50 p-3"><p className="text-xs font-bold text-amber-900">Settlement cycle</p><p className="mt-1 text-xs leading-5 text-amber-800">Commission is reviewed in 12-hour cycles after event approval.</p></div>
+        </div>
+      </aside>
+      </div>
     </section>
   </main>;
 }
