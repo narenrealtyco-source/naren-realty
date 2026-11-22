@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
-import {supabase} from "../../lib/supabase";
+import {createSupabaseBrowserClient} from "../../lib/supabase-browser";
+const supabase=createSupabaseBrowserClient();
 type Cycle={id:string;event_id:string;cycle_number:number;cycle_start:string;cycle_end:string;total_ticket_sales:number;commission_due:number;sale_reports_count:number;payment_reference:string|null;payment_status:string};
 export default function EventSettlementCycles({events}:{events:{id:string;title:string}[]}) {
  const [rows,setRows]=useState<Cycle[]>([]); const [refs,setRefs]=useState<Record<string,string>>({}); const [busy,setBusy]=useState<string|null>(null); const [message,setMessage]=useState("");
