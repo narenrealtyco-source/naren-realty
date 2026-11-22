@@ -6,7 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 type EventRecord = {
-  id:string; title:string; category:string; subcategory:string|null; custom_event_type:string|null;
+  id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; organiser_qr_image_url:string|null; category:string; subcategory:string|null; custom_event_type:string|null;
   venue:string; locality:string|null; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; starts_at:string; ends_at:string|null; ticket_price:number;
   total_capacity:number|null; available_seats:number|null; description:string; event_policies:string|null;
   event_details:{highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null; image_url:string|null; organizer_name:string; contact_phone:string; contact_email:string|null;
@@ -24,7 +24,7 @@ function EventDetailsContent() {
     let active=true;
     async function load(){
       const {data,error}=await supabase.from("event_submissions")
-        .select("id,title,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url,organizer_name,contact_phone,contact_email")
+        .select("id,title,organiser_upi_id,organiser_payee_name,organiser_qr_image_url,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url,organizer_name,contact_phone,contact_email")
         .eq("id",params.id).eq("status","approved").maybeSingle();
       if(!active)return;
       if(error||!data)setNotFound(true);
@@ -68,6 +68,14 @@ function EventDetailsContent() {
               <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Seats available</p><p className="mt-1 text-2xl font-black text-emerald-700">{event.available_seats??"Not specified"}</p><p className="text-xs text-slate-500">Total capacity: {event.total_capacity??"Not specified"}</p></div>
             </div>
           </div>
+          {(event.organiser_upi_id||event.organiser_qr_image_url)&&<div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Direct organiser payment</p>
+            <h2 className="mt-1 text-lg font-extrabold text-[#10243A]">Pay the organiser</h2>
+            <p className="mt-2 text-xs leading-5 text-slate-600">Pay directly to the organiser using the details below. Confirm the event and payee name in your UPI app before completing payment.</p>
+            {event.organiser_upi_id&&<><p className="mt-4 text-xs font-bold uppercase text-slate-500">UPI ID</p><p className="mt-1 break-all text-base font-extrabold text-[#10243A]">{event.organiser_upi_id}</p><button type="button" onClick={()=>{void navigator.clipboard.writeText(event.organiser_upi_id!).then(()=>window.alert("UPI ID copied."),()=>window.alert("Could not copy. Please copy the UPI ID manually."));}} className="mt-2 rounded-lg bg-[#10243A] px-3 py-2 text-xs font-bold text-white">Copy UPI ID</button></>}
+            {event.organiser_payee_name&&<p className="mt-3 text-sm text-slate-700">Payee name: <strong>{event.organiser_payee_name}</strong></p>}
+            {event.organiser_qr_image_url&&<div className="mt-4"><p className="mb-2 text-xs font-bold uppercase text-slate-500">Scan organiser QR code</p><img src={event.organiser_qr_image_url} alt="Organiser UPI payment QR code" className="mx-auto h-52 w-52 rounded-xl border bg-white object-contain p-2"/></div>}
+          </div>}
         </aside>
       </div>
       <section className="mt-7 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
