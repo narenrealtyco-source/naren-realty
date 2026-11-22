@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect,useState } from "react";
+import { useEffect,useState,type FormEvent } from "react";
 import { supabase } from "../../../lib/supabase";
 const field="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
 type Setting={commission_percent:number;payment_upi_id:string|null;payee_name:string|null;qr_image_url:string|null};
@@ -21,7 +21,7 @@ export default function AdminEventCommissionPanel(){
   setLoading(false);
  }
  useEffect(()=>{void load();},[]);
- async function saveSettings(e:React.FormEvent<HTMLFormElement>){
+ async function saveSettings(e:FormEvent<HTMLFormElement>){
   e.preventDefault();setSaving(true);setMessage("");
   const {data:{user}}=await supabase.auth.getUser();
   const {error}=await supabase.from("event_commission_settings").update({commission_percent:10,payment_upi_id:setting.payment_upi_id?.trim()||null,payee_name:setting.payee_name?.trim()||null,qr_image_url:setting.qr_image_url?.trim()||null,updated_by:user?.id??null,updated_at:new Date().toISOString()}).eq("id",true);
