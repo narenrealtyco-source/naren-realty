@@ -38,7 +38,7 @@ async function Content({searchParams,activeTab}:{searchParams?:Promise<{q?:strin
  }));
  const approvedIds=new Set((reports||[]).filter((r:any)=>r.visible_to_customer).map((r:any)=>r.request_id));
  const todayIST=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Kolkata"});
- const todaysBookings=(allBookings||[]).filter((b:any)=>String(b.created_at||"").slice(0,10)===todayIST);
+ const todaysBookings=(allBookings||[]).filter((b:any)=>b.created_at&&new Date(b.created_at).toLocaleDateString("en-CA",{timeZone:"Asia/Kolkata"})===todayIST);
  const collected=(allBookings||[]).filter((b:any)=>Boolean(b.sample_collected_at));
  const reportsReady=(allBookings||[]).filter((b:any)=>approvedIds.has(b.id)&&b.partner_b2b_payment_status==="paid");
  const customerEarnings=(allBookings||[]).filter((b:any)=>b.partner_customer_payment_status==="paid").reduce((s:number,b:any)=>s+Number(b.partner_customer_amount||0),0);
