@@ -217,7 +217,7 @@ function EventsContent() {
           {subcategory && <div className="mb-3 flex items-center gap-2"><span className="rounded-full bg-[#F5F0E5] px-3 py-1.5 text-xs font-bold text-[#8B6B2C]">{subcategory.replaceAll("_", " ")}</span><button onClick={() => setSubcategory("")} className="text-xs font-semibold text-slate-500 underline">Remove</button></div>}
           {loading ? <div className="grid grid-cols-2 gap-3 sm:gap-4">{[1,2,3,4].map((n) => <div key={n} className="animate-pulse overflow-hidden rounded-xl bg-white"><div className="aspect-[4/3] bg-slate-200"/><div className="space-y-2 p-3"><div className="h-3 w-2/3 rounded bg-slate-200"/><div className="h-3 w-full rounded bg-slate-100"/></div></div>)}</div>
           : filteredEvents.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center"><p className="text-base font-bold text-[#10243A]">No events found</p><p className="mt-1 text-xs text-slate-500">Try changing your filters or search.</p><button onClick={resetFilters} className="mt-4 rounded-lg bg-[#10243A] px-4 py-2 text-xs font-bold text-white">Clear filters</button></div>
-          : <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">{filteredEvents.map((event) => {
+          : <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">{filteredEvents.map((event) => {
             const date = new Date(event.starts_at);
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
             const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
@@ -228,12 +228,12 @@ function EventsContent() {
                   <p className="text-[11px] font-extrabold tracking-wide text-white drop-shadow sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                 </div>
               </Link>
-              <div className="space-y-1.5 px-3 pb-3 pt-3 sm:px-4 sm:pb-4">
+              <div className="space-y-1 px-2.5 pb-2.5 pt-2.5 sm:px-3 sm:pb-3">
                 <Link href={"/events/" + event.id} className="block">
-                  <h3 className="line-clamp-2 text-[13px] font-extrabold leading-snug text-[#172B3A] transition group-hover:text-[#8B6B2C] sm:text-base">{event.title}</h3>
+                  <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[#172B3A] transition group-hover:text-[#8B6B2C] sm:text-sm">{event.title}</h3>
                 </Link>
                 <Link href={"/events/" + event.id} className="block">
-                  <p className="line-clamp-1 text-[10px] font-medium text-slate-500 sm:text-xs">{venue}</p>
+                  <p className="line-clamp-1 text-[9px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
                 </Link>
                 <div className="flex items-end justify-between gap-2 border-t border-slate-100 pt-2">
                   <Link href={"/events/" + event.id} className="min-w-0">
