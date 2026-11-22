@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { supabase } from "../../lib/supabase";
+import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
+const supabase = createSupabaseBrowserClient();
 import EventSettlementCycles from "./EventSettlementCycles";
 
 type EventOption={id:string;title:string;ticket_price:number;status:string};
