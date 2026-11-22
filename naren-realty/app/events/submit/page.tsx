@@ -19,7 +19,7 @@ export default function SubmitEventPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);\n  const [commissionAccepted, setCommissionAccepted] = useState(false);
   const [form, setForm] = useState({ category:"home_gatherings", subcategory:"potluck_dinner", customEventType:"", title:"", eventMode:"offline", locationStatus:"confirmed", venue:"", venueAddress:"", mapLink:"", onlineLink:"", locality:"", startsAt:"", endsAt:"", ticketPrice:"0", totalCapacity:"", availableSeats:"", description:"", organizerName:"", phone:"", email:"", eventPolicies:"", eventHighlights:"", targetAudience:"", ageRestriction:"", eventLanguage:"English", registrationDeadline:"", cancellationRefundPolicy:"" });
   const activeCategory = categories.find((category) => category.key === form.category) ?? categories[0];
   function update(key: keyof typeof form, value: string) { setForm((current) => ({ ...current, [key]: value })); }
@@ -57,7 +57,7 @@ export default function SubmitEventPage() {
         ticket_price:Number(form.ticketPrice), total_capacity:capacity, available_seats:seats,
         description:form.description.trim(), event_policies:form.eventPolicies.trim() || null, event_details:{ highlights:form.eventHighlights.trim(), target_audience:form.targetAudience.trim(), age_restriction:form.ageRestriction.trim(), language:form.eventLanguage, registration_deadline:form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null, cancellation_refund_policy:form.cancellationRefundPolicy.trim() }, organizer_name:form.organizerName.trim(),
         contact_phone:form.phone.trim(), contact_email:form.email.trim() || user.email || null,
-        image_url:imageUrl, status:"pending",
+        image_url:imageUrl, status:"pending", commission_terms_accepted_at:commissionAccepted ? new Date().toISOString() : null,
       });
       if (insertError) throw insertError;
       router.push("/events/submitted");
@@ -88,7 +88,7 @@ export default function SubmitEventPage() {
         <div className="border-t border-slate-100 pt-4"><h2 className="font-bold text-[#10243A]">Organiser details</h2></div>
         <label className="block text-sm font-semibold">Organiser name<input required maxLength={120} className={inputClass} value={form.organizerName} onChange={(e)=>update("organizerName",e.target.value)} /></label>
         <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">Contact number<input required type="tel" minLength={8} maxLength={20} className={inputClass} value={form.phone} onChange={(e)=>update("phone",e.target.value)} /></label><label className="block text-sm font-semibold">Email (optional)<input type="email" className={inputClass} value={form.email} onChange={(e)=>update("email",e.target.value)} /></label></div>
-        {error&&<p role="alert" className="text-sm font-medium text-red-700">{error}</p>}
+        {form.ticketPrice !== "0" && <label className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm"><input required type="checkbox" checked={commissionAccepted} onChange={e=>setCommissionAccepted(e.target.checked)} className="mt-1 h-4 w-4 accent-amber-500" /><span>I agree to pay NAREN REALTY a 10% platform commission on each eligible paid ticket sold for this event. I will report paid ticket sales accurately and transfer the commission separately using the payment instructions provided by NAREN REALTY. Applicable taxes on the commission, if any, are additional as per law.</span></label>}\n        {error&&<p role="alert" className="text-sm font-medium text-red-700">{error}</p>}
         <button disabled={busy} type="submit" className="min-h-12 w-full rounded-xl bg-amber-400 px-5 font-extrabold text-[#10243A] hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60">{busy?"Uploading & submitting...":"Submit for Admin Approval"}</button>
         <p className="text-xs leading-5 text-slate-500">Your event will remain pending until approved by NAREN REALTY. You can update the venue, meeting link and available seats later from Manage My Events. Seats will not decrease automatically because online booking is not enabled.</p>
       </form>
