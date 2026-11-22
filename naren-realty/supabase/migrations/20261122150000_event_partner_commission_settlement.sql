@@ -17,11 +17,13 @@ on conflict (id) do nothing;
 
 alter table public.event_commission_settings enable row level security;
 
+drop policy if exists "Authenticated users can view event commission payment instructions" on public.event_commission_settings;
 create policy "Authenticated users can view event commission payment instructions"
   on public.event_commission_settings for select
   to authenticated
   using (true);
 
+drop policy if exists "Only admins can update event commission settings" on public.event_commission_settings;
 create policy "Only admins can update event commission settings"
   on public.event_commission_settings for update
   to authenticated
@@ -61,16 +63,19 @@ create index if not exists event_ticket_sales_status_idx
 
 alter table public.event_ticket_sales enable row level security;
 
+drop policy if exists "Organisers can view their event ticket sales" on public.event_ticket_sales;
 create policy "Organisers can view their event ticket sales"
   on public.event_ticket_sales for select
   to authenticated
   using (organiser_id = (select auth.uid()));
 
+drop policy if exists "Admins can view all event ticket sales" on public.event_ticket_sales;
 create policy "Admins can view all event ticket sales"
   on public.event_ticket_sales for select
   to authenticated
   using (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'));
 
+drop policy if exists "Organisers can report paid ticket sales and commission transfer" on public.event_ticket_sales;
 create policy "Organisers can report paid ticket sales and commission transfer"
   on public.event_ticket_sales for insert
   to authenticated
@@ -91,6 +96,7 @@ create policy "Organisers can report paid ticket sales and commission transfer"
     )
   );
 
+drop policy if exists "Only admins can review event commission payments" on public.event_ticket_sales;
 create policy "Only admins can review event commission payments"
   on public.event_ticket_sales for update
   to authenticated
@@ -104,6 +110,7 @@ grant select, insert on public.event_ticket_sales to authenticated;
 grant update (commission_payment_status, reviewed_by, reviewed_at, admin_note) on public.event_ticket_sales to authenticated;
 
 -- Allow organisers to report sales first, then add the commission UTR once payment details are configured.
+drop policy if exists "Organisers can add a commission transfer reference once" on public.event_ticket_sales;
 create policy "Organisers can add a commission transfer reference once"
   on public.event_ticket_sales for update
   to authenticated
