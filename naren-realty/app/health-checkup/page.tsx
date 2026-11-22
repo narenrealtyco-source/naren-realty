@@ -71,7 +71,7 @@ function Brand() {
 }
 
 export default function HealthPage() {
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
   const [fileName, setFileName] = useState("");
   const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
   const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
