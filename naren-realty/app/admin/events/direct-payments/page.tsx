@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import AdminLogoutButton from "../../../../components/AdminLogoutButton";
-import { createSupabaseBrowserClient } from "../../../../lib/supabase-browser";
+import AdminLogoutButton from "../../../components/AdminLogoutButton";
+import { createSupabaseBrowserClient } from "../../../lib/supabase-browser";
 
 type Booking = {
   id: string; event_id: string; booking_code: string; customer_name: string; customer_phone: string;
