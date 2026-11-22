@@ -37,6 +37,15 @@ async function Content({searchParams,activeTab}:{searchParams?:Promise<{q?:strin
   return {...r,url:data?.signedUrl||null};
  }));
  const approvedIds=new Set((reports||[]).filter((r:any)=>r.visible_to_customer).map((r:any)=>r.request_id));
+ const todayIST=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Kolkata"});
+ const todaysBookings=(allBookings||[]).filter((b:any)=>String(b.created_at||"").slice(0,10)===todayIST);
+ const collected=(allBookings||[]).filter((b:any)=>Boolean(b.sample_collected_at));
+ const reportsReady=(allBookings||[]).filter((b:any)=>approvedIds.has(b.id)&&b.partner_b2b_payment_status==="paid");
+ const customerEarnings=(allBookings||[]).filter((b:any)=>b.partner_customer_payment_status==="paid").reduce((s:number,b:any)=>s+Number(b.partner_customer_amount||0),0);
+ const b2bPaid=(allBookings||[]).filter((b:any)=>b.partner_b2b_payment_status==="paid").reduce((s:number,b:any)=>s+Number(b.partner_b2b_amount||0),0);
+ const upcoming=(allBookings||[]).filter((b:any)=>!b.sample_collected_at&&String(b.preferred_date||"")>=todayIST).sort((a:any,b:any)=>String(a.preferred_date).localeCompare(String(b.preferred_date))).slice(0,5);
+ const pendingActions=(allBookings||[]).filter((b:any)=>!b.sample_collected_at||(!b.lab_received_at&&b.sample_collected_at)||(!b.report_submitted_at&&b.lab_received_at)).slice(0,5);
+ const completionRate=(allBookings||[]).length?Math.round(collected.length/(allBookings||[]).length*100):0;
  const bookingUrl="https://narenrealty.co/collection/"+partner.public_slug;
  const ratesList=(rates||[]).map((r:any)=>({rate:r,catalog:Array.isArray(r.catalog)?r.catalog[0]:r.catalog})).filter((x:any)=>x.catalog&&(!rateQuery||String(x.catalog.title||"").toLowerCase().includes(rateQuery)));
  return <main className="min-h-screen bg-[#f4f7f8] text-slate-900">
@@ -72,6 +81,35 @@ async function Content({searchParams,activeTab}:{searchParams?:Promise<{q?:strin
      <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Collection pending</p><p className="mt-2 text-2xl font-extrabold">{awaiting}</p><p className="mt-1 text-[11px] text-slate-400">Awaiting sample collection</p></div>
      <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Lab processing</p><p className="mt-2 text-2xl font-extrabold">{processing}</p><p className="mt-1 text-[11px] text-slate-400">Awaiting report submission</p></div>
     </div>
+
+    <div className={`mt-3 grid grid-cols-2 gap-3 xl:grid-cols-4 ${tab!=="overview"?"hidden":""}`}>
+     <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Today's bookings</p><p className="mt-2 text-2xl font-extrabold">{todaysBookings.length}</p><p className="mt-1 text-[11px] text-slate-400">Received today</p></div>
+     <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Samples collected</p><p className="mt-2 text-2xl font-extrabold">{collected.length}</p><p className="mt-1 text-[11px] text-slate-400">Collection completed</p></div>
+     <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Reports ready</p><p className="mt-2 text-2xl font-extrabold">{reportsReady.length}</p><p className="mt-1 text-[11px] text-slate-400">Approved & B2B settled</p></div>
+     <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Customer collections</p><p className="mt-2 text-2xl font-extrabold">{money(customerEarnings)}</p><p className="mt-1 text-[11px] text-slate-400">Customer payments recorded as paid</p></div>
+    </div>
+
+    <div className={`mt-6 grid gap-4 xl:grid-cols-2 ${tab!=="overview"?"hidden":""}`}>
+     <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex items-center justify-between gap-2"><div><h3 className="font-extrabold">Today's & upcoming schedule</h3><p className="mt-1 text-xs text-slate-500">Next customer visits awaiting collection</p></div><a href="/collection-partner/bookings" className="text-xs font-bold text-teal-700">View all</a></div>
+      <div className="mt-3 divide-y">{upcoming.map((b:any)=><div key={b.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-bold">{b.customer_name||"Customer"} · {b.reference}</p><p className="mt-1 truncate text-xs text-slate-500">{b.address||"Address not provided"}</p></div><div className="shrink-0 text-right"><p className="text-xs font-bold">{b.preferred_date||"Date not set"}</p><p className="mt-1 text-[11px] text-slate-500">{b.preferred_slot||"Time not set"}</p></div></div>)}{!upcoming.length&&<p className="py-6 text-center text-sm text-slate-500">No upcoming sample collections scheduled.</p>}</div>
+     </section>
+     <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex items-center justify-between gap-2"><div><h3 className="font-extrabold">Pending actions</h3><p className="mt-1 text-xs text-slate-500">Bookings that may need your attention</p></div><a href="/collection-partner/tracking" className="text-xs font-bold text-teal-700">Track samples</a></div>
+      <div className="mt-3 divide-y">{pendingActions.map((b:any)=><div key={b.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-bold">{b.customer_name||"Customer"} · {b.reference}</p><p className="mt-1 text-xs text-slate-500">{trackingLabel(b,approvedIds.has(b.id))}</p></div><a href="/collection-partner/bookings" className="shrink-0 rounded-lg border px-3 py-2 text-[11px] font-bold text-teal-800">Open</a></div>)}{!pendingActions.length&&<p className="py-6 text-center text-sm text-slate-500">No pending actions. You're all caught up.</p>}</div>
+     </section>
+    </div>
+
+    <section className={`mt-4 rounded-xl border border-slate-200 bg-white p-4 ${tab!=="overview"?"hidden":""}`}>
+     <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="font-extrabold">Performance overview</h3><p className="mt-1 text-xs text-slate-500">Collection progress across assigned bookings</p></div><span className="text-sm font-extrabold text-teal-800">{completionRate}% collected</span></div>
+     <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-teal-600" style={{width:completionRate+"%"}}/></div>
+     <div className="mt-3 grid grid-cols-3 gap-2 text-center"><div><p className="text-lg font-extrabold">{allBookings?.length||0}</p><p className="text-[10px] text-slate-500">Assigned</p></div><div><p className="text-lg font-extrabold">{collected.length}</p><p className="text-[10px] text-slate-500">Collected</p></div><div><p className="text-lg font-extrabold">{b2bPaid.toLocaleString("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0})}</p><p className="text-[10px] text-slate-500">Paid to MFIT</p></div></div>
+    </section>
+
+    <section className={`mt-4 rounded-xl border border-slate-200 bg-white p-4 ${tab!=="overview"?"hidden":""}`}>
+     <div className="flex items-center justify-between gap-2"><div><h3 className="font-extrabold">Recent bookings</h3><p className="mt-1 text-xs text-slate-500">Latest customer requests assigned to you</p></div><a href="/collection-partner/bookings" className="text-xs font-bold text-teal-700">View all bookings</a></div>
+     <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[540px] text-left text-xs"><thead className="text-[10px] uppercase text-slate-500"><tr><th className="py-2">Booking / Client</th><th className="py-2">Booking date</th><th className="py-2">Status</th><th className="py-2 text-right">B2B payable</th></tr></thead><tbody>{(allBookings||[]).slice(0,5).map((b:any)=><tr key={b.id} className="border-t"><td className="py-3"><p className="font-bold text-teal-800">{b.reference}</p><p className="mt-1 text-slate-700">{b.customer_name}</p></td><td className="py-3">{new Date(b.created_at).toLocaleDateString("en-IN",{timeZone:"Asia/Kolkata"})}</td><td className="py-3">{trackingLabel(b,approvedIds.has(b.id))}</td><td className="py-3 text-right font-bold">{money(b.partner_b2b_amount)}</td></tr>)}{!(allBookings||[]).length&&<tr><td colSpan={4} className="py-6 text-center text-slate-500">No bookings received yet.</td></tr>}</tbody></table></div>
+    </section>
 
     <section id="booking-link" className={`mt-6 rounded-xl border border-teal-100 bg-white p-4 sm:p-5 ${tab!=="booking-link"?"hidden":""}`}>
      <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="font-extrabold">My customer booking link</h3><p className="mt-1 text-xs text-slate-500">Share this link. Customer bookings are automatically assigned to your partner account.</p></div><span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">Active</span></div>
