@@ -20,9 +20,13 @@ create table if not exists public.event_commission_settlements (
 create index if not exists event_commission_settlements_organiser_cycle_idx on public.event_commission_settlements(organiser_id, cycle_start desc);
 create index if not exists event_commission_settlements_status_idx on public.event_commission_settlements(payment_status, cycle_end);
 alter table public.event_commission_settlements enable row level security;
+drop policy if exists "Organisers can view their own settlement cycles" on public.event_commission_settlements;
 create policy "Organisers can view their own settlement cycles" on public.event_commission_settlements for select to authenticated using (organiser_id = (select auth.uid()));
+drop policy if exists "Admins can view all settlement cycles" on public.event_commission_settlements;
 create policy "Admins can view all settlement cycles" on public.event_commission_settlements for select to authenticated using (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'));
+drop policy if exists "Organisers can submit settlement UTR once" on public.event_commission_settlements;
 create policy "Organisers can submit settlement UTR once" on public.event_commission_settlements for update to authenticated using (organiser_id = (select auth.uid()) and payment_status = 'pending' and payment_reference is null) with check (organiser_id = (select auth.uid()) and payment_reference is not null and payment_status = 'submitted');
+drop policy if exists "Admins can review settlement cycles" on public.event_commission_settlements;
 create policy "Admins can review settlement cycles" on public.event_commission_settlements for update to authenticated using (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin')) with check (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'));
 create or replace function public.capture_event_commission_settlement_cycle() returns trigger language plpgsql security definer set search_path = '' as $$
 declare v_approved_at timestamptz; v_cycle integer; v_start timestamptz;
