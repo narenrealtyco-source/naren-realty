@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 
 type EventOption={id:string;title:string;ticket_price:number;status:string};
@@ -31,7 +31,7 @@ export default function EventCommissionPanel({events}:{events:EventOption[]}) {
   setLoading(false);
  }
  useEffect(()=>{void load();},[]);
- async function submit(e:React.FormEvent<HTMLFormElement>){
+ async function submit(e:FormEvent<HTMLFormElement>){
   e.preventDefault();
   if(!selected){setMessage("No approved paid event is available for reporting.");return;}
   const n=Number(count);
