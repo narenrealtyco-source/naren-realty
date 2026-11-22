@@ -2,76 +2,256 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 const categories = [
-  { key: "home_gatherings", title: "House & Home Gatherings", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"potluck_dinner",title:"Potluck Dinner"},{key:"game_night",title:"Game Night"},{key:"movie_match_screening",title:"Movie / Match Screening"},{key:"byob_party",title:"BYOB Party"},{key:"pajama_slumber_party",title:"Pajama / Slumber Party"},{key:"theme_party",title:"Theme Party"},{key:"jamming_session",title:"Jamming Session"}] },
-  { key: "social_meetups", title: "Social & Community Meetups", image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"hobby_interest_clubs",title:"Hobby & Interest Clubs"},{key:"open_mic_nights",title:"Open Mic Nights"},{key:"networking_mixers",title:"Networking Mixers"},{key:"language_exchange",title:"Language Exchange"},{key:"blind_stranger_dinners",title:"Blind / Stranger Dinners"},{key:"brunch_meetup",title:"Brunch Meetup"}] },
-  { key: "outdoor_active", title: "Outdoor & Active Events", image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"picnic",title:"Picnic"},{key:"bbq_bonfire",title:"BBQ / Bonfire Night"},{key:"pool_party",title:"Pool Party"}] },
-  { key: "workshops_activities", title: "Workshops & Activities", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"cooking_baking_workshop",title:"Cooking / Baking Workshop"},{key:"paint_and_sip",title:"Paint and Sip"},{key:"trivia_quiz_night",title:"Trivia / Quiz Night"}] },
-  { key: "cultural", title: "Cultural Events", image: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"bhajan_jamming",title:"Bhajan Jamming"},{key:"live_music",title:"Live Music"},{key:"dance_performances",title:"Dance & Performances"},{key:"cultural_gatherings",title:"Cultural Gatherings"}] },
-  { key: "community", title: "Community Events", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=85", subcategories: [{key:"lohri",title:"Lohri"},{key:"christmas",title:"Christmas"},{key:"holi",title:"Holi"},{key:"diwali",title:"Diwali"},{key:"local_celebrations",title:"Local Celebrations"}] },
+  { key: "home_gatherings", title: "House & Home", short: "House Parties", icon: "⌂" },
+  { key: "social_meetups", title: "Meetups", short: "Meetups", icon: "◎" },
+  { key: "outdoor_active", title: "Outdoor", short: "Outdoor", icon: "↗" },
+  { key: "workshops_activities", title: "Workshops", short: "Workshops", icon: "✳" },
+  { key: "cultural", title: "Music & Culture", short: "Music", icon: "♫" },
+  { key: "community", title: "Community", short: "Community", icon: "♧" },
 ];
 
-type EventItem = { id:string; title:string; category:string; subcategory:string|null; custom_event_type:string|null; venue:string; locality:string|null; event_mode:string; location_status:string; starts_at:string; ticket_price:number; total_capacity:number|null; available_seats:number|null; description:string; event_policies:string|null; image_url:string|null; ends_at:string|null };
+type EventItem = {
+  id: string; title: string; category: string; subcategory: string | null;
+  custom_event_type: string | null; venue: string; locality: string | null;
+  event_mode: string; location_status: string; starts_at: string;
+  ticket_price: number; total_capacity: number | null; available_seats: number | null;
+  description: string; image_url: string | null; ends_at: string | null;
+};
 
 function EventsContent() {
-  const params=useSearchParams(); const selected=params.get("category")??""; const selectedSubcategory=params.get("subcategory")??"";
-  const selectedCategory=categories.find((category)=>category.key===selected);
-  const [events,setEvents]=useState<EventItem[]>([]); const [loading,setLoading]=useState(true);
-  const [likeCounts,setLikeCounts]=useState<Record<string,number>>({});
-  const [likedEvents,setLikedEvents]=useState<Record<string,boolean>>({});
-  const [visitorId,setVisitorId]=useState("");
-  useEffect(()=>{let active=true;async function loadEvents(){setLoading(true);let query=supabase.from("event_submissions").select("id,title,category,subcategory,custom_event_type,venue,locality,starts_at,ticket_price,total_capacity,available_seats,description,event_policies,image_url,ends_at,event_mode,location_status").eq("status","approved").gte("starts_at",new Date().toISOString()).order("starts_at",{ascending:true});if(selected)query=query.eq("category",selected);if(selectedSubcategory)query=query.eq("subcategory",selectedSubcategory);const {data,error}=await query;if(active){if(error)console.error("[events] Approved event lookup failed",{code:error.code});setEvents((data??[]) as EventItem[]);setLoading(false);}}loadEvents();return()=>{active=false;};},[selected,selectedSubcategory]);
-  useEffect(()=>{
-    if(typeof window==="undefined")return;
-    let id=window.localStorage.getItem("naren_event_visitor_id");
-    if(!id){id=window.crypto?.randomUUID?.()??("visitor-"+Date.now()+"-"+Math.random().toString(36).slice(2));window.localStorage.setItem("naren_event_visitor_id",id);}
+  const params = useSearchParams();
+  const categoryParam = params.get("category") ?? "";
+  const initialCategory = categoryParam === "meetups" ? "social_meetups" : categoryParam;
+  const initialSubcategory = params.get("subcategory") ?? "";
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [likedEvents, setLikedEvents] = useState<Record<string, boolean>>({});
+  const [visitorId, setVisitorId] = useState("");
+  const [category, setCategory] = useState(initialCategory);
+  const [subcategory, setSubcategory] = useState(initialSubcategory);
+  const [dateFilter, setDateFilter] = useState("any");
+  const [priceFilter, setPriceFilter] = useState("any");
+  const [modeFilter, setModeFilter] = useState("any");
+  const [sortBy, setSortBy] = useState("soonest");
+  const [search, setSearch] = useState("");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    async function loadEvents() {
+      setLoading(true);
+      const { data, error } = await supabase.from("event_submissions")
+        .select("id,title,category,subcategory,custom_event_type,venue,locality,starts_at,ticket_price,total_capacity,available_seats,description,image_url,ends_at,event_mode,location_status")
+        .eq("status", "approved").gte("starts_at", new Date().toISOString())
+        .order("starts_at", { ascending: true });
+      if (!active) return;
+      if (error) console.error("[events] Approved event lookup failed", { code: error.code });
+      setEvents((data ?? []) as EventItem[]);
+      setLoading(false);
+    }
+    void loadEvents();
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let id = window.localStorage.getItem("naren_event_visitor_id");
+    if (!id) {
+      id = window.crypto?.randomUUID?.() ?? ("visitor-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+      window.localStorage.setItem("naren_event_visitor_id", id);
+    }
     setVisitorId(id);
-  },[]);
-  useEffect(()=>{
-    if(!events.length)return;
-    let active=true;
-    const ids=events.map(event=>event.id);
-    const refreshLikes=async()=>{
-      const {data,error}=await supabase.from("event_likes").select("event_id,visitor_id").in("event_id",ids);
-      if(!active||error)return;
-      const counts:Record<string,number>={};
-      const mine:Record<string,boolean>={};
-      for(const like of data??[]){counts[like.event_id]=(counts[like.event_id]??0)+1;if(like.visitor_id===visitorId)mine[like.event_id]=true;}
-      setLikeCounts(counts);setLikedEvents(mine);
+  }, []);
+
+  useEffect(() => {
+    if (!events.length) return;
+    let active = true;
+    const ids = events.map((event) => event.id);
+    const refreshLikes = async () => {
+      const { data, error } = await supabase.from("event_likes").select("event_id,visitor_id").in("event_id", ids);
+      if (!active || error) return;
+      const counts: Record<string, number> = {};
+      const mine: Record<string, boolean> = {};
+      for (const like of data ?? []) {
+        counts[like.event_id] = (counts[like.event_id] ?? 0) + 1;
+        if (like.visitor_id === visitorId) mine[like.event_id] = true;
+      }
+      setLikeCounts(counts);
+      setLikedEvents(mine);
     };
     void refreshLikes();
-    const channel=supabase.channel("event-likes-live")
-      .on("postgres_changes",{event:"*",schema:"public",table:"event_likes"},()=>{void refreshLikes();})
+    const channel = supabase.channel("event-likes-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_likes" }, () => { void refreshLikes(); })
       .subscribe();
-    return()=>{active=false;void supabase.removeChannel(channel);};
-  },[events,visitorId]);
-  async function toggleLike(eventId:string){
-    if(!visitorId)return;
-    const alreadyLiked=!!likedEvents[eventId];
-    if(alreadyLiked){
-      const {error}=await supabase.from("event_likes").delete().eq("event_id",eventId).eq("visitor_id",visitorId);
-      if(error){console.error("[events] Unlike failed",error);return;}
-      setLikedEvents(current=>({...current,[eventId]:false}));
-      setLikeCounts(current=>({...current,[eventId]:Math.max(0,(current[eventId]??0)-1)}));
-    }else{
-      const {error}=await supabase.from("event_likes").insert({event_id:eventId,visitor_id:visitorId});
-      if(error){if(error.code!=="23505")console.error("[events] Like failed",error);return;}
-      setLikedEvents(current=>({...current,[eventId]:true}));
-      setLikeCounts(current=>({...current,[eventId]:(current[eventId]??0)+1}));
+    return () => { active = false; void supabase.removeChannel(channel); };
+  }, [events, visitorId]);
+
+  async function toggleLike(eventId: string) {
+    if (!visitorId) return;
+    const alreadyLiked = !!likedEvents[eventId];
+    if (alreadyLiked) {
+      const { error } = await supabase.from("event_likes").delete().eq("event_id", eventId).eq("visitor_id", visitorId);
+      if (error) { console.error("[events] Unlike failed", error); return; }
+      setLikedEvents((current) => ({ ...current, [eventId]: false }));
+      setLikeCounts((current) => ({ ...current, [eventId]: Math.max(0, (current[eventId] ?? 0) - 1) }));
+    } else {
+      const { error } = await supabase.from("event_likes").insert({ event_id: eventId, visitor_id: visitorId });
+      if (error) { if (error.code !== "23505") console.error("[events] Like failed", error); return; }
+      setLikedEvents((current) => ({ ...current, [eventId]: true }));
+      setLikeCounts((current) => ({ ...current, [eventId]: (current[eventId] ?? 0) + 1 }));
     }
   }
-  return <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
-    <header className="bg-[#10243A] px-4 py-4 text-white sm:px-6"><div className="mx-auto flex max-w-7xl items-center justify-between gap-3"><Link href="/" className="text-lg font-extrabold sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></Link><div className="flex items-center gap-3"><Link href="/events/manage" className="text-xs font-semibold text-white underline sm:text-sm">Manage My Events</Link><Link href="/events/submit" className="inline-flex min-h-10 items-center rounded-lg bg-[#B08D3E] px-3 text-xs font-extrabold text-white hover:bg-[#8F7130] sm:px-4 sm:text-sm">Post Your Event</Link><Link href="/" className="text-sm font-semibold text-amber-300">← Home</Link></div></div></header>
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10"><p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Discover and join</p><h1 className="mt-2 text-3xl font-extrabold text-white sm:text-4xl">Local Events</h1><p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Find gatherings, meetups, outdoor experiences, workshops and celebrations around you.</p>
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 sm:gap-4">{categories.map((category)=><Link key={category.key} href={selected===category.key?"/events":`/events?category=${category.key}`} aria-label={category.title} className={`group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition hover:-translate-y-1 hover:shadow-lg ${selected===category.key?"ring-2 ring-amber-400":"ring-slate-200"}`}><div className="relative aspect-[4/3] bg-cover bg-center" style={{backgroundImage:`linear-gradient(to top, rgba(8,20,39,.8), transparent 60%), url("${category.image}")`}}><h2 className="absolute bottom-3 left-3 right-3 text-sm font-extrabold text-white sm:text-base">{category.title}</h2></div></Link>)}</div>
-      {selectedCategory&&<div className="mt-6 flex flex-wrap gap-2"><Link href={`/events?category=${selected}`} className={`rounded-full px-3 py-2 text-xs font-bold ${!selectedSubcategory?"bg-[#10243A] text-white":"bg-white text-slate-700 ring-1 ring-slate-200"}`}>All {selectedCategory.title}</Link>{selectedCategory.subcategories.map((sub)=><Link key={sub.key} href={`/events?category=${selected}&subcategory=${sub.key}`} className={`rounded-full px-3 py-2 text-xs font-semibold ${selectedSubcategory===sub.key?"bg-[#B08D3E] text-white":"bg-white text-slate-700 ring-1 ring-slate-200"}`}>{sub.title}</Link>)}</div>}
-      <section className="mt-7" aria-live="polite"><div className="flex items-center justify-between gap-3"><h2 className="text-xl font-bold text-white sm:text-2xl">{selectedCategory?selectedSubcategory?selectedCategory.subcategories.find((sub)=>sub.key===selectedSubcategory)?.title:selectedCategory.title:"All Events"}</h2>{selectedCategory&&<Link href={`/events?category=${selected}`} className="text-sm font-semibold text-blue-800 underline">View all</Link>}</div>
-        {loading?<p className="mt-4 text-sm text-slate-600">Loading events...</p>:events.length===0?<p className="mt-3 rounded-xl bg-white px-4 py-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">No approved events are listed here yet.</p>:<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{events.map((event)=>{const eventDate=new Date(event.starts_at);const venueLabel=event.event_mode==="online"?"Online event":event.location_status==="tba"?"Venue to be announced":`${event.venue}, ${event.locality??""}`;return <article key={event.id} className="overflow-hidden rounded-[26px] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/80"><Link href={"/events/"+event.id} aria-label={`Know more about ${event.title}`} className="group relative block aspect-[16/8.5] overflow-hidden bg-slate-200 sm:aspect-[16/7]">{event.image_url?<img src={event.image_url} alt={event.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/>:<div className="flex h-full items-center justify-center text-sm font-semibold text-slate-500">Event poster</div>}<div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"/></Link><div className="px-4 pb-4 pt-3.5 sm:px-5 sm:pb-5"><div className="flex items-center justify-between gap-3 rounded-2xl bg-[#F1F2F4] px-3.5 py-3 text-sm sm:px-4"><div className="flex min-w-0 items-center gap-2"><button type="button" onClick={()=>void toggleLike(event.id)} aria-pressed={!!likedEvents[event.id]} aria-label={`${likedEvents[event.id]?"Unlike":"Like"} ${event.title}`} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${likedEvents[event.id]?"bg-blue-700 text-white":"bg-blue-600 text-white hover:bg-blue-700"}`}><span aria-hidden="true">👍</span>{likedEvents[event.id]?"Liked":"Like"}</button><span className="truncate text-xs font-semibold text-slate-600">{likeCounts[event.id]??0} {(likeCounts[event.id]??0)===1?"person":"people"} interested</span></div><span className="shrink-0 font-bold text-slate-800">{eventDate.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</span></div><h3 className="mt-4 text-[22px] font-bold leading-tight tracking-tight text-[#171717] sm:text-2xl">{event.title}</h3><p className="mt-1.5 text-base font-semibold capitalize text-slate-700">{(event.custom_event_type||event.subcategory||event.category).replaceAll("_"," ")}</p><p className="mt-3 line-clamp-2 min-h-12 text-[15px] leading-6 text-slate-700">{event.description}</p><div className="mt-4 border-t border-slate-200 pt-4"><div className="flex items-start justify-between gap-3"><p className="text-base font-semibold text-slate-800">{eventDate.toLocaleDateString("en-IN",{weekday:"short",month:"short",day:"numeric",year:"numeric"})} <span className="text-slate-400">|</span> {eventDate.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</p><p className="shrink-0 text-xl font-extrabold text-[#171717]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p></div><p className="mt-2 line-clamp-1 text-[15px] text-slate-700">⌖ {venueLabel}</p><div className="mt-4 grid grid-cols-2 gap-3"><Link href={"/events/"+event.id} className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-[#B08D3E] px-3 py-2 text-sm font-bold text-[#B08D3E] transition hover:bg-[#F4F0E7] sm:text-base">Know More</Link><Link href={"/events/"+event.id+"#ticket-details"} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#B08D3E] px-3 py-2 text-sm font-bold text-white transition hover:bg-[#8F7130] sm:text-base">Book Now</Link></div></div></div></article>})}</div>}
-      </section>
+
+  const filteredEvents = useMemo(() => {
+    const now = new Date();
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const weekendEnd = new Date(now);
+    weekendEnd.setDate(now.getDate() + (6 - now.getDay() + 7) % 7 + 1);
+    const result = events.filter((event) => {
+      if (category && event.category !== category) return false;
+      if (subcategory && event.subcategory !== subcategory) return false;
+      if (priceFilter === "free" && Number(event.ticket_price) > 0) return false;
+      if (priceFilter === "paid" && Number(event.ticket_price) <= 0) return false;
+      if (modeFilter !== "any" && event.event_mode !== modeFilter) return false;
+      const date = new Date(event.starts_at);
+      if (dateFilter === "today" && (date < now || date >= endOfToday)) return false;
+      if (dateFilter === "weekend" && (date < now || date > weekendEnd || ![0, 6].includes(date.getDay()))) return false;
+      if (dateFilter === "week" && (date < now || date > new Date(now.getTime() + 7 * 86400000))) return false;
+      const text = [event.title, event.description, event.venue, event.locality, event.subcategory, event.custom_event_type].filter(Boolean).join(" ").toLowerCase();
+      if (search.trim() && !text.includes(search.trim().toLowerCase())) return false;
+      return true;
+    });
+    result.sort((a, b) => {
+      if (sortBy === "price-low") return Number(a.ticket_price) - Number(b.ticket_price);
+      if (sortBy === "price-high") return Number(b.ticket_price) - Number(a.ticket_price);
+      if (sortBy === "latest") return new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime();
+      return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+    });
+    return result;
+  }, [events, category, subcategory, dateFilter, priceFilter, modeFilter, sortBy, search]);
+
+  function resetFilters() {
+    setCategory(""); setSubcategory(""); setDateFilter("any"); setPriceFilter("any");
+    setModeFilter("any"); setSortBy("soonest"); setSearch("");
+  }
+
+  const activeCount = [category, dateFilter !== "any" ? dateFilter : "", priceFilter !== "any" ? priceFilter : "", modeFilter !== "any" ? modeFilter : ""].filter(Boolean).length;
+
+  function FilterPanel() {
+    return <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-extrabold text-[#172B3A]">Filters</h2>
+        <button type="button" onClick={resetFilters} className="text-xs font-bold text-[#A27D35] hover:underline">Clear all</button>
+      </div>
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Categories</p>
+        <div className="space-y-1">
+          <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (!category ? "bg-[#F5F0E5] font-bold text-[#8B6B2C]" : "text-slate-700 hover:bg-slate-50")}>All events <span>›</span></button>
+          {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (category === item.key ? "bg-[#F5F0E5] font-bold text-[#8B6B2C]" : "text-slate-700 hover:bg-slate-50")}>{item.title}<span>›</span></button>)}
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">When</p>
+        <div className="space-y-1">
+          {[["any", "Any date"], ["today", "Today"], ["weekend", "This weekend"], ["week", "Next 7 days"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-date" checked={dateFilter === value} onChange={() => setDateFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Ticket price</p>
+        <div className="space-y-1">
+          {[["any", "Any price"], ["free", "Free events"], ["paid", "Paid events"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-price" checked={priceFilter === value} onChange={() => setPriceFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Event format</p>
+        <div className="space-y-1">
+          {[["any", "All formats"], ["offline", "Offline"], ["online", "Online"], ["hybrid", "Hybrid"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-mode" checked={modeFilter === value} onChange={() => setModeFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+        </div>
+      </div>
+    </div>;
+  }
+
+  return <main className="min-h-screen bg-[#F4F6F8] text-slate-900">
+    <header className="bg-[#10243A] px-4 py-3.5 text-white sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+        <Link href="/" className="text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-[#D5B56D]">REALTY</span></Link>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/events/manage" className="text-[11px] font-semibold text-white/90 hover:text-[#D5B56D] sm:text-sm">Manage Events</Link>
+          <Link href="/events/submit" className="rounded-lg bg-[#B08D3E] px-3 py-2 text-[11px] font-extrabold text-white hover:bg-[#94732F] sm:px-4 sm:text-sm">Post Your Event</Link>
+          <Link href="/" className="hidden text-sm font-semibold text-[#D5B56D] sm:block">Home</Link>
+        </div>
+      </div>
+    </header>
+
+    <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8">
+      <div className="mb-5">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#A27D35] sm:text-xs">Discover • Connect • Experience</p>
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+          <div><h1 className="text-2xl font-black tracking-tight text-[#10243A] sm:text-3xl">Explore Events</h1><p className="mt-1 text-xs text-slate-600 sm:text-sm">Find your next plan, people and experiences.</p></div>
+          <div className="hidden w-full max-w-sm sm:block"><label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm"><span className="text-slate-400">⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events, venues..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" /></label></div>
+        </div>
+      </div>
+
+      <nav aria-label="Event categories" className="mb-5 flex gap-2 overflow-x-auto pb-2">
+        <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (!category ? "border-[#10243A] bg-[#10243A] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#B08D3E]")}>All Events</button>
+        {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (category === item.key ? "border-[#10243A] bg-[#10243A] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#B08D3E]")}><span className="mr-1.5">{item.icon}</span>{item.short}</button>)}
+      </nav>
+
+      <div className="mb-4 flex gap-2 sm:hidden">
+        <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5"><span className="text-slate-400">⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events..." className="w-full min-w-0 bg-transparent text-xs outline-none" /></label>
+        <button onClick={() => setMobileFiltersOpen(true)} className="shrink-0 rounded-xl border border-[#D8C9A5] bg-white px-3 py-2 text-xs font-bold text-[#8B6B2C] shadow-sm">☷ Filter{activeCount ? " (" + activeCount + ")" : ""}</button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]">
+        <aside className="hidden self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-5 lg:block"><FilterPanel /></aside>
+        <section aria-live="polite" className="min-w-0">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div><h2 className="text-lg font-extrabold text-[#10243A] sm:text-xl">{category ? categories.find((item) => item.key === category)?.title ?? "Events" : "All Events"}</h2><p className="mt-0.5 text-[11px] text-slate-500 sm:text-xs">{loading ? "Finding events..." : filteredEvents.length + " upcoming events"}</p></div>
+            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] text-slate-600 sm:text-xs"><span>Sort:</span><select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="max-w-[112px] bg-transparent font-bold text-[#10243A] outline-none sm:max-w-none"><option value="soonest">Date: Soonest</option><option value="latest">Date: Latest</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select></label>
+          </div>
+          {subcategory && <div className="mb-3 flex items-center gap-2"><span className="rounded-full bg-[#F5F0E5] px-3 py-1.5 text-xs font-bold text-[#8B6B2C]">{subcategory.replaceAll("_", " ")}</span><button onClick={() => setSubcategory("")} className="text-xs font-semibold text-slate-500 underline">Remove</button></div>}
+          {loading ? <div className="grid grid-cols-2 gap-3 sm:gap-4">{[1,2,3,4].map((n) => <div key={n} className="animate-pulse overflow-hidden rounded-xl bg-white"><div className="aspect-[4/3] bg-slate-200"/><div className="space-y-2 p-3"><div className="h-3 w-2/3 rounded bg-slate-200"/><div className="h-3 w-full rounded bg-slate-100"/></div></div>)}</div>
+          : filteredEvents.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center"><p className="text-base font-bold text-[#10243A]">No events found</p><p className="mt-1 text-xs text-slate-500">Try changing your filters or search.</p><button onClick={resetFilters} className="mt-4 rounded-lg bg-[#10243A] px-4 py-2 text-xs font-bold text-white">Clear filters</button></div>
+          : <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">{filteredEvents.map((event) => {
+            const date = new Date(event.starts_at);
+            const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
+            const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
+            return <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:rounded-2xl">
+              <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="relative block aspect-[4/3] overflow-hidden bg-slate-200">
+                {event.image_url ? <img src={event.image_url} alt={event.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                <span className="absolute left-2 top-2 rounded-md bg-white/95 px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#8B6B2C] shadow-sm sm:text-[10px]">{type}</span>
+                <span className="absolute bottom-2 left-2 rounded-md bg-[#10243A]/90 px-2 py-1 text-[10px] font-bold text-white">{date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+              </Link>
+              <div className="p-2.5 sm:p-3.5">
+                <h3 className="line-clamp-2 min-h-[2.5rem] text-xs font-extrabold leading-5 text-[#172B3A] sm:min-h-[3rem] sm:text-sm sm:leading-5">{event.title}</h3>
+                <p className="mt-1 line-clamp-1 text-[10px] font-medium text-slate-500 sm:text-xs">{venue}</p>
+                <div className="mt-2 flex items-center justify-between gap-1 border-t border-slate-100 pt-2">
+                  <span className="text-xs font-extrabold text-[#10243A] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price : "Free"}</span>
+                  <button type="button" onClick={() => void toggleLike(event.id)} aria-pressed={!!likedEvents[event.id]} className={"rounded-full px-2 py-1 text-[9px] font-bold sm:text-[10px] " + (likedEvents[event.id] ? "bg-blue-700 text-white" : "bg-blue-50 text-blue-700")}>👍 {likeCounts[event.id] ?? 0}</button>
+                </div>
+                <Link href={"/events/" + event.id} className="mt-2 flex min-h-8 items-center justify-center rounded-lg bg-[#B08D3E] px-2 text-[10px] font-extrabold text-white transition hover:bg-[#94732F] sm:min-h-9 sm:text-xs">Explore Event</Link>
+              </div>
+            </article>;
+          })}</div>}
+        </section>
+      </div>
     </div>
+
+    {mobileFiltersOpen && <div className="fixed inset-0 z-50 bg-black/40 lg:hidden" onClick={() => setMobileFiltersOpen(false)}>
+      <section role="dialog" aria-modal="true" aria-label="Event filters" onClick={(e) => e.stopPropagation()} className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl">
+        <div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-extrabold text-[#10243A]">Filter Events</h2><button onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters" className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold">✕</button></div>
+        <FilterPanel />
+        <button onClick={() => setMobileFiltersOpen(false)} className="mt-6 w-full rounded-xl bg-[#10243A] py-3 text-sm font-extrabold text-white">Show {filteredEvents.length} events</button>
+      </section>
+    </div>}
   </main>;
 }
-export default function EventsPage(){return <Suspense fallback={<main className="min-h-screen bg-[#f4f7fc] p-6 text-white">Loading events...</main>}><EventsContent /></Suspense>;}
+
+export default function EventsPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-[#F4F6F8] p-6 text-[#10243A]">Loading events...</main>}><EventsContent /></Suspense>;
+}
