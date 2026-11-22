@@ -276,6 +276,11 @@ export default function CustomerAccountPage() {
       setPolicyChecks({});
       setPassword("");
       setTab("profile");
+      const nextPath = new URLSearchParams(window.location.search).get("next");
+      if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
+        window.location.assign(nextPath);
+        return;
+      }
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "Unable to sign in.");
     } finally {

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
+import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
+const supabase = createSupabaseBrowserClient();
 import EventCommissionPanel from "./EventCommissionPanel";
 import EventOrganiserPaymentPanel from "./EventOrganiserPaymentPanel";
 
