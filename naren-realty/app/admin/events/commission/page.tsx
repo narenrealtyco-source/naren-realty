@@ -30,7 +30,14 @@ export default function AdminEventCommissionPanel(){
   setMessage(error?"Payment settings could not be saved.":"Commission payment instructions updated.");
   setSaving(false);if(!error)await load();
  }
- async function reviewCycle(cycle:Cycle,status:"verified"|"rejected"){\n  setBusy(cycle.id);setMessage("");\n  const {data:{user}}=await supabase.auth.getUser();\n  const {error}=await supabase.from("event_commission_settlements").update({payment_status:status,reviewed_by:user?.id??null,reviewed_at:new Date().toISOString()}).eq("id",cycle.id).eq("payment_status","submitted");\n  if(error)setMessage("Settlement cycle review could not be saved.");else{setMessage("Settlement cycle marked "+status+".");await load();}\n  setBusy(null);\n }\n async function review(sale:Sale,status:"verified"|"rejected"){
+ async function reviewCycle(cycle:Cycle,status:"verified"|"rejected"){
+  setBusy(cycle.id);setMessage("");
+  const {data:{user}}=await supabase.auth.getUser();
+  const {error}=await supabase.from("event_commission_settlements").update({payment_status:status,reviewed_by:user?.id??null,reviewed_at:new Date().toISOString()}).eq("id",cycle.id).eq("payment_status","submitted");
+  if(error)setMessage("Settlement cycle review could not be saved.");else{setMessage("Settlement cycle marked "+status+".");await load();}
+  setBusy(null);
+ }
+ async function review(sale:Sale,status:"verified"|"rejected"){
   setBusy(sale.id);setMessage("");
   const {data:{user}}=await supabase.auth.getUser();
   const {error}=await supabase.from("event_ticket_sales").update({commission_payment_status:status,reviewed_by:user?.id??null,reviewed_at:new Date().toISOString()}).eq("id",sale.id);
