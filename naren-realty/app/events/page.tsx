@@ -217,30 +217,31 @@ function EventsContent() {
           {subcategory && <div className="mb-3 flex items-center gap-2"><span className="rounded-full bg-[#F5F0E5] px-3 py-1.5 text-xs font-bold text-[#8B6B2C]">{subcategory.replaceAll("_", " ")}</span><button onClick={() => setSubcategory("")} className="text-xs font-semibold text-slate-500 underline">Remove</button></div>}
           {loading ? <div className="grid grid-cols-2 gap-3 sm:gap-4">{[1,2,3,4].map((n) => <div key={n} className="animate-pulse overflow-hidden rounded-xl bg-white"><div className="aspect-[4/3] bg-slate-200"/><div className="space-y-2 p-3"><div className="h-3 w-2/3 rounded bg-slate-200"/><div className="h-3 w-full rounded bg-slate-100"/></div></div>)}</div>
           : filteredEvents.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center"><p className="text-base font-bold text-[#10243A]">No events found</p><p className="mt-1 text-xs text-slate-500">Try changing your filters or search.</p><button onClick={resetFilters} className="mt-4 rounded-lg bg-[#10243A] px-4 py-2 text-xs font-bold text-white">Clear filters</button></div>
-          : <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">{filteredEvents.map((event) => {
+          : <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">{filteredEvents.map((event) => {
             const date = new Date(event.starts_at);
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
             const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
-            return <article key={event.id} className="group min-w-0">
-              <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="relative block aspect-[2/3] overflow-hidden rounded-xl bg-slate-200">
+            return <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="relative block aspect-[2/3] overflow-hidden bg-slate-200">
                 {event.image_url ? <img src={event.image_url} alt={event.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-3 pb-3 pt-16">
                   <p className="text-[11px] font-extrabold tracking-wide text-white drop-shadow sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                 </div>
               </Link>
-              <div className="pt-2.5">
+              <div className="space-y-1 px-2.5 pb-2.5 pt-2.5 sm:px-3 sm:pb-3">
                 <Link href={"/events/" + event.id} className="block">
-                  <h3 className="line-clamp-2 min-h-[2.6rem] text-[13px] font-extrabold leading-[1.3] text-[#172B3A] transition group-hover:text-[#8B6B2C] sm:min-h-[2.9rem] sm:text-sm">{event.title}</h3>
+                  <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[#172B3A] transition group-hover:text-[#8B6B2C] sm:text-sm">{event.title}</h3>
                 </Link>
-                <p className="mt-1 line-clamp-1 text-[10px] font-medium text-slate-500 sm:text-xs">{venue}</p>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-[#A27D35] sm:text-[10px]">{type}</p>
-                    <p className="mt-0.5 text-xs font-extrabold text-[#10243A] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
-                  </div>
-                  <button type="button" onClick={() => void toggleLike(event.id)} aria-pressed={!!likedEvents[event.id]} aria-label={(likedEvents[event.id] ? "Remove interest" : "Show interest") + " in " + event.title} className={"inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[9px] font-bold sm:text-[10px] " + (likedEvents[event.id] ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700")}>
-                    {likedEvents[event.id] ? "♥" : "♡"} {likeCounts[event.id] ?? 0}
-                  </button>
+                <Link href={"/events/" + event.id} className="block">
+                  <p className="line-clamp-1 text-[9px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
+                </Link>
+                <div className="flex items-end justify-between gap-2 border-t border-slate-100 pt-2">
+                  <Link href={"/events/" + event.id} className="min-w-0">
+                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.1em] text-[#A27D35] sm:text-[10px]">{type}</p>
+                  </Link>
+                  <Link href={"/events/" + event.id} className="shrink-0 text-right">
+                    <p className="text-xs font-extrabold text-[#10243A] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
+                  </Link>
                 </div>
               </div>
             </article>;
