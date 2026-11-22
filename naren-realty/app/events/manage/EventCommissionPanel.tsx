@@ -52,7 +52,7 @@ export default function EventCommissionPanel({events}:{events:EventOption[]}) {
   if(error)setMessage("UTR could not be saved. Please try again.");
   else{setMessage("UTR submitted. Commission payment is awaiting admin verification.");await load();}
  }
- return <section className="mt-8 space-y-5">
+ return <section id="commission-settlement" className="mt-8 scroll-mt-6 space-y-5">
   <div><p className="text-xs font-bold uppercase tracking-widest text-amber-700">10% platform commission</p><h2 className="mt-1 text-2xl font-extrabold text-[#10243A]">Ticket Sales & Commission</h2><p className="mt-2 text-sm text-slate-600">Record paid ticket sales. Attendees pay you directly. Report every paid ticket sale here and transfer NAREN REALTY’s 10% commission on the same day. Submit the UTR after the transfer; admin will verify it manually.</p></div>
   {loading?<p className="text-sm text-slate-600">Loading commission details...</p>:<div className="grid gap-5 lg:grid-cols-2">
    <form onSubmit={submit} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
