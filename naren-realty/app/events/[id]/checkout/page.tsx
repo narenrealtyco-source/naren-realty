@@ -45,7 +45,6 @@ function CheckoutContent() {
         if (result.error || !result.data) throw new Error("Event is unavailable. Please go back and try again.");
         setEvent(result.data as EventPayment);
         if (!session) {
-          const next = encodeURIComponent(`/events/${id}/ticket`);
           window.location.replace(`/account?next=${encodeURIComponent(`/events/${id}/checkout?quantity=${quantity}`)}#login`);
           return;
         }
