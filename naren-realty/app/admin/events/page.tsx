@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
-import { supabase } from "../../lib/supabase";
+import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
 
 type EventRecord = { id: string; title: string; organiser_upi_id:string|null; organiser_payee_name:string|null; organiser_qr_image_url:string|null; category: string; subcategory: string | null; custom_event_type: string | null; total_capacity: number | null; available_seats: number | null; image_url: string | null; venue: string; locality: string|null; event_mode: string; location_status: string; venue_address: string|null; map_link: string|null; online_event_link: string|null; starts_at: string; ticket_price: number; description: string; event_policies: string | null; event_details: {highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null; organizer_name: string; contact_phone: string; contact_email: string | null; status: string; created_at: string };
 
 export default function AdminEventsPage() {
+  const supabase = createSupabaseBrowserClient();
   const [items, setItems] = useState<EventRecord[]>([]);
   const [status, setStatus] = useState("pending");
   const [loading, setLoading] = useState(true);
