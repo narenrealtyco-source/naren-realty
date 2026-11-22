@@ -51,20 +51,48 @@ function EventDetailsContent(){
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3"><Link href="/events" className="flex items-center gap-2 text-sm font-semibold text-[#10243A]"><span className="text-xl">‹</span> All Events</Link><Link href="/" className="text-base font-black tracking-tight text-[#10243A]">NAREN <span className="text-[#B08D3E]">REALTY</span></Link><button type="button" onClick={()=>{if(typeof navigator!=="undefined"&&navigator.share)void navigator.share({title:event.title,url:window.location.href});else if(typeof navigator!=="undefined")void navigator.clipboard.writeText(window.location.href);}} aria-label="Share event" className="rounded-full border border-[#E5DFD2] px-3 py-2 text-sm font-semibold text-[#B08D3E]">Share ↗</button></div>
     </header>
     <div className="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-7">
-      <div className="overflow-hidden rounded-2xl border border-[#E5DFD2] bg-white shadow-sm">
-        {event.image_url?<img src={event.image_url} alt={event.title} className="max-h-[520px] min-h-52 w-full object-cover"/>:<div className="flex aspect-[16/8] items-center justify-center bg-[#F4F0E7] text-sm font-semibold text-[#5C6673]">Event poster not provided</div>}
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2"><span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-bold text-[#086d65]">{category}</span><span className="rounded-md bg-[#F1F2F4] px-3 py-1 text-xs font-semibold text-[#475467]">{event.event_mode==="hybrid"?"Online + Offline":pretty(event.event_mode)}</span>{event.location_status==="tba"&&<span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-semibold text-[#8F7130]">Venue to be announced</span>}</div>
-      <h1 className="mt-3 text-2xl font-black leading-tight text-[#10243A] sm:text-4xl">{event.title}</h1>
-      <section id="ticket-details" className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#D8C9A5] bg-white p-4 shadow-sm sm:px-5"><div><p className="text-xs font-bold uppercase tracking-wide text-[#667085]">Ticket price</p><p className="mt-1 text-2xl font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p><p className="mt-1 text-xs font-semibold text-[#B08D3E]">{event.available_seats===null?"Availability as listed":event.available_seats>0?event.available_seats+" seats available":"Check availability with organiser"}</p></div></section>
-      <div className="mt-5 grid gap-3 rounded-2xl border border-[#E5DFD2] bg-white p-4 sm:grid-cols-2 sm:p-5">
-        <Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?`${dateLabel(event.starts_at)} – ${dateLabel(event.ends_at)}`:dateLabel(event.starts_at)}/>
-        <Info icon="◷" label="Time" value={`${timeLabel(event.starts_at)}${event.ends_at?" – "+timeLabel(event.ends_at):""}`}/>
-        <Info icon="⌛" label="Duration" value={event.ends_at?(()=>{const mins=Math.max(0,Math.round((new Date(event.ends_at).getTime()-date.getTime())/60000));return mins>=60?`${Math.floor(mins/60)}h ${mins%60?mins%60+"m":""}`:`${mins} min`;})():"Not specified"}/>
-        <Info icon="♙" label="Age guidance" value={event.event_details?.age_restriction||"Not specified"}/>
-        <Info icon="文" label="Language" value={event.event_details?.language||"Not specified"}/>
-        <Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/>
-      </div>
+      <section className="overflow-hidden rounded-2xl border border-[#E5DFD2] bg-white shadow-sm">
+        <div className="grid md:grid-cols-[minmax(250px,340px)_1fr]">
+          <div className="relative aspect-[4/3] overflow-hidden bg-[#F4F0E7] sm:aspect-[16/9] md:aspect-[3/4]">
+            {event.image_url?<img src={event.image_url} alt={event.title} className="absolute inset-0 h-full w-full object-cover"/>:<div className="flex h-full items-center justify-center px-5 text-center text-sm font-semibold text-[#5C6673]">Event poster not provided</div>}
+          </div>
+          <div className="flex flex-col p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-bold text-[#086d65]">{category}</span>
+              <span className="rounded-md bg-[#F1F2F4] px-3 py-1 text-xs font-semibold text-[#475467]">{event.event_mode==="hybrid"?"Online + Offline":pretty(event.event_mode)}</span>
+              {event.location_status==="tba"&&<span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-semibold text-[#8F7130]">Venue to be announced</span>}
+            </div>
+            <h1 className="mt-4 text-2xl font-black leading-tight text-[#10243A] sm:text-3xl lg:text-4xl">{event.title}</h1>
+            <div className="mt-5 grid gap-4 border-y border-[#EEE8DC] py-5">
+              <Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?dateLabel(event.starts_at)+" – "+dateLabel(event.ends_at):dateLabel(event.starts_at)}/>
+              <Info icon="◷" label="Time" value={timeLabel(event.starts_at)+(event.ends_at?" – "+timeLabel(event.ends_at):"")}/>
+              <Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/>
+            </div>
+            <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#667085]">Starts from</p>
+                <p className="mt-1 text-3xl font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p>
+                <p className="mt-1 text-xs font-semibold text-[#B08D3E]">{event.available_seats===null?"Availability as listed":event.available_seats>0?event.available_seats+" seats available":"Check availability with organiser"}</p>
+              </div>
+              <a href="#ticket-details" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#B08D3E] px-5 text-sm font-extrabold text-white hover:bg-[#8F7130]">Ticket details ↓</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="ticket-details" className="mt-5 overflow-hidden rounded-2xl border border-[#E5DFD2] bg-white shadow-sm">
+        <div className="border-b border-[#EEE8DC] px-4 py-4 sm:px-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#B08D3E]">Plan your visit</p>
+          <h2 className="mt-1 text-xl font-extrabold text-[#10243A]">Event Details</h2>
+        </div>
+        <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="border-b border-[#EEE8DC] p-4 sm:border-r"><Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?dateLabel(event.starts_at)+" – "+dateLabel(event.ends_at):dateLabel(event.starts_at)}/></div>
+          <div className="border-b border-[#EEE8DC] p-4 lg:border-r"><Info icon="◷" label="Time" value={timeLabel(event.starts_at)+(event.ends_at?" – "+timeLabel(event.ends_at):"")}/></div>
+          <div className="border-b border-[#EEE8DC] p-4 sm:border-r lg:border-r-0"><Info icon="⌛" label="Duration" value={event.ends_at?(()=>{const mins=Math.max(0,Math.round((new Date(event.ends_at).getTime()-date.getTime())/60000));return mins>=60?Math.floor(mins/60)+"h "+(mins%60?mins%60+"m":"") :mins+" min";})():"Not specified"}/></div>
+          <div className="border-b border-[#EEE8DC] p-4 lg:border-r"><Info icon="♙" label="Age guidance" value={event.event_details?.age_restriction||"Not specified"}/></div>
+          <div className="border-b border-[#EEE8DC] p-4 sm:border-r lg:border-r-0"><Info icon="文" label="Language" value={event.event_details?.language||"Not specified"}/></div>
+          <div className="border-b border-[#EEE8DC] p-4"><Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/></div>
+        </div>
+      </section>
       <section className="mt-5 rounded-2xl border border-[#E5DFD2] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#10243A]">About the Event</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#475467]">{event.description}</p>{event.event_details?.highlights&&<div className="mt-4 rounded-xl bg-[#eff7f5] p-4"><h3 className="text-sm font-bold text-[#B08D3E]">Event highlights</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#475467]">{event.event_details.highlights}</p></div>}</section>
       {(event.event_details?.target_audience||event.event_details?.registration_deadline)&&<section className="mt-4 rounded-2xl border border-[#E5DFD2] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#10243A]">Good to Know</h2>{event.event_details.target_audience&&<Info icon="♧" label="Who should attend" value={event.event_details.target_audience}/ >}{event.event_details.registration_deadline&&<div className="mt-3"><Info icon="◷" label="Registration deadline" value={new Date(event.event_details.registration_deadline).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}/></div>}</section>}
       {event.event_policies&&<section className="mt-4 rounded-2xl border border-[#E5DFD2] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#10243A]">Event Rules & Policies</h2><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#475467]">{event.event_policies}</p></section>}
