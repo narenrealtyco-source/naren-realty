@@ -18,8 +18,8 @@ export default function AdminEventCommissionPanel(){
    supabase.from("event_commission_settlements").select("*,event_submissions(title,organizer_name)").order("cycle_start",{ascending:false}).limit(300)
   ]);
   if(s)setSetting({commission_percent:Number(s.commission_percent),payment_upi_id:s.payment_upi_id??"",payee_name:s.payee_name??"",qr_image_url:s.qr_image_url??""});
-  if(error)setMessage("Commission reports could not be loaded. Verify admin access.");
-  else setSales((r??[]) as Sale[]);
+  if(error||cError)setMessage("Commission reports or settlement cycles could not be loaded. Verify admin access.");
+  else {setSales((r??[]) as Sale[]);setCycles((cRows??[]) as Cycle[]);}
   setLoading(false);
  }
  useEffect(()=>{void load();},[]);
