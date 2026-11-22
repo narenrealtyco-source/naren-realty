@@ -75,6 +75,7 @@ export default function ManageEventsPage() {
         <p className="mt-1 text-xs text-slate-500">These details are visible on your public listing. Maximum 5,000 characters.</p>
         <button disabled={busy===item.id} onClick={()=>save(item)} className="mt-4 min-h-11 rounded-lg bg-[#10243A] px-5 text-sm font-bold text-white disabled:opacity-50">{busy===item.id?"Saving...":"Save changes"}</button>
       </article>)}</div>}
+      <EventCommissionPanel events={items} />
     </section>
   </main>;
 }
