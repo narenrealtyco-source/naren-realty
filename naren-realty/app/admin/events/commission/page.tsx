@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect,useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 const field="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
 type Setting={commission_percent:number;payment_upi_id:string|null;payee_name:string|null;qr_image_url:string|null};
 type Sale={id:string;event_id:string;organiser_id:string;paid_attendee_count:number;ticket_unit_price:number;total_ticket_amount:number;commission_amount:number;organiser_net_amount:number;commission_payment_reference:string|null;commission_payment_status:string;created_at:string;admin_note:string|null;event_submissions?:{title:string;organizer_name:string}|null};
