@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
+import EventCommissionPanel from "./EventCommissionPanel";
 
-type OwnEvent = { id:string; title:string; starts_at:string; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null };
+type OwnEvent = { id:string; title:string; starts_at:string; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null; ticket_price:number };
 const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
 
 export default function ManageEventsPage() {
@@ -20,7 +21,7 @@ export default function ManageEventsPage() {
       const {data:{user}} = await supabase.auth.getUser();
       if (!user) { window.location.href = "/account?next=/events/manage"; return; }
       const {data,error} = await supabase.from("event_submissions")
-        .select("id,title,starts_at,venue,locality,status,event_mode,location_status,venue_address,map_link,online_event_link,total_capacity,available_seats,event_policies")
+        .select("id,title,starts_at,venue,locality,status,event_mode,location_status,venue_address,map_link,online_event_link,total_capacity,available_seats,event_policies,ticket_price")
         .eq("submitted_by",user.id).order("created_at",{ascending:false});
       if (!active) return;
       if (error) setMessage("Your events could not be loaded. Please try again.");
