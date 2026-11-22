@@ -46,7 +46,7 @@ function CheckoutContent() {
         setEvent(result.data as EventPayment);
         if (!session) {
           const next = encodeURIComponent(`/events/${id}/ticket`);
-          window.location.replace(`/account#login?next=${next}`);
+          window.location.replace(`/account?next=${encodeURIComponent(`/events/${id}/checkout?quantity=${quantity}`)}#login`);
           return;
         }
         setCustomer(session);
