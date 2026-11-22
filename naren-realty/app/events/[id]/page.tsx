@@ -12,7 +12,7 @@ type EventRecord = {
   starts_at:string; ends_at:string|null; ticket_price:number; total_capacity:number|null; available_seats:number|null;
   description:string; event_policies:string|null;
   event_details:{highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null;
-  image_url:string|null; organizer_name:string; contact_phone:string; contact_email:string|null;
+  image_url:string|null;
 };
 type RelatedEvent = Pick<EventRecord,"id"|"title"|"image_url"|"starts_at"|"ticket_price"|"venue"|"locality">;
 const pretty=(value:string)=>value.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase());
@@ -29,7 +29,7 @@ function EventDetailsContent(){
   useEffect(()=>{
     let active=true;
     async function load(){
-      const {data,error}=await supabase.from("event_submissions").select("id,title,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url,organizer_name,contact_phone,contact_email").eq("id",params.id).eq("status","approved").maybeSingle();
+      const {data,error}=await supabase.from("event_submissions").select("id,title,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url").eq("id",params.id).eq("status","approved").maybeSingle();
       if(!active)return;
       if(error||!data){setNotFound(true);setLoading(false);return;}
       const current=data as EventRecord; setEvent(current);
@@ -74,7 +74,7 @@ function EventDetailsContent(){
       <section className="mt-5 rounded-2xl border border-[#D8C9A5] bg-[#F4F0E7] p-4 sm:p-5"><div className="flex items-start gap-3"><span className="text-2xl text-[#B08D3E]">▣</span><div><h2 className="font-bold text-[#10243A]">Easy Event Entry</h2><p className="mt-1 text-sm leading-6 text-[#475467]">Keep your ticket confirmation ready when you arrive. Follow the organiser’s instructions for entry and check-in.</p></div></div></section>
       <section className="mt-6"><div className="mb-3"><h2 className="text-lg font-extrabold text-[#10243A]">Events At This Venue</h2><p className="text-xs text-[#667085]">Explore more upcoming events nearby</p></div>{related.length?<div className="flex gap-3 overflow-x-auto pb-3">{related.map(item=><RelatedCard key={item.id} item={item}/>)}</div>:<p className="rounded-xl bg-white p-4 text-sm text-[#667085]">More events will appear here when available.</p>}</section>
       <section className="mt-5"><div className="mb-3"><h2 className="text-lg font-extrabold text-[#10243A]">You May Also Like</h2><p className="text-xs text-[#667085]">More events around you</p></div>{related.length?<div className="flex gap-3 overflow-x-auto pb-3">{related.slice().reverse().map(item=><RelatedCard key={item.id} item={item}/>)}</div>:null}</section>
-      <section className="mt-5 rounded-2xl border border-[#E5DFD2] bg-white p-4 sm:p-5"><p className="text-xs font-bold uppercase tracking-wider text-[#B08D3E]">Organiser</p><div className="mt-2 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-extrabold text-[#10243A]">{event.organizer_name}</h2><p className="text-sm text-[#667085]">Event organiser</p></div><div className="flex gap-2"><a href={"tel:"+event.contact_phone} className="rounded-lg bg-[#B08D3E] px-4 py-2.5 text-sm font-bold text-white">Call</a>{event.contact_email&&<a href={"mailto:"+event.contact_email} className="rounded-lg border border-[#D8C9A5] px-4 py-2.5 text-sm font-bold text-[#B08D3E]">Email</a>}</div></div></section>
+
 
     </div>
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5DFD2] bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(21,59,57,0.08)] backdrop-blur"><div className="mx-auto flex max-w-5xl items-center justify-between gap-3"><div><p className="text-lg font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p><p className="text-xs font-semibold text-[#B08D3E]">{event.available_seats===null?"Tickets available":event.available_seats>0?`${event.available_seats} seats available`:"Check availability"}</p></div><Link href={"/events/"+event.id+"/book"} className="inline-flex min-h-12 min-w-[48%] items-center justify-center rounded-xl bg-[#B08D3E] px-6 text-sm font-extrabold text-white shadow-md shadow-[#B08D3E]/20 hover:bg-[#8F7130] sm:min-w-52">Book Now</Link></div></div>
