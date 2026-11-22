@@ -6,96 +6,79 @@ import { Suspense, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 type EventRecord = {
-  id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; organiser_qr_image_url:string|null; category:string; subcategory:string|null; custom_event_type:string|null;
-  venue:string; locality:string|null; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; starts_at:string; ends_at:string|null; ticket_price:number;
-  total_capacity:number|null; available_seats:number|null; description:string; event_policies:string|null;
-  event_details:{highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null; image_url:string|null; organizer_name:string; contact_phone:string; contact_email:string|null;
+  id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; organiser_qr_image_url:string|null;
+  category:string; subcategory:string|null; custom_event_type:string|null; venue:string; locality:string|null;
+  event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null;
+  starts_at:string; ends_at:string|null; ticket_price:number; total_capacity:number|null; available_seats:number|null;
+  description:string; event_policies:string|null;
+  event_details:{highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null;
+  image_url:string|null; organizer_name:string; contact_phone:string; contact_email:string|null;
 };
+type RelatedEvent = Pick<EventRecord,"id"|"title"|"image_url"|"starts_at"|"ticket_price"|"venue"|"locality">;
+const pretty=(value:string)=>value.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase());
+const dateLabel=(value:string)=>new Date(value).toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+const timeLabel=(value:string)=>new Date(value).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"});
 
-const pretty = (value:string) => value.replaceAll("_"," ").replace(/\b\w/g, letter=>letter.toUpperCase());
-
-function EventDetailsContent() {
+function EventDetailsContent(){
   const params=useParams<{id:string}>();
   const [event,setEvent]=useState<EventRecord|null>(null);
+  const [related,setRelated]=useState<RelatedEvent[]>([]);
   const [loading,setLoading]=useState(true);
   const [notFound,setNotFound]=useState(false);
-
+  const [termsOpen,setTermsOpen]=useState(false);
   useEffect(()=>{
     let active=true;
     async function load(){
-      const {data,error}=await supabase.from("event_submissions")
-        .select("id,title,organiser_upi_id,organiser_payee_name,organiser_qr_image_url,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url,organizer_name,contact_phone,contact_email")
-        .eq("id",params.id).eq("status","approved").maybeSingle();
+      const {data,error}=await supabase.from("event_submissions").select("id,title,organiser_upi_id,organiser_payee_name,organiser_qr_image_url,category,subcategory,custom_event_type,venue,locality,event_mode,location_status,venue_address,map_link,online_event_link,starts_at,ends_at,ticket_price,total_capacity,available_seats,description,event_policies,event_details,image_url,organizer_name,contact_phone,contact_email").eq("id",params.id).eq("status","approved").maybeSingle();
       if(!active)return;
-      if(error||!data)setNotFound(true);
-      else setEvent(data as EventRecord);
+      if(error||!data){setNotFound(true);setLoading(false);return;}
+      const current=data as EventRecord; setEvent(current);
+      const base=supabase.from("event_submissions").select("id,title,image_url,starts_at,ticket_price,venue,locality").eq("status","approved").gte("starts_at",new Date().toISOString()).neq("id",current.id).order("starts_at",{ascending:true}).limit(8);
+      const {data:nearby}=current.locality?await base.eq("locality",current.locality):await base.eq("category",current.category);
+      if(active)setRelated((nearby??[]) as RelatedEvent[]);
       setLoading(false);
     }
     if(params.id)void load();
     return()=>{active=false;};
   },[params.id]);
-
-  if(loading)return <main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading event details...</main>;
-  if(notFound||!event)return <main className="min-h-screen bg-[#f4f7fc] px-4 py-16 text-center text-[#10243A]"><h1 className="text-2xl font-extrabold">Event not found</h1><p className="mt-2 text-sm text-slate-600">This event may have been removed or is not publicly available.</p><Link href="/events" className="mt-5 inline-flex rounded-lg bg-amber-400 px-5 py-3 text-sm font-extrabold">Browse events</Link></main>;
-
+  if(loading)return <main className="min-h-screen bg-[#f3f8f7] p-6 text-[#153b39]">Loading event details...</main>;
+  if(notFound||!event)return <main className="min-h-screen bg-[#f3f8f7] px-4 py-16 text-center text-[#153b39]"><h1 className="text-2xl font-extrabold">Event not found</h1><p className="mt-2 text-sm text-slate-600">This event may have been removed or is not publicly available.</p><Link href="/events" className="mt-5 inline-flex rounded-xl bg-[#087f75] px-5 py-3 text-sm font-bold text-white">Browse events</Link></main>;
+  const category=pretty(event.custom_event_type||event.subcategory||event.category);
+  const venueLabel=event.event_mode==="online"?"Online event":event.location_status==="tba"?`Venue to be announced · ${event.locality??""}`:`${event.venue}${event.locality?", "+event.locality:""}`;
   const date=new Date(event.starts_at);
-  const category=event.custom_event_type||event.subcategory||event.category;
-
-  return <main className="min-h-screen bg-[#f4f7fc] text-slate-900">
-    <header className="bg-[#10243A] px-4 py-4 text-white"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3"><Link href="/" className="text-lg font-extrabold sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></Link><Link href="/events" className="text-sm font-semibold text-amber-300">← All Events</Link></div></header>
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-9">
-      <div className="mb-4 flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-900">{pretty(category)}</span><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Admin approved</span></div>
-      <h1 className="max-w-4xl text-3xl font-black leading-tight text-[#10243A] sm:text-4xl">{event.title}</h1>
-      <p className="mt-2 text-sm text-slate-600 sm:text-base">{event.event_mode==="online"?"Online event":event.location_status==="tba"?`Venue to be announced · ${event.locality??""}`:`${event.venue}, ${event.locality??""}`}</p><div className="mt-3 flex flex-wrap gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold capitalize text-blue-800">{event.event_mode==="hybrid"?"Online + Offline":event.event_mode}</span>{event.location_status==="tba"&&<span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Venue To Be Announced</span>}</div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.8fr)]">
-        <section className="min-w-0">
-          <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
-            {event.image_url?<img src={event.image_url} alt={event.title} className="max-h-[520px] min-h-56 w-full object-cover"/>:<div className="flex aspect-[16/9] items-center justify-center bg-slate-200 text-slate-500">Event poster not provided</div>}
-          </div>
-          <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-            <h2 className="text-xl font-extrabold text-[#10243A]">About this event</h2>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{event.description}</p>
-          </div>
-          {event.event_policies&&<div className="mt-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6"><h2 className="text-xl font-extrabold text-[#10243A]">Event rules & policies</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{event.event_policies}</p></div>}
-          {(event.event_details?.highlights||event.event_details?.target_audience||event.event_details?.age_restriction||event.event_details?.language||event.event_details?.registration_deadline||event.event_details?.cancellation_refund_policy)&&<div className="mt-5 rounded-2xl border border-amber-100 bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6"><p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Event essentials</p><h2 className="mt-1 text-xl font-extrabold text-[#10243A]">Good to know before you go</h2>{event.event_details.highlights&&<div className="mt-4"><h3 className="text-sm font-bold text-[#10243A]">Highlights</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">{event.event_details.highlights}</p></div>}<div className="mt-4 grid gap-3 sm:grid-cols-2">{event.event_details.target_audience&&<div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Who should attend</p><p className="mt-1 text-sm font-semibold text-[#10243A]">{event.event_details.target_audience}</p></div>}{event.event_details.age_restriction&&<div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Age guidance</p><p className="mt-1 text-sm font-semibold text-[#10243A]">{event.event_details.age_restriction}</p></div>}{event.event_details.language&&<div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Language</p><p className="mt-1 text-sm font-semibold text-[#10243A]">{event.event_details.language}</p></div>}{event.event_details.registration_deadline&&<div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Registration deadline</p><p className="mt-1 text-sm font-semibold text-[#10243A]">{new Date(event.event_details.registration_deadline).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</p></div>}</div>{event.event_details.cancellation_refund_policy&&<div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-4"><h3 className="text-sm font-bold text-amber-950">Cancellation & refund policy</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">{event.event_details.cancellation_refund_policy}</p></div>}</div>}
-          <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6"><h2 className="text-xl font-extrabold text-[#10243A]">{event.event_mode==="online"?"Online event": "Venue & location"}</h2>{event.event_mode==="online"?<p className="mt-2 text-sm text-slate-700">This event will be held online.</p>:event.location_status==="tba"?<><p className="mt-2 text-sm font-semibold text-amber-800">Venue will be announced soon.</p><p className="mt-1 text-sm text-slate-600">{event.locality}</p></>:<><p className="mt-2 text-sm font-semibold text-slate-800">{event.venue}</p><p className="mt-1 text-sm text-slate-600">{event.venue_address||event.locality}</p>{event.venue_address&&<p className="mt-1 text-sm text-slate-600">{event.locality}</p>}{event.map_link&&<a href={event.map_link} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-sm font-bold text-blue-800 underline">Open in Google Maps</a>}</>}{event.online_event_link&&<div className="mt-4"><p className="text-xs font-bold uppercase text-slate-500">Online participation</p><a href={event.online_event_link} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-sm font-bold text-blue-800 underline">Join online event</a></div>}</div>
-        </section>
-        <aside className="space-y-5">
-          <div id="ticket-details" className="scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <p className="text-sm font-bold text-slate-500">Ticket price</p><p className="mt-1 text-3xl font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p>
-            <div className="mt-5 space-y-4 border-t border-slate-100 pt-4">
-              <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Date & time</p><p className="mt-1 text-sm font-bold text-[#10243A]">{date.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p><p className="text-sm text-slate-600">{date.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"})}{event.ends_at?" – "+new Date(event.ends_at).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"}):""}</p></div>
-              <div><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Seats available</p><p className="mt-1 text-2xl font-black text-emerald-700">{event.available_seats??"Not specified"}</p><p className="text-xs text-slate-500">Total capacity: {event.total_capacity??"Not specified"}</p></div>
-            </div>
-          </div>
-          {(event.organiser_upi_id||event.organiser_qr_image_url)&&<div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Direct organiser payment</p>
-            <h2 className="mt-1 text-lg font-extrabold text-[#10243A]">Pay the organiser</h2>
-            <p className="mt-2 text-xs leading-5 text-slate-600">Pay directly to the organiser using the details below. Confirm the event and payee name in your UPI app before completing payment.</p>
-            {event.organiser_upi_id&&<><p className="mt-4 text-xs font-bold uppercase text-slate-500">UPI ID</p><p className="mt-1 break-all text-base font-extrabold text-[#10243A]">{event.organiser_upi_id}</p><button type="button" onClick={()=>{void navigator.clipboard.writeText(event.organiser_upi_id!).then(()=>window.alert("UPI ID copied."),()=>window.alert("Could not copy. Please copy the UPI ID manually."));}} className="mt-2 rounded-lg bg-[#10243A] px-3 py-2 text-xs font-bold text-white">Copy UPI ID</button></>}
-            {event.organiser_payee_name&&<p className="mt-3 text-sm text-slate-700">Payee name: <strong>{event.organiser_payee_name}</strong></p>}
-            {event.organiser_qr_image_url&&<div className="mt-4"><p className="mb-2 text-xs font-bold uppercase text-slate-500">Scan organiser QR code</p><img src={event.organiser_qr_image_url} alt="Organiser UPI payment QR code" className="mx-auto h-52 w-52 rounded-xl border bg-white object-contain p-2"/></div>}
-          </div>}
-        </aside>
+  return <main className="min-h-screen bg-[#f3f8f7] pb-28 text-[#172b2a]">
+    <header className="sticky top-0 z-30 border-b border-[#dcebe8] bg-white/95 px-4 py-3 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3"><Link href="/events" className="flex items-center gap-2 text-sm font-semibold text-[#31514e]"><span className="text-xl">‹</span> All Events</Link><Link href="/" className="text-base font-black tracking-tight text-[#153b39]">NAREN <span className="text-[#07877b]">REALTY</span></Link><button type="button" onClick={()=>{if(typeof navigator!=="undefined"&&navigator.share)void navigator.share({title:event.title,url:window.location.href});else if(typeof navigator!=="undefined")void navigator.clipboard.writeText(window.location.href);}} aria-label="Share event" className="rounded-full border border-[#dcebe8] px-3 py-2 text-sm font-semibold text-[#087f75]">Share ↗</button></div>
+    </header>
+    <div className="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-7">
+      <div className="overflow-hidden rounded-2xl border border-[#dcebe8] bg-white shadow-sm">
+        {event.image_url?<img src={event.image_url} alt={event.title} className="max-h-[520px] min-h-52 w-full object-cover"/>:<div className="flex aspect-[16/8] items-center justify-center bg-[#e4f0ed] text-sm font-semibold text-[#55716d]">Event poster not provided</div>}
       </div>
-      <section className="mt-7 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Organiser details</p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-lg font-extrabold text-[#10243A]">{event.organizer_name}</h2>
-            <p className="mt-1 text-sm text-slate-600">Event organiser</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <a href={"tel:"+event.contact_phone} className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-4 py-3 text-sm font-extrabold text-[#10243A] hover:bg-amber-300">Call organiser</a>
-            {event.contact_email&&<a href={"mailto:"+event.contact_email} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-[#10243A] hover:bg-slate-50">Email organiser</a>}
-          </div>
-        </div>
-      </section>
-      <div className="mt-7"><Link href="/events" className="text-sm font-bold text-blue-800 underline">← Browse more events</Link></div>
+      <div className="mt-4 flex flex-wrap gap-2"><span className="rounded-md bg-[#e1f2ef] px-3 py-1 text-xs font-bold text-[#086d65]">{category}</span><span className="rounded-md bg-[#edf2f1] px-3 py-1 text-xs font-semibold text-[#49615e]">{event.event_mode==="hybrid"?"Online + Offline":pretty(event.event_mode)}</span>{event.location_status==="tba"&&<span className="rounded-md bg-[#fff4dc] px-3 py-1 text-xs font-semibold text-[#8a5a08]">Venue to be announced</span>}</div>
+      <h1 className="mt-3 text-2xl font-black leading-tight text-[#153b39] sm:text-4xl">{event.title}</h1>
+      <div className="mt-5 grid gap-3 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:grid-cols-2 sm:p-5">
+        <Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?`${dateLabel(event.starts_at)} – ${dateLabel(event.ends_at)}`:dateLabel(event.starts_at)}/>
+        <Info icon="◷" label="Time" value={`${timeLabel(event.starts_at)}${event.ends_at?" – "+timeLabel(event.ends_at):""}`}/>
+        <Info icon="⌛" label="Duration" value={event.ends_at?(()=>{const mins=Math.max(0,Math.round((new Date(event.ends_at).getTime()-date.getTime())/60000));return mins>=60?`${Math.floor(mins/60)}h ${mins%60?mins%60+"m":""}`:`${mins} min`;})():"Not specified"}/>
+        <Info icon="♙" label="Age guidance" value={event.event_details?.age_restriction||"Not specified"}/>
+        <Info icon="文" label="Language" value={event.event_details?.language||"Not specified"}/>
+        <Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/>
+      </div>
+      <section className="mt-5 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#153b39]">About the Event</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#536966]">{event.description}</p>{event.event_details?.highlights&&<div className="mt-4 rounded-xl bg-[#eff7f5] p-4"><h3 className="text-sm font-bold text-[#087f75]">Event highlights</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#49615e]">{event.event_details.highlights}</p></div>}</section>
+      {(event.event_details?.target_audience||event.event_details?.registration_deadline)&&<section className="mt-4 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#153b39]">Good to Know</h2>{event.event_details.target_audience&&<Info icon="♧" label="Who should attend" value={event.event_details.target_audience}/ >}{event.event_details.registration_deadline&&<div className="mt-3"><Info icon="◷" label="Registration deadline" value={new Date(event.event_details.registration_deadline).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}/></div>}</section>}
+      {event.event_policies&&<section className="mt-4 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#153b39]">Event Rules & Policies</h2><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#536966]">{event.event_policies}</p></section>}
+      {event.event_details?.cancellation_refund_policy&&<section className="mt-4 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:p-6"><h2 className="text-lg font-extrabold text-[#153b39]">Cancellation & Refund</h2><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#536966]">{event.event_details.cancellation_refund_policy}</p></section>}
+      <button type="button" onClick={()=>setTermsOpen(v=>!v)} aria-expanded={termsOpen} className="mt-4 flex w-full items-center justify-between rounded-xl border border-[#cfe2de] bg-white px-4 py-4 text-left text-sm font-bold text-[#244b47] shadow-sm">Terms & Conditions <span>{termsOpen?"−":"›"}</span></button>
+      {termsOpen&&<div className="rounded-b-xl border border-t-0 border-[#cfe2de] bg-white p-4 text-sm leading-6 text-[#536966]">Please review the event rules, ticket details and cancellation/refund policy above before booking. Contact the organiser if you need clarification.</div>}
+      <section className="mt-5 rounded-2xl border border-[#cfe2de] bg-[#e8f3f1] p-4 sm:p-5"><div className="flex items-start gap-3"><span className="text-2xl text-[#087f75]">▣</span><div><h2 className="font-bold text-[#153b39]">Easy Event Entry</h2><p className="mt-1 text-sm leading-6 text-[#536966]">Keep your ticket confirmation ready when you arrive. Follow the organiser’s instructions for entry and check-in.</p></div></div></section>
+      <section className="mt-6"><div className="mb-3"><h2 className="text-lg font-extrabold text-[#153b39]">Events At This Venue</h2><p className="text-xs text-[#6a817d]">Explore more upcoming events nearby</p></div>{related.length?<div className="flex gap-3 overflow-x-auto pb-3">{related.map(item=><RelatedCard key={item.id} item={item}/>)}</div>:<p className="rounded-xl bg-white p-4 text-sm text-[#6a817d]">More events will appear here when available.</p>}</section>
+      <section className="mt-5"><div className="mb-3"><h2 className="text-lg font-extrabold text-[#153b39]">You May Also Like</h2><p className="text-xs text-[#6a817d]">More events around you</p></div>{related.length?<div className="flex gap-3 overflow-x-auto pb-3">{related.slice().reverse().map(item=><RelatedCard key={item.id} item={item}/>)}</div>:null}</section>
+      <section className="mt-5 rounded-2xl border border-[#dcebe8] bg-white p-4 sm:p-5"><p className="text-xs font-bold uppercase tracking-wider text-[#087f75]">Organiser</p><div className="mt-2 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-extrabold text-[#153b39]">{event.organizer_name}</h2><p className="text-sm text-[#6a817d]">Event organiser</p></div><div className="flex gap-2"><a href={"tel:"+event.contact_phone} className="rounded-lg bg-[#087f75] px-4 py-2.5 text-sm font-bold text-white">Call</a>{event.contact_email&&<a href={"mailto:"+event.contact_email} className="rounded-lg border border-[#cfe2de] px-4 py-2.5 text-sm font-bold text-[#087f75]">Email</a>}</div></div></section>
+      {(event.organiser_upi_id||event.organiser_qr_image_url)&&<section className="mt-4 rounded-2xl border border-[#cfe2de] bg-white p-4"><h2 className="font-extrabold text-[#153b39]">Organiser Payment Details</h2><p className="mt-1 text-xs leading-5 text-[#6a817d]">Pay the organiser directly. Verify the payee details in your UPI app before payment.</p>{event.organiser_upi_id&&<div className="mt-3 flex flex-wrap items-center justify-between gap-2"><span className="break-all text-sm font-bold text-[#244b47]">{event.organiser_upi_id}</span><button type="button" onClick={()=>void navigator.clipboard.writeText(event.organiser_upi_id!)} className="rounded-lg bg-[#e1f2ef] px-3 py-2 text-xs font-bold text-[#087f75]">Copy UPI</button></div>}{event.organiser_payee_name&&<p className="mt-2 text-sm text-[#536966]">Payee: <strong>{event.organiser_payee_name}</strong></p>}{event.organiser_qr_image_url&&<img src={event.organiser_qr_image_url} alt="Organiser UPI QR code" className="mx-auto mt-4 h-48 w-48 rounded-xl border border-[#dcebe8] object-contain p-2"/>}</section>}
     </div>
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#dcebe8] bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(21,59,57,0.08)] backdrop-blur"><div className="mx-auto flex max-w-5xl items-center justify-between gap-3"><div><p className="text-lg font-black text-[#153b39]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p><p className="text-xs font-semibold text-[#087f75]">{event.available_seats===null?"Tickets available":event.available_seats>0?`${event.available_seats} seats available`:"Check availability"}</p></div><a href="#ticket-details" onClick={e=>{e.preventDefault();document.getElementById("ticket-details")?.scrollIntoView({behavior:"smooth"});}} className="inline-flex min-h-12 min-w-[48%] items-center justify-center rounded-xl bg-[#087f75] px-6 text-sm font-extrabold text-white shadow-md shadow-[#087f75]/20 hover:bg-[#066b63] sm:min-w-52">Book Now</a></div></div>
   </main>;
 }
-
-export default function EventDetailsPage() {
-  return <Suspense fallback={<main className="min-h-screen bg-[#f4f7fc] p-6 text-[#10243A]">Loading event details...</main>}><EventDetailsContent /></Suspense>;
-}
+function Info({icon,label,value,link}:{icon:string;label:string;value:string;link?:string}){return <div className="flex min-w-0 items-start gap-3"><span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e8f3f1] text-base font-bold text-[#087f75]">{icon}</span><div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-wide text-[#78908b]">{label}</p>{link?<a href={link} target="_blank" rel="noreferrer" className="mt-0.5 block text-sm font-semibold text-[#087f75] underline">{value} ↗</a>:<p className="mt-0.5 break-words text-sm font-semibold text-[#244b47]">{value}</p>}</div></div>}
+function RelatedCard({item}:{item:RelatedEvent}){return <Link href={"/events/"+item.id} className="w-36 shrink-0 overflow-hidden rounded-xl border border-[#dcebe8] bg-white shadow-sm sm:w-44">{item.image_url?<img src={item.image_url} alt={item.title} className="h-28 w-full object-cover"/>:<div className="h-28 bg-[#e8f3f1]"/>}<div className="p-2.5"><p className="line-clamp-2 text-sm font-bold text-[#153b39]">{item.title}</p><p className="mt-1 text-xs text-[#6a817d]">{dateLabel(item.starts_at)}</p><p className="mt-1 text-sm font-extrabold text-[#087f75]">{item.ticket_price>0?"₹"+item.ticket_price:"Free"}</p></div></Link>}
+export default function EventDetailsPage(){return <Suspense fallback={<main className="min-h-screen bg-[#f3f8f7] p-6 text-[#153b39]">Loading event details...</main>}><EventDetailsContent/></Suspense>;}
