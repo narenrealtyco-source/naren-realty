@@ -7,7 +7,7 @@ const supabase = createSupabaseBrowserClient();
 import EventCommissionPanel from "./EventCommissionPanel";
 import EventOrganiserPaymentPanel from "./EventOrganiserPaymentPanel";
 
-type OwnEvent = { id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; organiser_qr_image_url:string|null; starts_at:string; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null; ticket_price:number };
+type OwnEvent = { id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; starts_at:string; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null; ticket_price:number };
 const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
 
 export default function ManageEventsPage() {
@@ -24,7 +24,7 @@ export default function ManageEventsPage() {
       const {data:{user}} = await supabase.auth.getUser();
       if (!user) { window.location.href = "/account?next=/events/manage"; return; }
       const {data,error} = await supabase.from("event_submissions")
-        .select("id,title,starts_at,venue,locality,status,event_mode,location_status,venue_address,map_link,online_event_link,total_capacity,available_seats,event_policies,ticket_price,organiser_upi_id,organiser_payee_name,organiser_qr_image_url")
+        .select("id,title,starts_at,venue,locality,status,event_mode,location_status,venue_address,map_link,online_event_link,total_capacity,available_seats,event_policies,ticket_price,organiser_upi_id,organiser_payee_name")
         .eq("submitted_by",user.id).order("created_at",{ascending:false});
       if (!active) return;
       if (error) setMessage("Your events could not be loaded. Please try again.");
@@ -97,7 +97,7 @@ export default function ManageEventsPage() {
         <p className="mt-1 text-xs text-slate-500">These details are visible on your public listing. Maximum 5,000 characters.</p>
         <button disabled={busy===item.id} onClick={()=>save(item)} className="mt-4 min-h-11 rounded-lg bg-[#10243A] px-5 text-sm font-bold text-white disabled:opacity-50">{busy===item.id?"Saving...":"Save changes"}</button>
       </article>)}</div>}</div>
-      <div className={activeTab==="payments"?"block":"hidden"}><div className="mt-5 space-y-5">{items.length===0?<p className="rounded-xl bg-white p-5 text-sm text-slate-600">Submit an event first to add its attendee payment details.</p>:items.map(item=><EventOrganiserPaymentPanel key={item.id} eventId={item.id} eventTitle={item.title} initialUpi={item.organiser_upi_id} initialPayee={item.organiser_payee_name} initialQr={item.organiser_qr_image_url}/>)}</div></div>
+      <div className={activeTab==="payments"?"block":"hidden"}><div className="mt-5 space-y-5">{items.length===0?<p className="rounded-xl bg-white p-5 text-sm text-slate-600">Submit an event first to add its attendee payment details.</p>:items.map(item=><EventOrganiserPaymentPanel key={item.id} eventId={item.id} eventTitle={item.title} initialUpi={item.organiser_upi_id} initialPayee={item.organiser_payee_name}/>)}</div></div>
       <div id="sales-reports" className={activeTab==="sales"?"block":"hidden"}><EventCommissionPanel events={items} /></div>
       </div>
       </div>
