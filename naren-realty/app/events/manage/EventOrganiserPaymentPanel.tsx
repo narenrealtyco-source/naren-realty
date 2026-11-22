@@ -40,7 +40,7 @@ export default function EventOrganiserPaymentPanel({eventId,eventTitle,initialUp
     setSaving(false);
   }
 
-  return <form onSubmit={save} className="mt-5 rounded-xl border border-slate-200 p-4">
+  return <form id="payment-settings" onSubmit={save} className="mt-5 scroll-mt-6 rounded-xl border border-slate-200 p-4">
     <div><h3 className="font-bold text-[#10243A]">Attendee Payment Settings</h3><p className="mt-1 text-xs text-slate-600">Add the UPI account where attendees should pay for {eventTitle}. These are your own payment details, separate from NAREN REALTY's 10% commission UPI.</p></div>
     <label className="mt-4 block text-sm font-semibold">Organiser UPI ID<input required maxLength={255} className={field} value={upi} onChange={e=>setUpi(e.target.value)} placeholder="name@okaxis"/></label>
     <label className="mt-3 block text-sm font-semibold">UPI Payee Name (optional)<input maxLength={120} className={field} value={payee} onChange={e=>setPayee(e.target.value)} placeholder="Name shown in UPI app"/></label>
