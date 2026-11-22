@@ -136,13 +136,13 @@ function CheckoutContent() {
           </div>
         </section>
         {total > 0 && <section className="rounded-2xl border border-[#D8C9A5] bg-white p-5">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#B08D3E]">Direct organiser payment</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#B08D3E]">Pay organiser directly · Personal UPI</p>
           <h2 className="mt-1 text-xl font-extrabold">Pay {money(total)}</h2>
-          {event.organiser_payee_name && <p className="mt-2 text-sm text-slate-600">Payee name: <strong className="text-[#10243A]">{event.organiser_payee_name}</strong></p>}
+          {event.organiser_payee_name && <p className="mt-2 text-sm text-slate-600">Personal UPI account name: <strong className="text-[#10243A]">{event.organiser_payee_name}</strong></p>}
           {event.organiser_upi_id ? <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-[#F7F7F5] p-3"><span className="font-bold">{event.organiser_upi_id}</span><button type="button" onClick={() => void copyUpi()} className="rounded-lg border border-[#D8C9A5] px-3 py-2 text-xs font-bold text-[#8F7130]">{copied ? "Copied" : "Copy UPI ID"}</button><a href={upiLink} className="rounded-lg bg-[#B08D3E] px-3 py-2 text-xs font-bold text-white">Open UPI App</a></div> : <p className="mt-3 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">Organiser has not added a UPI ID. Please contact NAREN REALTY before paying.</p>}
-          {event.organiser_qr_image_url && <div className="mt-4"><p className="mb-2 text-sm font-semibold">Scan QR to pay organiser</p><img src={event.organiser_qr_image_url} alt="Organiser UPI payment QR" className="h-56 w-56 rounded-xl border border-slate-200 bg-white object-contain p-2" /></div>}
+          {event.organiser_qr_image_url && <div className="mt-4"><p className="mb-2 text-sm font-semibold">Scan organiser’s Paytm UPI QR</p><img src={event.organiser_qr_image_url} alt="Organiser Paytm personal UPI payment QR" className="h-56 w-56 rounded-xl border border-slate-200 bg-white object-contain p-2" /></div>}
           <label className="mt-5 block text-sm font-semibold">UPI transaction reference / UTR<input required minLength={6} value={utr} onChange={e => setUtr(e.target.value)} placeholder="Enter UTR after completing UPI payment" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 font-normal" /></label>
-          <p className="mt-2 text-xs leading-5 text-slate-500">Payment is made directly to the organiser. NAREN REALTY does not collect or hold ticket payments. Do not submit until you have completed the UPI payment.</p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">Scan the Paytm QR or pay the organiser’s personal UPI ID directly. Payment goes to the organiser’s bank account. NAREN REALTY does not collect or hold ticket payments. Do not submit until you have completed the UPI payment.</p>
         </section>}
         {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         <button disabled={submitting || (total > 0 && !event.organiser_upi_id && !event.organiser_qr_image_url)} className="min-h-14 w-full rounded-xl bg-[#B08D3E] px-6 font-extrabold text-white disabled:opacity-50">{submitting ? "Submitting…" : total > 0 ? "I have paid — Submit booking" : "Confirm free booking"}</button>
