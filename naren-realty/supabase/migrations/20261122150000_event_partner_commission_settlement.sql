@@ -42,7 +42,7 @@ create table if not exists public.event_ticket_sales (
   commission_percent numeric(5,2) not null default 10.00 check (commission_percent = 10.00),
   commission_amount numeric(14,2) generated always as (round(paid_attendee_count * ticket_unit_price * 0.10, 2)) stored,
   organiser_net_amount numeric(14,2) generated always as (round(paid_attendee_count * ticket_unit_price * 0.90, 2)) stored,
-  commission_payment_reference text not null check (length(btrim(commission_payment_reference)) between 4 and 120),
+  commission_payment_reference text check (commission_payment_reference is null or length(btrim(commission_payment_reference)) between 4 and 120),
   commission_payment_status text not null default 'pending' check (commission_payment_status in ('pending','verified','rejected')),
   organiser_note text,
   reviewed_by uuid references auth.users(id),
@@ -102,3 +102,12 @@ create policy "Only admins can review event commission payments"
 
 grant select, insert on public.event_ticket_sales to authenticated;
 grant update (commission_payment_status, reviewed_by, reviewed_at, admin_note) on public.event_ticket_sales to authenticated;
+
+-- Allow organisers to report sales first, then add the commission UTR once payment details are configured.
+create policy "Organisers can add a commission transfer reference once"
+  on public.event_ticket_sales for update
+  to authenticated
+  using (organiser_id = (select auth.uid()) and commission_payment_reference is null and commission_payment_status = 'pending')
+  with check (organiser_id = (select auth.uid()) and commission_payment_reference is not null and commission_payment_status = 'pending');
+
+grant update (commission_payment_reference) on public.event_ticket_sales to authenticated;
