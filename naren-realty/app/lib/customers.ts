@@ -1,6 +1,6 @@
 import { createSupabaseBrowserClient } from "./supabase-browser";
 
-const supabase = createSupabaseBrowserClient();
+export const supabase = createSupabaseBrowserClient();
 const OWNER_SESSION_STAGE_TIMEOUT_MS = 10000;
 
 export type CustomerAccount = {

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HomeHeader from "./components/HomeHeader";
 import DesktopQuickNav from "./components/DesktopQuickNav";
 import LocalityAutocomplete from "./components/LocalityAutocomplete";
+import { supabase } from "./lib/customers";
 
 type CategoryCardItem = { title: string; image: string; href: string };
 
@@ -67,6 +68,24 @@ function CategorySection({ title, href, items, id }: { title: string; href: stri
 export default function Home() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (!code) return;
+
+    let active = true;
+    void supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (!active) return;
+      window.history.replaceState({}, document.title, window.location.pathname);
+      router.replace(error ? "/account/reset-password?auth_error=code_exchange" : "/account/reset-password?recovery=1");
+    }).catch(() => {
+      if (active) router.replace("/account/reset-password?auth_error=code_exchange");
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

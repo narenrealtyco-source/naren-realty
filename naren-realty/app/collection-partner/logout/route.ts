@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server";import {createSupabaseServerClient} from "../../lib/supabase-server";export async function POST(){const db=await createSupabaseServerClient();await db.auth.signOut();return NextResponse.redirect(new URL("/collection-partner/login",process.env.NEXT_PUBLIC_SITE_URL||"https://narenrealty.co"));}

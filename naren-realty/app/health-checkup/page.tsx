@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import HealthCatalogAutocomplete from "./HealthCatalogAutocomplete";
 
 const quickActions = [
   { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages?category=Full%20Body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
@@ -70,7 +71,7 @@ function Brand() {
 }
 
 export default function HealthPage() {
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
   const [fileName, setFileName] = useState("");
   const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
   const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
@@ -86,10 +87,7 @@ export default function HealthPage() {
 
       <section className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8">
         <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
-        <label className="flex h-14 items-center gap-3 rounded-full border border-[#aab6c2] bg-white px-5 shadow-[0_4px_16px_rgba(15,40,55,0.04)] focus-within:border-[#08aeb1] focus-within:ring-2 focus-within:ring-[#08b8bb]/15">
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && query.trim()) window.location.href = `/health-checkup/search?q=${encodeURIComponent(query.trim())}`; }} placeholder="Search CBC, Thyroid, Vitamin D, health packages..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500 sm:text-base" />
-        </label>
+        <HealthCatalogAutocomplete placeholder="Search CBC, Thyroid, Vitamin D, health packages..." />
         <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map((action) => (
             <a key={action.subtitle} href={action.href} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
