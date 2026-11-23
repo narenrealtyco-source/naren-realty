@@ -72,6 +72,37 @@ type HomeEventItem = {
   ticket_price: number; image_url: string | null;
 };
 
+function ComingSoonEventCard() {
+  return (
+    <Link
+      href="/events"
+      aria-label="Explore upcoming events"
+      className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    >
+      <div className="relative flex aspect-[9/16] w-full flex-col items-center justify-center overflow-hidden bg-[#101D24] px-3 text-center text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(15,157,148,0.30),transparent_58%),linear-gradient(145deg,#10252B_0%,#101820_55%,#080D12_100%)]" />
+        <div aria-hidden="true" className="absolute inset-x-5 top-7 h-px bg-gradient-to-r from-transparent via-[#C9A96E]/70 to-transparent" />
+        <div aria-hidden="true" className="absolute inset-x-8 bottom-10 h-20 rounded-full bg-[#0E8C83]/10 blur-2xl" />
+        <div className="relative z-10 mb-4 flex size-12 items-center justify-center rounded-full border border-[#C9A96E]/50 bg-white/5 text-[#D7BD8A]">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" className="size-6"><path d="M4 18V9l8-5 8 5v9M3 20h18M8 18v-5h8v5" /><path d="M12 4v-2" /></svg>
+        </div>
+        <p className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.34em] text-[#D7BD8A] sm:text-[10px]">Naren Realty Presents</p>
+        <h3 className="relative z-10 mt-3 text-xl font-black leading-[0.95] tracking-[0.08em] sm:text-2xl">EVENTS</h3>
+        <div className="relative z-10 my-3 h-px w-12 bg-[#C9A96E]" />
+        <p className="relative z-10 text-sm font-bold uppercase tracking-[0.19em] text-white sm:text-base">Coming Soon</p>
+        <p className="relative z-10 mt-3 max-w-[13rem] text-[10px] leading-relaxed text-slate-300 sm:text-xs">Something exciting is on its way</p>
+        <div aria-hidden="true" className="absolute inset-x-5 bottom-5 h-px bg-gradient-to-r from-transparent via-[#C9A96E]/60 to-transparent" />
+        <span className="absolute bottom-7 text-[8px] font-semibold uppercase tracking-[0.3em] text-[#D7BD8A]">Stay Tuned</span>
+      </div>
+      <div className="space-y-1 bg-white px-2.5 pb-3 pt-3 sm:px-3 sm:pb-3.5">
+        <p className="text-xs font-extrabold text-[#252525] sm:text-sm">More events on the way</p>
+        <p className="text-[10px] font-medium text-slate-500 sm:text-[11px]">Discover new experiences</p>
+        <div className="border-t border-slate-100 pt-2 text-right text-[10px] font-bold text-[#A71930] sm:text-xs">Explore Events →</div>
+      </div>
+    </Link>
+  );
+}
+
 function EventsNearMeSection() {
   const [events, setEvents] = useState<HomeEventItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,20 +133,20 @@ function EventsNearMeSection() {
       </div>
       {loading ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
-          {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[2/3] bg-slate-200" /><div className="h-12 bg-slate-100" /></div>)}
+          {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[9/16] bg-slate-200" /><div className="h-16 bg-slate-100" /></div>)}
         </div>
-      ) : events.length === 0 ? (
-        <p className="rounded-xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">No upcoming events available right now.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
-          {events.map((event) => {
+          {Array.from({ length: 4 }, (_, index) => {
+            const event = events[index];
+            if (!event) return <ComingSoonEventCard key={"coming-soon-" + index} />;
             const date = new Date(event.starts_at);
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
             const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
             return (
               <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="block overflow-hidden bg-slate-200">
-                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[2/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[2/3] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[9/16] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[9/16] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
                   <div className="bg-[#171717] px-3 py-2">
                     <p className="text-[11px] font-extrabold tracking-wide text-white sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                   </div>
