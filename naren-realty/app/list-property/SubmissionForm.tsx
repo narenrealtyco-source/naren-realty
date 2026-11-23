@@ -39,7 +39,7 @@ type OwnerValues = Omit<PropertyOwnerDetails, "version">;
 type PhotoItem = { id: string; file: File; url: string };
 type VideoItem = { file: File; url: string };
 const initialState: SubmissionState = { status: "idle", message: "" };
-const inputClass = "mt-2 block min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-normal text-slate-950 shadow-sm placeholder:text-slate-500 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-200";
+const inputClass = "mt-2 block min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-normal text-slate-950 shadow-sm placeholder:text-slate-500 focus:border-[#A71930] focus:outline-none focus:ring-2 focus:ring-[#A71930]/20";
 const labelClass = "block min-w-0 text-sm font-semibold text-slate-900";
 const STEPS = [
   "Category",
@@ -86,8 +86,8 @@ function initialOwnerValues(details?: Partial<OwnerValues>): OwnerValues {
 
 function StepIcon({ index, active, complete }: { index: number; active: boolean; complete: boolean }) {
   return <span className={`flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${active
-    ? "border-[#10243A] bg-[#10243A] text-white"
-    : complete ? "border-amber-500 bg-amber-100 text-[#10243A]" : "border-slate-300 bg-white text-slate-500"}`}>
+    ? "border-[#A71930] bg-[#A71930] text-white"
+    : complete ? "border-[#A71930] bg-[#F8E9EC] text-[#A71930]" : "border-slate-300 bg-white text-slate-500"}`}>
     {complete ? <svg viewBox="0 0 20 20" fill="none" className="size-4"><path d="m4 10 4 4 8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg> : index + 1}
   </span>;
 }
@@ -406,8 +406,8 @@ export default function SubmissionForm({
 
   const displayPrice = Number(values.price);
   return <form onSubmit={handleSubmit} noValidate className="min-w-0 rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-[0_16px_50px_-36px_rgba(16,36,58,0.55)] [overflow-wrap:anywhere]">
-    <div className="rounded-t-2xl bg-[#10243A] px-4 py-5 text-white sm:px-7">
-      <p className="text-xs font-bold tracking-[0.16em] text-amber-300">NAREN REALTY · CUSTOMER LISTINGS</p>
+    <div className="rounded-t-2xl bg-[#A71930] px-4 py-5 text-white sm:px-7">
+      <p className="text-xs font-bold tracking-[0.16em] text-[#F8E9EC]">NAREN REALTY · CUSTOMER LISTINGS</p>
       <h2 className="mt-2 text-2xl font-bold sm:text-3xl">List your property</h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">A guided, secure submission. Your property, photos and optional video stay private while Admin reviews your listing.</p>
     </div>
@@ -416,23 +416,23 @@ export default function SubmissionForm({
       <ol aria-label="Submission progress" className="flex min-w-0 items-start gap-1 overflow-x-auto pb-1">
         {STEPS.map((title, index) => <li key={title} aria-current={index === step ? "step" : undefined} className="flex min-w-[72px] flex-1 flex-col items-center gap-1.5 text-center sm:min-w-0">
           <StepIcon index={index} active={index === step} complete={index < step} />
-          <span className={`max-w-24 text-[10px] font-semibold leading-3 sm:text-xs ${index === step ? "text-[#10243A]" : "text-slate-500"}`}>{title}</span>
+          <span className={`max-w-24 text-[10px] font-semibold leading-3 sm:text-xs ${index === step ? "text-[#A71930]" : "text-slate-500"}`}>{title}</span>
         </li>)}
       </ol>
     </div>
 
     <div className="space-y-6 p-4 pb-8 sm:p-7">
       {draftLoading && <p role="status" className="text-sm text-slate-600">Checking for a saved draft…</p>}
-      {draft?.payload && <section className="flex flex-col gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div><h3 className="font-bold text-[#10243A]">A saved draft is available</h3><p className="mt-1 text-sm text-slate-700">Restore your saved form data and continue where you left off.</p></div>
-        <button type="button" onClick={restoreDraft} className="min-h-11 shrink-0 rounded-lg border border-[#10243A] px-4 text-sm font-bold text-[#10243A] hover:bg-white">Restore draft</button>
+      {draft?.payload && <section className="flex flex-col gap-3 rounded-xl border border-[#E8B5BF] bg-[#FDF5F6] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div><h3 className="font-bold text-[#A71930]">A saved draft is available</h3><p className="mt-1 text-sm text-slate-700">Restore your saved form data and continue where you left off.</p></div>
+        <button type="button" onClick={restoreDraft} className="min-h-11 shrink-0 rounded-lg border border-[#A71930] px-4 text-sm font-bold text-[#A71930] hover:bg-white">Restore draft</button>
       </section>}
       {draftMessage && <p role={draftMessage.includes("could not") ? "alert" : "status"} className="text-sm text-slate-700">{draftMessage}</p>}
 
       <section aria-labelledby="step-title" className="min-h-72">
         <div className="mb-5">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-800">Step {step + 1} of {STEPS.length}</p>
-          <h3 id="step-title" className="mt-1 text-xl font-bold text-[#10243A] sm:text-2xl">{STEPS[step]}</h3>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#861326]">Step {step + 1} of {STEPS.length}</p>
+          <h3 id="step-title" className="mt-1 text-xl font-bold text-[#A71930] sm:text-2xl">{STEPS[step]}</h3>
         </div>
 
         {step === 0 && <fieldset className="min-w-0">
@@ -440,11 +440,11 @@ export default function SubmissionForm({
           <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             {SUBMISSION_CATEGORIES.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => { setCategory(item); setBrokerageAccepted(false); setStepError(""); }}
               className={`flex min-h-24 min-w-0 items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${category === item
-                ? "border-amber-500 bg-amber-50 ring-2 ring-amber-200"
-                : "border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/50"}`}>
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#10243A] text-amber-300"><CategoryIcon category={item} /></span>
-              <span className="min-w-0"><span className="block font-bold text-[#10243A]">{categoryLabel(item)}</span><span className="mt-1 block text-xs leading-5 text-slate-600">{item === "Rental" ? "Long-term home rental" : item === "Resale" ? "Property for sale" : item === "PG" ? "PG / hostel accommodation" : "Short-stay accommodation"}</span></span>
-              {category === item && <span className="ml-auto shrink-0 text-amber-700" aria-hidden="true">✓</span>}
+                ? "border-[#A71930] bg-[#FDF5F6] ring-2 ring-[#A71930]/20"
+                : "border-slate-200 bg-white hover:border-[#A71930] hover:bg-[#FDF5F6]/50"}`}>
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#A71930] text-[#F8E9EC]"><CategoryIcon category={item} /></span>
+              <span className="min-w-0"><span className="block font-bold text-[#A71930]">{categoryLabel(item)}</span><span className="mt-1 block text-xs leading-5 text-slate-600">{item === "Rental" ? "Long-term home rental" : item === "Resale" ? "Property for sale" : item === "PG" ? "PG / hostel accommodation" : "Short-stay accommodation"}</span></span>
+              {category === item && <span className="ml-auto shrink-0 text-[#A71930]" aria-hidden="true">✓</span>}
             </button>)}
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-600">PG and Hostel listings use the existing PG category.</p>
@@ -471,7 +471,7 @@ export default function SubmissionForm({
             <textarea autoComplete="street-address" rows={3} maxLength={500} value={values.address} onChange={(event) => setField("address", event.target.value)} placeholder="Street, building and address details" className={inputClass} />
           </label>
           <AdditionalDetails category={category} details={details} onChange={setDetails} section="location" />
-          <p className="rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600">The full address is visible on the public listing after approval. Do not enter private details that you do not want published.</p>
+          <p className="rounded-xl bg-[#F4F1EF] p-3 text-xs leading-5 text-slate-600">The full address is visible on the public listing after approval. Do not enter private details that you do not want published.</p>
         </div>}
 
         {step === 3 && <div className="space-y-5">
@@ -490,11 +490,11 @@ export default function SubmissionForm({
           <section className="space-y-3">
             <div><h4 className="font-semibold text-slate-900">Property photos</h4><p className="mt-1 text-sm text-slate-600">Add 1–5 clear JPEG, PNG or WebP photos, up to 5 MB each. The first photo is the cover image.</p></div>
             <label className={`${labelClass} max-w-xl`}>Choose photos
-              <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={selectFiles} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#10243A] file:px-4 file:font-semibold file:text-white" />
+              <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={selectFiles} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#A71930] file:px-4 file:font-semibold file:text-white" />
             </label>
 
             <label className={`${labelClass} mt-4 max-w-xl`}>Property video (optional · 1 MP4, up to 50 MB)
-              <input type="file" accept="video/mp4,.mp4" onChange={selectVideo} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#10243A] file:px-4 file:font-semibold file:text-white" />
+              <input type="file" accept="video/mp4,.mp4" onChange={selectVideo} className="mt-2 block min-h-12 min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:min-h-9 file:rounded-lg file:border-0 file:bg-[#A71930] file:px-4 file:font-semibold file:text-white" />
             </label>
             {videoItem && <div className="mt-3 max-w-xl rounded-xl border border-slate-200 p-3">
               <video src={videoItem.url} controls playsInline preload="metadata" className="max-h-64 w-full rounded-lg bg-black" />
@@ -516,15 +516,15 @@ export default function SubmissionForm({
               </article>)}
             </div>}
           </section>
-          <section aria-label="Live property preview" className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 sm:p-5">
-            <h4 className="text-lg font-bold text-[#10243A]">Listing preview</h4>
+          <section aria-label="Live property preview" className="rounded-2xl border border-[#E8B5BF] bg-[#FDF5F6]/60 p-4 sm:p-5">
+            <h4 className="text-lg font-bold text-[#A71930]">Listing preview</h4>
             <p className="mt-1 text-sm text-slate-600">Check your details before moving to owner contact and final submission.</p>
             <div className="mt-4 flex min-w-0 gap-4">
               {photoItems[0] && <Image src={photoItems[0].url} alt="Cover preview" width={800} height={600} unoptimized className="aspect-[4/3] w-28 shrink-0 rounded-xl object-cover sm:w-40" />}
               <div className="min-w-0">
-                <p className="font-bold text-[#10243A]">{values.title || "Property title"}{category && <span className="font-medium text-slate-600"> · {categoryLabel(category as ListingType)}</span>}</p>
+                <p className="font-bold text-[#A71930]">{values.title || "Property title"}{category && <span className="font-medium text-slate-600"> · {categoryLabel(category as ListingType)}</span>}</p>
                 <p className="mt-1 text-sm text-slate-600">{values.locality || "Locality"}</p>
-                {Number.isFinite(displayPrice) && displayPrice > 0 && <p className="mt-2 text-lg font-bold text-[#10243A]">₹{displayPrice.toLocaleString("en-IN")} <span className="text-xs font-medium text-slate-600">{category === "Rental" ? "/ month" : category === "Airbnb" ? "/ night" : category === "PG" ? "/ person" : ""}</span></p>}
+                {Number.isFinite(displayPrice) && displayPrice > 0 && <p className="mt-2 text-lg font-bold text-[#A71930]">₹{displayPrice.toLocaleString("en-IN")} <span className="text-xs font-medium text-slate-600">{category === "Rental" ? "/ month" : category === "Airbnb" ? "/ night" : category === "PG" ? "/ person" : ""}</span></p>}
                 {values.area && <p className="mt-1 text-xs text-slate-600">{values.area} sq. ft.</p>}
               </div>
             </div>
@@ -554,20 +554,20 @@ export default function SubmissionForm({
           {owner.relationship !== "Owner" && <label className={labelClass}>Authorization details
             <textarea rows={3} maxLength={1000} value={owner.authorizationDetails} onChange={(event) => setOwnerField("authorizationDetails", event.target.value)} placeholder="Describe your authority to list this property" className={inputClass} />
           </label>}
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-800">
-            <input type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-[#F4F1EF] p-4 text-sm leading-6 text-slate-800">
+            <input type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
             <span>I confirm that I am the owner or am authorized to list this property and that the information provided is accurate.</span>
           </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-800">
-            <input type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-[#F4F1EF] p-4 text-sm leading-6 text-slate-800">
+            <input type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
             <span>I agree that Admin may review this submission and, if approved, publish the property details, full address, selected amenities, photos and optional property video on NAREN REALTY.</span>
           </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-slate-800">
-            <input type="checkbox" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#10243A]" />
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8B5BF] bg-[#FDF5F6] p-4 text-sm leading-6 text-slate-800">
+            <input type="checkbox" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
             <span>{category === "Resale" ? "I acknowledge seller brokerage of 2% of the final sale value, plus applicable GST, payable on a successful sale facilitated by NAREN REALTY." : category === "Rental" ? "I acknowledge that no owner brokerage is payable for flat rental." : category === "PG" ? "I acknowledge owner commission of 10% of accommodation rent for each successful PG / Hostel booking introduced or facilitated by NAREN REALTY, plus applicable GST." : "I acknowledge host commission of 10% of accommodation rent for each successful Airbnb / Short-Stay booking introduced or facilitated by NAREN REALTY, plus applicable GST."} I have read and accept the applicable owner-side terms.</span>
           </label>
-          <div className="rounded-xl bg-slate-50 p-4 text-sm">
-            <p className="font-semibold text-[#10243A]">Ready to submit?</p>
+          <div className="rounded-xl bg-[#F4F1EF] p-4 text-sm">
+            <p className="font-semibold text-[#A71930]">Ready to submit?</p>
             <p className="mt-1 text-slate-700">{values.title || "Your property"} · {category ? categoryLabel(category as ListingType) : "Select a category"} · {values.locality || "Add locality"}</p>
             <p className="mt-1 text-xs leading-5 text-slate-600">Your contact information stays private for Admin review. Your listing remains pending until it is reviewed.</p>
           </div>
@@ -576,19 +576,19 @@ export default function SubmissionForm({
 
       {stepError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm font-semibold text-rose-800">{stepError}</p>}
       {state.message && <p role={state.status === "error" ? "alert" : "status"} className={state.status === "error" ? "rounded-lg bg-rose-50 p-3 text-sm font-semibold text-rose-800" : "rounded-lg bg-emerald-50 p-3 text-sm font-semibold text-emerald-800"}>{state.message}</p>}
-      {!available && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm font-semibold text-amber-900">{unavailableMessage ?? "Private submission setup is not yet verified. Nothing will be saved."}</p>}
+      {!available && <p role="status" className="rounded-lg bg-[#FDF5F6] p-3 text-sm font-semibold text-[#861326]">{unavailableMessage ?? "Private submission setup is not yet verified. Nothing will be saved."}</p>}
     </div>
 
     <div className="sticky bottom-0 z-10 rounded-b-2xl border-t border-slate-200 bg-white/95 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] backdrop-blur sm:px-6">
       <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2">
         <button type="button" disabled={step === 0 || pending || draftPending} onClick={() => { setStep((current) => Math.max(0, current - 1)); setStepError(""); }}
-          className="min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">Back</button>
+          className="min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-800 hover:bg-[#F4F1EF] disabled:cursor-not-allowed disabled:opacity-40">Back</button>
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <button type="button" disabled={!draftsAvailable || draftPending || pending} onClick={saveDraft}
-            className="min-h-11 rounded-xl border border-[#10243A] px-3 text-sm font-bold text-[#10243A] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
+            className="min-h-11 rounded-xl border border-[#A71930] px-3 text-sm font-bold text-[#A71930] hover:bg-[#F4F1EF] disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
           {step < STEPS.length - 1
-            ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50">Continue</button>
-            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted} className="min-h-11 rounded-xl bg-[#10243A] px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
+            ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:opacity-50">Continue</button>
+            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:cursor-not-allowed disabled:bg-[#F4F1EF]0">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
         </div>
       </div>
     </div>

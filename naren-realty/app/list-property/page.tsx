@@ -98,7 +98,7 @@ export default async function ListPropertyPage() {
   };
 
   if (!propertySubmissionsEnabled()) {
-    return <main className="mx-auto max-w-3xl bg-white p-4 text-slate-950 [overflow-wrap:anywhere] sm:p-8"><h1 className="text-3xl font-bold text-[#A71930]">List Your Property</h1><p role="status" className="mt-4 text-amber-800">Property submissions are awaiting private database setup. Nothing will be saved.</p><div className="mt-6"><SubmissionForm available={false} initialOwnerDetails={initialOwnerDetails} /></div><Link href="/account" className="mt-4 inline-flex min-h-11 items-center underline">My account</Link></main>;
+    return <main className="mx-auto max-w-3xl bg-white p-4 text-slate-950 [overflow-wrap:anywhere] sm:p-8"><h1 className="text-3xl font-bold text-[#A71930]">List Your Property</h1><p role="status" className="mt-4 text-[#861326]">Property submissions are awaiting private database setup. Nothing will be saved.</p><div className="mt-6"><SubmissionForm available={false} initialOwnerDetails={initialOwnerDetails} /></div><Link href="/account" className="mt-4 inline-flex min-h-11 items-center underline">My account</Link></main>;
   }
 
   const result = await supabase
@@ -125,8 +125,8 @@ export default async function ListPropertyPage() {
   const setupMissing = ["42P01", "PGRST205", "42703", "PGRST204"].includes(error?.code ?? "");
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="bg-[#A71930] px-4 py-4 text-white sm:px-6"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3"><Link href="/" className="inline-flex min-h-11 items-center font-bold tracking-widest">NAREN <span className="ml-1 text-amber-400">REALTY</span></Link><Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-3 text-sm font-semibold">My account</Link></div></header>
+    <main className="min-h-screen bg-[#F4F1EF] text-slate-900">
+      <header className="bg-[#A71930] px-4 py-4 text-white sm:px-6"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3"><Link href="/" className="inline-flex min-h-11 items-center font-bold tracking-widest">NAREN <span className="ml-1 text-[#E8B5BF]">REALTY</span></Link><Link href="/account" className="inline-flex min-h-11 items-center rounded-lg border border-white/30 px-3 text-sm font-semibold">My account</Link></div></header>
       <section className="mx-auto max-w-6xl px-4 py-8 [overflow-wrap:anywhere] sm:px-6">
         <h1 className="text-3xl font-bold text-[#A71930]">List Your Property</h1>
         <div className="mt-6 grid min-w-0 gap-6 lg:grid-cols-2">
@@ -136,7 +136,7 @@ export default async function ListPropertyPage() {
               <p className="mt-2 text-sm text-rose-700">For your security, property submission is paused until Owner access can be checked. Please refresh or try again later.</p>
             </section>
           ) : !ownerCapability ? (
-            <section className="min-w-0 rounded-xl border border-amber-200 bg-white p-4 sm:p-6">
+            <section className="min-w-0 rounded-xl border border-[#E8B5BF] bg-white p-4 sm:p-6">
               <h2 className="text-xl font-bold text-[#A71930]">Activate Owner access first</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">Use your existing Customer login to activate Owner access. You will review the applicable Owner Terms and Privacy Policy once; your Customer account and existing requirements will remain unchanged.</p>
               <Link href="/owner" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-[#A71930] px-5 py-3 text-sm font-semibold text-white">Review policies and activate Owner access</Link>
@@ -146,7 +146,7 @@ export default async function ListPropertyPage() {
           )}
           <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
             <h2 className="text-xl font-bold text-[#A71930]">My submissions</h2>
-            {legacySchema && !error && <p role="status" className="mt-4 text-sm text-amber-800">Existing submissions are available, but creating or editing submissions requires the private owner details database setup.</p>}
+            {legacySchema && !error && <p role="status" className="mt-4 text-sm text-[#861326]">Existing submissions are available, but creating or editing submissions requires the private owner details database setup.</p>}
             {error ? <p role="alert" className="mt-4 text-sm text-rose-700">{setupMissing ? "Submissions are awaiting database setup." : "Your submissions could not be loaded. Please try again."}</p> : submissions.length === 0 ? <p className="mt-4 text-sm text-slate-600">You have not submitted any properties yet.</p> : <ul className="mt-4 space-y-3">{submissions.map((submission) => {
               const details = readableDetails(submission.details);
               return <li key={submission.id} className="rounded-lg border border-slate-200 p-4"><h3 className="font-bold">{submission.title}</h3><p className="text-sm text-slate-600">{submission.category} · {submission.locality}</p><p className="mt-2 text-sm font-semibold">Status: {submission.status === "pending" ? "Pending" : submission.status === "approved" ? "Approved" : submission.status === "rejected" ? "Rejected" : "Unknown"}</p>{details ? <DetailsView details={details} submission={submission} /> : <p role="alert">Saved details could not be read; editing is disabled to prevent data loss.</p>}<OwnerDetailsView value={submission.owner_details} />{submission.status === "rejected" && submission.rejection_feedback && <p className="mt-2 whitespace-pre-wrap text-sm">Admin feedback: {submission.rejection_feedback}</p>}{submission.status === "rejected" && details && ownerCapability && <ResubmitForm submission={{ ...submission, details }} available={uploadsReady} initialOwnerDetails={initialOwnerDetails} />}</li>;
