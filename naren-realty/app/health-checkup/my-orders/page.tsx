@@ -97,7 +97,7 @@ export default function MyOrdersPage() {
         <h2 className="text-xl font-extrabold">Track a guest booking</h2>
         <p className="mt-2 text-sm leading-6 text-slate-500">Enter the reference shown after submission and the same mobile number used in the request.</p>
         <form onSubmit={lookup} className="mt-5 space-y-3">
-          <label className="block text-xs font-semibold text-slate-600">Booking reference<input required value={reference} onChange={(event) => setReference(event.target.value.toUpperCase())} placeholder="MFIT-XXXXXXXXXX" className="mt-1 w-full rounded-xl border px-3 py-3 text-sm" /></label>
+          <label className="block text-xs font-semibold text-slate-600">Booking reference<input required value={reference} onChange={(event) => setReference(event.target.value.toUpperCase())} placeholder="MFIT-XXXXXXXXXX or CP-XXXXXXXXXX" className="mt-1 w-full rounded-xl border px-3 py-3 text-sm" /></label>
           <label className="block text-xs font-semibold text-slate-600">Registered mobile number<input required inputMode="numeric" maxLength={10} value={phone} onChange={(event) => setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" className="mt-1 w-full rounded-xl border px-3 py-3 text-sm" /></label>
           <button disabled={loading} className="w-full rounded-xl bg-[#078b8d] px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{loading ? "Checking…" : "Find my request"}</button>
         </form>
