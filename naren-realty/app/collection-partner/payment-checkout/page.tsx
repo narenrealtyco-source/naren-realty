@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { requireCollectionPartner } from "../../lib/collection-partner";
 
-type PageProps = { searchParams: Promise<{ request_id?: string }> };
+type PageProps = { searchParams: Promise<{ request_id?: string }> };\nfunction upiUrl(scheme:string,upiId:string,payee:string,amount:number,reference:string){const q=new URLSearchParams({pa:upiId,pn:payee,am:amount.toFixed(2),cu:"INR",tn:"MFIT B2B "+reference});return scheme+"://upi/pay?"+q.toString();}
 
 export default function PaymentCheckoutPage({ searchParams }: PageProps) {
   return (
@@ -57,6 +57,7 @@ async function PaymentCheckoutContent({ searchParams }: PageProps) {
           {settings?.ifsc_code && <p><b>IFSC:</b> {settings.ifsc_code}</p>}
           {settings?.instructions && <p className="mt-2 text-xs text-slate-600">{settings.instructions}</p>}
         </div>
+        <div className="mt-4 grid grid-cols-2 gap-2"><a href={upiUrl("tez",settings?.upi_id||"mfitpayments@ybl",settings?.payee_name||"MFIT Healthcare Pvt Ltd",Number(booking.partner_b2b_amount||0),booking.reference)} className="rounded-xl border p-3 text-center text-sm font-bold">Google Pay</a><a href={upiUrl("phonepe",settings?.upi_id||"mfitpayments@ybl",settings?.payee_name||"MFIT Healthcare Pvt Ltd",Number(booking.partner_b2b_amount||0),booking.reference)} className="rounded-xl border p-3 text-center text-sm font-bold">PhonePe</a><a href={upiUrl("paytmmp",settings?.upi_id||"mfitpayments@ybl",settings?.payee_name||"MFIT Healthcare Pvt Ltd",Number(booking.partner_b2b_amount||0),booking.reference)} className="rounded-xl border p-3 text-center text-sm font-bold">Paytm</a><a href={upiUrl("bhim",settings?.upi_id||"mfitpayments@ybl",settings?.payee_name||"MFIT Healthcare Pvt Ltd",Number(booking.partner_b2b_amount||0),booking.reference)} className="rounded-xl border p-3 text-center text-sm font-bold">BHIM</a><a href={upiUrl("upi",settings?.upi_id||"mfitpayments@ybl",settings?.payee_name||"MFIT Healthcare Pvt Ltd",Number(booking.partner_b2b_amount||0),booking.reference)} className="col-span-2 rounded-xl bg-teal-700 p-3 text-center text-sm font-bold text-white">Other UPI Apps</a></div>
         <form action="/api/collection-partner/pay/submit" method="post" encType="multipart/form-data" className="mt-5 space-y-3">
           <input type="hidden" name="request_id" value={booking.id} />
           <label className="block text-sm font-semibold">UPI UTR / Transaction reference
