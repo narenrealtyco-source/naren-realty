@@ -122,7 +122,13 @@ function EventsNearMeSection() {
       setLoading(false);
     }
     void loadEvents();
-    return () => { active = false; };
+    // Refresh approved upcoming events periodically so new organiser listings
+    // replace Coming Soon placeholders without requiring a manual page reload.
+    const refreshInterval = window.setInterval(() => { void loadEvents(); }, 60_000);
+    return () => {
+      active = false;
+      window.clearInterval(refreshInterval);
+    };
   }, []);
 
   return (
