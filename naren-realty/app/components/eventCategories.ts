@@ -16,7 +16,7 @@ export const EVENT_CATEGORIES: EventCategoryRecord[] = [
   { key: "beer_festival", title: "Beer Festival", aliases: ["beer", "beerfest", "brewery"] },
   { key: "role_play", title: "Role Play", aliases: ["roleplay", "cosplay"] },
   { key: "online_streaming_events", title: "Online Streaming Events", aliases: ["online_streaming", "streaming", "online"] },
-  { key: "food_drinks", title: "Food & Drinks", aliases: ["food", "drinks", "food_drinks", "potluck_dinner", "byob_party", "brunch_meetup", "bbq_bonfire"] },
+  { key: "food_drinks", title: "Food and Drinks", aliases: ["food", "drinks", "food_drinks", "potluck_dinner", "byob_party", "brunch_meetup", "bbq_bonfire"] },
 ];
 
 const normalise = (value: string | null | undefined) =>
