@@ -222,24 +222,24 @@ function EventsContent() {
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
             const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
             return <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="relative block aspect-[2/3] overflow-hidden bg-slate-200">
-                {event.image_url ? <img src={event.image_url} alt={event.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-3 pb-3 pt-16">
-                  <p className="text-[11px] font-extrabold tracking-wide text-white drop-shadow sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
+              <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="block overflow-hidden bg-slate-200">
+                {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[2/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex aspect-[2/3] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                <div className="bg-[#171717] px-3 py-2">
+                  <p className="text-[11px] font-extrabold tracking-wide text-white sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                 </div>
               </Link>
-              <div className="space-y-1 px-2.5 pb-2.5 pt-2.5 sm:px-3 sm:pb-3">
+              <div className="space-y-1.5 bg-white px-2.5 pb-3 pt-3 sm:px-3 sm:pb-3.5">
                 <Link href={"/events/" + event.id} className="block">
-                  <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[#252525] transition group-hover:text-[#A71930] sm:text-sm">{event.title}</h3>
+                  <h3 className="line-clamp-2 min-h-[2.5em] text-xs font-extrabold leading-snug text-[#252525] transition group-hover:text-[#A71930] sm:text-sm">{event.title}</h3>
                 </Link>
                 <Link href={"/events/" + event.id} className="block">
-                  <p className="line-clamp-1 text-[9px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
+                  <p className="line-clamp-1 text-[10px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
                 </Link>
-                <div className="flex items-end justify-between gap-2 border-t border-slate-100 pt-2">
-                  <Link href={"/events/" + event.id} className="min-w-0">
-                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.1em] text-[#A71930] sm:text-[10px]">{type}</p>
+                <div className="space-y-1 border-t border-slate-100 pt-2">
+                  <Link href={"/events/" + event.id} className="block">
+                    <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-slate-500 sm:text-[10px]">{type}</p>
                   </Link>
-                  <Link href={"/events/" + event.id} className="shrink-0 text-right">
+                  <Link href={"/events/" + event.id} className="block text-right">
                     <p className="text-xs font-extrabold text-[#A71930] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
                   </Link>
                 </div>
