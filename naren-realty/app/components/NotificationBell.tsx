@@ -40,12 +40,77 @@ export default function NotificationBell() {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const soundEnabledRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushMessage, setPushMessage] = useState("");
 
   useEffect(() => {
     const enabled = window.localStorage.getItem("naren-notification-sound") === "on";
     soundEnabledRef.current = enabled;
     setSoundEnabled(enabled);
   }, []);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    navigator.serviceWorker.register("/sw.js")
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => setPushEnabled(Boolean(subscription)))
+      .catch(() => undefined);
+  }, []);
+
+  function decodeVapidKey(value: string) {
+    const padding = "=".repeat((4 - (value.length % 4)) % 4);
+    const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = window.atob(base64);
+    return Uint8Array.from(raw, (character) => character.charCodeAt(0));
+  }
+
+  async function enablePush() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setPushMessage("Push notifications are not supported by this browser.");
+      return;
+    }
+    setPushBusy(true);
+    setPushMessage("");
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setPushMessage("Please allow notifications in your browser settings.");
+        return;
+      }
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setPushMessage("Please sign in first.");
+        return;
+      }
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      const publicKey = "BN2_lct9oFsWjeOz-o2Nu8Alg1cSp9xbCmJ_LnLptBdccqVs0sKimyFONEvHk7VwhvJDhs2zKa01TO5v1brnoZc";
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: decodeVapidKey(publicKey),
+      });
+      const serialized = subscription.toJSON();
+      if (!serialized.endpoint || !serialized.keys?.p256dh || !serialized.keys?.auth) {
+        throw new Error("The browser did not return a valid push subscription.");
+      }
+      const { error } = await supabase.from("push_subscriptions").upsert({
+        user_id: user.id,
+        endpoint: serialized.endpoint,
+        p256dh: serialized.keys.p256dh,
+        auth: serialized.keys.auth,
+        user_agent: navigator.userAgent,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "endpoint" });
+      if (error) throw error;
+      setPushEnabled(true);
+      setPushMessage("Push notifications enabled on this device.");
+    } catch (error) {
+      setPushMessage(error instanceof Error ? error.message : "Could not enable push notifications.");
+    } finally {
+      setPushBusy(false);
+    }
+  }
 
   function toggleSound() {
     const next = !soundEnabledRef.current;
@@ -184,6 +249,12 @@ export default function NotificationBell() {
               </button>
               <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100">Close</button>
             </div>
+          </div>
+          <div className="border-b border-slate-100 bg-slate-50 px-4 py-3">
+            <button type="button" disabled={pushBusy || pushEnabled} onClick={() => void enablePush()} className="w-full rounded-xl bg-[#10243A] px-3 py-2 text-xs font-semibold text-white disabled:cursor-default disabled:opacity-60">
+              {pushBusy ? "Enabling..." : pushEnabled ? "Push notifications enabled" : "Enable phone / desktop push"}
+            </button>
+            {pushMessage && <p role="status" className="mt-2 text-xs text-slate-600">{pushMessage}</p>}
           </div>
           <div className="max-h-[65vh] overflow-y-auto">
             {items.length === 0 ? (
