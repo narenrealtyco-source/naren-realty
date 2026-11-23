@@ -39,11 +39,11 @@ export function getEventCategoryKey(event: {
   if (has("new_year")) return "new_year_parties";
   if (has("beer", "brewery")) return "beer_festival";
   if (has("role_play", "roleplay", "cosplay")) return "role_play";
-  if (has("online_stream", "livestream", "streaming") || event.event_mode === "online") return "online_streaming_events";
+  if (has("online_stream", "livestream", "streaming")) return "online_streaming_events";
   if (has("screening", "movie", "match")) return "screening";
   if (has("spiritual", "bhajan", "meditation", "yoga")) return "spirituality";
   if (has("food", "drink", "potluck", "brunch", "bbq", "byob", "cooking", "baking")) return "food_drinks";
-  if (has("comedy", "stand_up", "standup", " हास्य")) return "comedy_shows";
+  if (has("comedy", "stand_up", "standup")) return "comedy_shows";
   if (has("music", "concert", "jamming", "dj")) return "music_shows";
   if (has("workshop", "paint_and_sip", "trivia", "quiz")) return "workshops";
   if (has("kid", "child", "family")) return "kids";
