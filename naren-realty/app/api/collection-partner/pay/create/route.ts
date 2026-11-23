@@ -1,10 +1,14 @@
 import {NextRequest,NextResponse} from "next/server";
-import {randomUUID} from "node:crypto";
 import {requireCollectionPartner} from "../../../../lib/collection-partner";
 export async function POST(req:NextRequest){
- try{const {admin,partner}=await requireCollectionPartner();const form=await req.formData();const request_id=String(form.get("request_id")||"");const {data:b,error}=await admin.from("health_booking_requests").select("id,reference,partner_b2b_amount,partner_b2b_payment_status").eq("id",request_id).eq("collection_partner_id",partner.id).single();if(error||!b)throw new Error("Booking not found.");if(b.partner_b2b_payment_status==="paid")throw new Error("Already paid.");const amount=Number(b.partner_b2b_amount||0);if(!Number.isFinite(amount)||amount<=0)throw new Error("B2B amount not configured.");
- const appId=process.env.CASHFREE_APP_ID,secret=process.env.CASHFREE_SECRET_KEY;if(!appId||!secret)throw new Error("Cashfree is not configured.");const production=process.env.CASHFREE_ENV==="production";const base=production?"https://api.cashfree.com/pg":"https://sandbox.cashfree.com/pg";const orderId="cp_"+randomUUID().replace(/-/g,"").slice(0,24);const origin="https://narenrealty.co";
- const response=await fetch(base+"/orders",{method:"POST",headers:{"Content-Type":"application/json","x-api-version":"2023-08-01","x-client-id":appId,"x-client-secret":secret,"x-request-id":randomUUID()},body:JSON.stringify({order_id:orderId,order_amount:amount,order_currency:"INR",customer_details:{customer_id:"partner_"+partner.id.slice(0,12),customer_name:partner.contact_name||partner.display_name,customer_email:partner.email||"accounts@narenrealty.co",customer_phone:partner.phone||"9999999999"},order_meta:{return_url:origin+"/collection-partner/payment-return?order_id="+orderId,notify_url:origin+"/api/collection-partner/pay/webhook"},order_note:"Collection partner B2B settlement "+b.reference}),cache:"no-store"});
- const cf=await response.json();if(!response.ok||!cf.payment_session_id)throw new Error(cf.message||"Could not create Cashfree payment.");const {error:insertError}=await admin.from("health_collection_partner_payments").upsert({partner_id:partner.id,booking_request_id:b.id,gateway_order_id:orderId,gateway_payment_session_id:cf.payment_session_id,amount,status:"pending",gateway_payment_id:null,paid_at:null,updated_at:new Date().toISOString()},{onConflict:"booking_request_id"});if(insertError)throw insertError;await admin.from("health_booking_requests").update({partner_b2b_payment_status:"pending"}).eq("id",b.id);return NextResponse.redirect(origin+"/collection-partner/payment-checkout?session="+encodeURIComponent(cf.payment_session_id)+"&mode="+(production?"production":"sandbox")+"&order_id="+encodeURIComponent(orderId),303);
- }catch(e:any){return NextResponse.json({error:e.message||"Unable to start payment."},{status:400});}
+ try{
+  const {admin,partner}=await requireCollectionPartner();
+  const form=await req.formData();
+  const requestId=String(form.get("request_id")||"");
+  const {data:b,error}=await admin.from("health_booking_requests").select("id,partner_b2b_amount,partner_b2b_payment_status").eq("id",requestId).eq("collection_partner_id",partner.id).single();
+  if(error||!b)throw new Error("Booking not found.");
+  if(b.partner_b2b_payment_status==="paid")throw new Error("Already paid.");
+  if(Number(b.partner_b2b_amount||0)<=0)throw new Error("B2B amount not configured.");
+  return NextResponse.redirect(new URL("/collection-partner/payment-checkout?request_id="+encodeURIComponent(requestId),req.url),303);
+ }catch(e:any){return NextResponse.json({error:e.message||"Unable to open payment."},{status:400});}
 }
