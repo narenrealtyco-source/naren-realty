@@ -348,7 +348,7 @@ export default function OwnerPortalPage() {
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/properties" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-white/10">Browse Homes</Link>
-            {owner && <button onClick={signOut} className="min-h-11 rounded-lg bg-[#A71930] px-3 py-2 text-sm font-bold text-slate-950">Sign Out</button>}
+            {owner && <button onClick={signOut} className="min-h-11 rounded-lg bg-white px-3 py-2 text-sm font-bold text-[#A71930] hover:bg-slate-100">Sign Out</button>}
           </div>
         </div>
       </header>
@@ -366,7 +366,7 @@ export default function OwnerPortalPage() {
           <>
             <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div><p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">OWNER DASHBOARD</p><h1 className="mt-2 text-3xl font-bold text-[#A71930]">Welcome, {owner.fullName}</h1><p className="mt-2 text-sm text-slate-600">Your listings and their approval status.</p></div>
-              <button onClick={openNewListing} className="rounded-lg bg-[#A71930] px-5 py-3 text-sm font-bold text-slate-950 hover:bg-[#861326]">+ Add Property</button>
+              <button onClick={openNewListing} className="rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#A71930] ring-1 ring-[#A71930] hover:bg-slate-100">+ Add Property</button>
             </div>
             {notice && <p role="status" className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
 
