@@ -78,17 +78,35 @@ export default function HealthPage() {
 
   return (
     <main id="top" className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
-      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
+      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 shadow-[0_2px_12px_rgba(15,40,55,0.04)] backdrop-blur">
+        <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Brand />
-          <a href="#contact" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82] sm:text-sm">Need help?</a>
+          <div className="flex items-center gap-2">
+            <a href="/health-checkup/my-orders" className="hidden rounded-xl px-3 py-2 text-xs font-bold text-[#26383b] transition hover:bg-[#eff9f8] sm:inline-flex">My Orders</a>
+            <a href="#contact" className="rounded-xl bg-[#e9f8f7] px-3.5 py-2.5 text-xs font-bold text-[#087f82] sm:px-4 sm:text-sm">Need help?</a>
+          </div>
         </div>
+        <div className="mx-auto max-w-6xl px-4 pb-3 sm:px-6">
+          <HealthCatalogAutocomplete placeholder="Search for tests, packages and health concerns..." />
+        </div>
+        <nav aria-label="Health categories" className="hidden border-t border-slate-100 bg-[#fbfefe] sm:block">
+          <div className="mx-auto flex max-w-6xl items-center gap-7 overflow-x-auto px-6 py-3 text-xs font-semibold text-[#35484b]">
+            <Link href="/health-checkup/packages?category=Full%20Body" className="whitespace-nowrap hover:text-[#078b8d]">Health Packages</Link>
+            <Link href="/health-checkup/tests" className="whitespace-nowrap hover:text-[#078b8d]">Lab Tests</Link>
+            <Link href="/health-checkup/scans" className="whitespace-nowrap hover:text-[#078b8d]">Scans & Imaging</Link>
+            <Link href="/health-checkup/packages?category=Women" className="whitespace-nowrap hover:text-[#078b8d]">Women’s Health</Link>
+            <Link href="/health-checkup/packages?category=Children" className="whitespace-nowrap hover:text-[#078b8d]">Children’s Health</Link>
+            <a href="#home-collection" className="whitespace-nowrap hover:text-[#078b8d]">Home Collection</a>
+          </div>
+        </nav>
       </header>
 
-      <section className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8">
-        <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
-        <HealthCatalogAutocomplete placeholder="Search CBC, Thyroid, Vitamin D, health packages..." />
-        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
+      <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-5">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
+          <span className="hidden text-[11px] font-semibold text-[#078b8d] sm:inline">Care that fits your life</span>
+        </div>
+        <div className="grid grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map((action) => (
             <a key={action.subtitle} href={action.href} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
               <span className="mb-2 text-[30px] font-semibold leading-none sm:text-[38px]">{action.symbol}</span>
@@ -99,8 +117,8 @@ export default function HealthPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <div className="relative isolate min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
+      <section className="mx-auto mt-5 max-w-6xl px-4 sm:px-6">
+        <div className="relative isolate min-h-[205px] overflow-hidden rounded-[22px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
           <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85" alt="Healthcare professional" className="absolute inset-y-0 right-0 -z-10 h-full w-[52%] object-cover object-center opacity-55 sm:w-[42%]" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#075c78] via-[#087f98]/95 to-transparent" />
           <div className="max-w-[72%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
