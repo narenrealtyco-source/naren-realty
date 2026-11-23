@@ -7,6 +7,12 @@ import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
 const supabase = createSupabaseBrowserClient();
 
 const inputClass = "mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100";
+async function matchesAspectRatio(file: File, ratio: number) {
+  const bitmap = await createImageBitmap(file);
+  const actual = bitmap.width / bitmap.height;
+  bitmap.close();
+  return Math.abs(actual - ratio) / ratio <= 0.06;
+}
 const categories = [
   {key:"home_gatherings",title:"House & Home Gatherings",subs:[["potluck_dinner","Potluck Dinner"],["game_night","Game Night"],["movie_match_screening","Movie / Match Screening"],["byob_party","BYOB Party"],["pajama_slumber_party","Pajama / Slumber Party"],["theme_party","Theme Party"],["jamming_session","Jamming Session"]]},
   {key:"social_meetups",title:"Social & Community Meetups",subs:[["hobby_interest_clubs","Hobby & Interest Clubs"],["open_mic_nights","Open Mic Nights"],["networking_mixers","Networking Mixers"],["language_exchange","Language Exchange Meetup"],["blind_stranger_dinners","Blind / Stranger Dinners"],["brunch_meetup","Brunch Meetup"]]},
@@ -20,7 +26,8 @@ export default function SubmitEventPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [portraitImage, setPortraitImage] = useState<File | null>(null);
+  const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [organiserPolicyAccepted, setOrganiserPolicyAccepted] = useState(false);
   const [commissionAccepted, setCommissionAccepted] = useState(false);
   const [refundPolicyAccepted, setRefundPolicyAccepted] = useState(false);
@@ -82,6 +89,7 @@ export default function SubmitEventPage() {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) { router.push("/account?next=/events/submit"); return; }
+      const userId = user.id;
       const isOnline = form.eventMode === "online";
       if (!isOnline && form.locationStatus === "confirmed" && !form.venue.trim()) { setError("Please enter the confirmed venue name, or select Location To Be Announced."); return; }
       if (!isOnline && !form.locality.trim()) { setError("Please enter the city or locality for this event."); return; }
@@ -93,14 +101,15 @@ export default function SubmitEventPage() {
       if (!Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(seats) || seats < 0 || seats > capacity) {
         setError("Enter a valid total capacity and available seat count. Available seats cannot exceed total capacity."); return;
       }
-      let imageUrl: string | null = null;
-      if (image) {
-        const extension = image.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
-        const { error: uploadError } = await supabase.storage.from("event-images").upload(path, image, { contentType:image.type, upsert:false });
+      async function uploadEventImage(file: File | null) {
+        if (!file) return null;
+        const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${userId}/${crypto.randomUUID()}.${extension}`;
+        const { error: uploadError } = await supabase.storage.from("event-images").upload(path, file, { contentType:file.type, upsert:false });
         if (uploadError) throw uploadError;
-        imageUrl = supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
+        return supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
       }
+      const [imageUrl, bannerImageUrl] = await Promise.all([uploadEventImage(portraitImage), uploadEventImage(bannerImage)]);
       const customType = form.subcategory === "custom";
       const { error: insertError } = await supabase.from("event_submissions").insert({
         submitted_by:user.id, category:form.category, subcategory:customType ? "custom" : form.subcategory,
@@ -108,7 +117,7 @@ export default function SubmitEventPage() {
         title:form.title.trim(), event_mode:form.eventMode, location_status:isOnline ? "not_required" : form.locationStatus, venue:isOnline ? "Online Event" : form.locationStatus === "tba" ? "To Be Announced" : form.venue.trim(), locality:isOnline ? "Online" : form.locality.trim(), venue_address:!isOnline && form.locationStatus === "confirmed" ? form.venueAddress.trim() || null : null, map_link:!isOnline && form.locationStatus === "confirmed" ? form.mapLink.trim() || null : null, online_event_link:form.eventMode !== "offline" ? form.onlineLink.trim() || null : null,
         starts_at:new Date(form.startsAt).toISOString(), ends_at:form.endsAt ? new Date(form.endsAt).toISOString() : null,
         ticket_price:Number(form.ticketPrice), total_capacity:capacity, available_seats:seats,
-        description:form.description.trim(), event_policies:form.eventPolicies.trim() || null, event_details:{ highlights:form.eventHighlights.trim(), target_audience:form.targetAudience.join(", "), age_restriction:form.ageRestriction.trim(), language:form.eventLanguage, registration_deadline:form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null, cancellation_refund_policy:"Customer-initiated cancellation: no refund. No-show: no refund. If the organiser cancels the event: the organiser must provide a 100% refund of the ticket amount to every ticket holder. The organiser is solely responsible for arranging and paying these refunds directly to customers. NAREN REALTY does not collect or hold ticket payments and does not fund, advance, reimburse or pay refunds on the organiser’s behalf, subject to applicable law. Any payment-provider or refund-processing charges are the organiser’s responsibility." , refund_policy_version:"NR-EVENT-REFUND-2026-02", refund_policy_accepted:true, refund_policy_accepted_at:refundPolicyAccepted ? new Date().toISOString() : null }, organizer_name:form.organizerName.trim(),
+        description:form.description.trim(), event_policies:form.eventPolicies.trim() || null, event_details:{ banner_image_url:bannerImageUrl, highlights:form.eventHighlights.trim(), target_audience:form.targetAudience.join(", "), age_restriction:form.ageRestriction.trim(), language:form.eventLanguage, registration_deadline:form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null, cancellation_refund_policy:"Customer-initiated cancellation: no refund. No-show: no refund. If the organiser cancels the event: the organiser must provide a 100% refund of the ticket amount to every ticket holder. The organiser is solely responsible for arranging and paying these refunds directly to customers. NAREN REALTY does not collect or hold ticket payments and does not fund, advance, reimburse or pay refunds on the organiser’s behalf, subject to applicable law. Any payment-provider or refund-processing charges are the organiser’s responsibility." , refund_policy_version:"NR-EVENT-REFUND-2026-02", refund_policy_accepted:true, refund_policy_accepted_at:refundPolicyAccepted ? new Date().toISOString() : null }, organizer_name:form.organizerName.trim(),
         contact_phone:form.phone.trim(), contact_email:form.email.trim() || user.email || null,
         image_url:imageUrl, status:"pending", commission_terms_accepted_at:commissionAccepted ? new Date().toISOString() : null,
       });
@@ -142,7 +151,7 @@ export default function SubmitEventPage() {
 • Late arrival and no-show rules\
 • Food, drinks and prohibited items\
 • Photography and conduct guidelines"} /><span className="mt-1 block text-xs font-normal text-slate-500">These rules will be shown with your public event listing after admin approval. You can update them later.</span></label>
-        <label className="block text-sm font-semibold">Event photo / poster<input type="file" accept="image/jpeg,image/png,image/webp" className={inputClass} onChange={(e)=>{const file=e.target.files?.[0]??null;if(file&&file.size>5*1024*1024){setError("The image must be smaller than 5 MB.");e.target.value="";setImage(null);return;}setError("");setImage(file);}} /><span className="mt-1 block text-xs font-normal text-slate-500">Upload a JPG, PNG or WEBP image from your device (maximum 5 MB).</span>{image&&<span className="mt-1 block text-xs text-emerald-700">Selected: {image.name}</span>}</label>
+        <section className="rounded-2xl border border-slate-200 p-4"><h2 className="font-bold text-[#10243A]">Event Images</h2><p className="mt-1 text-xs text-slate-500">Upload separate artwork for the event card and event detail page. JPG, PNG or WEBP · maximum 5 MB each.</p><div className="mt-4 grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">1. Listing poster · Portrait 9:16<input type="file" accept="image/jpeg,image/png,image/webp" className={inputClass} onChange={(e)=>{const file=e.target.files?.[0]??null;if(file&&file.size>5*1024*1024){setError("Each event image must be smaller than 5 MB.");e.target.value="";setPortraitImage(null);return;}setError("");setPortraitImage(file);}} /><span className="mt-1 block text-xs font-normal text-slate-500">Recommended size: 1080 × 1920 px. Used on the Events listing card.</span>{portraitImage&&<span className="mt-1 block text-xs text-emerald-700">Selected: {portraitImage.name}</span>}</label><label className="block text-sm font-semibold">2. Detail page cover · Landscape 16:9<input type="file" accept="image/jpeg,image/png,image/webp" className={inputClass} onChange={(e)=>{const file=e.target.files?.[0]??null;if(file&&file.size>5*1024*1024){setError("Each event image must be smaller than 5 MB.");e.target.value="";setBannerImage(null);return;}setError("");setBannerImage(file);}} /><span className="mt-1 block text-xs font-normal text-slate-500">Recommended size: 1920 × 1080 px. Used at the top of the event detail page.</span>{bannerImage&&<span className="mt-1 block text-xs text-emerald-700">Selected: {bannerImage.name}</span>}</label></div></section>
         <div className="border-t border-slate-100 pt-4"><h2 className="font-bold text-[#10243A]">Organiser details</h2></div>
         <label className="block text-sm font-semibold">Organiser name<input required maxLength={120} className={inputClass} value={form.organizerName} onChange={(e)=>update("organizerName",e.target.value)} /></label>
         <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">Contact number<input required type="tel" minLength={8} maxLength={20} className={inputClass} value={form.phone} onChange={(e)=>update("phone",e.target.value)} /></label><label className="block text-sm font-semibold">Email (optional)<input type="email" className={inputClass} value={form.email} onChange={(e)=>update("email",e.target.value)} /></label></div>

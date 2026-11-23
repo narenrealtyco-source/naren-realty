@@ -11,7 +11,7 @@ type EventRecord = {
   event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null;
   starts_at:string; ends_at:string|null; ticket_price:number; total_capacity:number|null; available_seats:number|null;
   description:string; event_policies:string|null;
-  event_details:{highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null;
+  event_details:{banner_image_url?:string|null;highlights?:string;target_audience?:string;age_restriction?:string;language?:string;registration_deadline?:string|null;cancellation_refund_policy?:string}|null;
   image_url:string|null;
 };
 type RelatedEvent = Pick<EventRecord,"id"|"title"|"image_url"|"starts_at"|"ticket_price"|"venue"|"locality">;
@@ -52,30 +52,26 @@ function EventDetailsContent(){
     </header>
     <div className="mx-auto max-w-5xl px-3 py-4 sm:px-6 sm:py-7">
       <section className="overflow-hidden rounded-2xl border border-[#E5DFD2] bg-white shadow-sm">
-        <div className="grid md:grid-cols-[minmax(250px,340px)_1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden bg-[#F4F0E7] sm:aspect-[16/9] md:aspect-[3/4]">
-            {event.image_url?<img src={event.image_url} alt={event.title} className="absolute inset-0 h-full w-full object-cover"/>:<div className="flex h-full items-center justify-center px-5 text-center text-sm font-semibold text-[#5C6673]">Event poster not provided</div>}
+        {(event.event_details?.banner_image_url||event.image_url)&&<div className="relative aspect-video w-full overflow-hidden bg-[#F4F0E7]"><img src={event.event_details?.banner_image_url||event.image_url||""} alt={event.title} className="absolute inset-0 h-full w-full object-cover"/></div>}
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-bold text-[#086d65]">{category}</span>
+            <span className="rounded-md bg-[#F1F2F4] px-3 py-1 text-xs font-semibold text-[#475467]">{event.event_mode==="hybrid"?"Online + Offline":pretty(event.event_mode)}</span>
+            {event.location_status==="tba"&&<span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-semibold text-[#8F7130]">Venue to be announced</span>}
           </div>
-          <div className="flex flex-col p-4 sm:p-6 lg:p-8">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-bold text-[#086d65]">{category}</span>
-              <span className="rounded-md bg-[#F1F2F4] px-3 py-1 text-xs font-semibold text-[#475467]">{event.event_mode==="hybrid"?"Online + Offline":pretty(event.event_mode)}</span>
-              {event.location_status==="tba"&&<span className="rounded-md bg-[#F4F0E7] px-3 py-1 text-xs font-semibold text-[#8F7130]">Venue to be announced</span>}
+          <h1 className="mt-4 text-2xl font-black leading-tight text-[#10243A] sm:text-3xl lg:text-4xl">{event.title}</h1>
+          <div className="mt-5 grid gap-4 border-y border-[#EEE8DC] py-5 sm:grid-cols-3">
+            <Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?dateLabel(event.starts_at)+" – "+dateLabel(event.ends_at):dateLabel(event.starts_at)}/>
+            <Info icon="◷" label="Time" value={timeLabel(event.starts_at)+(event.ends_at?" – "+timeLabel(event.ends_at):"")}/>
+            <Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/>
+          </div>
+          <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#667085]">Starts from</p>
+              <p className="mt-1 text-3xl font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p>
+              <p className="mt-1 text-xs font-semibold text-[#B08D3E]">{event.available_seats===null?"Availability as listed":event.available_seats>0?event.available_seats+" seats available":"Check availability with organiser"}</p>
             </div>
-            <h1 className="mt-4 text-2xl font-black leading-tight text-[#10243A] sm:text-3xl lg:text-4xl">{event.title}</h1>
-            <div className="mt-5 grid gap-4 border-y border-[#EEE8DC] py-5">
-              <Info icon="▦" label="Date" value={event.ends_at&&new Date(event.ends_at).toDateString()!==date.toDateString()?dateLabel(event.starts_at)+" – "+dateLabel(event.ends_at):dateLabel(event.starts_at)}/>
-              <Info icon="◷" label="Time" value={timeLabel(event.starts_at)+(event.ends_at?" – "+timeLabel(event.ends_at):"")}/>
-              <Info icon="⌖" label="Venue" value={venueLabel} link={event.map_link||undefined}/>
-            </div>
-            <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#667085]">Starts from</p>
-                <p className="mt-1 text-3xl font-black text-[#10243A]">{event.ticket_price>0?"₹"+event.ticket_price:"Free"}</p>
-                <p className="mt-1 text-xs font-semibold text-[#B08D3E]">{event.available_seats===null?"Availability as listed":event.available_seats>0?event.available_seats+" seats available":"Check availability with organiser"}</p>
-              </div>
-              <a href="#ticket-details" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#B08D3E] px-5 text-sm font-extrabold text-white hover:bg-[#8F7130]">Ticket details ↓</a>
-            </div>
+            <a href="#ticket-details" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#B08D3E] px-5 text-sm font-extrabold text-white hover:bg-[#8F7130]">Ticket details ↓</a>
           </div>
         </div>
       </section>
