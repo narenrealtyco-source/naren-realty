@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
+import { EVENT_CATEGORIES } from "../../components/eventCategories";
 const supabase = createSupabaseBrowserClient();
 
 const inputClass = "mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100";
@@ -13,14 +14,7 @@ async function matchesAspectRatio(file: File, ratio: number) {
   bitmap.close();
   return Math.abs(actual - ratio) / ratio <= 0.06;
 }
-const categories = [
-  {key:"home_gatherings",title:"House & Home Gatherings",subs:[["potluck_dinner","Potluck Dinner"],["game_night","Game Night"],["movie_match_screening","Movie / Match Screening"],["byob_party","BYOB Party"],["pajama_slumber_party","Pajama / Slumber Party"],["theme_party","Theme Party"],["jamming_session","Jamming Session"]]},
-  {key:"social_meetups",title:"Social & Community Meetups",subs:[["hobby_interest_clubs","Hobby & Interest Clubs"],["open_mic_nights","Open Mic Nights"],["networking_mixers","Networking Mixers"],["language_exchange","Language Exchange Meetup"],["blind_stranger_dinners","Blind / Stranger Dinners"],["brunch_meetup","Brunch Meetup"]]},
-  {key:"outdoor_active",title:"Outdoor & Active Events",subs:[["picnic","Picnic"],["bbq_bonfire","BBQ / Bonfire Night"],["pool_party","Pool Party"]]},
-  {key:"workshops_activities",title:"Workshops & Activity-Based Events",subs:[["cooking_baking_workshop","Cooking / Baking Workshop"],["paint_and_sip","Paint and Sip"],["trivia_quiz_night","Trivia / Quiz Night"]]},
-  {key:"cultural",title:"Cultural Events",subs:[["bhajan_jamming","Bhajan Jamming"],["live_music","Live Music"],["dance_performances","Dance & Performances"],["cultural_gatherings","Cultural Gatherings"]]},
-  {key:"community",title:"Community Events",subs:[["lohri","Lohri"],["christmas","Christmas"],["holi","Holi"],["diwali","Diwali"],["local_celebrations","Local Celebrations"]]},
-] as const;
+const categories = EVENT_CATEGORIES.map((item) => ({ key: item.key, title: item.title, subs: [["general", "General"], ["custom", "+ Create a new event type"]] as const }));
 
 export default function SubmitEventPage() {
   const router = useRouter();
@@ -35,7 +29,7 @@ export default function SubmitEventPage() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [showTargetAudienceOptions, setShowTargetAudienceOptions] = useState(false);
-  const [form, setForm] = useState({ category:"home_gatherings", subcategory:"potluck_dinner", customEventType:"", title:"", eventMode:"offline", locationStatus:"confirmed", venue:"", venueAddress:"", mapLink:"", onlineLink:"", locality:"", startsAt:"", endsAt:"", ticketPrice:"", totalCapacity:"", availableSeats:"", description:"", organizerName:"", phone:"", email:"", eventPolicies:"", eventHighlights:"", targetAudience:[] as string[], ageRestriction:"", eventLanguage:"English", registrationDeadline:"" });
+  const [form, setForm] = useState({ category:"meetups", subcategory:"general", customEventType:"", title:"", eventMode:"offline", locationStatus:"confirmed", venue:"", venueAddress:"", mapLink:"", onlineLink:"", locality:"", startsAt:"", endsAt:"", ticketPrice:"", totalCapacity:"", availableSeats:"", description:"", organizerName:"", phone:"", email:"", eventPolicies:"", eventHighlights:"", targetAudience:[] as string[], ageRestriction:"", eventLanguage:"English", registrationDeadline:"" });
   const activeCategory = categories.find((category) => category.key === form.category) ?? categories[0];
   function update(key: keyof typeof form, value: string) { setForm((current) => ({ ...current, [key]: value })); }
 
@@ -135,7 +129,7 @@ export default function SubmitEventPage() {
       <div className="rounded-3xl bg-gradient-to-r from-[#A71930] to-[#861326] p-6 text-white shadow-lg sm:p-8"><p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">NAREN REALTY · EVENT PARTNERS</p><h1 className="mt-2 text-3xl font-black sm:text-4xl">Bring Your Event to Life</h1><p className="mt-2 max-w-xl text-sm leading-6 text-slate-200">Create a polished event listing and reach people looking for memorable experiences.</p><div className="mt-5 flex flex-wrap gap-2 text-xs font-bold"><span className="rounded-full bg-white/10 px-3 py-2">✦ Premium event listing</span><span className="rounded-full bg-white/10 px-3 py-2">✓ Admin reviewed</span></div></div>
       <p className="mt-3 text-sm text-slate-600">Complete the sections below. Your event will go live after NAREN REALTY admin approval.</p>
       <form onSubmit={submit} className="mt-6 space-y-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/60 ring-1 ring-white sm:p-7">
-        <label className="block text-sm font-semibold">Event category<select required className={inputClass} value={form.category} onChange={(e) => { const next=categories.find((item)=>item.key===e.target.value)??categories[0]; setForm((current)=>({...current,category:next.key,subcategory:next.subs[0][0],customEventType:""})); }}>{categories.map((category)=><option key={category.key} value={category.key}>{category.title}</option>)}</select></label>
+        <label className="block text-sm font-semibold">Event category<select required className={inputClass} value={form.category} onChange={(e) => { const next=categories.find((item)=>item.key===e.target.value)??categories[0]; setForm((current)=>({...current,category:next.key,subcategory:"general",customEventType:""})); }}>{categories.map((category)=><option key={category.key} value={category.key}>{category.title}</option>)}</select></label>
         <label className="block text-sm font-semibold">Event type<select required className={inputClass} value={form.subcategory} onChange={(e)=>update("subcategory",e.target.value)}>{activeCategory.subs.map(([key,title])=><option key={key} value={key}>{title}</option>)}<option value="custom">+ Create a new event type</option></select></label>
         {form.subcategory==="custom" && <label className="block text-sm font-semibold">Your new event type<input required minLength={3} maxLength={80} className={inputClass} value={form.customEventType} onChange={(e)=>update("customEventType",e.target.value)} placeholder="Enter new event type" /><span className="mt-1 block text-xs font-normal text-slate-500">Your new event type will be reviewed by the admin and will appear after approval.</span></label>}
         <label className="block text-sm font-semibold">Event name<input required minLength={3} maxLength={120} className={inputClass} value={form.title} onChange={(e)=>update("title",e.target.value)} placeholder="e.g. Sunday Music Meetup" /></label>
