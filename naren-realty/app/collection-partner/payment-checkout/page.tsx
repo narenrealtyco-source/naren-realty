@@ -1,17 +1,74 @@
 import Link from "next/link";
-import {connection} from "next/server";
-import {redirect} from "next/navigation";
-import {requireCollectionPartner} from "../../lib/collection-partner";
-export default async function PaymentCheckout({searchParams}:{searchParams:Promise<{request_id?:string}>}){
- await connection();
- let ctx;try{ctx=await requireCollectionPartner()}catch{redirect("/collection-partner/login")}const {admin,partner}=ctx;const {request_id=""}=await searchParams;
- const {data:booking}=await admin.from("health_booking_requests").select("id,reference,customer_name,partner_b2b_amount,partner_b2b_payment_status").eq("id",request_id).eq("collection_partner_id",partner.id).single();
- if(!booking)redirect("/collection-partner/payments");
- const {data:settings}=await admin.from("mfit_payment_settings").select("upi_id,payee_name,qr_image_url,bank_name,account_name,account_number,ifsc_code,instructions").eq("id",true).maybeSingle();
- return <main className="min-h-screen bg-slate-50 p-4"><section className="mx-auto mt-8 max-w-xl rounded-2xl border bg-white p-6">
- <Link href="/collection-partner/payments" className="text-sm font-semibold text-teal-700">‹ Back to B2B payments</Link><p className="mt-5 text-xs font-bold uppercase tracking-widest text-teal-700">MFIT Healthcare · Manual UPI</p><h1 className="mt-2 text-2xl font-extrabold">Pay B2B settlement</h1><p className="mt-2 text-sm text-slate-500">{booking.reference} · {booking.customer_name}</p><p className="mt-4 text-3xl font-extrabold">₹{Number(booking.partner_b2b_amount||0).toLocaleString("en-IN")}</p>
- {settings?.qr_image_url&&<img src={settings.qr_image_url} alt="MFIT payment QR" className="mx-auto mt-5 h-52 w-52 rounded-xl border object-contain"/>}
- <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm"><p><b>UPI ID:</b> {settings?.upi_id||"MFIT payment details not configured yet"}</p><p className="mt-1"><b>Payee:</b> {settings?.payee_name||"MFIT Healthcare"}</p>{settings?.bank_name&&<p className="mt-2"><b>Bank:</b> {settings.bank_name}</p>}{settings?.account_name&&<p><b>Account name:</b> {settings.account_name}</p>}{settings?.account_number&&<p><b>Account number:</b> {settings.account_number}</p>}{settings?.ifsc_code&&<p><b>IFSC:</b> {settings.ifsc_code}</p>}{settings?.instructions&&<p className="mt-2 text-xs text-slate-600">{settings.instructions}</p>}</div>
- <form action="/api/collection-partner/pay/submit" method="post" encType="multipart/form-data" className="mt-5 space-y-3"><input type="hidden" name="request_id" value={booking.id}/><label className="block text-sm font-semibold">UPI UTR / Transaction reference<input name="payment_reference" required minLength={6} maxLength={100} className="mt-1 w-full rounded-lg border p-3" placeholder="Enter UTR / transaction ID"/></label><label className="block text-sm font-semibold">Payment screenshot<input name="proof" type="file" required accept="image/png,image/jpeg,image/webp,application/pdf" className="mt-1 block w-full rounded-lg border p-3 text-sm"/></label><button className="w-full rounded-lg bg-teal-700 p-3 font-bold text-white">Submit payment proof</button><p className="text-xs leading-5 text-slate-500">Your payment remains pending until MFIT Admin verifies the UTR and proof. Reports stay locked until approval.</p></form>
- </section></main>;
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { requireCollectionPartner } from "../../lib/collection-partner";
+
+type PageProps = { searchParams: Promise<{ request_id?: string }> };
+
+export default function PaymentCheckoutPage({ searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-slate-50 p-6"><div className="mx-auto mt-8 max-w-xl rounded-2xl border bg-white p-6 text-sm text-slate-500">Loading secure payment details…</div></main>}>
+      <PaymentCheckoutContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function PaymentCheckoutContent({ searchParams }: PageProps) {
+  await connection();
+  let ctx;
+  try {
+    ctx = await requireCollectionPartner();
+  } catch {
+    redirect("/collection-partner/login");
+  }
+  const { admin, partner } = ctx;
+  const { request_id = "" } = await searchParams;
+  const { data: booking } = await admin
+    .from("health_booking_requests")
+    .select("id,reference,customer_name,partner_b2b_amount,partner_b2b_payment_status")
+    .eq("id", request_id)
+    .eq("collection_partner_id", partner.id)
+    .single();
+
+  if (!booking) redirect("/collection-partner/payments");
+
+  const { data: settings } = await admin
+    .from("mfit_payment_settings")
+    .select("upi_id,payee_name,qr_image_url,bank_name,account_name,account_number,ifsc_code,instructions")
+    .eq("id", true)
+    .maybeSingle();
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-4">
+      <section className="mx-auto mt-8 max-w-xl rounded-2xl border bg-white p-6">
+        <Link href="/collection-partner/payments" className="text-sm font-semibold text-teal-700">‹ Back to B2B payments</Link>
+        <p className="mt-5 text-xs font-bold uppercase tracking-widest text-teal-700">MFIT Healthcare Pvt Ltd · Manual UPI</p>
+        <h1 className="mt-2 text-2xl font-extrabold">Pay B2B settlement</h1>
+        <p className="mt-2 text-sm text-slate-500">{booking.reference} · {booking.customer_name}</p>
+        <p className="mt-4 text-3xl font-extrabold">₹{Number(booking.partner_b2b_amount || 0).toLocaleString("en-IN")}</p>
+        {settings?.qr_image_url && <img src={settings.qr_image_url} alt="MFIT payment QR" className="mx-auto mt-5 h-52 w-52 rounded-xl border object-contain" />}
+        <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm">
+          <p><b>UPI ID:</b> {settings?.upi_id || "MFIT payment details not configured yet"}</p>
+          <p className="mt-1"><b>Payee:</b> {settings?.payee_name || "MFIT Healthcare Pvt Ltd"}</p>
+          {settings?.bank_name && <p className="mt-2"><b>Bank:</b> {settings.bank_name}</p>}
+          {settings?.account_name && <p><b>Account name:</b> {settings.account_name}</p>}
+          {settings?.account_number && <p><b>Account number:</b> {settings.account_number}</p>}
+          {settings?.ifsc_code && <p><b>IFSC:</b> {settings.ifsc_code}</p>}
+          {settings?.instructions && <p className="mt-2 text-xs text-slate-600">{settings.instructions}</p>}
+        </div>
+        <form action="/api/collection-partner/pay/submit" method="post" encType="multipart/form-data" className="mt-5 space-y-3">
+          <input type="hidden" name="request_id" value={booking.id} />
+          <label className="block text-sm font-semibold">UPI UTR / Transaction reference
+            <input name="payment_reference" required minLength={6} maxLength={100} className="mt-1 w-full rounded-lg border p-3" placeholder="Enter UTR / transaction ID" />
+          </label>
+          <label className="block text-sm font-semibold">Payment screenshot
+            <input name="proof" type="file" required accept="image/png,image/jpeg,image/webp,application/pdf" className="mt-1 block w-full rounded-lg border p-3 text-sm" />
+          </label>
+          <button className="w-full rounded-lg bg-teal-700 p-3 font-bold text-white">Submit payment proof</button>
+          <p className="text-xs leading-5 text-slate-500">Your payment remains pending until MFIT Admin verifies the UTR and proof. Reports stay locked until approval.</p>
+        </form>
+      </section>
+    </main>
+  );
 }
