@@ -30,7 +30,16 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
     const reference = "RX-" + randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase();
     const storagePath = "customer-enquiries/" + reference + "." + extension;
-    const { error: uploadError } = await supabase.storage.from("mfit-prescriptions").upload(storagePath, Buffer.from(await file.arrayBuffer()), {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const startsWith = (...signature: number[]) => signature.every((value, index) => bytes[index] === value);
+    const validSignature =
+      (file.type === "application/pdf" && startsWith(0x25, 0x50, 0x44, 0x46, 0x2d)) ||
+      (file.type === "image/jpeg" && startsWith(0xff, 0xd8, 0xff)) ||
+      (file.type === "image/png" && startsWith(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) ||
+      (file.type === "image/webp" && startsWith(0x52, 0x49, 0x46, 0x46) && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50);
+    if (!validSignature) return NextResponse.json({ error: "The selected file does not match its declared PDF or image format." }, { status: 400 });
+
+    const { error: uploadError } = await supabase.storage.from("mfit-prescriptions").upload(storagePath, Buffer.from(bytes), {
       contentType: file.type,
       cacheControl: "3600",
       upsert: false,
