@@ -4,15 +4,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import EventCategoryButtons from "../components/EventCategoryButtons";
+import { EVENT_CATEGORIES, getEventCategoryKey } from "../components/eventCategories";
 
-const categories = [
-  { key: "home_gatherings", title: "House & Home", short: "House Parties", icon: "⌂" },
-  { key: "social_meetups", title: "Meetups", short: "Meetups", icon: "◎" },
-  { key: "outdoor_active", title: "Outdoor", short: "Outdoor", icon: "↗" },
-  { key: "workshops_activities", title: "Workshops", short: "Workshops", icon: "✳" },
-  { key: "cultural", title: "Music & Culture", short: "Music", icon: "♫" },
-  { key: "community", title: "Community", short: "Community", icon: "♧" },
-];
+const categories = EVENT_CATEGORIES;
 
 type EventItem = {
   id: string; title: string; category: string; subcategory: string | null;
@@ -113,7 +108,7 @@ function EventsContent() {
     const weekendEnd = new Date(now);
     weekendEnd.setDate(now.getDate() + (6 - now.getDay() + 7) % 7 + 1);
     const result = events.filter((event) => {
-      if (category && event.category !== category) return false;
+      if (category && getEventCategoryKey(event) !== category) return false;
       if (subcategory && event.subcategory !== subcategory) return false;
       if (priceFilter === "free" && Number(event.ticket_price) > 0) return false;
       if (priceFilter === "paid" && Number(event.ticket_price) <= 0) return false;
@@ -197,10 +192,7 @@ function EventsContent() {
         </div>
       </div>
 
-      <nav aria-label="Event categories" className="mb-5 flex gap-2 overflow-x-auto pb-2">
-        <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (!category ? "border-[#A71930] bg-[#A71930] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#A71930]")}>All Events</button>
-        {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (category === item.key ? "border-[#A71930] bg-[#A71930] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#A71930]")}><span className="mr-1.5">{item.icon}</span>{item.short}</button>)}
-      </nav>
+      <EventCategoryButtons selected={category} onSelect={(next) => { setCategory(next); setSubcategory(""); }} className="mb-5" />
 
       <div className="mb-4 flex gap-2 sm:hidden">
         <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5"><span className="text-slate-400">⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events..." className="w-full min-w-0 bg-transparent text-xs outline-none" /></label>
