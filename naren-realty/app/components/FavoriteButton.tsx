@@ -61,7 +61,7 @@ export default function FavoriteButton({
       aria-label={saved ? `Remove ${title} from favourites` : `Add ${title} to favourites`}
       aria-pressed={saved}
       title={saved ? "Remove from favourites" : "Save to favourites"}
-      className={`inline-flex size-10 items-center justify-center rounded-full border shadow-sm transition-colors ${saved ? "border-amber-400 bg-[#A71930] text-[#A71930]" : "border-slate-200 bg-white text-slate-600 hover:border-amber-400 hover:text-[#A71930]"}`}
+      className={`inline-flex size-10 items-center justify-center rounded-full border shadow-sm transition-colors ${saved ? "border-amber-400 bg-[#A71930] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-[#A71930] hover:text-[#A71930]"}`}
     >
       <span aria-hidden="true" className="text-xl leading-none">{saved ? "♥" : "♡"}</span>
     </button>
