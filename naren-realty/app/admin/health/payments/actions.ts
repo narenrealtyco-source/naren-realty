@@ -34,7 +34,7 @@ export async function reviewMfitCustomerPayment(formData:FormData){
  const {supabase,user}=await requireAdmin();
  const {data:b,error:readError}=await supabase.from("health_booking_requests").select("id,customer_payment_status").eq("id",id).single();
  if(readError||!b)throw new Error("Customer booking request not found.");
- if(b.customer_payment_status==="paid")throw new Error("Customer payment is already verified.");
+ if(b.customer_payment_status!=="submitted")throw new Error("Only submitted customer payment proofs can be reviewed.");
  const now=new Date().toISOString();
  const {error}=await supabase.from("health_booking_requests").update({customer_payment_status:decision,customer_payment_verified_at:now,customer_payment_verified_by:user.id,customer_payment_review_note:note|| (decision==="rejected"?"Proof rejected":null),updated_at:now}).eq("id",id);
  if(error)throw new Error("Could not update customer payment: "+error.message);
