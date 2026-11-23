@@ -157,7 +157,7 @@ function EventsNearMeSection() {
             return (
               <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="block overflow-hidden bg-slate-200">
-                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[4/5] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[4/5] w-full bg-[#101820] object-contain" /> : <div className="flex aspect-[4/5] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
                   <div className="bg-[#171717] px-3 py-2">
                     <p className="text-[10px] font-extrabold tracking-wide text-white sm:text-xs">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                   </div>
