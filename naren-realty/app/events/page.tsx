@@ -20,7 +20,7 @@ type EventItem = {
 function EventsContent() {
   const params = useSearchParams();
   const categoryParam = params.get("category") ?? "";
-  const initialCategory = categoryParam === "meetups" ? "social_meetups" : categoryParam;
+  const initialCategory = categoryParam;
   const initialSubcategory = params.get("subcategory") ?? "";
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
