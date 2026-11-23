@@ -65,6 +65,82 @@ function CategorySection({ title, href, items, id }: { title: string; href: stri
   );
 }
 
+type HomeEventItem = {
+  id: string; title: string; category: string; subcategory: string | null;
+  custom_event_type: string | null; venue: string; locality: string | null;
+  event_mode: string; location_status: string; starts_at: string;
+  ticket_price: number; image_url: string | null;
+};
+
+function EventsNearMeSection() {
+  const [events, setEvents] = useState<HomeEventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadEvents() {
+      const { data, error } = await supabase.from("event_submissions")
+        .select("id,title,category,subcategory,custom_event_type,venue,locality,starts_at,ticket_price,image_url,event_mode,location_status")
+        .eq("status", "approved")
+        .gte("starts_at", new Date().toISOString())
+        .order("starts_at", { ascending: true })
+        .limit(8);
+      if (!active) return;
+      if (error) console.error("[home-events] Approved event lookup failed", { code: error.code });
+      setEvents((data ?? []) as HomeEventItem[]);
+      setLoading(false);
+    }
+    void loadEvents();
+    return () => { active = false; };
+  }, []);
+
+  return (
+    <section id="events" className="rounded-2xl bg-white px-3.5 py-4 shadow-[0_3px_18px_rgba(15,35,65,0.05)] ring-1 ring-slate-100 sm:px-5 sm:py-5">
+      <div className="mb-3.5 flex min-h-8 items-center justify-between gap-2 sm:mb-4">
+        <h2 className="min-w-0 border-l-[5px] border-[#A71930] pl-2.5 text-[15px] font-extrabold tracking-tight text-[#A71930] sm:text-xl">Events Near Me</h2>
+        <Link href="/events" className="shrink-0 whitespace-nowrap text-xs font-bold text-[#A71930] hover:text-[#861326] sm:text-sm">View All <span aria-hidden="true">→</span></Link>
+      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[2/3] bg-slate-200" /><div className="h-12 bg-slate-100" /></div>)}
+        </div>
+      ) : events.length === 0 ? (
+        <p className="rounded-xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">No upcoming events available right now.</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {events.map((event) => {
+            const date = new Date(event.starts_at);
+            const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
+            const type = (event.custom_event_type || event.subcategory || event.category).replaceAll("_", " ");
+            return (
+              <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="block overflow-hidden bg-slate-200">
+                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[2/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[2/3] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                  <div className="bg-[#171717] px-3 py-2">
+                    <p className="text-[11px] font-extrabold tracking-wide text-white sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
+                  </div>
+                </Link>
+                <div className="space-y-1.5 bg-white px-2.5 pb-3 pt-3 sm:px-3 sm:pb-3.5">
+                  <Link href={"/events/" + event.id} className="block">
+                    <h3 className="line-clamp-2 min-h-[2.5em] text-xs font-extrabold leading-snug text-[#252525] transition group-hover:text-[#A71930] sm:text-sm">{event.title}</h3>
+                  </Link>
+                  <Link href={"/events/" + event.id} className="block">
+                    <p className="line-clamp-1 text-[10px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
+                  </Link>
+                  <div className="space-y-1 border-t border-slate-100 pt-2">
+                    <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-slate-500 sm:text-[10px]">{type}</p>
+                    <p className="text-right text-xs font-extrabold text-[#A71930] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
@@ -117,7 +193,7 @@ export default function Home() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-6 sm:py-6">
         <CategorySection id="properties" title="Properties" href="/properties" items={propertyCards} />
         <CategorySection id="home-services" title="Home Services" href="/home-services" items={serviceCards} />
-        <CategorySection id="events" title="Events Near Me" href="/events" items={eventCards} />
+        <EventsNearMeSection />
         <CategorySection id="health-lifestyle" title="Health & Lifestyle" href="/health-checkup" items={wellnessCards} />
 
         <section className="flex items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#A71930] px-4 py-4 text-white shadow-md sm:px-6 sm:py-5">
