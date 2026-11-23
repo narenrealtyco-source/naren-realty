@@ -36,6 +36,7 @@ async function MfitAdminPageContent() {
         {[
           ["Packages & Tests","Review catalogue items, update inclusions, prices and verification status","/admin/health/catalog"],
           ["Bookings & Fulfilment","Track booking, collection, sample processing and report status","/admin/health/bookings"],
+          ["Payments & UPI Settings","Configure MFIT UPI details and verify customer/partner payment proofs","/admin/health/payments"],
           ["MFIT Lab Team","Create lab logins, manage collection boys and assignments","/admin/health/team"],
           ["Collection Partners","Review partner applications, approve verified partners and manage partner access","/admin/health/collection-partners"],
           ["Collection Slots","Manage collection areas, dates, capacity and time slots","/admin/health/slots"],
