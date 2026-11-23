@@ -81,22 +81,22 @@ function ComingSoonEventCard() {
       aria-label="Explore upcoming events"
       className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative flex aspect-[9/16] w-full flex-col items-center justify-center overflow-hidden bg-[#101D24] px-3 text-center text-white">
+      <div className="relative flex aspect-[4/5] w-full flex-col items-center justify-center overflow-hidden bg-[#101D24] px-2 text-center text-white">
         <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(15,157,148,0.30),transparent_58%),linear-gradient(145deg,#10252B_0%,#101820_55%,#080D12_100%)]" />
         <div aria-hidden="true" className="absolute inset-x-5 top-7 h-px bg-gradient-to-r from-transparent via-[#C9A96E]/70 to-transparent" />
         <div aria-hidden="true" className="absolute inset-x-8 bottom-10 h-20 rounded-full bg-[#0E8C83]/10 blur-2xl" />
-        <div className="relative z-10 mb-4 flex size-12 items-center justify-center rounded-full border border-[#C9A96E]/50 bg-white/5 text-[#D7BD8A]">
+        <div className="relative z-10 mb-2 flex size-9 items-center justify-center rounded-full border border-[#C9A96E]/50 bg-white/5 text-[#D7BD8A]">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" className="size-6"><path d="M4 18V9l8-5 8 5v9M3 20h18M8 18v-5h8v5" /><path d="M12 4v-2" /></svg>
         </div>
         <p className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.34em] text-[#D7BD8A] sm:text-[10px]">Naren Realty Presents</p>
-        <h3 className="relative z-10 mt-3 text-xl font-black leading-[0.95] tracking-[0.08em] sm:text-2xl">EVENTS</h3>
-        <div className="relative z-10 my-3 h-px w-12 bg-[#C9A96E]" />
-        <p className="relative z-10 text-sm font-bold uppercase tracking-[0.19em] text-white sm:text-base">Coming Soon</p>
-        <p className="relative z-10 mt-3 max-w-[13rem] text-[10px] leading-relaxed text-slate-300 sm:text-xs">Something exciting is on its way</p>
-        <div aria-hidden="true" className="absolute inset-x-5 bottom-5 h-px bg-gradient-to-r from-transparent via-[#C9A96E]/60 to-transparent" />
-        <span className="absolute bottom-7 text-[8px] font-semibold uppercase tracking-[0.3em] text-[#D7BD8A]">Stay Tuned</span>
+        <h3 className="relative z-10 mt-2 text-lg font-black leading-[0.95] tracking-[0.08em] sm:text-xl">EVENTS</h3>
+        <div className="relative z-10 my-2 h-px w-10 bg-[#C9A96E]" />
+        <p className="relative z-10 text-xs font-bold uppercase tracking-[0.16em] text-white sm:text-sm">Coming Soon</p>
+        <p className="relative z-10 mt-2 max-w-[11rem] text-[9px] leading-relaxed text-slate-300 sm:text-[10px]">Something exciting is on its way</p>
+        <div aria-hidden="true" className="absolute inset-x-5 bottom-3 h-px bg-gradient-to-r from-transparent via-[#C9A96E]/60 to-transparent" />
+        <span className="absolute bottom-5 text-[7px] font-semibold uppercase tracking-[0.3em] text-[#D7BD8A]">Stay Tuned</span>
       </div>
-      <div className="space-y-1 bg-white px-2.5 pb-3 pt-3 sm:px-3 sm:pb-3.5">
+      <div className="space-y-1 bg-white px-2 pb-2.5 pt-2.5 sm:px-2.5 sm:pb-3 sm:pt-2.5">
         <p className="text-xs font-extrabold text-[#252525] sm:text-sm">More events on the way</p>
         <p className="text-[10px] font-medium text-slate-500 sm:text-[11px]">Discover new experiences</p>
         <div className="border-t border-slate-100 pt-2 text-right text-[10px] font-bold text-[#A71930] sm:text-xs">Explore Events →</div>
@@ -142,8 +142,8 @@ function EventsNearMeSection() {
       </div>
       <EventCategoryButtons selected={selectedCategory} onSelect={setSelectedCategory} className="mb-4" />
       {loading ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
-          {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[9/16] bg-slate-200" /><div className="h-16 bg-slate-100" /></div>)}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[4/5] bg-slate-200" /><div className="h-16 bg-slate-100" /></div>)}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
@@ -157,12 +157,12 @@ function EventsNearMeSection() {
             return (
               <article key={event.id} className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <Link href={"/events/" + event.id} aria-label={"View " + event.title} className="block overflow-hidden bg-slate-200">
-                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[9/16] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[9/16] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
+                  {event.image_url ? <img src={event.image_url} alt={event.title} className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex aspect-[4/5] items-center justify-center text-xs font-semibold text-slate-500">Event poster</div>}
                   <div className="bg-[#171717] px-3 py-2">
-                    <p className="text-[11px] font-extrabold tracking-wide text-white sm:text-sm">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
+                    <p className="text-[10px] font-extrabold tracking-wide text-white sm:text-xs">{date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
                   </div>
                 </Link>
-                <div className="space-y-1.5 bg-white px-2.5 pb-3 pt-3 sm:px-3 sm:pb-3.5">
+                <div className="space-y-1 bg-white px-2 pb-2.5 pt-2.5 sm:px-2.5 sm:pb-3 sm:pt-2.5">
                   <Link href={"/events/" + event.id} className="block">
                     <h3 className="line-clamp-2 min-h-[2.5em] text-xs font-extrabold leading-snug text-[#252525] transition group-hover:text-[#A71930] sm:text-sm">{event.title}</h3>
                   </Link>
