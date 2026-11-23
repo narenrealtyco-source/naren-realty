@@ -9,6 +9,18 @@ export async function POST(req:NextRequest){
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return NextResponse.json({error:"Invalid email."},{status:400});
   const key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!key)return NextResponse.json({error:"Booking unavailable."},{status:503});
   const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,key,{auth:{persistSession:false}});
+  let customerId:string|null=null;
+  const authorization=req.headers.get("authorization")||"";
+  if(authorization){
+   const token=authorization.replace(/^Bearer\s+/i,"").trim();
+   if(!token)return NextResponse.json({error:"Customer session is invalid. Please sign in again."},{status:401});
+   const {data:authData,error:authError}=await db.auth.getUser(token);
+   if(authError||!authData.user)return NextResponse.json({error:"Customer session is invalid. Please sign in again."},{status:401});
+   const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",authData.user.id).maybeSingle();
+   if(profileError)throw profileError;
+   if(!profile||profile.role!=="customer")return NextResponse.json({error:"Only a customer account can be linked to this booking."},{status:403});
+   customerId=authData.user.id;
+  }
   const {data:p}=await db.from("health_collection_partners").select("id,display_name").eq("public_slug",slug).eq("is_active",true).single();if(!p)return NextResponse.json({error:"Partner link inactive."},{status:404});const {data:internalLab}=await db.from("health_lab_partners").select("id").eq("is_internal",true).single();if(!internalLab)return NextResponse.json({error:"Lab processing is not configured. Please contact the partner."},{status:503});
   const slugs=lines.map((x:any)=>String(x.slug||""));if(lines.some((x:any)=>x.quantity!==1)||new Set(slugs).size!==slugs.length)return NextResponse.json({error:"Invalid selection."},{status:400});
   const [{data:catalog},{data:rates}]=await Promise.all([
@@ -23,7 +35,7 @@ export async function POST(req:NextRequest){
   if(items.some((x:any)=>x.customer_price===null||!Number.isFinite(x.customer_price)||x.customer_price<0||x.b2b_price===null||!Number.isFinite(x.b2b_price)||x.b2b_price<0))return NextResponse.json({error:"Price is not configured for a selected item."},{status:409});
   const customerAmount=Number(items.reduce((s:number,x:any)=>s+Number(x.customer_price),0).toFixed(2));const b2bAmount=Number(items.reduce((s:number,x:any)=>s+Number(x.b2b_price),0).toFixed(2));
   const reference="CP-"+randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
-  const {data:created,error}=await db.from("health_booking_requests").insert({reference,partner_reference:reference,collection_partner_id:p.id,lab_partner_id:internalLab.id,customer_name:name,customer_phone:phone,customer_email:email||null,pincode,address,selected_items:items,patient_details:{name,relation:"Self"},preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation",partner_customer_amount:customerAmount,partner_customer_payment_status:"not_recorded",partner_b2b_amount:b2bAmount,partner_b2b_payment_status:"unpaid"}).select("id,reference").single();
+  const {data:created,error}=await db.from("health_booking_requests").insert({reference,partner_reference:reference,customer_id:customerId,collection_partner_id:p.id,lab_partner_id:internalLab.id,customer_name:name,customer_phone:phone,customer_email:email||null,pincode,address,selected_items:items,patient_details:{name,relation:"Self"},preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation",partner_customer_amount:customerAmount,partner_customer_payment_status:"not_recorded",partner_b2b_amount:b2bAmount,partner_b2b_payment_status:"unpaid"}).select("id,reference").single();
   if(error)throw error;
   return NextResponse.json({success:true,reference:created.reference,partner:p.display_name,amount:customerAmount,message:"Your request has been received. Your collection partner will confirm the visit."},{status:201});
  }catch(e){console.error("Collection partner booking error",e);return NextResponse.json({error:"Could not submit booking. Please try again."},{status:500});}
