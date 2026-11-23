@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     let customerId: string | null = null;
     const authorization = request.headers.get("authorization");
     if (authorization) {
-      const token = authorization.replace(/^Bearer\\s+/i, "").trim();
+      const token = authorization.replace(/^Bearer\s+/i, "").trim();
       if (!token) return NextResponse.json({ error: "Customer session is invalid. Please sign in again." }, { status: 401 });
       const { data: authData, error: authError } = await supabase.auth.getUser(token);
       if (authError || !authData.user) return NextResponse.json({ error: "Customer session is invalid. Please sign in again." }, { status: 401 });
