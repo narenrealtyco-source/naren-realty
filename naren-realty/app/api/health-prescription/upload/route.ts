@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
     if (!url || !service) return NextResponse.json({ error: "Prescription upload is temporarily unavailable." }, { status: 503 });
 
     const supabase = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: recentUploads, error: rateError } = await supabase.from("health_prescription_uploads").select("id", { count: "exact", head: true }).eq("customer_phone", phone).gte("created_at", since);
+    if (rateError) throw rateError;
+    if ((recentUploads || 0) >= 3) return NextResponse.json({ error: "For security, please wait before submitting another prescription from this mobile number." }, { status: 429 });
     const reference = "RX-" + randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase();
     const storagePath = "customer-enquiries/" + reference + "." + extension;
     const bytes = new Uint8Array(await file.arrayBuffer());
