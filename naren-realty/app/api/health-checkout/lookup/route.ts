@@ -5,7 +5,7 @@ export async function POST(request:NextRequest){
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL,service=process.env.SUPABASE_SERVICE_ROLE_KEY;
   if(!url||!service)return NextResponse.json({error:"Order lookup unavailable."},{status:503});
   const body=await request.json(),reference=String(body?.reference||"").trim().toUpperCase(),phone=String(body?.phone||"").replace(/\D/g,"").slice(-10);
-  if(!/^MFIT-[A-F0-9]{10}$/.test(reference)||!/^([6-9]\d{9})$/.test(phone))return NextResponse.json({error:"Enter the booking reference and registered 10-digit mobile number."},{status:400});
+  if(!/^MFIT-[A-Z0-9]{10}$/.test(reference)||!/^([6-9]\d{9})$/.test(phone))return NextResponse.json({error:"Enter the booking reference and registered 10-digit mobile number."},{status:400});
   const db=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await db.from("health_booking_requests").select("id,reference,selected_items,preferred_date,preferred_slot,status,sample_status,coupon_code,created_at,customer_payable_amount,customer_payment_status,collection_partner_id,partner_b2b_payment_status").eq("reference",reference).eq("customer_phone",phone).maybeSingle();
   if(error)throw error;
