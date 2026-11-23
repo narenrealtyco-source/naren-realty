@@ -42,6 +42,7 @@ async function MfitAdminPageContent() {
           ["Collection Slots","Manage collection areas, dates, capacity and time slots","/admin/health/slots"],
           ["Coupons & Family Discounts","Configure coupon campaigns and family member discounts","/admin/health/coupons"],
           ["Reports","Manage secure diagnostic report records","/admin/health/reports"],
+          ["Prescription Enquiries","Review customer prescription uploads through expiring private links","/admin/health/prescriptions"],
           ["Customer Catalogue","Preview customer-facing packages and tests","/health-checkup/packages"]
         ].map(([title,desc,href])=><Link key={href} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-400"><h2 className="font-extrabold text-[#126d70]">{title}</h2><p className="mt-2 text-sm leading-5 text-slate-500">{desc}</p><span className="mt-4 inline-block text-xs font-bold text-teal-700">Open →</span></Link>)}
       </section>
