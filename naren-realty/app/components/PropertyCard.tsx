@@ -262,8 +262,8 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
 
     </div>
     <div className="mt-auto grid grid-cols-2 gap-1 border-t border-slate-100 bg-white p-3 pt-1 sm:p-4">
-      <Link href={detailHref} className="flex min-h-10 min-w-0 items-center justify-center rounded-lg bg-amber-400 px-2 py-2 text-[10px] font-bold leading-tight text-slate-950 transition hover:bg-amber-300 sm:text-xs">View Details</Link>
-      <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-10 min-w-0 rounded-lg bg-[#A71930] px-2 py-2 text-[9px] font-bold leading-tight text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
+      <Link href={detailHref} className="flex min-h-10 min-w-0 items-center justify-center rounded-lg bg-[#A71930] px-2 py-2 text-[10px] font-bold leading-tight text-white transition hover:bg-[#861326] sm:text-xs">View Details</Link>
+      <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-10 min-w-0 rounded-lg bg-[#A71930] px-2 py-2 text-[9px] font-bold leading-tight text-white transition hover:bg-[#861326] disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
       {!visitsReady && <p className="col-span-2 text-[9px] leading-tight text-slate-500">Visit requests are not available yet.</p>}
     </div>
     {visitOpen && <VisitRequestForm propertyId={listing.id} title={listing.title} onClose={() => setVisitOpen(false)} />}
