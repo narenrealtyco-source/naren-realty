@@ -15,8 +15,8 @@ async function ServiceContent({ params }: { params: Promise<{ slug: string }> })
   const service = findHomeService(slug);
   if (!service) notFound();
   return <main className="min-h-screen bg-slate-50 p-4 text-slate-900 sm:p-8"><div className="mx-auto max-w-3xl">
-    <Link href="/home-services" className="text-sm font-semibold text-[#10243A] underline">← All home services</Link>
-    <h1 className="mt-5 text-3xl font-bold text-[#10243A]">{service.name}</h1>
+    <Link href="/home-services" className="text-sm font-semibold text-[#A71930] underline">← All home services</Link>
+    <h1 className="mt-5 text-3xl font-bold text-[#A71930]">{service.name}</h1>
     <p className="mb-6 mt-2 text-slate-600">{service.description} Services are subject to availability and confirmation.</p>
     <ServiceEnquiryForm service={service.slug} ready={homeServicesReady()} />
   </div></main>;
