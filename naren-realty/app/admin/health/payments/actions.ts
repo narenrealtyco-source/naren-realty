@@ -28,3 +28,15 @@ export async function reviewMfitPartnerPayment(formData:FormData){
  }
  revalidatePath("/admin/health/payments");revalidatePath("/admin/health/bookings");revalidatePath("/collection-partner/payments");revalidatePath("/collection-partner/reports");
 }
+export async function reviewMfitCustomerPayment(formData:FormData){
+ const id=String(formData.get("request_id")||""),decision=String(formData.get("decision")||""),note=String(formData.get("review_note")||"").slice(0,1000);
+ if(!id||!["paid","rejected"].includes(decision))throw new Error("Invalid customer payment review.");
+ const {supabase,user}=await requireAdmin();
+ const {data:b,error:readError}=await supabase.from("health_booking_requests").select("id,customer_payment_status").eq("id",id).single();
+ if(readError||!b)throw new Error("Customer booking request not found.");
+ if(b.customer_payment_status==="paid")throw new Error("Customer payment is already verified.");
+ const now=new Date().toISOString();
+ const {error}=await supabase.from("health_booking_requests").update({customer_payment_status:decision,customer_payment_verified_at:now,customer_payment_verified_by:user.id,customer_payment_review_note:note|| (decision==="rejected"?"Proof rejected":null),updated_at:now}).eq("id",id);
+ if(error)throw new Error("Could not update customer payment: "+error.message);
+ revalidatePath("/admin/health/payments");revalidatePath("/admin/health/bookings");
+}
