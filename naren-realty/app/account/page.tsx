@@ -143,6 +143,10 @@ export default function CustomerAccountPage() {
         const currentCustomer = await getCustomerSession();
         if (!active) return;
         setCustomer(currentCustomer);
+        if (currentCustomer && window.location.hash === "#login") {
+          window.location.replace("/");
+          return;
+        }
         if (currentCustomer) setPendingPolicies(getMissingPolicies(currentCustomer.id, "customer", CUSTOMER_POLICIES).map((document) => document.type));
       } catch {
         if (active) setAuthError("Account information could not be loaded from this browser.");
@@ -277,11 +281,7 @@ export default function CustomerAccountPage() {
       setPassword("");
       setTab("profile");
       if (mode === "login") {
-        const nextPath = new URLSearchParams(window.location.search).get("next");
-        const destination = nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
-          ? nextPath
-          : "/";
-        window.location.assign(destination);
+        window.location.replace("/");
         return;
       }
     } catch (error) {
