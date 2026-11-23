@@ -89,6 +89,7 @@ export default function SubmitEventPage() {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) { router.push("/account?next=/events/submit"); return; }
+      const userId = user.id;
       const isOnline = form.eventMode === "online";
       if (!isOnline && form.locationStatus === "confirmed" && !form.venue.trim()) { setError("Please enter the confirmed venue name, or select Location To Be Announced."); return; }
       if (!isOnline && !form.locality.trim()) { setError("Please enter the city or locality for this event."); return; }
@@ -103,7 +104,7 @@ export default function SubmitEventPage() {
       async function uploadEventImage(file: File | null) {
         if (!file) return null;
         const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+        const path = `${userId}/${crypto.randomUUID()}.${extension}`;
         const { error: uploadError } = await supabase.storage.from("event-images").upload(path, file, { contentType:file.type, upsert:false });
         if (uploadError) throw uploadError;
         return supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
