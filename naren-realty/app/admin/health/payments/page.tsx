@@ -12,8 +12,8 @@ export default async function MfitPaymentsAdmin(){
  ]);
  const requestIds=[...new Set((payments||[]).map((p:any)=>p.booking_request_id))];
  const {data:bookings}=requestIds.length?await supabase.from("health_booking_requests").select("id,reference,customer_name,partner_b2b_amount").in("id",requestIds):{data:[]};
- const partnerMap=new Map((partners||[]).map((p:any)=>[p.id,p.display_name]));
- const bookingMap=new Map((bookings||[]).map((b:any)=>[b.id,b]));
+ const partnerMap=new Map<string,string>((partners||[]).map((p:any)=>[String(p.id),String(p.display_name)] as [string,string]));
+ const bookingMap=new Map<string,any>((bookings||[]).map((b:any)=>[String(b.id),b] as [string,any]));
  const proofUrls=await Promise.all((payments||[]).map(async(p:any)=>{if(!p.payment_proof_path)return [p.id,null];const {data}=await supabase.storage.from("mfit-payment-proofs").createSignedUrl(p.payment_proof_path,600);return [p.id,data?.signedUrl||null]}));
  const proofMap=new Map(proofUrls);
  return <main className="min-h-screen bg-slate-50 p-4"><div className="mx-auto max-w-5xl"><Link href="/admin/health" className="text-sm font-semibold text-teal-700">‹ MFIT Admin</Link><h1 className="mt-4 text-2xl font-extrabold">MFIT Payments & UPI Settings</h1>
