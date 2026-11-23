@@ -22,7 +22,7 @@ export default function MobileBottomNav() {
       <div className="mx-auto flex h-[4.5rem] max-w-lg items-stretch justify-around px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         {links.map(({ href, label, path }) => {
           const current = pathname === href || pathname.startsWith(`${href}/`);
-          return <Link key={href} href={href} aria-current={current ? "page" : undefined} className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold sm:text-xs ${current ? "text-amber-700" : "text-[#10243A]"}`}>
+          return <Link key={href} href={href} aria-current={current ? "page" : undefined} className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold sm:text-xs ${current ? "text-[#A71930]" : "text-[#10243A]"}`}>
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-6"><path d={path} /></svg>
             <span>{label}</span>
           </Link>;
