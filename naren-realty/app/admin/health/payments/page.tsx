@@ -1,9 +1,11 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {connection} from "next/server";
+import {Suspense} from "react";
 import {requireAdmin} from "../../../lib/supabase-server";
 import {saveMfitPaymentSettings,reviewMfitPartnerPayment} from "./actions";
-export default async function MfitPaymentsAdmin(){
+export default function MfitPaymentsAdmin(){ return <Suspense fallback={<main className="min-h-screen bg-slate-50 p-6"><div className="mx-auto max-w-5xl rounded-xl border bg-white p-5 text-sm text-slate-500">Loading MFIT payment administration…</div></main>}><MfitPaymentsAdminContent /></Suspense>; }
+async function MfitPaymentsAdminContent(){
  await connection();let supabase;try{({supabase}=await requireAdmin())}catch{redirect("/admin/login")}
  const [{data:settings},{data:payments},{data:partners}]=await Promise.all([
   supabase.from("mfit_payment_settings").select("*").eq("id",true).maybeSingle(),
