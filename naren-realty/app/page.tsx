@@ -124,7 +124,7 @@ export default function Home() {
           <div className="min-w-0">
             <h2 className="text-xl font-extrabold sm:text-2xl"><span className="text-white/80">Refer</span> &amp; Earn</h2>
             <p className="mt-1 text-xs leading-5 text-slate-200 sm:text-sm">Tenant referral ₹1,000 · Owner referral ₹2,000</p>
-            <Link href="/account/referrals" className="mt-3 inline-flex min-h-9 items-center rounded-lg bg-[#A71930] px-4 text-xs font-extrabold text-[#A71930] hover:bg-[#861326] sm:text-sm">Refer Now →</Link>
+            <Link href="/account/referrals" className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-white bg-white px-5 text-xs font-extrabold text-[#A71930] shadow-sm transition-colors hover:bg-[#F4F1EF] hover:text-[#861326] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm">Refer Now →</Link>
           </div>
           <div aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-white/10 text-3xl sm:size-24 sm:text-5xl">🎁</div>
         </section>
