@@ -84,7 +84,7 @@ function EventsNearMeSection() {
         .eq("status", "approved")
         .gte("starts_at", new Date().toISOString())
         .order("starts_at", { ascending: true })
-        .limit(8);
+        .limit(4);
       if (!active) return;
       if (error) console.error("[home-events] Approved event lookup failed", { code: error.code });
       setEvents((data ?? []) as HomeEventItem[]);
@@ -101,13 +101,13 @@ function EventsNearMeSection() {
         <Link href="/events" className="shrink-0 whitespace-nowrap text-xs font-bold text-[#A71930] hover:text-[#861326] sm:text-sm">View All <span aria-hidden="true">→</span></Link>
       </div>
       {loading ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
           {[1, 2, 3, 4].map((item) => <div key={item} className="animate-pulse overflow-hidden rounded-xl bg-slate-100"><div className="aspect-[2/3] bg-slate-200" /><div className="h-12 bg-slate-100" /></div>)}
         </div>
       ) : events.length === 0 ? (
         <p className="rounded-xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">No upcoming events available right now.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
           {events.map((event) => {
             const date = new Date(event.starts_at);
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
