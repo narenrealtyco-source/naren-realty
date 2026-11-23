@@ -1,7 +1,9 @@
 import Link from "next/link";
+import {connection} from "next/server";
 import {redirect} from "next/navigation";
 import {requireCollectionPartner} from "../../lib/collection-partner";
 export default async function PaymentCheckout({searchParams}:{searchParams:Promise<{request_id?:string}>}){
+ await connection();
  let ctx;try{ctx=await requireCollectionPartner()}catch{redirect("/collection-partner/login")}const {admin,partner}=ctx;const {request_id=""}=await searchParams;
  const {data:booking}=await admin.from("health_booking_requests").select("id,reference,customer_name,partner_b2b_amount,partner_b2b_payment_status").eq("id",request_id).eq("collection_partner_id",partner.id).single();
  if(!booking)redirect("/collection-partner/payments");
