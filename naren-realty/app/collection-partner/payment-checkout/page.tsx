@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { requireCollectionPartner } from "../../lib/collection-partner";
 
-type PageProps = { searchParams: Promise<{ request_id?: string }> };\nfunction upiUrl(scheme:string,upiId:string,payee:string,amount:number,reference:string){const q=new URLSearchParams({pa:upiId,pn:payee,am:amount.toFixed(2),cu:"INR",tn:"MFIT B2B "+reference});return scheme+"://"+(scheme==="tez"?"upi/pay":"pay")+"?"+q.toString();}
+type PageProps = { searchParams: Promise<{ request_id?: string }> };
+function upiUrl(scheme:string,upiId:string,payee:string,amount:number,reference:string){const q=new URLSearchParams({pa:upiId,pn:payee,am:amount.toFixed(2),cu:"INR",tn:"MFIT B2B "+reference});return scheme+"://"+(scheme==="tez"?"upi/pay":"pay")+"?"+q.toString();}
 
 export default function PaymentCheckoutPage({ searchParams }: PageProps) {
   return (
