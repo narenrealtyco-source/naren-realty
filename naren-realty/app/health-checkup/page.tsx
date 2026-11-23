@@ -89,10 +89,10 @@ export default function HealthPage() {
       .catch(() => { if (active) setCatalogItems([]); });
     return () => { active = false; };
   }, []);
-  const approvedCatalog = useMemo(() => catalogItems.filter((item) => item.is_active && item.provider_verified && item.price !== null && Number(item.price) >= 0), [catalogItems]);
-  const recommendedItems = approvedCatalog.slice(0, 3);
-  const catalogPackages = approvedCatalog.filter((item) => item.item_type === "package").slice(0, 3);
-  const catalogTests = approvedCatalog.filter((item) => item.item_type === "test").slice(0, 3);
+  const listedCatalog = useMemo(() => catalogItems.filter((item) => item.is_active), [catalogItems]);
+  const recommendedItems = listedCatalog.slice(0, 3);
+  const catalogPackages = listedCatalog.filter((item) => item.item_type === "package").slice(0, 3);
+  const catalogTests = listedCatalog.filter((item) => item.item_type === "test").slice(0, 3);
   const filtered = useMemo(() => categories.filter((item) => (item.title + " " + item.subtitle).toLowerCase().includes(query.toLowerCase())), [query]);
   const submitPrescription = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -211,11 +211,11 @@ export default function HealthPage() {
       </section>
 
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
-        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended for you</h2></div>
+        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended MFIT health checks</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {recommendedItems.map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <div className="flex h-[130px] items-end bg-gradient-to-br from-[#dff6f3] via-[#e8f5fb] to-[#dceff2] p-4"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.item_type === "test" ? "MFIT approved lab test" : "MFIT approved package"}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link><div className="mt-2"><AddToCartButton slug={item.slug}/></div></div>
+            <div className="flex h-[130px] items-end bg-gradient-to-br from-[#dff6f3] via-[#e8f5fb] to-[#dceff2] p-4"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.item_type === "test" ? "MFIT lab test" : "MFIT health package"}</span></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={item.item_type === "test" ? "/health-checkup/test/" + encodeURIComponent(item.slug) : "/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
           </article>)}
         </div>
       </section>
@@ -223,7 +223,7 @@ export default function HealthPage() {
       <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">{mostBookedTab === "packages" ? "Most booked health checkup packages" : "Popular individual lab tests"}</h2>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">{mostBookedTab === "packages" ? "Featured health checkup packages" : "Featured individual lab tests"}</h2>
         </div>
         <div className="mb-5 flex gap-2">
           <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
@@ -232,12 +232,12 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {(mostBookedTab === "packages" ? catalogPackages : catalogTests).map((item) => (
             <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT approved</span></div>
+              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT catalogue</span></div>
               <div className="p-4">
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p>
-                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link><div className="mt-2"><AddToCartButton slug={item.slug}/></div>
+                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div>
               </div>
             </article>
           ))}
