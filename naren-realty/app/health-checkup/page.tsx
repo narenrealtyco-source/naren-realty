@@ -236,8 +236,8 @@ export default function HealthPage() {
               <div className="p-4">
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p>
-                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div>
+                <p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p>
+                <Link href={mostBookedTab === "packages" ? "/health-checkup/package/" + encodeURIComponent(item.slug) : "/health-checkup/test/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div>
               </div>
             </article>
           ))}
@@ -269,7 +269,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {catalogPackages.filter((item) => /lifestyle/i.test(item.category || "")).map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <div className="h-[130px] bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0]" />
-            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.description || item.category}</p><p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.description || item.category}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW DETAILS</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
           </article>)}
         </div>
       </section>
