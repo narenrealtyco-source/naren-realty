@@ -9,7 +9,7 @@ export default function HomeServicesPage() {
       <div className="mx-auto max-w-7xl">
         <Link
           href="/"
-          className="inline-flex min-h-9 items-center text-sm font-semibold text-[#10243A] hover:underline"
+          className="inline-flex min-h-9 items-center text-sm font-semibold text-[#A71930] hover:underline"
         >
           ← Home
         </Link>
