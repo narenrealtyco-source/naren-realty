@@ -124,6 +124,7 @@ export default function HealthPage() {
         <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Brand />
           <div className="flex items-center gap-2">
+            <a href="/health-checkup/cart" className="rounded-xl px-3 py-2 text-xs font-bold text-[#26383b] hover:bg-[#eff9f8]">Cart</a>
             <a href="/health-checkup/my-orders" className="hidden rounded-xl px-3 py-2 text-xs font-bold text-[#26383b] transition hover:bg-[#eff9f8] sm:inline-flex">My Orders</a>
             <a href="#contact" className="rounded-xl bg-[#e9f8f7] px-3.5 py-2.5 text-xs font-bold text-[#087f82] sm:px-4 sm:text-sm">Need help?</a>
           </div>
