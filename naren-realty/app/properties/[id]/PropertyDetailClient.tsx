@@ -197,13 +197,13 @@ function FactCard({ fact }: { fact: PropertyFact }) {
   return <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
     <span className="inline-flex size-10 items-center justify-center rounded-lg bg-amber-50 text-amber-800"><PropertyIcon name={fact.icon} /></span>
     <p className="mt-3 text-xs font-semibold text-slate-500">{fact.label}</p>
-    <p className="mt-1 break-words text-sm font-bold text-[#10243A]">{fact.value}</p>
+    <p className="mt-1 break-words text-sm font-bold text-[#A71930]">{fact.value}</p>
   </div>;
 }
 
 function PropertySection({ title, children }: { title: string; children: ReactNode }) {
   return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-    <h2 className="text-xl font-bold text-[#10243A] sm:text-2xl">{title}</h2>
+    <h2 className="text-xl font-bold text-[#A71930] sm:text-2xl">{title}</h2>
     {children}
   </section>;
 }
@@ -447,7 +447,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
         context.fillRect(0, 0, canvas.width, 570);
       }
 
-      const navy = "#10243A";
+      const navy = "#A71930";
       const gold = "#e5b84e";
       context.fillStyle = "#ffffff";
       context.fillRect(0, 570, canvas.width, 510);
@@ -573,7 +573,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
 
   return (
     <main className="min-h-screen bg-slate-50 pb-24 text-slate-900 lg:pb-10">
-      <header className="bg-[#10243A] text-white">
+      <header className="bg-[#A71930] text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
           <Link href="/" className="text-base font-bold tracking-wide sm:text-xl sm:tracking-widest">NAREN <span className="text-amber-400">REALTY</span></Link>
           <Link href="/properties" className="shrink-0 rounded-lg border border-amber-400 px-3 py-3 text-xs font-semibold text-amber-400 transition hover:bg-amber-400 hover:text-slate-950 sm:px-4 sm:text-sm">Browse Properties</Link>
@@ -581,10 +581,10 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
       </header>
 
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8">
-        <Link href="/properties" className="text-sm font-semibold text-[#10243A] hover:text-amber-700">&larr; All approved properties</Link>
+        <Link href="/properties" className="text-sm font-semibold text-[#A71930] hover:text-amber-700">&larr; All approved properties</Link>
         {loading ? <p role="status" className="mt-8 text-slate-600">Loading property...</p>
           : loadError ? <div role="alert" className="mt-8 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"><p>{loadError}</p><button type="button" onClick={() => setLoadAttempt((attempt) => attempt + 1)} className="mt-3 rounded-lg bg-rose-800 px-4 py-2 font-semibold text-white hover:bg-rose-700">Retry</button></div>
-            : !listing ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white px-5 py-14"><h1 className="text-2xl font-bold text-[#10243A]">Property unavailable</h1><p className="mt-2 text-slate-600">This property may no longer be approved for browsing.</p></div>
+            : !listing ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white px-5 py-14"><h1 className="text-2xl font-bold text-[#A71930]">Property unavailable</h1><p className="mt-2 text-slate-600">This property may no longer be approved for browsing.</p></div>
               : <>
                 <div className="mt-5">
                   <PropertyPhotoGallery title={listing.title} photos={listing.photos} videoUrl={listing.videoUrl} />
@@ -596,21 +596,21 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap gap-2">
-                            <span className="rounded-full bg-[#10243A] px-3 py-1.5 text-xs font-bold text-white">{purposeLabel}</span>
+                            <span className="rounded-full bg-[#A71930] px-3 py-1.5 text-xs font-bold text-white">{purposeLabel}</span>
                             <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">{categoryLabel}</span>
                             {availability && <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">{availability}</span>}
                           </div>
-                          <h1 className="mt-4 break-words text-2xl font-bold leading-tight text-[#10243A] sm:text-3xl lg:text-4xl">{listing.title}</h1>
+                          <h1 className="mt-4 break-words text-2xl font-bold leading-tight text-[#A71930] sm:text-3xl lg:text-4xl">{listing.title}</h1>
                           <p className="mt-2 flex items-center gap-2 text-sm font-medium text-slate-600 sm:text-base">
                             <PropertyIcon name="location" />
                             <span>{listing.locality}, Pune</span>
                           </p>
                           {listing.address?.trim() && <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-600">{listing.address}</p>}
-                          <p className="mt-4 text-2xl font-bold text-[#10243A] lg:hidden">{price}</p>
+                          <p className="mt-4 text-2xl font-bold text-[#A71930] lg:hidden">{price}</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           <FavoriteButton propertyId={listing.id} title={listing.title} locality={listing.locality} type={categoryLabel} price={price} bedrooms={listing.bedrooms || undefined} />
-                          <button type="button" onClick={() => void shareProperty()} aria-label="Share property" className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-[#10243A] shadow-sm transition hover:border-amber-400 hover:text-amber-800">
+                          <button type="button" onClick={() => void shareProperty()} aria-label="Share property" className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-[#A71930] shadow-sm transition hover:border-amber-400 hover:text-amber-800">
                             <PropertyIcon name="share" /><span>Share</span>
                           </button>
                         </div>
@@ -639,7 +639,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
                           {details.map((fact) => (
                             <div key={`${fact.label}-${fact.value}`} className="flex min-w-0 items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
                               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-amber-800 shadow-sm"><PropertyIcon name={fact.icon} /></span>
-                              <div className="min-w-0"><dt className="text-xs font-semibold text-slate-500">{fact.label}</dt><dd className="mt-1 break-words text-sm font-semibold text-[#10243A]">{fact.value}</dd></div>
+                              <div className="min-w-0"><dt className="text-xs font-semibold text-slate-500">{fact.label}</dt><dd className="mt-1 break-words text-sm font-semibold text-[#A71930]">{fact.value}</dd></div>
                             </div>
                           ))}
                         </dl>
@@ -652,7 +652,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
                           {rental.map((fact) => (
                             <div key={fact.label} className="flex min-w-0 items-start gap-3 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
                               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-amber-800 shadow-sm"><PropertyIcon name={fact.icon} /></span>
-                              <div className="min-w-0"><p className="text-xs font-semibold text-slate-500">{fact.label}</p><p className="mt-1 break-words text-sm font-bold text-[#10243A]">{fact.value}</p></div>
+                              <div className="min-w-0"><p className="text-xs font-semibold text-slate-500">{fact.label}</p><p className="mt-1 break-words text-sm font-bold text-[#A71930]">{fact.value}</p></div>
                             </div>
                           ))}
                         </div>
@@ -685,14 +685,14 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
                   <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg xl:p-6">
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700">NAREN REALTY</p>
-                      <p className="mt-3 break-words text-lg font-bold text-[#10243A]">{listing.title}</p>
+                      <p className="mt-3 break-words text-lg font-bold text-[#A71930]">{listing.title}</p>
                       <p className="mt-1 break-words text-sm text-slate-600">{listing.locality}, Pune</p>
-                      <p className="mt-5 text-3xl font-bold text-[#10243A]">{price}</p>
+                      <p className="mt-5 text-3xl font-bold text-[#A71930]">{price}</p>
                       <div className="mt-6 space-y-3">
                         <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-12 w-full rounded-lg bg-amber-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50">Book a Site Visit</button>
-                        <button type="button" onClick={() => setEnquiryOpen(true)} className="min-h-12 w-full rounded-lg bg-[#10243A] px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700">Send Enquiry</button>
+                        <button type="button" onClick={() => setEnquiryOpen(true)} className="min-h-12 w-full rounded-lg bg-[#A71930] px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700">Send Enquiry</button>
                         <div className="flex flex-col items-center gap-1 border-t border-slate-100 pt-4">
-                          <p className="text-sm font-semibold text-[#10243A]">Contact NAREN REALTY</p>
+                          <p className="text-sm font-semibold text-[#A71930]">Contact NAREN REALTY</p>
                           <ContactButton label="Contact NAREN REALTY" />
                         </div>
                       </div>
@@ -707,7 +707,7 @@ function PropertyDetailClient({ listingId }: { listingId: string }) {
         <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden">
           <div className="mx-auto grid max-w-lg grid-cols-2 gap-3">
             <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-12 rounded-lg bg-amber-400 px-3 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">Book Visit</button>
-            <button type="button" onClick={() => setEnquiryOpen(true)} className="min-h-12 rounded-lg bg-[#10243A] px-3 py-3 text-sm font-bold text-white">Enquire Now</button>
+            <button type="button" onClick={() => setEnquiryOpen(true)} className="min-h-12 rounded-lg bg-[#A71930] px-3 py-3 text-sm font-bold text-white">Enquire Now</button>
           </div>
         </div>
       )}

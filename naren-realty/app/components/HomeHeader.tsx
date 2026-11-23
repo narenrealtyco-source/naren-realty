@@ -88,15 +88,15 @@ export default function HomeHeader() {
     }
   }
 
-  const itemClass = "block w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-slate-900 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-amber-600";
+  const itemClass = "block w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-slate-900 hover:bg-[#F4F1EF] focus-visible:outline-2 focus-visible:outline-[#A71930]";
   return (
-    <header className="relative z-30 bg-[#10243A] text-white">
+    <header className="relative z-30 bg-[#A71930] text-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-5">
         <Link href="/" aria-label="NAREN REALTY home" className="min-w-0">
-          <span className="block whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-amber-400">REALTY</span></span>
+          <span className="block whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-white/80">REALTY</span></span>
         </Link>
         <div ref={container} className="relative">
-          <button ref={button} type="button" aria-label="Account menu" aria-expanded={open} aria-controls="home-account-menu" onClick={() => setOpen((value) => !value)} className="flex size-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 sm:size-11">
+          <button ref={button} type="button" aria-label="Account menu" aria-expanded={open} aria-controls="home-account-menu" onClick={() => setOpen((value) => !value)} className="flex size-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:size-11">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>
           </button>
           {open && <div id="home-account-menu" className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 shadow-xl">

@@ -15,17 +15,17 @@ function Icon({ path }: { path: string }) {
 
 export default function WhyChoose() {
   return <section id="about" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12" aria-labelledby="why-choose">
-    <h2 id="why-choose" className="text-center text-2xl font-bold text-[#10243A] sm:text-3xl">Why Choose NAREN REALTY?</h2>
+    <h2 id="why-choose" className="text-center text-2xl font-bold text-[#A71930] sm:text-3xl">Why Choose NAREN REALTY?</h2>
     <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {benefits.map((benefit) => benefit.featured
-        ? <article key={benefit.title} className="flex min-w-0 flex-col items-center rounded-xl bg-[#10243A] p-3 text-center text-white shadow-lg sm:p-4">
-          <span className="inline-flex size-12 items-center justify-center rounded-xl bg-amber-400 text-[#10243A]"><Icon path={benefit.icon} /></span>
+        ? <article key={benefit.title} className="flex min-w-0 flex-col items-center rounded-xl bg-[#A71930] p-3 text-center text-white shadow-lg sm:p-4">
+          <span className="inline-flex size-12 items-center justify-center rounded-xl bg-amber-400 text-[#A71930]"><Icon path={benefit.icon} /></span>
           <h3 className="mt-2 text-sm font-bold text-amber-400">{benefit.title}</h3>
           <p className="mt-1 text-xs leading-5 text-slate-200">{benefit.description}</p>
         </article>
         : <article key={benefit.title} className="flex min-w-0 flex-col items-center rounded-xl border border-slate-200 bg-white p-3 text-center sm:p-4">
           <span className="inline-flex size-12 items-center justify-center rounded-xl bg-amber-100 text-amber-800"><Icon path={benefit.icon} /></span>
-          <h3 className="mt-2 text-sm font-bold text-[#10243A]">{benefit.title}</h3>
+          <h3 className="mt-2 text-sm font-bold text-[#A71930]">{benefit.title}</h3>
           <p className="mt-1 text-xs leading-5 text-slate-600">{benefit.description}</p>
         </article>)}
     </div>

@@ -95,14 +95,14 @@ export default function CustomerResetPasswordPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900 sm:px-5 sm:py-12">
       <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-amber-700">NAREN REALTY</p>
-        <h1 className="mt-2 text-3xl font-bold text-[#10243A]">Set a new password</h1>
-        {checkingSession ? <p className="mt-4 text-sm text-slate-600">Checking your reset link...</p> : success ? <div className="mt-4 space-y-4"><p role="status" className="text-sm text-emerald-800">Your password has been updated. You can now sign in with your new password.</p><Link href="/account#login" className="block rounded-lg bg-[#10243A] px-5 py-3 text-center font-semibold text-white">Go to Customer Login</Link></div> : validSession ? <form onSubmit={submit} className="mt-6 space-y-4">
-          <label className="block text-sm font-semibold">New password<input required type="password" minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal outline-none focus:border-amber-500" /></label>
-          <label className="block text-sm font-semibold">Confirm new password<input required type="password" minLength={8} autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal outline-none focus:border-amber-500" /></label>
+        <p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">NAREN REALTY</p>
+        <h1 className="mt-2 text-3xl font-bold text-[#A71930]">Set a new password</h1>
+        {checkingSession ? <p className="mt-4 text-sm text-slate-600">Checking your reset link...</p> : success ? <div className="mt-4 space-y-4"><p role="status" className="text-sm text-emerald-800">Your password has been updated. You can now sign in with your new password.</p><Link href="/account#login" className="block rounded-lg bg-[#A71930] px-5 py-3 text-center font-semibold text-white">Go to Customer Login</Link></div> : validSession ? <form onSubmit={submit} className="mt-6 space-y-4">
+          <label className="block text-sm font-semibold">New password<input required type="password" minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal outline-none focus:border-[#A71930]" /></label>
+          <label className="block text-sm font-semibold">Confirm new password<input required type="password" minLength={8} autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal outline-none focus:border-[#A71930]" /></label>
           {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
-          <button disabled={submitting} className="w-full rounded-lg bg-[#10243A] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{submitting ? "Updating..." : "Update password"}</button>
-        </form> : <div className="mt-4 space-y-4"><p role="alert" className="text-sm text-rose-700">{error}</p><Link href="/account#login" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#10243A] underline">Return to Login</Link></div>}
+          <button disabled={submitting} className="w-full rounded-lg bg-[#A71930] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{submitting ? "Updating..." : "Update password"}</button>
+        </form> : <div className="mt-4 space-y-4"><p role="alert" className="text-sm text-rose-700">{error}</p><Link href="/account#login" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#A71930] underline">Return to Login</Link></div>}
       </section>
     </main>
   );

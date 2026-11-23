@@ -16,8 +16,8 @@ export default function DesktopQuickNav() {
   return <nav aria-label="Primary navigation" className="mt-4 hidden max-w-4xl grid-cols-5 gap-3 sm:grid">
     {links.map(({ href, label, path }) => {
       const current = pathname === href || pathname.startsWith(`${href}/`);
-      return <Link key={href} href={href} aria-current={current ? "page" : undefined} className={`flex min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${current ? "border-amber-400 bg-amber-400 text-[#10243A]" : "border-white/25 bg-white/10 text-white hover:border-amber-400 hover:bg-white/20"}`}>
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`size-5 shrink-0 ${current ? "" : "text-amber-400"}`}><path d={path} /></svg>
+      return <Link key={href} href={href} aria-current={current ? "page" : undefined} className={`flex min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${current ? "border-white bg-white text-[#A71930]" : "border-white/25 bg-white/10 text-white hover:border-white hover:bg-white/20"}`}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`size-5 shrink-0 ${current ? "" : "text-white/80"}`}><path d={path} /></svg>
         <span className="truncate">{label}</span>
       </Link>;
     })}

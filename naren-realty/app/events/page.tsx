@@ -145,78 +145,78 @@ function EventsContent() {
   function FilterPanel() {
     return <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-extrabold text-[#172B3A]">Filters</h2>
-        <button type="button" onClick={resetFilters} className="text-xs font-bold text-[#A27D35] hover:underline">Clear all</button>
+        <h2 className="text-base font-extrabold text-[#252525]">Filters</h2>
+        <button type="button" onClick={resetFilters} className="text-xs font-bold text-[#A71930] hover:underline">Clear all</button>
       </div>
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Categories</p>
         <div className="space-y-1">
-          <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (!category ? "bg-[#F5F0E5] font-bold text-[#8B6B2C]" : "text-slate-700 hover:bg-slate-50")}>All events <span>›</span></button>
-          {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (category === item.key ? "bg-[#F5F0E5] font-bold text-[#8B6B2C]" : "text-slate-700 hover:bg-slate-50")}>{item.title}<span>›</span></button>)}
+          <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (!category ? "bg-[#F4F1EF] font-bold text-[#A71930]" : "text-slate-700 hover:bg-slate-50")}>All events <span>›</span></button>
+          {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm " + (category === item.key ? "bg-[#F4F1EF] font-bold text-[#A71930]" : "text-slate-700 hover:bg-slate-50")}>{item.title}<span>›</span></button>)}
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">When</p>
         <div className="space-y-1">
-          {[["any", "Any date"], ["today", "Today"], ["weekend", "This weekend"], ["week", "Next 7 days"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-date" checked={dateFilter === value} onChange={() => setDateFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+          {[["any", "Any date"], ["today", "Today"], ["weekend", "This weekend"], ["week", "Next 7 days"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-date" checked={dateFilter === value} onChange={() => setDateFilter(value)} className="accent-[#A71930]" />{label}</label>)}
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Ticket price</p>
         <div className="space-y-1">
-          {[["any", "Any price"], ["free", "Free events"], ["paid", "Paid events"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-price" checked={priceFilter === value} onChange={() => setPriceFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+          {[["any", "Any price"], ["free", "Free events"], ["paid", "Paid events"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-price" checked={priceFilter === value} onChange={() => setPriceFilter(value)} className="accent-[#A71930]" />{label}</label>)}
         </div>
       </div>
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Event format</p>
         <div className="space-y-1">
-          {[["any", "All formats"], ["offline", "Offline"], ["online", "Online"], ["hybrid", "Hybrid"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-mode" checked={modeFilter === value} onChange={() => setModeFilter(value)} className="accent-[#A27D35]" />{label}</label>)}
+          {[["any", "All formats"], ["offline", "Offline"], ["online", "Online"], ["hybrid", "Hybrid"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50"><input type="radio" name="event-mode" checked={modeFilter === value} onChange={() => setModeFilter(value)} className="accent-[#A71930]" />{label}</label>)}
         </div>
       </div>
     </div>;
   }
 
-  return <main className="min-h-screen bg-[#F4F6F8] text-slate-900">
-    <header className="bg-[#10243A] px-4 py-3.5 text-white sm:px-6">
+  return <main className="min-h-screen bg-[#F4F1EF] text-slate-900">
+    <header className="bg-[#A71930] px-4 py-3.5 text-white sm:px-6">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-        <Link href="/" className="text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-[#D5B56D]">REALTY</span></Link>
+        <Link href="/" className="text-lg font-extrabold tracking-tight sm:text-2xl">NAREN <span className="text-[#F0C5CC]">REALTY</span></Link>
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link href="/events/manage" className="text-[11px] font-semibold text-white/90 hover:text-[#D5B56D] sm:text-sm">Manage Events</Link>
-          <Link href="/events/submit" className="rounded-lg bg-[#B08D3E] px-3 py-2 text-[11px] font-extrabold text-white hover:bg-[#94732F] sm:px-4 sm:text-sm">Post Your Event</Link>
-          <Link href="/" className="hidden text-sm font-semibold text-[#D5B56D] sm:block">Home</Link>
+          <Link href="/events/manage" className="text-[11px] font-semibold text-white/90 hover:text-[#F0C5CC] sm:text-sm">Manage Events</Link>
+          <Link href="/events/submit" className="rounded-lg bg-[#A71930] px-3 py-2 text-[11px] font-extrabold text-white hover:bg-[#861326] sm:px-4 sm:text-sm">Post Your Event</Link>
+          <Link href="/" className="hidden text-sm font-semibold text-[#F0C5CC] sm:block">Home</Link>
         </div>
       </div>
     </header>
 
     <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8">
       <div className="mb-5">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#A27D35] sm:text-xs">Discover • Connect • Experience</p>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#A71930] sm:text-xs">Discover • Connect • Experience</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-          <div><h1 className="text-2xl font-black tracking-tight text-[#10243A] sm:text-3xl">Explore Events</h1><p className="mt-1 text-xs text-slate-600 sm:text-sm">Find your next plan, people and experiences.</p></div>
+          <div><h1 className="text-2xl font-black tracking-tight text-[#A71930] sm:text-3xl">Explore Events</h1><p className="mt-1 text-xs text-slate-600 sm:text-sm">Find your next plan, people and experiences.</p></div>
           <div className="hidden w-full max-w-sm sm:block"><label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm"><span className="text-slate-400">⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events, venues..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" /></label></div>
         </div>
       </div>
 
       <nav aria-label="Event categories" className="mb-5 flex gap-2 overflow-x-auto pb-2">
-        <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (!category ? "border-[#10243A] bg-[#10243A] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#B08D3E]")}>All Events</button>
-        {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (category === item.key ? "border-[#10243A] bg-[#10243A] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#B08D3E]")}><span className="mr-1.5">{item.icon}</span>{item.short}</button>)}
+        <button onClick={() => { setCategory(""); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (!category ? "border-[#A71930] bg-[#A71930] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#A71930]")}>All Events</button>
+        {categories.map((item) => <button key={item.key} onClick={() => { setCategory(item.key); setSubcategory(""); }} className={"shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition sm:text-sm " + (category === item.key ? "border-[#A71930] bg-[#A71930] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#A71930]")}><span className="mr-1.5">{item.icon}</span>{item.short}</button>)}
       </nav>
 
       <div className="mb-4 flex gap-2 sm:hidden">
         <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5"><span className="text-slate-400">⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events..." className="w-full min-w-0 bg-transparent text-xs outline-none" /></label>
-        <button onClick={() => setMobileFiltersOpen(true)} className="shrink-0 rounded-xl border border-[#D8C9A5] bg-white px-3 py-2 text-xs font-bold text-[#8B6B2C] shadow-sm">☷ Filter{activeCount ? " (" + activeCount + ")" : ""}</button>
+        <button onClick={() => setMobileFiltersOpen(true)} className="shrink-0 rounded-xl border border-[#E8C5CB] bg-white px-3 py-2 text-xs font-bold text-[#A71930] shadow-sm">☷ Filter{activeCount ? " (" + activeCount + ")" : ""}</button>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-5 lg:block"><FilterPanel /></aside>
         <section aria-live="polite" className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div><h2 className="text-lg font-extrabold text-[#10243A] sm:text-xl">{category ? categories.find((item) => item.key === category)?.title ?? "Events" : "All Events"}</h2><p className="mt-0.5 text-[11px] text-slate-500 sm:text-xs">{loading ? "Finding events..." : filteredEvents.length + " upcoming events"}</p></div>
-            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] text-slate-600 sm:text-xs"><span>Sort:</span><select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="max-w-[112px] bg-transparent font-bold text-[#10243A] outline-none sm:max-w-none"><option value="soonest">Date: Soonest</option><option value="latest">Date: Latest</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select></label>
+            <div><h2 className="text-lg font-extrabold text-[#A71930] sm:text-xl">{category ? categories.find((item) => item.key === category)?.title ?? "Events" : "All Events"}</h2><p className="mt-0.5 text-[11px] text-slate-500 sm:text-xs">{loading ? "Finding events..." : filteredEvents.length + " upcoming events"}</p></div>
+            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] text-slate-600 sm:text-xs"><span>Sort:</span><select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="max-w-[112px] bg-transparent font-bold text-[#A71930] outline-none sm:max-w-none"><option value="soonest">Date: Soonest</option><option value="latest">Date: Latest</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select></label>
           </div>
-          {subcategory && <div className="mb-3 flex items-center gap-2"><span className="rounded-full bg-[#F5F0E5] px-3 py-1.5 text-xs font-bold text-[#8B6B2C]">{subcategory.replaceAll("_", " ")}</span><button onClick={() => setSubcategory("")} className="text-xs font-semibold text-slate-500 underline">Remove</button></div>}
+          {subcategory && <div className="mb-3 flex items-center gap-2"><span className="rounded-full bg-[#F4F1EF] px-3 py-1.5 text-xs font-bold text-[#A71930]">{subcategory.replaceAll("_", " ")}</span><button onClick={() => setSubcategory("")} className="text-xs font-semibold text-slate-500 underline">Remove</button></div>}
           {loading ? <div className="grid grid-cols-2 gap-3 sm:gap-4">{[1,2,3,4].map((n) => <div key={n} className="animate-pulse overflow-hidden rounded-xl bg-white"><div className="aspect-[4/3] bg-slate-200"/><div className="space-y-2 p-3"><div className="h-3 w-2/3 rounded bg-slate-200"/><div className="h-3 w-full rounded bg-slate-100"/></div></div>)}</div>
-          : filteredEvents.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center"><p className="text-base font-bold text-[#10243A]">No events found</p><p className="mt-1 text-xs text-slate-500">Try changing your filters or search.</p><button onClick={resetFilters} className="mt-4 rounded-lg bg-[#10243A] px-4 py-2 text-xs font-bold text-white">Clear filters</button></div>
+          : filteredEvents.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center"><p className="text-base font-bold text-[#A71930]">No events found</p><p className="mt-1 text-xs text-slate-500">Try changing your filters or search.</p><button onClick={resetFilters} className="mt-4 rounded-lg bg-[#A71930] px-4 py-2 text-xs font-bold text-white">Clear filters</button></div>
           : <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">{filteredEvents.map((event) => {
             const date = new Date(event.starts_at);
             const venue = event.event_mode === "online" ? "Online" : event.location_status === "tba" ? "Venue TBA" : [event.venue, event.locality].filter(Boolean).join(", ");
@@ -230,17 +230,17 @@ function EventsContent() {
               </Link>
               <div className="space-y-1 px-2.5 pb-2.5 pt-2.5 sm:px-3 sm:pb-3">
                 <Link href={"/events/" + event.id} className="block">
-                  <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[#172B3A] transition group-hover:text-[#8B6B2C] sm:text-sm">{event.title}</h3>
+                  <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[#252525] transition group-hover:text-[#A71930] sm:text-sm">{event.title}</h3>
                 </Link>
                 <Link href={"/events/" + event.id} className="block">
                   <p className="line-clamp-1 text-[9px] font-medium text-slate-500 sm:text-[11px]">{venue}</p>
                 </Link>
                 <div className="flex items-end justify-between gap-2 border-t border-slate-100 pt-2">
                   <Link href={"/events/" + event.id} className="min-w-0">
-                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.1em] text-[#A27D35] sm:text-[10px]">{type}</p>
+                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.1em] text-[#A71930] sm:text-[10px]">{type}</p>
                   </Link>
                   <Link href={"/events/" + event.id} className="shrink-0 text-right">
-                    <p className="text-xs font-extrabold text-[#10243A] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
+                    <p className="text-xs font-extrabold text-[#A71930] sm:text-sm">{event.ticket_price > 0 ? "₹" + event.ticket_price + " onwards" : "Free"}</p>
                   </Link>
                 </div>
               </div>
@@ -252,14 +252,14 @@ function EventsContent() {
 
     {mobileFiltersOpen && <div className="fixed inset-0 z-50 bg-black/40 lg:hidden" onClick={() => setMobileFiltersOpen(false)}>
       <section role="dialog" aria-modal="true" aria-label="Event filters" onClick={(e) => e.stopPropagation()} className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl">
-        <div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-extrabold text-[#10243A]">Filter Events</h2><button onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters" className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold">✕</button></div>
+        <div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-extrabold text-[#A71930]">Filter Events</h2><button onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters" className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold">✕</button></div>
         <FilterPanel />
-        <button onClick={() => setMobileFiltersOpen(false)} className="mt-6 w-full rounded-xl bg-[#10243A] py-3 text-sm font-extrabold text-white">Show {filteredEvents.length} events</button>
+        <button onClick={() => setMobileFiltersOpen(false)} className="mt-6 w-full rounded-xl bg-[#A71930] py-3 text-sm font-extrabold text-white">Show {filteredEvents.length} events</button>
       </section>
     </div>}
   </main>;
 }
 
 export default function EventsPage() {
-  return <Suspense fallback={<main className="min-h-screen bg-[#F4F6F8] p-6 text-[#10243A]">Loading events...</main>}><EventsContent /></Suspense>;
+  return <Suspense fallback={<main className="min-h-screen bg-[#F4F1EF] p-6 text-[#A71930]">Loading events...</main>}><EventsContent /></Suspense>;
 }

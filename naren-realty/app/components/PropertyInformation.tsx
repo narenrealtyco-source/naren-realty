@@ -31,7 +31,7 @@ function Detail({ label, value }: { label: string; value: string }) {
 
 function Amenities({ values }: { values: string[] }) {
   if (!values.length) return null;
-  return <section className="mt-6"><h3 className="text-sm font-bold text-[#10243A]">Available Amenities</h3><ul className="mt-2 flex flex-wrap gap-2">{values.map((amenity) => <li key={amenity} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700">{amenity}</li>)}</ul></section>;
+  return <section className="mt-6"><h3 className="text-sm font-bold text-[#A71930]">Available Amenities</h3><ul className="mt-2 flex flex-wrap gap-2">{values.map((amenity) => <li key={amenity} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700">{amenity}</li>)}</ul></section>;
 }
 
 export default function PropertyInformation({ listing, showOwnerContacts = false }: { listing: PropertyListing; showOwnerContacts?: boolean }) {
@@ -50,7 +50,7 @@ export default function PropertyInformation({ listing, showOwnerContacts = false
     </dl>
 
     {(listing.type === "Rental" || listing.type === "Resale") && <>
-      <h3 className="mt-6 text-sm font-bold text-[#10243A]">Flat Details</h3>
+      <h3 className="mt-6 text-sm font-bold text-[#A71930]">Flat Details</h3>
       <dl className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Detail label="BHK Configuration" value={text(details, "bhkConfiguration", listing.bedrooms ? `${listing.bedrooms} BHK` : "Not specified")} />
         <Detail label="Carpet Area" value={amount(details, "carpetArea") ? `${amount(details, "carpetArea")} sq. ft.` : "Not specified"} />
@@ -63,7 +63,7 @@ export default function PropertyInformation({ listing, showOwnerContacts = false
         <Detail label="Flat Exit Direction" value={text(details, "exitDirection")} />
       </dl>
       {listing.type === "Rental" ? <>
-        <h3 className="mt-6 text-sm font-bold text-[#10243A]">Rental Pricing</h3>
+        <h3 className="mt-6 text-sm font-bold text-[#A71930]">Rental Pricing</h3>
         <dl className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Detail label="Monthly Rent" value={currency(amount(details, "monthlyRent") ?? listing.price)} />
           <Detail label="Security Deposit" value={currency(amount(details, "securityDeposit") ?? 0)} />
@@ -74,7 +74,7 @@ export default function PropertyInformation({ listing, showOwnerContacts = false
           <Detail label="Tenant Preference" value={text(details, "tenantPreference")} />
         </dl>
       </> : <>
-        <h3 className="mt-6 text-sm font-bold text-[#10243A]">Resale Pricing</h3>
+        <h3 className="mt-6 text-sm font-bold text-[#A71930]">Resale Pricing</h3>
         <dl className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Detail label="Expected Sale Price" value={currency(amount(details, "expectedSalePrice") ?? listing.price)} />
           <Detail label="Price Negotiable" value={details.priceNegotiable === true ? "Yes" : "No"} />
@@ -86,21 +86,21 @@ export default function PropertyInformation({ listing, showOwnerContacts = false
     </>}
 
     {listing.type === "PG" && <>
-      <h3 className="mt-6 text-sm font-bold text-[#10243A]">PG / Hostel Details</h3>
+      <h3 className="mt-6 text-sm font-bold text-[#A71930]">PG / Hostel Details</h3>
       <dl className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Detail label="PG / Hostel Name" value={text(details, "pgName", listing.title)} /><Detail label="Gender Preference" value={text(details, "genderPreference")} /><Detail label="Total Rooms" value={amount(details, "totalRooms")?.toString() ?? "Not specified"} /><Detail label="Suitable For" value={text(details, "suitableFor")} /><Detail label="Curfew Timing" value={text(details, "curfewTiming")} /><Detail label="Visitors Allowed" value={details.visitorsAllowed === true ? "Yes" : "No"} /><Detail label="Smoking Allowed" value={details.smokingAllowed === true ? "Yes" : "No"} /><Detail label="Alcohol Allowed" value={details.alcoholAllowed === true ? "Yes" : "No"} /></dl>
-      <h3 className="mt-6 text-sm font-bold text-[#10243A]">Sharing Options & Pricing</h3>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">{((details.sharingOptions as PgSharingOption[] | undefined) ?? []).map((option) => <article key={option.sharingType} className="rounded-md border border-slate-200 p-4"><h4 className="font-semibold text-[#10243A]">{option.sharingType}</h4><dl className="mt-3 grid grid-cols-2 gap-3"><Detail label="Monthly Rent / Person" value={currency(option.monthlyRentPerPerson)} /><Detail label="Security Deposit" value={currency(option.securityDeposit)} /><Detail label="Available Beds / Rooms" value={String(option.availableUnits)} /></dl></article>)}</div>
-      <h3 className="mt-6 text-sm font-bold text-[#10243A]">Facilities</h3>
+      <h3 className="mt-6 text-sm font-bold text-[#A71930]">Sharing Options & Pricing</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">{((details.sharingOptions as PgSharingOption[] | undefined) ?? []).map((option) => <article key={option.sharingType} className="rounded-md border border-slate-200 p-4"><h4 className="font-semibold text-[#A71930]">{option.sharingType}</h4><dl className="mt-3 grid grid-cols-2 gap-3"><Detail label="Monthly Rent / Person" value={currency(option.monthlyRentPerPerson)} /><Detail label="Security Deposit" value={currency(option.securityDeposit)} /><Detail label="Available Beds / Rooms" value={String(option.availableUnits)} /></dl></article>)}</div>
+      <h3 className="mt-6 text-sm font-bold text-[#A71930]">Facilities</h3>
       <ul className="mt-2 flex flex-wrap gap-2">{Object.entries((details.facilities as Record<string, boolean> | undefined) ?? {}).filter(([, included]) => included).map(([facility]) => <li key={facility} className="rounded-md bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-800">{facility}</li>)}</ul>
     </>}
 
     {listing.type === "Airbnb" && <>
-      <h3 className="mt-6 text-sm font-bold text-[#10243A]">Airbnb / Short Stay Details</h3>
+      <h3 className="mt-6 text-sm font-bold text-[#A71930]">Airbnb / Short Stay Details</h3>
       <dl className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Detail label="Property Type" value={text(details, "propertyType")} /><Detail label="Guest Capacity" value={String(amount(details, "guestCapacity") ?? 0)} /><Detail label="Bedrooms" value={String(typeof details.bedrooms === "number" ? details.bedrooms : listing.bedrooms)} /><Detail label="Bathrooms" value={String(amount(details, "bathrooms") ?? listing.bathrooms)} /><Detail label="Carpet Area" value={amount(details, "carpetArea") ? `${amount(details, "carpetArea")} sq. ft.` : "Not specified"} /><Detail label="Furnishing" value={text(details, "furnishingStatus", listing.furnishing)} /><Detail label="Price per Night" value={currency(amount(details, "pricePerNight") ?? listing.price)} /><Detail label="Security Deposit" value={amount(details, "securityDeposit") ? currency(amount(details, "securityDeposit")!) : "None"} /><Detail label="Minimum Stay" value={`${amount(details, "minimumStayNights") ?? 1} nights`} /><Detail label="Maximum Stay" value={amount(details, "maximumStayNights") ? `${amount(details, "maximumStayNights")} nights` : "No limit"} /><Detail label="Check-in" value={text(details, "checkInTime")} /><Detail label="Check-out" value={text(details, "checkOutTime")} /><Detail label="Cleaning Charges" value={amount(details, "cleaningCharges") ? currency(amount(details, "cleaningCharges")!) : "None"} /></dl>
       {text(details, "houseRules", "") && <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700"><strong>House Rules:</strong> {text(details, "houseRules", "")}</p>}
     </>}
 
     <Amenities values={amenities} />
-    {showOwnerContacts && <section className="mt-6 border-t border-rose-100 pt-5"><h3 className="text-sm font-bold text-[#10243A]">Owner Contact (Admin Only)</h3><dl className="mt-3 grid gap-4 sm:grid-cols-3"><Detail label="Owner Name" value={listing.ownerName} /><Detail label="Owner Mobile" value={listing.ownerMobile} /><Detail label="Owner Email" value={listing.ownerEmail} /></dl></section>}
+    {showOwnerContacts && <section className="mt-6 border-t border-rose-100 pt-5"><h3 className="text-sm font-bold text-[#A71930]">Owner Contact (Admin Only)</h3><dl className="mt-3 grid gap-4 sm:grid-cols-3"><Detail label="Owner Name" value={listing.ownerName} /><Detail label="Owner Mobile" value={listing.ownerMobile} /><Detail label="Owner Email" value={listing.ownerEmail} /></dl></section>}
   </div>;
 }

@@ -25,16 +25,16 @@ async function LoansPageContent({ searchParams }: { searchParams: Promise<{ type
   const selected = loanCategories.find((item) => item.slug === params.type);
   return <main className="min-h-screen bg-[#f7f8fa] px-3 py-4 text-slate-900 sm:px-6 sm:py-7">
     <div className="mx-auto max-w-7xl">
-      <Link href="/" className="inline-flex min-h-9 items-center text-sm font-semibold text-[#10243A] hover:underline">← Home</Link>
+      <Link href="/" className="inline-flex min-h-9 items-center text-sm font-semibold text-[#A71930] hover:underline">← Home</Link>
       <header className="mt-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">NAREN REALTY · LOAN ASSISTANCE</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#10243A] sm:text-3xl">Explore Loan Options</h1>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#A71930] sm:text-3xl">Explore Loan Options</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">Choose the type of finance you need and submit your requirement. Our team can review your request and guide you on the next steps.</p>
       </header>
 
       <section className="mt-7" aria-labelledby="loan-categories">
         <div className="mb-3 flex items-end justify-between gap-3">
-          <div><h2 id="loan-categories" className="text-xl font-extrabold text-[#10243A] sm:text-2xl">Browse Loan Categories</h2><p className="mt-1 text-sm text-slate-600">Select a card to start your loan requirement.</p></div>
+          <div><h2 id="loan-categories" className="text-xl font-extrabold text-[#A71930] sm:text-2xl">Browse Loan Categories</h2><p className="mt-1 text-sm text-slate-600">Select a card to start your loan requirement.</p></div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">8 Options</span>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -43,11 +43,11 @@ async function LoansPageContent({ searchParams }: { searchParams: Promise<{ type
             return <Link key={item.slug} href={`/loans?type=${item.slug}#loan-requirement`} aria-current={active ? "true" : undefined} className={`group min-w-0 overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${active ? "border-emerald-600 ring-2 ring-emerald-100" : "border-slate-200"}`}>
               <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                 <img src={item.image} alt={item.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#10243A]">{active ? "Selected" : "Explore"}</span>
+                <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#A71930]">{active ? "Selected" : "Explore"}</span>
               </div>
               <div className="p-3 sm:p-4">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">{item.tag}</p>
-                <h3 className="mt-1 text-sm font-bold leading-snug text-[#10243A] sm:text-base">{item.name}</h3>
+                <h3 className="mt-1 text-sm font-bold leading-snug text-[#A71930] sm:text-base">{item.name}</h3>
                 <p className="mt-1 hidden text-xs leading-relaxed text-slate-500 sm:block">{item.description}</p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-emerald-800">Apply / Enquire <span aria-hidden="true">→</span></span>
               </div>
@@ -58,13 +58,13 @@ async function LoansPageContent({ searchParams }: { searchParams: Promise<{ type
 
       {selected ? <section id="loan-requirement" className="mt-7 scroll-mt-5 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-3 sm:p-5">
         <div className="mb-4 flex items-start gap-3">
-          <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wide text-emerald-700">Selected loan category</p><h2 className="mt-1 text-xl font-extrabold text-[#10243A]">{selected.name}</h2><p className="mt-1 text-sm text-slate-600">{selected.description}</p></div>
+          <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wide text-emerald-700">Selected loan category</p><h2 className="mt-1 text-xl font-extrabold text-[#A71930]">{selected.name}</h2><p className="mt-1 text-sm text-slate-600">{selected.description}</p></div>
           <Link href="/loans#loan-categories" className="ml-auto shrink-0 text-xs font-bold text-emerald-800 hover:underline">Change</Link>
         </div>
         <Suspense fallback={<p className="rounded-xl bg-white p-5 text-sm text-slate-600">Loading requirement form...</p>}><LoansContent selectedSlug={selected.slug} /></Suspense>
       </section> : <section className="mt-7 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center">
         <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-50 text-2xl" aria-hidden="true">₹</div>
-        <h2 className="mt-3 font-bold text-[#10243A]">Start with a loan category</h2>
+        <h2 className="mt-3 font-bold text-[#A71930]">Start with a loan category</h2>
         <p className="mx-auto mt-1 max-w-lg text-sm text-slate-600">Choose any card above to open its requirement form. You can review your submitted requests in the same section.</p>
       </section>}
     </div>

@@ -11,7 +11,7 @@ export default function MatchesPage() {
   const ready = matchesReady();
   return <main className="min-h-screen bg-white p-4 text-slate-800 sm:p-8"><div className="mx-auto max-w-6xl">
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <div><Link href="/" className="text-sm font-semibold text-[#10243A] hover:underline">← Home</Link><h1 className="mt-3 text-3xl font-bold tracking-tight text-[#10243A]">Property Matches</h1><p className="mt-2 text-sm text-slate-600">Explore approved rental and resale properties matching your needs.</p></div>
+      <div><Link href="/" className="text-sm font-semibold text-[#A71930] hover:underline">← Home</Link><h1 className="mt-3 text-3xl font-bold tracking-tight text-[#A71930]">Property Matches</h1><p className="mt-2 text-sm text-slate-600">Explore approved rental and resale properties matching your needs.</p></div>
       <div className="sm:self-start"><MatchesPostRequirement ready={ready} /></div>
     </div>
     {ready && <Suspense fallback={<p className="mt-6 text-sm text-slate-500">Loading matching properties...</p>}><Requirements /></Suspense>}
@@ -20,7 +20,7 @@ export default function MatchesPage() {
 async function Requirements() {
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-semibold text-[#10243A]">Sign in to see your saved requirements</h2><p className="mt-2 text-sm text-slate-600">You can browse approved properties below. Sign in to post and track your requirements.</p><Link className="mt-3 inline-block font-semibold text-[#10243A] underline" href="/account#login">Sign in</Link><PublicProperties /></section>;
+  if (authError || !user) return <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-semibold text-[#A71930]">Sign in to see your saved requirements</h2><p className="mt-2 text-sm text-slate-600">You can browse approved properties below. Sign in to post and track your requirements.</p><Link className="mt-3 inline-block font-semibold text-[#A71930] underline" href="/account#login">Sign in</Link><PublicProperties /></section>;
 
   const { data, error } = await supabase.from("property_requirements")
     .select("id,requirement_type,property_category,preferred_location,preferred_bhk,min_budget,max_budget,move_in_date,additional_requirements,customer_name,customer_phone,status")
