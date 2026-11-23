@@ -9,6 +9,7 @@ import EventOrganiserPaymentPanel from "./EventOrganiserPaymentPanel";
 
 type OwnEvent = { id:string; title:string; organiser_upi_id:string|null; organiser_payee_name:string|null; starts_at:string; ends_at:string|null; description:string|null; image_url:string|null; event_details:Record<string,unknown>|null; venue:string; locality:string|null; status:string; event_mode:string; location_status:string; venue_address:string|null; map_link:string|null; online_event_link:string|null; total_capacity:number|null; available_seats:number|null; event_policies:string|null; ticket_price:number };
 const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900";
+const toLocalInput = (value:string) => { const d=new Date(value); const offset=d.getTimezoneOffset(); return new Date(d.getTime()-offset*60000).toISOString().slice(0,16); };
 
 export default function ManageEventsPage() {
   const [items,setItems] = useState<OwnEvent[]>([]);
@@ -36,7 +37,7 @@ export default function ManageEventsPage() {
         setValues(Object.fromEntries(rows.map(item=>[item.id,{
           capacity:String(item.total_capacity??""),
           seats:String(item.available_seats??""),
-          policies:item.event_policies??"", title:item.title, startsAt:new Date(item.starts_at).toISOString().slice(0,16), endsAt:item.ends_at?new Date(item.ends_at).toISOString().slice(0,16):"", ticketPrice:String(item.ticket_price), description:item.description??"", venue:item.venue==="To Be Announced"?"":item.venue==="Online Event"?"":item.venue, locality:item.locality??"", venueAddress:item.venue_address??"", mapLink:item.map_link??"", onlineLink:item.online_event_link??"", locationStatus:item.location_status==="tba"?"tba":"confirmed"
+          policies:item.event_policies??"", title:item.title, startsAt:toLocalInput(item.starts_at), endsAt:item.ends_at?toLocalInput(item.ends_at):"", ticketPrice:String(item.ticket_price), description:item.description??"", venue:item.venue==="To Be Announced"?"":item.venue==="Online Event"?"":item.venue, locality:item.locality??"", venueAddress:item.venue_address??"", mapLink:item.map_link??"", onlineLink:item.online_event_link??"", locationStatus:item.location_status==="tba"?"tba":"confirmed"
         }])));
       }
       setLoading(false);
@@ -56,12 +57,12 @@ export default function ManageEventsPage() {
     if(item.event_mode!=="online"&&value.locationStatus==="confirmed"&&!value.venue.trim()){setMessage("Please enter the venue name or mark the location as TBA.");return;}
     if(value.mapLink.trim()&&!/^https?:\/\//i.test(value.mapLink.trim())){setMessage("Enter a valid Google Maps link.");return;}
     if(value.onlineLink.trim()&&!/^https?:\/\//i.test(value.onlineLink.trim())){setMessage("Enter a valid online meeting link.");return;}
-    setBusy(item.id);setMessage("");
     if(!value.title.trim()||value.title.trim().length<3||value.title.trim().length>120){setMessage("Event title must be between 3 and 120 characters.");return;}
     const start=new Date(value.startsAt), end=value.endsAt?new Date(value.endsAt):null;
     if(!value.startsAt||Number.isNaN(start.getTime())||(end&&(Number.isNaN(end.getTime())||end<=start))){setMessage("Please enter valid event start and end times.");return;}
     const price=Number(value.ticketPrice);
     if(!Number.isFinite(price)||price<1||price>10000000){setMessage("Enter a valid ticket price.");return;}
+    setBusy(item.id);setMessage("");
     const upload=async(file:File|null)=>{if(!file)return null;if(file.size>5*1024*1024)throw new Error("Each event image must be smaller than 5 MB.");if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Use JPG, PNG or WEBP images.");const ext=file.name.split(".").pop()?.toLowerCase()||"jpg";const path=item.id+"/"+crypto.randomUUID()+"."+ext;const {error}=await supabase.storage.from("event-images").upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;return supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;};
     let posterUrl:string|null=null,bannerUrl:string|null=null;
     try{[posterUrl,bannerUrl]=await Promise.all([upload(posterFiles[item.id]??null),upload(bannerFiles[item.id]??null)]);}catch(e){setMessage(e instanceof Error?e.message:"Image upload failed.");setBusy(null);return;}
