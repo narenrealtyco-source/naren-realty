@@ -276,9 +276,12 @@ export default function CustomerAccountPage() {
       setPolicyChecks({});
       setPassword("");
       setTab("profile");
-      const nextPath = new URLSearchParams(window.location.search).get("next");
-      if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
-        window.location.assign(nextPath);
+      if (mode === "login") {
+        const nextPath = new URLSearchParams(window.location.search).get("next");
+        const destination = nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
+          ? nextPath
+          : "/";
+        window.location.assign(destination);
         return;
       }
     } catch (error) {
