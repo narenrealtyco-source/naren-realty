@@ -26,7 +26,8 @@ export default function SubmitEventPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [portraitImage, setPortraitImage] = useState<File | null>(null);\n  const [bannerImage, setBannerImage] = useState<File | null>(null);
+  const [portraitImage, setPortraitImage] = useState<File | null>(null);
+  const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [organiserPolicyAccepted, setOrganiserPolicyAccepted] = useState(false);
   const [commissionAccepted, setCommissionAccepted] = useState(false);
   const [refundPolicyAccepted, setRefundPolicyAccepted] = useState(false);
