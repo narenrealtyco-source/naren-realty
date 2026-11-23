@@ -34,7 +34,7 @@ export async function GET(request:Request){
   return {id:x.id,slug:x.slug,title:x.title,item_type:x.item_type,category:x.category,description:x.description,inclusions:x.inclusions,inclusionsNote:x.inclusionsNote,
    sample_type:x.sample_type,preparation:x.preparation,report_tat:x.report_tat,provider_verified:!!x.provider_verified,
    package_tests:(packageTests[x.id]||[]).sort((a,b)=>a.sort_order-b.sort_order||a.title.localeCompare(b.title)),
-   mrp_price:(x.mrp??x.price)===null?null:Number(x.mrp??x.price),customer_price:customer===null?null:Number(customer),available:customer!==null&&Number(customer)>=0};
+   mrp_price:(x.mrp??x.price)===null?null:Number(x.mrp??x.price),customer_price:customer===null?null:Number(customer),available:!!x.is_active&&!!x.provider_verified&&customer!==null&&Number.isFinite(Number(customer))&&Number(customer)>=0};
  });
  return NextResponse.json({partner:{display_name:p.display_name,public_slug:p.public_slug,service_areas:p.service_areas},items},{headers:{"Cache-Control":"no-store"}});
 }
