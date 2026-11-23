@@ -230,15 +230,12 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {(mostBookedTab === "packages" ? catalogPackages : catalogTests).map((item) => (
             <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-              <div className="relative h-[205px] overflow-hidden bg-[#eaf7f8]">
-                <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
-                <span className="absolute left-3 top-3 rounded-br-xl rounded-tl-xl bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">{item.tag}</span>
-              </div>
+              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT approved</span></div>
               <div className="p-4">
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
-                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages?category=Full%20Body" : "/health-checkup/test/" + ("slug" in item ? item.slug : "cbc-complete-blood-count")} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p>
+                <p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p>
+                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
               </div>
             </article>
           ))}
@@ -315,11 +312,20 @@ export default function HealthPage() {
       </section>
 
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p></div>
-          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white transition hover:bg-[#066c70]">Select prescription<input type="file" accept="image/*,.pdf" className="sr-only" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")} /></label>
-          {fileName && <p className="text-xs font-semibold text-[#087f82]" role="status">Selected: {fileName}</p>}
-        </div>
+        <form onSubmit={submitPrescription} className="rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:p-6">
+          <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Securely submit your doctor’s prescription. Files are stored privately and are not publicly accessible.</p></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-semibold text-slate-700">Your name<input required maxLength={120} value={prescriptionName} onChange={(event) => setPrescriptionName(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label>
+            <label className="text-xs font-semibold text-slate-700">Mobile number<input required inputMode="numeric" maxLength={10} value={prescriptionPhone} onChange={(event) => setPrescriptionPhone(event.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label>
+          </div>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#087f82] bg-white px-5 text-sm font-bold text-[#087f82]">{prescriptionFile ? prescriptionFile.name : "Choose PDF / image"}<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => setPrescriptionFile(event.target.files?.[0] ?? null)} /></label>
+            <span className="text-[11px] text-slate-500">PDF, JPG, PNG or WEBP · Maximum 10 MB</span>
+            <button type="submit" disabled={prescriptionBusy || !prescriptionFile} className="min-h-11 rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white disabled:opacity-50">{prescriptionBusy ? "Uploading securely…" : "Submit prescription"}</button>
+          </div>
+          {prescriptionError && <p role="alert" className="mt-3 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{prescriptionError}</p>}
+          {prescriptionMessage && <p role="status" className="mt-3 rounded-lg bg-white p-3 text-xs font-semibold text-[#087f82]">{prescriptionMessage} Reference: {prescriptionReference}</p>}
+        </form>
       </section>
 
       <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6"><div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p><p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p></div></section>
