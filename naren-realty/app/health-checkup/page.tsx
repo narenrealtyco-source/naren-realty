@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import HealthCatalogAutocomplete from "./HealthCatalogAutocomplete";
 
@@ -72,9 +72,50 @@ function Brand() {
 
 export default function HealthPage() {
   const [query] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [catalogItems, setCatalogItems] = useState<any[]>([]);
   const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
-  const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const [prescriptionName, setPrescriptionName] = useState("");
+  const [prescriptionPhone, setPrescriptionPhone] = useState("");
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
+  const [prescriptionBusy, setPrescriptionBusy] = useState(false);
+  const [prescriptionMessage, setPrescriptionMessage] = useState("");
+  const [prescriptionError, setPrescriptionError] = useState("");
+  const [prescriptionReference, setPrescriptionReference] = useState("");
+  useEffect(() => {
+    let active = true;
+    fetch("/api/health-catalog", { cache: "no-store" })
+      .then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.error || "Catalogue unavailable"); if (active) setCatalogItems(data.items || []); })
+      .catch(() => { if (active) setCatalogItems([]); });
+    return () => { active = false; };
+  }, []);
+  const approvedCatalog = useMemo(() => catalogItems.filter((item) => item.is_active && item.provider_verified && item.price !== null && Number(item.price) >= 0), [catalogItems]);
+  const recommendedItems = approvedCatalog.slice(0, 3);
+  const catalogPackages = approvedCatalog.filter((item) => item.item_type === "package").slice(0, 3);
+  const catalogTests = approvedCatalog.filter((item) => item.item_type === "test").slice(0, 3);
+  const filtered = useMemo(() => categories.filter((item) => (item.title + " " + item.subtitle).toLowerCase().includes(query.toLowerCase())), [query]);
+  const submitPrescription = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPrescriptionError("");
+    setPrescriptionMessage("");
+    if (!prescriptionFile) { setPrescriptionError("Please select your prescription file."); return; }
+    const form = new FormData();
+    form.set("name", prescriptionName);
+    form.set("phone", prescriptionPhone);
+    form.set("prescription", prescriptionFile);
+    setPrescriptionBusy(true);
+    try {
+      const response = await fetch("/api/health-prescription/upload", { method: "POST", body: form });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Upload failed.");
+      setPrescriptionReference(data.reference);
+      setPrescriptionMessage(data.message || "Prescription submitted securely.");
+      setPrescriptionFile(null);
+    } catch (error: any) {
+      setPrescriptionError(error.message || "Could not submit prescription.");
+    } finally {
+      setPrescriptionBusy(false);
+    }
+  };
 
   return (
     <main id="top" className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
