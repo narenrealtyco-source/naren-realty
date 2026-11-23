@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import HealthCatalogAutocomplete from "./HealthCatalogAutocomplete";
+import AddToCartButton from "../components/health/AddToCartButton";
 
 const quickActions = [
   { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages?category=Full%20Body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
@@ -213,7 +214,7 @@ export default function HealthPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {recommendedItems.map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
             <div className="flex h-[130px] items-end bg-gradient-to-br from-[#dff6f3] via-[#e8f5fb] to-[#dceff2] p-4"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.item_type === "test" ? "MFIT approved lab test" : "MFIT approved package"}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link><div className="mt-2"><AddToCartButton slug={item.slug}/></div></div>
           </article>)}
         </div>
       </section>
@@ -235,7 +236,7 @@ export default function HealthPage() {
                 <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
                 <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p>
                 <p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p>
-                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
+                <Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link><div className="mt-2"><AddToCartButton slug={item.slug}/></div>
               </div>
             </article>
           ))}
