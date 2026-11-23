@@ -239,12 +239,12 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
     <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3 sm:gap-2 sm:p-4 lg:p-5">
       <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-1.5">
-          <p className="mt-0.5 w-fit max-w-[42%] shrink-0 rounded-full bg-[#10243A] px-1.5 py-0.5 text-[8px] font-bold leading-tight text-amber-300 sm:px-2 sm:text-[9px]">{category}</p>
-          <h3 className="min-w-0 break-words text-[13px] font-bold leading-tight text-[#10243A] sm:text-base"><Link href={detailHref} className="hover:text-amber-800">{listing.title}</Link></h3>
+          <p className="mt-0.5 w-fit max-w-[42%] shrink-0 rounded-full bg-[#A71930] px-1.5 py-0.5 text-[8px] font-bold leading-tight text-amber-300 sm:px-2 sm:text-[9px]">{category}</p>
+          <h3 className="min-w-0 break-words text-[13px] font-bold leading-tight text-[#A71930] sm:text-base"><Link href={detailHref} className="hover:text-amber-800">{listing.title}</Link></h3>
         </div>
         {price && <div className="min-w-[108px] shrink-0 border-l border-slate-200 pl-2 text-right">
           <p className="text-[8px] font-semibold uppercase leading-tight tracking-wide text-slate-500 sm:text-[9px]">{priceLabel}</p>
-          <p className="text-[14px] font-extrabold leading-tight tracking-tight text-[#10243A] sm:text-base">{price}<span className="ml-1 text-[8px] font-semibold text-slate-500 sm:text-[10px]">{listing.type === "Rental" ? "/ month" : listing.type === "Resale" || listing.type === "PG" ? "" : "/ night"}</span></p>
+          <p className="text-[14px] font-extrabold leading-tight tracking-tight text-[#A71930] sm:text-base">{price}<span className="ml-1 text-[8px] font-semibold text-slate-500 sm:text-[10px]">{listing.type === "Rental" ? "/ month" : listing.type === "Resale" || listing.type === "PG" ? "" : "/ night"}</span></p>
         </div>}
       </div>
       <p className="flex min-w-0 items-start gap-1 break-words text-[10px] leading-tight text-slate-600 sm:text-xs"><CardIcon kind="location" /><span>{listing.locality}, Pune</span></p>
@@ -263,7 +263,7 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
     </div>
     <div className="mt-auto grid grid-cols-2 gap-1 border-t border-slate-100 bg-white p-3 pt-1 sm:p-4">
       <Link href={detailHref} className="flex min-h-10 min-w-0 items-center justify-center rounded-lg bg-amber-400 px-2 py-2 text-[10px] font-bold leading-tight text-slate-950 transition hover:bg-amber-300 sm:text-xs">View Details</Link>
-      <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-10 min-w-0 rounded-lg bg-[#10243A] px-2 py-2 text-[9px] font-bold leading-tight text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
+      <button type="button" disabled={!visitsReady} onClick={() => setVisitOpen(true)} className="min-h-10 min-w-0 rounded-lg bg-[#A71930] px-2 py-2 text-[9px] font-bold leading-tight text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs">{propertyActionLabel(listing.type)}</button>
       {!visitsReady && <p className="col-span-2 text-[9px] leading-tight text-slate-500">Visit requests are not available yet.</p>}
     </div>
     {visitOpen && <VisitRequestForm propertyId={listing.id} title={listing.title} onClose={() => setVisitOpen(false)} />}
