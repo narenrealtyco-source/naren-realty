@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 type Item={id:string;slug:string;item_type:string;title:string;category:string;description:string;inclusions:string[];package_tests:Array<{slug:string;title:string;mappingStatus:string}>;sample_type:string|null;preparation:string|null;report_tat:string|null;price:number|null;mrp:number|null;is_active:boolean;provider_verified:boolean};
 const windows=["6:00 AM – 7:00 AM","7:00 AM – 8:00 AM","8:00 AM – 9:00 AM","9:00 AM – 10:00 AM","10:00 AM – 11:00 AM","11:00 AM – 12:00 PM","12:00 PM – 1:00 PM","1:00 PM – 2:00 PM","2:00 PM – 3:00 PM","3:00 PM – 4:00 PM","4:00 PM – 5:00 PM","5:00 PM – 6:00 PM"];
-function upiUrl(scheme:string,amount:number,reference:string){const q=new URLSearchParams({pa:"mfitpayments@ybl",pn:"MFIT Healthcare Pvt Ltd",am:amount.toFixed(2),cu:"INR",tn:"MFIT "+reference});return scheme+"://"+(scheme==="tez"?"upi/pay":"pay")+"?"+q.toString();}\nfunction localDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function upiUrl(scheme:string,amount:number,reference:string){const q=new URLSearchParams({pa:"mfitpayments@ybl",pn:"MFIT Healthcare Pvt Ltd",am:amount.toFixed(2),cu:"INR",tn:"MFIT "+reference});return scheme+"://"+(scheme==="tez"?"upi/pay":"pay")+"?"+q.toString();}
+function localDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function CheckoutContent(){
  const params=useSearchParams();
  const [catalog,setCatalog]=useState<Item[]>([]),[selected,setSelected]=useState<string[]>([]),[loading,setLoading]=useState(true),[catalogError,setCatalogError]=useState("");
