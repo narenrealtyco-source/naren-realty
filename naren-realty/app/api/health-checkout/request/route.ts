@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     const reference = "MFIT-" + randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
     const { error: insertError } = await supabase.from("health_booking_requests").insert({
       reference,customer_name:name,customer_phone:phone,customer_email:email || null,
-      pincode,address,selected_items:snapshots,
+      pincode,address,selected_items:snapshots,customer_payable_amount:Number((subtotal===null?0:Math.max(0,subtotal-couponDiscount-familyDiscount)).toFixed(2)),customer_payment_status:"unpaid",
       patient_details:{name:patientName,relation:String(patient.relation || "Self"),age:patient.age ? String(patient.age).slice(0,3) : null,gender:String(patient.gender || "")},
       coupon_code:couponCode,coupon_discount:couponDiscount,family_discount:familyDiscount,
       preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation"
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     if (insertError) throw insertError;
     return NextResponse.json({
       success:true,reference,status:"pending_confirmation",
-      quoteAvailable:subtotal !== null,subtotal,discount:couponDiscount,familyDiscount,total:subtotal === null ? null : Number((subtotal-couponDiscount-familyDiscount).toFixed(2)),
+      quoteAvailable:subtotal !== null,subtotal,discount:couponDiscount,familyDiscount,total:subtotal === null ? null : Number((subtotal-couponDiscount-familyDiscount).toFixed(2)),payableAmount:subtotal === null ? null : Number((subtotal-couponDiscount-familyDiscount).toFixed(2)),
       message:"Your request has been received. MFIT will confirm collection availability and the selected test panel before confirming your booking."
     }, { status: 201 });
   } catch (error) {

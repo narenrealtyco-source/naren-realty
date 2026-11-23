@@ -154,6 +154,13 @@ export async function setHealthBookingRequestReportVisibility(formData:FormData)
  const visible_to_customer=formData.get("visible_to_customer")==="on";
  if(!id) throw new Error("Report ID is required.");
  const db=serviceClient();
+ if(visible_to_customer){
+  const {data:report,error:reportError}=await db.from("health_booking_request_reports").select("request_id").eq("id",id).single();
+  if(reportError||!report)throw new Error("Report record not found.");
+  const {data:booking,error:bookingError}=await db.from("health_booking_requests").select("collection_partner_id,partner_b2b_payment_status").eq("id",report.request_id).single();
+  if(bookingError||!booking)throw new Error("Booking request not found.");
+  if(booking.collection_partner_id&&booking.partner_b2b_payment_status!=="paid")throw new Error("Report remains locked until the collection partner's B2B payment to MFIT is fully verified.");
+ }
  const {error}=await db.from("health_booking_request_reports").update({visible_to_customer}).eq("id",id);
  if(error) throw new Error("Could not update report visibility.");
  revalidatePath("/admin/health/reports");

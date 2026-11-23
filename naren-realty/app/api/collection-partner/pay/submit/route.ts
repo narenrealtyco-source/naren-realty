@@ -14,7 +14,7 @@ export async function POST(req:NextRequest){
   const path=partner.id+"/"+requestId+"/"+Date.now()+"-"+randomUUID()+"-"+proof.name.replace(/[^a-zA-Z0-9._-]/g,"_");
   const {error:uploadError}=await admin.storage.from("mfit-payment-proofs").upload(path,proof,{contentType:proof.type,upsert:false});if(uploadError)throw uploadError;
   const now=new Date().toISOString();
-  const {error:paymentError}=await admin.from("health_collection_partner_payments").upsert({partner_id:partner.id,booking_request_id:requestId,gateway:"manual_upi",gateway_order_id:null,gateway_payment_session_id:null,gateway_payment_id:null,amount:Number(b.partner_b2b_amount),currency:"INR",status:"submitted",payment_reference:reference,payment_proof_path:path,submitted_at:now,verified_at:null,verified_by:null,review_note:null,updated_at:now},{onConflict:"booking_request_id"});
+  const {error:paymentError}=await admin.from("health_collection_partner_payments").upsert({partner_id:partner.id,booking_request_id:requestId,gateway:"manual_upi",gateway_order_id:"manual-"+requestId,gateway_payment_session_id:null,gateway_payment_id:null,amount:Number(b.partner_b2b_amount),currency:"INR",status:"submitted",payment_reference:reference,payment_proof_path:path,submitted_at:now,verified_at:null,verified_by:null,review_note:null,updated_at:now},{onConflict:"booking_request_id"});
   if(paymentError){await admin.storage.from("mfit-payment-proofs").remove([path]);throw paymentError;}
   const {error:updateError}=await admin.from("health_booking_requests").update({partner_b2b_payment_status:"submitted"}).eq("id",requestId).eq("collection_partner_id",partner.id);
   if(updateError)throw updateError;
