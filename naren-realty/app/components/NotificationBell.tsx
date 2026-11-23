@@ -14,12 +14,46 @@ type NotificationRow = {
   created_at: string;
 };
 
+function playNotificationTone() {
+  if (typeof window === "undefined" || !window.AudioContext) return;
+  const context = new window.AudioContext();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, context.currentTime);
+  oscillator.frequency.setValueAtTime(660, context.currentTime + 0.12);
+  gain.gain.setValueAtTime(0.0001, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.3);
+  oscillator.onended = () => { void context.close(); };
+}
+
 export default function NotificationBell() {
   const [items, setItems] = useState<NotificationRow[]>([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const soundEnabledRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const enabled = window.localStorage.getItem("naren-notification-sound") === "on";
+    soundEnabledRef.current = enabled;
+    setSoundEnabled(enabled);
+  }, []);
+
+  function toggleSound() {
+    const next = !soundEnabledRef.current;
+    soundEnabledRef.current = next;
+    setSoundEnabled(next);
+    window.localStorage.setItem("naren-notification-sound", next ? "on" : "off");
+    if (next) playNotificationTone();
+  }
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -65,6 +99,7 @@ export default function NotificationBell() {
             const row = payload.new as NotificationRow;
             setItems((current) => [row, ...current].slice(0, 20));
             if (!row.read_at) setUnread((count) => count + 1);
+            if (soundEnabledRef.current) playNotificationTone();
           },
         )
         .subscribe();
@@ -143,7 +178,12 @@ export default function NotificationBell() {
               <h2 className="text-sm font-bold text-[#10243A]">Notifications</h2>
               <p className="text-xs text-slate-500">{unread} unread</p>
             </div>
-            <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100">Close</button>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={toggleSound} aria-pressed={soundEnabled} className={`rounded-lg px-2 py-1 text-xs font-semibold ${soundEnabled ? "bg-emerald-50 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>
+                {soundEnabled ? "Sound on" : "Sound off"}
+              </button>
+              <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100">Close</button>
+            </div>
           </div>
           <div className="max-h-[65vh] overflow-y-auto">
             {items.length === 0 ? (
