@@ -211,9 +211,9 @@ export default function HealthPage() {
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended for you</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/test/cbc-complete-blood-count" : item.label === "Women's health" ? "/health-checkup/packages?category=Women" : "/health-checkup/packages?category=Full%20Body"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
+          {recommendedItems.map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <div className="flex h-[130px] items-end bg-gradient-to-br from-[#dff6f3] via-[#e8f5fb] to-[#dceff2] p-4"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.item_type === "test" ? "MFIT approved lab test" : "MFIT approved package"}</span></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
           </article>)}
         </div>
       </section>
@@ -221,14 +221,14 @@ export default function HealthPage() {
       <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Most booked health checkups</h2>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">{mostBookedTab === "packages" ? "Most booked health checkup packages" : "Popular individual lab tests"}</h2>
         </div>
         <div className="mb-5 flex gap-2">
           <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
           <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Tests</button>
         </div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {(mostBookedTab === "packages" ? mostBookedPackages : mostBookedTests).map((item) => (
+          {(mostBookedTab === "packages" ? catalogPackages : catalogTests).map((item) => (
             <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
               <div className="relative h-[205px] overflow-hidden bg-[#eaf7f8]">
                 <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
@@ -268,9 +268,9 @@ export default function HealthPage() {
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Personalised wellness</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Packages for lifestyle concerns</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {lifestylePackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <img src={item.image} alt={item.title} loading="lazy" className="h-[190px] w-full object-cover" />
-            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><Link href="/health-checkup/packages?category=Lifestyle" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
+          {catalogPackages.filter((item) => /lifestyle/i.test(item.category || "")).map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <div className="h-[130px] bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0]" />
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.description || item.category}</p><p className="mt-3 text-sm font-semibold text-slate-700">₹{Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/checkout?item=" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
           </article>)}
         </div>
       </section>
