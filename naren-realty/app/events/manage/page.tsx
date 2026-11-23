@@ -56,8 +56,8 @@ export default function ManageEventsPage() {
     if (value.policies.length>5000) {setMessage("Rules and policies must be 5,000 characters or fewer.");return;}
     if(item.event_mode!=="online"&&!value.locality.trim()){setMessage("Please enter the city/locality.");return;}
     if(item.event_mode!=="online"&&value.locationStatus==="confirmed"&&!value.venue.trim()){setMessage("Please enter the venue name or mark the location as TBA.");return;}
-    if(value.mapLink.trim()&&!/^https?:\\/\\//i.test(value.mapLink.trim())){setMessage("Enter a valid Google Maps link.");return;}
-    if(value.onlineLink.trim()&&!/^https?:\\/\\//i.test(value.onlineLink.trim())){setMessage("Enter a valid online meeting link.");return;}
+    if(value.mapLink.trim()&&!/^https?:\/\//i.test(value.mapLink.trim())){setMessage("Enter a valid Google Maps link.");return;}
+    if(value.onlineLink.trim()&&!/^https?:\/\//i.test(value.onlineLink.trim())){setMessage("Enter a valid online meeting link.");return;}
     if(!value.title.trim()||value.title.trim().length<3||value.title.trim().length>120){setMessage("Event title must be between 3 and 120 characters.");return;}
     const start=new Date(value.startsAt), end=value.endsAt?new Date(value.endsAt):null;
     if(!value.startsAt||Number.isNaN(start.getTime())||(end&&(Number.isNaN(end.getTime())||end<=start))){setMessage("Please enter valid event start and end times.");return;}
