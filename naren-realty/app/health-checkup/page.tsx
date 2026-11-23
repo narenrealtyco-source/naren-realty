@@ -74,7 +74,6 @@ function Brand() {
 export default function HealthPage() {
   const [query] = useState("");
   const [catalogItems, setCatalogItems] = useState<any[]>([]);
-  const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
   const [prescriptionName, setPrescriptionName] = useState("");
   const [prescriptionPhone, setPrescriptionPhone] = useState("");
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
@@ -221,30 +220,35 @@ export default function HealthPage() {
       </section>
 
       <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-        <div className="mb-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">{mostBookedTab === "packages" ? "Featured health checkup packages" : "Featured individual lab tests"}</h2>
+        <div className="mb-5 flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Popular health checkup packages</h2></div>
+          <Link href="/health-checkup/packages" className="shrink-0 text-xs font-extrabold text-[#078b8d]">View all →</Link>
         </div>
-        <div className="mb-5 flex gap-2">
-          <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
-          <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Tests</button>
-        </div>
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {(mostBookedTab === "packages" ? catalogPackages : catalogTests).map((item) => (
-            <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT catalogue</span></div>
-              <div className="p-4">
-                <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
-                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/package/" + encodeURIComponent(item.slug) : "/health-checkup/test/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div>
-              </div>
+        {catalogPackages.length === 0 ? <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 ring-1 ring-slate-100">Health packages will appear here once added to the MFIT catalogue.</p> : <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {catalogPackages.map((item) => (
+            <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT health package</span></div>
+              <div className="p-4"><h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Health checkup package"}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[50px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-sm font-extrabold text-[#e76558]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
             </article>
           ))}
-        </div>
-        <div className="mx-auto h-1 w-2/3 rounded-full bg-slate-200 sm:hidden"><div className="h-1 w-1/4 rounded-full bg-[#172326]" /></div>
+        </div>}
       </section>
 
+      <section id="individual-tests" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="mb-5 flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Choose tests individually</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Book Individual Lab Tests</h2><p className="mt-1 text-sm text-slate-500">Book only the tests you need—no package required.</p></div>
+          <Link href="/health-checkup/tests" className="shrink-0 text-xs font-extrabold text-[#078b8d]">View all →</Link>
+        </div>
+        {catalogTests.length === 0 ? <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 ring-1 ring-slate-100">Individual lab tests will appear here once added to the MFIT catalogue.</p> : <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {catalogTests.map((item) => (
+            <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+              <div className="flex h-[120px] items-end bg-gradient-to-br from-[#e7f4ff] via-[#eef8fb] to-[#dff6f3] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#2476bd]">Single lab test</span></div>
+              <div className="p-4"><h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Individual diagnostic test"}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/test/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[50px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-sm font-extrabold text-[#e76558]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
+            </article>
+          ))}
+        </div>}
+        <Link href="/health-checkup/tests" className="mt-1 flex min-h-12 items-center justify-center rounded-xl bg-[#078b8d] px-4 text-sm font-extrabold text-white">Explore All Individual Lab Tests →</Link>
+      </section>
 
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl bg-[#fde4e1]">
