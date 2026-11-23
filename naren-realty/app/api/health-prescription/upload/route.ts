@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "nodejs";
-
 const MAX_BYTES = 10 * 1024 * 1024;
 const MIME_EXTENSIONS: Record<string, string> = {
   "application/pdf": "pdf",
