@@ -67,12 +67,14 @@ export default function ManageEventsPage() {
     setBusy(item.id);
     setMessage("Uploading images and saving event details…");
     try {
+      const {data:{user},error:authError}=await supabase.auth.getUser();
+      if(authError||!user)throw new Error("Your session has expired. Please sign in again and retry.");
       const upload=async(file:File|null)=>{
         if(!file)return null;
         if(file.size>5*1024*1024)throw new Error("Each event image must be smaller than 5 MB.");
         if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Use JPG, PNG or WEBP images.");
         const ext=file.name.split(".").pop()?.toLowerCase()||"jpg";
-        const path=item.id+"/"+crypto.randomUUID()+"."+ext;
+        const path=user.id+"/"+item.id+"/"+crypto.randomUUID()+"."+ext;
         const {error}=await supabase.storage.from("event-images").upload(path,file,{contentType:file.type,upsert:false});
         if(error)throw new Error("Image upload failed: "+error.message);
         return supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
