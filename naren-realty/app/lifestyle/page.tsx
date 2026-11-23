@@ -41,7 +41,7 @@ function LifestyleContent() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#07182b]/95 via-[#07182b]/15 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
                 <h2 className="text-sm font-extrabold leading-tight text-white drop-shadow sm:text-base lg:text-lg">{category.title}</h2>
-                <span className="mb-0.5 grid size-7 shrink-0 place-items-center rounded-full border border-white/40 bg-white/15 text-sm font-bold text-white backdrop-blur-sm transition group-hover:bg-[#A71930] group-hover:text-[#A71930]">↗</span>
+                <span className="mb-0.5 grid size-7 shrink-0 place-items-center rounded-full border border-white/40 bg-white/15 text-sm font-bold text-white backdrop-blur-sm transition group-hover:bg-white group-hover:text-[#A71930]">↗</span>
               </div>
             </Link>
           ))}
