@@ -56,11 +56,12 @@ export default async function AnalyticsDashboard() {
   const recentActivity = recentRows.map((row) => {
     const userId = row.user_id ?? (row.session_key ? userIdBySession.get(row.session_key) : null);
     const name = userId ? profileNames.get(userId) : null;
+    const registrationStatus: "Registered client" | "Not registered" = name ? "Registered client" : "Not registered";
     return {
       id: row.id,
       visitor: row.visitor_key,
       clientName: name ?? "New visitor",
-      registrationStatus: name ? "Registered client" : "Not registered",
+      registrationStatus,
       event: row.event_name,
       page: row.page_path,
       data: row.event_data,
