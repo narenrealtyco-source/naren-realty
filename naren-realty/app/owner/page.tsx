@@ -280,11 +280,11 @@ export default function OwnerPortalPage() {
       <main className="min-h-screen bg-slate-50 px-5 py-12 text-slate-900">
         <div className="mx-auto max-w-lg rounded-xl border border-sky-200 bg-white p-4 shadow-sm sm:p-8">
           <p className="text-xs font-bold tracking-[0.18em] text-sky-700">LEGACY OWNER ACCOUNT</p>
-          <h1 className="mt-2 text-2xl font-bold text-[#10243A]">Your existing Owner profile was recognized</h1>
+          <h1 className="mt-2 text-2xl font-bold text-[#A71930]">Your existing Owner profile was recognized</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Your legacy Owner dashboard uses its existing local browser session. No LocalStorage records were migrated or changed, and this account was not redirected into the new Customer/Owner dashboard.
           </p>
-          <Link href="/account" className="mt-6 block w-full rounded-lg bg-[#10243A] px-5 py-3 text-center font-semibold text-white hover:bg-slate-700">Open My Account</Link>
+          <Link href="/account" className="mt-6 block w-full rounded-lg bg-[#A71930] px-5 py-3 text-center font-semibold text-white hover:bg-slate-700">Open My Account</Link>
         </div>
       </main>
     );
@@ -295,10 +295,10 @@ export default function OwnerPortalPage() {
     if (supabaseOwnerChecking) return <main className="min-h-screen bg-slate-50 p-8 text-slate-600">Checking Owner access...</main>;
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900">
-        <header className="bg-[#10243A] text-white">
+        <header className="bg-[#A71930] text-white">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:flex-nowrap sm:gap-4 sm:px-6 sm:py-5">
             <Link href="/" className="min-w-0">
-              <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-amber-400">REALTY</span></span>
+              <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-white/80">REALTY</span></span>
               <span className="mt-1 block text-xs tracking-widest text-slate-300">OWNER PORTAL</span>
             </Link>
             <Link href="/account" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-white/10">My Account</Link>
@@ -306,8 +306,8 @@ export default function OwnerPortalPage() {
         </header>
         <section className="mx-auto max-w-lg px-4 py-8 [overflow-wrap:anywhere] sm:px-6 sm:py-12">
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
-            <p className="text-xs font-bold tracking-[0.18em] text-amber-700">OWNER SERVICES</p>
-            <h1 className="mt-2 text-3xl font-bold text-[#10243A]">List your property</h1>
+            <p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">OWNER SERVICES</p>
+            <h1 className="mt-2 text-3xl font-bold text-[#A71930]">List your property</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               You are signed in as {supabaseAccount.email}. Owner activation will use this same Supabase account; you will not need a second login.
             </p>
@@ -317,7 +317,7 @@ export default function OwnerPortalPage() {
               <label className="block text-sm font-semibold">Primary Listing Category<select value={ownerCategory} onChange={(event) => { setOwnerCategory(event.target.value as ListingType); setPolicyChecks({}); }} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base font-normal"><option value="Rental">Flat Rental</option><option value="Resale">Flat Resale</option><option value="PG">PG / Hostel</option><option value="Airbnb">Airbnb / Short Stay</option></select></label>
               <PolicyConsentFields policyTypes={[OWNER_POLICY_BY_CATEGORY[ownerCategory], "privacy_policy"]} values={policyChecks} onChange={(type, accepted) => setPolicyChecks((current) => ({ ...current, [type]: accepted }))} />
               {authError && <p role="alert" className="text-sm text-rose-700">{authError}</p>}
-              <button type="submit" disabled={activationSubmitting} className="w-full rounded-lg bg-[#10243A] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{activationSubmitting ? "Activating Owner access..." : "Activate Owner access"}</button>
+              <button type="submit" disabled={activationSubmitting} className="w-full rounded-lg bg-[#A71930] px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{activationSubmitting ? "Activating Owner access..." : "Activate Owner access"}</button>
             </form>}
           </div>
         </section>
@@ -330,9 +330,9 @@ export default function OwnerPortalPage() {
       <main className="min-h-screen bg-slate-50 px-5 py-12 text-slate-900">
         <div className="mx-auto max-w-lg rounded-xl border border-rose-200 bg-white p-4 shadow-sm sm:p-8">
           <p className="text-xs font-bold tracking-[0.18em] text-rose-700">ACCOUNT CHECK</p>
-          <h1 className="mt-2 text-2xl font-bold text-[#10243A]">We could not verify your account</h1>
+          <h1 className="mt-2 text-2xl font-bold text-[#A71930]">We could not verify your account</h1>
           <p role="alert" className="mt-3 text-sm leading-6 text-rose-700">{authError}</p>
-          <button type="button" onClick={() => { setAuthError(""); setLoading(true); setSessionAttempt((attempt) => attempt + 1); }} className="mt-6 w-full rounded-lg bg-[#10243A] px-5 py-3 font-semibold text-white hover:bg-slate-700">Retry</button>
+          <button type="button" onClick={() => { setAuthError(""); setLoading(true); setSessionAttempt((attempt) => attempt + 1); }} className="mt-6 w-full rounded-lg bg-[#A71930] px-5 py-3 font-semibold text-white hover:bg-slate-700">Retry</button>
         </div>
       </main>
     );
@@ -340,15 +340,15 @@ export default function OwnerPortalPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="bg-[#10243A] text-white">
+      <header className="bg-[#A71930] text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:flex-nowrap sm:gap-4 sm:px-6 sm:py-5">
           <Link href="/" className="min-w-0">
-            <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-amber-400">REALTY</span></span>
+            <span className="block text-xl font-bold tracking-widest">NAREN <span className="text-white/80">REALTY</span></span>
             <span className="mt-1 block text-xs tracking-widest text-slate-300">OWNER PORTAL</span>
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/properties" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-white/10">Browse Homes</Link>
-            {owner && <button onClick={signOut} className="min-h-11 rounded-lg bg-amber-400 px-3 py-2 text-sm font-bold text-slate-950">Sign Out</button>}
+            {owner && <button onClick={signOut} className="min-h-11 rounded-lg bg-[#A71930] px-3 py-2 text-sm font-bold text-slate-950">Sign Out</button>}
           </div>
         </div>
       </header>
@@ -357,16 +357,16 @@ export default function OwnerPortalPage() {
         {authError && !supabaseAccount && <p role="alert" className="mx-auto mb-5 max-w-lg text-sm text-rose-700">{authError}</p>}
         {!owner ? (
           <div className="mx-auto max-w-lg rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
-            <p className="text-xs font-bold tracking-[0.18em] text-amber-700">OWNER SERVICES</p>
-            <h1 className="mt-2 text-3xl font-bold text-[#10243A]">List your property</h1>
+            <p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">OWNER SERVICES</p>
+            <h1 className="mt-2 text-3xl font-bold text-[#A71930]">List your property</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">Sign in through your existing Customer Account to activate Owner access without creating a second login.</p>
-            <Link href="/account" className="mt-6 block w-full rounded-lg bg-[#10243A] px-5 py-3 text-center font-semibold text-white hover:bg-slate-700">Go to Customer Account</Link>
+            <Link href="/account" className="mt-6 block w-full rounded-lg bg-[#A71930] px-5 py-3 text-center font-semibold text-white hover:bg-slate-700">Go to Customer Account</Link>
           </div>
-        ) : pendingPolicies.length > 0 ? <div className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8"><p className="text-xs font-bold tracking-[0.18em] text-amber-700">POLICY UPDATE</p><h1 className="mt-2 text-2xl font-bold text-[#10243A]">Review updated policies</h1><p className="mt-2 text-sm leading-6 text-slate-600">Your account needs acceptance of the current versions before you continue to your Owner Dashboard.</p><form onSubmit={acceptUpdatedPolicies} className="mt-6 space-y-4"><PolicyConsentFields policyTypes={pendingPolicies} values={policyChecks} onChange={(type, accepted) => setPolicyChecks((current) => ({ ...current, [type]: accepted }))} />{policyError && <p role="alert" className="text-sm text-rose-700">{policyError}</p>}<button className="w-full rounded-lg bg-[#10243A] px-5 py-3 font-semibold text-white">Accept Current Policies</button></form></div> : (
+        ) : pendingPolicies.length > 0 ? <div className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8"><p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">POLICY UPDATE</p><h1 className="mt-2 text-2xl font-bold text-[#A71930]">Review updated policies</h1><p className="mt-2 text-sm leading-6 text-slate-600">Your account needs acceptance of the current versions before you continue to your Owner Dashboard.</p><form onSubmit={acceptUpdatedPolicies} className="mt-6 space-y-4"><PolicyConsentFields policyTypes={pendingPolicies} values={policyChecks} onChange={(type, accepted) => setPolicyChecks((current) => ({ ...current, [type]: accepted }))} />{policyError && <p role="alert" className="text-sm text-rose-700">{policyError}</p>}<button className="w-full rounded-lg bg-[#A71930] px-5 py-3 font-semibold text-white">Accept Current Policies</button></form></div> : (
           <>
             <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
-              <div><p className="text-xs font-bold tracking-[0.18em] text-amber-700">OWNER DASHBOARD</p><h1 className="mt-2 text-3xl font-bold text-[#10243A]">Welcome, {owner.fullName}</h1><p className="mt-2 text-sm text-slate-600">Your listings and their approval status.</p></div>
-              <button onClick={openNewListing} className="rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-amber-300">+ Add Property</button>
+              <div><p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">OWNER DASHBOARD</p><h1 className="mt-2 text-3xl font-bold text-[#A71930]">Welcome, {owner.fullName}</h1><p className="mt-2 text-sm text-slate-600">Your listings and their approval status.</p></div>
+              <button onClick={openNewListing} className="rounded-lg bg-[#A71930] px-5 py-3 text-sm font-bold text-slate-950 hover:bg-[#861326]">+ Add Property</button>
             </div>
             {notice && <p role="status" className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
 
@@ -380,10 +380,10 @@ export default function OwnerPortalPage() {
             /></div>}
 
             <div className="mt-6 space-y-4">
-              {listings.length === 0 ? <div className="border-y border-slate-200 py-14 text-center"><h2 className="font-bold text-[#10243A]">No listings yet</h2><p className="mt-2 text-sm text-slate-600">Add a flat rental or resale property to get started.</p></div> : listings.map((listing) => <article key={listing.id} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:p-5">
+              {listings.length === 0 ? <div className="border-y border-slate-200 py-14 text-center"><h2 className="font-bold text-[#A71930]">No listings yet</h2><p className="mt-2 text-sm text-slate-600">Add a flat rental or resale property to get started.</p></div> : listings.map((listing) => <article key={listing.id} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:p-5">
                 {listing.photos[0] && <img src={listing.photos[0]} alt="" className="aspect-[4/3] w-full rounded-md object-cover sm:w-40" />}
-                <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold text-[#10243A]">{listing.title}</h2><span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${listing.status === "Approved" ? "bg-emerald-100 text-emerald-800" : listing.status === "Rejected" ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-900"}`}>{listing.status}</span></div><p className="mt-1 text-sm text-slate-600">{listing.type === "Rental" ? "Flat Rental" : listing.type === "Resale" ? "Flat Resale" : listing.type === "PG" ? "PG / Hostel" : "Airbnb / Short Stay"} · {listing.locality}</p><p className="mt-1 font-semibold text-slate-800">₹{listing.price.toLocaleString("en-IN")}{listing.type === "Rental" ? " / month" : listing.type === "Airbnb" ? " / night" : listing.type === "PG" ? " / person / month" : ""}</p><p className="mt-2 text-xs text-slate-500">Updated {new Date(listing.updatedAt).toLocaleDateString("en-IN")}</p><PropertyInformation listing={listing} />{brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.listingId === listing.id && acknowledgement.userRole === "owner").map((acknowledgement) => <div key={acknowledgement.id} className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4"><p className="text-xs font-bold uppercase tracking-wider text-amber-900">Brokerage Acknowledgement · {acknowledgement.party}</p><p className="mt-2 text-sm leading-6 text-slate-700">{acknowledgement.statement}</p><p className="mt-2 text-xs text-slate-600">Policy version {acknowledgement.policyVersion} · {acknowledgement.acknowledgedAt ? `Acknowledged ${new Date(acknowledgement.acknowledgedAt).toLocaleString("en-IN")}` : "Pending acknowledgement"}</p>{!acknowledgement.acknowledgedAt && <button onClick={() => acknowledgeBrokerageRecord(acknowledgement.id)} className="mt-3 min-h-11 rounded-md bg-[#10243A] px-4 py-2 text-sm font-semibold text-white">Acknowledge</button>}</div>)}</div>
-                <div className="flex flex-wrap items-center gap-2 self-start"><button onClick={() => openEditListing(listing)} className="min-h-11 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-[#10243A] hover:border-amber-500">Edit</button><button onClick={() => removeListing(listing)} className="min-h-11 rounded-md border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">Delete</button></div>
+                <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold text-[#A71930]">{listing.title}</h2><span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${listing.status === "Approved" ? "bg-emerald-100 text-emerald-800" : listing.status === "Rejected" ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-900"}`}>{listing.status}</span></div><p className="mt-1 text-sm text-slate-600">{listing.type === "Rental" ? "Flat Rental" : listing.type === "Resale" ? "Flat Resale" : listing.type === "PG" ? "PG / Hostel" : "Airbnb / Short Stay"} · {listing.locality}</p><p className="mt-1 font-semibold text-slate-800">₹{listing.price.toLocaleString("en-IN")}{listing.type === "Rental" ? " / month" : listing.type === "Airbnb" ? " / night" : listing.type === "PG" ? " / person / month" : ""}</p><p className="mt-2 text-xs text-slate-500">Updated {new Date(listing.updatedAt).toLocaleDateString("en-IN")}</p><PropertyInformation listing={listing} />{brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.listingId === listing.id && acknowledgement.userRole === "owner").map((acknowledgement) => <div key={acknowledgement.id} className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4"><p className="text-xs font-bold uppercase tracking-wider text-amber-900">Brokerage Acknowledgement · {acknowledgement.party}</p><p className="mt-2 text-sm leading-6 text-slate-700">{acknowledgement.statement}</p><p className="mt-2 text-xs text-slate-600">Policy version {acknowledgement.policyVersion} · {acknowledgement.acknowledgedAt ? `Acknowledged ${new Date(acknowledgement.acknowledgedAt).toLocaleString("en-IN")}` : "Pending acknowledgement"}</p>{!acknowledgement.acknowledgedAt && <button onClick={() => acknowledgeBrokerageRecord(acknowledgement.id)} className="mt-3 min-h-11 rounded-md bg-[#A71930] px-4 py-2 text-sm font-semibold text-white">Acknowledge</button>}</div>)}</div>
+                <div className="flex flex-wrap items-center gap-2 self-start"><button onClick={() => openEditListing(listing)} className="min-h-11 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-[#A71930] hover:border-[#A71930]">Edit</button><button onClick={() => removeListing(listing)} className="min-h-11 rounded-md border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">Delete</button></div>
               </article>)}
             </div>
           </>
