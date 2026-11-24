@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import PropertyInformation from "../components/PropertyInformation";
 import PolicyConsentFields from "../components/PolicyConsentFields";
@@ -47,8 +47,9 @@ export default function SupabaseOwnerDashboard({ session }: { session: CustomerO
         const { data: profile, error: profileError } = await supabase.from("profiles")
           .select("registration_category").eq("id", user.id).maybeSingle();
         if (profileError || !profile) throw new Error("Your Owner category could not be verified.");
-        const category = ["Rental", "Resale", "PG", "Airbnb"].includes(profile.registration_category)
-          ? profile.registration_category as ListingType : "Rental";
+        const rawCategory = profile.registration_category;
+        const category = typeof rawCategory === "string" && ["Rental", "Resale", "PG", "Airbnb"].includes(rawCategory)
+          ? rawCategory as ListingType : "Rental";
         const ownerPolicy = category === "PG" ? "pg_hostel_policy" : category === "Airbnb" ? "airbnb_policy" : "owner_terms";
         const required: PolicyType[] = [ownerPolicy, "privacy_policy"];
         const { data: acceptances, error: acceptanceError } = await supabase.from("policy_acceptances")
@@ -73,7 +74,7 @@ export default function SupabaseOwnerDashboard({ session }: { session: CustomerO
   }, []);
 
 
-  async function acceptCurrentPolicies(event: React.FormEvent<HTMLFormElement>) {
+  async function acceptCurrentPolicies(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pendingPolicies.some((type) => policyChecks[type] !== true)) {
       setPolicyError("Accept every current policy version to continue.");
