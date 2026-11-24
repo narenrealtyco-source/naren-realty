@@ -166,7 +166,7 @@ export async function resendCollectionPartnerLogin(formData: FormData) {
   if (!apiKey) throw new Error("Resend is not configured. Add RESEND_API_KEY to the Production environment.");
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co").replace(/\/$/, "");
   const { data: linkData, error: linkError } = await db.auth.admin.generateLink({
-    type: "recovery",
+    type: "magiclink",
     email,
     options: { redirectTo: `${siteUrl}/auth/confirm` },
   });
@@ -176,16 +176,16 @@ export async function resendCollectionPartnerLogin(formData: FormData) {
   const from = process.env.MFIT_RESEND_FROM_EMAIL || "MFIT Healthcare <mfit.support@narenrealty.co>";
   const name = String(partner.contact_name || application.contact_name || partner.display_name || application.business_name || "Partner");
   const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
-  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#183044"><div style="background:#0b7778;padding:24px;color:#fff"><h1 style="margin:0;font-size:22px">MFIT Healthcare</h1><p style="margin:8px 0 0">Collection Partner Portal</p></div><div style="padding:24px;border:1px solid #e2e8f0"><p>Hello ${safe(name)},</p><p>Your collection partner account is approved. Use the secure link below to set or reset your login password.</p><p><b>Login email:</b> ${safe(email)}</p><p><a href="${actionLink}" style="display:inline-block;background:#0b7778;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">Set Login Password</a></p><p style="font-size:13px;color:#64748b">This secure link expires. Do not share it with anyone. After setting your password, sign in at <a href="${siteUrl}/collection-partner/login">${siteUrl}/collection-partner/login</a>.</p></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#183044"><div style="background:#0b7778;padding:24px;color:#fff"><h1 style="margin:0;font-size:22px">MFIT Healthcare</h1><p style="margin:8px 0 0">Collection Partner Portal</p></div><div style="padding:24px;border:1px solid #e2e8f0"><p>Hello ${safe(name)},</p><p>Your collection partner account is approved. Use the secure one-time login link below to open your Collection Partner Portal.</p><p><b>Login email:</b> ${safe(email)}</p><p><a href="${actionLink}" style="display:inline-block;background:#0b7778;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">Login to Partner Portal</a></p><p style="font-size:13px;color:#64748b">This one-time secure login link expires. Do not share it with anyone. For future access, open <a href="${siteUrl}/collection-partner/login">${siteUrl}/collection-partner/login</a>.</p></div></div>`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from,
       to: [email],
-      subject: "Your MFIT Healthcare Collection Partner Login Link",
+      subject: "Your MFIT Healthcare Collection Partner Secure Login Link",
       html,
-      text: `Hello ${name}, use this secure link to set or reset your collection partner login password: ${actionLink}. After setting it, sign in at ${siteUrl}/collection-partner/login. Do not share this link.`,
+      text: `Hello ${name}, use this one-time secure link to sign in to your collection partner portal: ${actionLink}. For future access, open ${siteUrl}/collection-partner/login. Do not share this link.`,
     }),
     cache: "no-store",
   });
