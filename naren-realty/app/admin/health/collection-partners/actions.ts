@@ -214,6 +214,15 @@ export async function resendCollectionPartnerLogin(
     if (profileError || profile?.role !== "collection_partner") {
       throw new Error("This account is not registered as a collection partner.");
     }
+    const { error: accountUpdateError } = await db.auth.admin.updateUserById(partner.user_id, {
+      email_confirm: true,
+      user_metadata: {
+        ...(authResult.user.user_metadata || {}),
+        account_type: "collection_partner",
+        must_change_password: true,
+      },
+    });
+    if (accountUpdateError) throw new Error("Partner account could not be prepared for password setup.");
 
     const reference = await sendPartnerPasswordSetupEmail(
       db,
