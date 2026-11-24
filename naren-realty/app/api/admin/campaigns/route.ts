@@ -22,15 +22,16 @@ function safeHtml(value: string) {
 }
 
 function renderCampaignEmail(content: string, footer: string) {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#172033">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f5f7;padding:32px 12px"><tr><td align="center">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e8e8e8">
-        <tr><td style="background:#10243A;padding:26px 32px;border-bottom:3px solid #C7A66A">
-          <div style="font-size:22px;line-height:1.2;font-weight:700;letter-spacing:2px;color:#ffffff">NAREN REALTY</div>
-          <div style="margin-top:7px;font-size:10px;letter-spacing:3px;color:#D8C39A">PROPERTY · PEOPLE · POSSIBILITIES</div>
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#F4F1EF;font-family:Arial,Helvetica,sans-serif;color:#252525">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F4F1EF;padding:28px 12px"><tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #eee8e5;border-radius:14px;overflow:hidden">
+        <tr><td style="background:#A71930;padding:27px 32px 25px">
+          <div style="font-size:23px;line-height:1.2;font-weight:800;letter-spacing:1.2px;color:#ffffff">NAREN REALTY</div>
+          <div style="margin-top:7px;font-size:10px;letter-spacing:2.5px;color:#ffffff;opacity:.82">PROPERTY · PEOPLE · POSSIBILITIES</div>
+          <div style="margin-top:19px;width:42px;height:3px;background:#ffffff;border-radius:3px"></div>
         </td></tr>
-        <tr><td style="padding:34px 32px 38px;font-size:15px;line-height:1.8;color:#263445">${content}</td></tr>
-        <tr><td style="padding:20px 32px;background:#f8f8f6;border-top:1px solid #ece8df;font-size:11px;line-height:1.7;color:#697586">${footer}<div style="margin-top:12px;color:#10243A;font-weight:700;letter-spacing:1px">NAREN REALTY</div><div style="margin-top:4px">narenrealty.co</div></td></tr>
+        <tr><td style="padding:34px 32px 38px;font-size:15px;line-height:1.8;color:#252525">${content}</td></tr>
+        <tr><td style="padding:21px 32px;background:#F4F1EF;border-top:1px solid #eee8e5;font-size:11px;line-height:1.75;color:#68615f">${footer}<div style="margin-top:13px;color:#A71930;font-weight:800;letter-spacing:1px">NAREN REALTY</div><div style="margin-top:4px;color:#861326">narenrealty.co</div></td></tr>
       </table>
     </td></tr></table>
   </body></html>`;
