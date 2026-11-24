@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "../../../lib/supabase-browser";
+import { createSupabaseBrowserClient } from "../../lib/supabase-browser";
 
 export default function CollectionPartnerAcceptInvitePage() {
   const router = useRouter();
