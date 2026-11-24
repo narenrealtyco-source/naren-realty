@@ -8,6 +8,7 @@ import {
   approveCollectionPartnerApplication,
   rejectCollectionPartnerApplication,
   setCollectionPartnerActive,
+  resendCollectionPartnerPasswordSetup,
 } from "./actions";
 
 export const metadata = { title: "Collection Partners | MFIT Healthcare Admin" };
@@ -90,7 +91,7 @@ async function CollectionPartnersContent() {
           {activePartners.length === 0 && <div className="rounded-xl border bg-white p-5 text-sm text-slate-500">No registered collection partners yet.</div>}
           {activePartners.map((partner) => <article key={partner.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-white p-5">
             <div className="min-w-0"><h3 className="font-extrabold">{partner.display_name}</h3><p className="mt-1 text-sm text-slate-600">{partner.contact_name || "—"} · {partner.phone || "—"}</p><p className="text-sm text-slate-600">{partner.email || "—"}</p><p className="mt-1 text-xs text-slate-500">Areas: {(partner.service_areas || []).join(", ") || "—"} · Slug: {partner.public_slug}</p></div>
-            <div className="flex items-center gap-3"><span className={"rounded-full px-3 py-1 text-xs font-bold " + (partner.is_active ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700")}>{partner.is_active ? "Active" : "Suspended"}</span><form action={setCollectionPartnerActive} className="flex items-center gap-2"><input type="hidden" name="partner_id" value={partner.id}/><label className="flex items-center gap-2 text-xs"><input type="checkbox" name="is_active" defaultChecked={partner.is_active}/> Active</label><button className="rounded-lg border px-3 py-2 text-xs font-bold">Save</button></form></div>
+            <div className="flex items-center gap-3"><span className={"rounded-full px-3 py-1 text-xs font-bold " + (partner.is_active ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700")}>{partner.is_active ? "Active" : "Suspended"}</span><form action={resendCollectionPartnerPasswordSetup}><input type="hidden" name="partner_id" value={partner.id}/><button className="rounded-lg border border-teal-200 px-3 py-2 text-xs font-bold text-teal-800">Resend password setup</button></form><form action={setCollectionPartnerActive} className="flex items-center gap-2"><input type="hidden" name="partner_id" value={partner.id}/><label className="flex items-center gap-2 text-xs"><input type="checkbox" name="is_active" defaultChecked={partner.is_active}/> Active</label><button className="rounded-lg border px-3 py-2 text-xs font-bold">Save</button></form></div>
           </article>)}
         </div>
       </section>
