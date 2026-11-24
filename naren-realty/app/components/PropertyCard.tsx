@@ -224,7 +224,7 @@ function PropertyCard({ listing, listings, visitsReady }: { listing: PropertyLis
   const detailHref = `/properties/${encodeURIComponent(listing.id)}`;
 
   return <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg">
-    <div className="relative h-[190px] w-full shrink-0 bg-slate-100 sm:h-[240px]">
+    <div className="relative h-[150px] w-full shrink-0 bg-slate-100 sm:h-[180px]">
       <Link href={detailHref} aria-label={`View ${listing.title}`} className="absolute inset-0 overflow-hidden">
         {photos[0] && !photoFailed
           ? <Image src={photos[0]} alt={listing.title} fill sizes="(max-width: 767px) 100vw, 50vw" loading="lazy" decoding="async" onError={() => setPhotoFailed(true)} className="object-cover transition-transform duration-300 hover:scale-[1.03]" />
