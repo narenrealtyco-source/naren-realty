@@ -9,7 +9,7 @@ type CampaignInput = {
   name?: string;
   subject?: string;
   bodyHtml?: string;
-  campaignType?: "greeting" | "promotion" | "update";
+  campaignType?: "greeting" | "promotion" | "update" | "event";
   email?: string;
   consentSource?: string;
 };
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     const subject = clean(body.subject, 180);
     const bodyHtml = clean(body.bodyHtml, 30000);
     const campaignType = body.campaignType;
-    if (!name || !subject || !bodyHtml || !["greeting","promotion","update"].includes(campaignType ?? "")) return jsonError("Campaign name, subject, message and type are required.");
+    if (!name || !subject || !bodyHtml || !["greeting","promotion","update","event"].includes(campaignType ?? "")) return jsonError("Campaign name, subject, message and type are required.");
 
     if (body.action === "save") {
       const { data, error } = await service.from("email_campaigns").insert({
