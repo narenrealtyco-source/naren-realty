@@ -59,7 +59,7 @@ export async function GET() {
       service.from("profiles").select("id,full_name,phone,role,created_at").in("role", ["customer","owner"]).order("created_at", { ascending: false }).limit(500),
       service.auth.admin.listUsers({ page: 1, perPage: 1000 }),
       service.from("email_marketing_consents").select("id,email,full_name,consent_status,consent_source,consented_at,unsubscribe_token").order("updated_at", { ascending: false }).limit(1000),
-      service.from("email_campaigns").select("id,name,subject,campaign_type,status,created_at,sent_at").order("created_at", { ascending: false }).limit(50),
+      service.from("email_campaigns").select("id,name,subject,body_html,campaign_type,status,created_at,sent_at").order("created_at", { ascending: false }).limit(50),
     ]);
     if (profilesError || authError || consentError || campaignsError) return jsonError("Campaign data could not be loaded. Apply the campaign database migration first.", 503);
     const users = new Map((auth.users ?? []).map((item) => [item.id, item]));
@@ -104,6 +104,16 @@ export async function POST(request: NextRequest) {
     const campaignType = body.campaignType;
     if (!name || !subject || !bodyHtml || !["greeting","promotion","update","event"].includes(campaignType ?? "")) return jsonError("Campaign name, subject, message and type are required.");
 
+    if (body.action === "update") {
+      const id = clean(body.id, 80);
+      if (!id) return jsonError("Draft ID is required.");
+      const { data, error } = await service.from("email_campaigns").update({
+        name, subject, body_html: bodyHtml, campaign_type: campaignType, updated_at: new Date().toISOString(),
+      }).eq("id", id).eq("created_by", user.id).eq("status", "draft").select("id").maybeSingle();
+      if (error || !data) return jsonError("Draft could not be updated. It may no longer be a draft.", 409);
+      return NextResponse.json({ ok: true, id: data.id });
+    }
+
     if (body.action === "save") {
       const { data, error } = await service.from("email_campaigns").insert({
         name, subject, body_html: bodyHtml, campaign_type: campaignType, created_by: user.id, status: "draft",
@@ -126,10 +136,20 @@ export async function POST(request: NextRequest) {
         .select("id,email,full_name,unsubscribe_token").eq("consent_status", "subscribed").limit(100);
       if (audienceError) return jsonError("Subscribed audience could not be loaded.", 500);
       if (!audience?.length) return jsonError("No contacts have recorded marketing consent. Add only contacts with documented opt-in first.", 409);
-      const { data: campaign, error: createError } = await service.from("email_campaigns").insert({
-        name, subject, body_html: bodyHtml, campaign_type: campaignType, created_by: user.id, status: "sending",
-      }).select("id").single();
-      if (createError || !campaign) return jsonError("Campaign could not be created.", 500);
+      let campaign: { id: string } | null = null;
+      if (body.id) {
+        const { data, error: draftError } = await service.from("email_campaigns").update({
+          name, subject, body_html: bodyHtml, campaign_type: campaignType, status: "sending", updated_at: new Date().toISOString(),
+        }).eq("id", clean(body.id, 80)).eq("created_by", user.id).eq("status", "draft").select("id").maybeSingle();
+        if (draftError || !data) return jsonError("This draft could not be sent because it is no longer an editable draft.", 409);
+        campaign = data;
+      } else {
+        const { data, error: createError } = await service.from("email_campaigns").insert({
+          name, subject, body_html: bodyHtml, campaign_type: campaignType, created_by: user.id, status: "sending",
+        }).select("id").single();
+        if (createError || !data) return jsonError("Campaign could not be created.", 500);
+        campaign = data;
+      }
       const origin = new URL(request.url).origin;
       const recipients = audience.filter((recipient) => /^\S+@\S+\.\S+$/.test(recipient.email));
       if (recipients.length !== audience.length) {
