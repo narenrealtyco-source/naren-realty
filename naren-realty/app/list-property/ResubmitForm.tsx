@@ -71,10 +71,10 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
     try { validateSubmissionDetails(details); setDetailError(""); }
     catch (error) { setDetailError(error instanceof Error ? error.message : "Additional details are invalid."); return; }
     const data = new FormData(event.currentTarget);
+    const documents = data.getAll("owner_documents");
     try {
       validatePropertyOwnerDetails({ version: 1, ...owner });
       if (!ownerConfirmed || !listingDeclaration || !brokerageAccepted) throw new Error("Confirm your authority, listing declaration and applicable brokerage terms.");
-      const documents = data.getAll("owner_documents");
       if (documents.length < 1 || documents.length > MAX_OWNER_DOCUMENTS || documents.some((item) => !(item instanceof File) || item.size < 1 || item.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(item.type))) throw new Error("Upload between 1 and 5 valid ownership / authority documents (PDF, JPEG, PNG or WebP, up to 10 MB each).");
       data.set("brokerage_acknowledged", "on");
     } catch (error) {
