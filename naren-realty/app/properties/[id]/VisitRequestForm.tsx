@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
+import { POLICY_DOCUMENTS } from "../../lib/policies";
 import { requestVisit, type VisitResult } from "../visit-actions";
 import { indiaCalendarDate } from "../../lib/property-marketing";
 import { visitSlots } from "../../lib/visit-requests";
@@ -35,6 +36,12 @@ export default function VisitRequestForm({ propertyId, title, onClose }: { prope
         </fieldset>
         <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Your name<input className={input} name="name" autoComplete="name" maxLength={120} required /></label><label className="text-sm font-semibold">Mobile number<input className={input} name="mobile" type="tel" autoComplete="tel" required /></label></div>
         <label className="block text-sm font-semibold">Message <span className="font-normal text-slate-500">(optional)</span><textarea name="message" rows={3} maxLength={1000} className={input} /></label>
+        <label className="flex items-start gap-3 text-sm leading-6 text-slate-700">
+          <input type="checkbox" name="policy_acknowledged" value="on" required className="mt-1 size-4 shrink-0 accent-amber-500" />
+          <span>I have read and agree to the <Link href="/site-visit-policy" target="_blank" className="font-semibold underline">Enquiry & Site Visit Policy</Link>, <Link href="/customer-terms" target="_blank" className="font-semibold underline">Customer Terms</Link> and <Link href="/privacy-policy" target="_blank" className="font-semibold underline">Privacy Policy</Link>. I understand this is only a visit request, not a confirmed appointment or property reservation.
+            <span className="block text-xs text-slate-500">Current versions: Site Visit {POLICY_DOCUMENTS.find((item) => item.type === "site_visit_policy")?.version}, Customer Terms {POLICY_DOCUMENTS.find((item) => item.type === "customer_terms")?.version}, Privacy {POLICY_DOCUMENTS.find((item) => item.type === "privacy_policy")?.version}</span>
+          </span>
+        </label>
         <p className="text-sm text-slate-600">A customer account is required. <Link className="underline" href="/account#login">Sign in</Link></p>
         {state.status === "error" && <p role="alert" className="text-sm text-rose-700">{state.message}</p>}
         <button disabled={pending} className="w-full rounded-lg bg-amber-400 px-5 py-3 font-bold text-slate-950 disabled:opacity-50">{pending ? "Sending request..." : "Confirm Visit Request"}</button>
