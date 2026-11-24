@@ -41,8 +41,10 @@ export async function approveCollectionPartnerApplication(formData: FormData) {
     throw new Error("This email already belongs to an account. To keep customer and partner logins separate, use a different email for this partner.");
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co";
   const { data: invitation, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
     data: { full_name: contactName, account_type: "collection_partner" },
+    redirectTo: `${siteUrl}/auth/confirm?next=%2Fcollection-partner%2Faccept-invite`,
   });
   if (inviteError || !invitation.user) throw new Error(inviteError?.message || "Partner invitation could not be sent.");
 
@@ -121,4 +123,30 @@ export async function setCollectionPartnerActive(formData: FormData) {
   if (error) throw new Error("Partner access could not be updated.");
   revalidatePath("/admin/health/collection-partners");
   revalidatePath("/admin/health");
+}
+
+
+export async function resendCollectionPartnerPasswordSetup(formData: FormData) {
+  await requireAdmin();
+  const partnerId = String(formData.get("partner_id") || "").trim();
+  if (!partnerId) throw new Error("Partner reference is missing.");
+  const db = serviceClient();
+  const { data: partner, error: partnerError } = await db
+    .from("health_collection_partners")
+    .select("id,email,is_active")
+    .eq("id", partnerId)
+    .single();
+  if (partnerError || !partner || !partner.is_active || !partner.email) {
+    throw new Error("An active partner with a valid email could not be found.");
+  }
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) throw new Error("Password setup email service is not configured.");
+  const publicAuth = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co";
+  const { error } = await publicAuth.auth.resetPasswordForEmail(partner.email, {
+    redirectTo: `${siteUrl}/auth/confirm?next=%2Fcollection-partner%2Faccept-invite`,
+  });
+  if (error) throw new Error("Password setup email could not be sent. " + error.message);
+  revalidatePath("/admin/health/collection-partners");
 }
