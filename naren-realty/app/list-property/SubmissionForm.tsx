@@ -556,7 +556,7 @@ export default function SubmissionForm({
           </label>}
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-[#F4F1EF] p-4 text-sm leading-6 text-slate-800">
             <input type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
-            <span>I confirm that I am the owner or am authorized to list this property and that the information provided is accurate.</span>
+            <span>{category === "Resale" ? "I confirm this is a genuine resale property offered by its existing owner, that I am the owner or duly authorised representative, and that it is not builder / promoter unsold inventory or a new project sale. I can provide ownership / authority documents for Admin verification." : "I confirm that I am the owner or am authorized to list this property and that the information provided is accurate."}</span>
           </label>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-[#F4F1EF] p-4 text-sm leading-6 text-slate-800">
             <input type="checkbox" checked={listingDeclaration} onChange={(event) => setListingDeclaration(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
@@ -564,7 +564,7 @@ export default function SubmissionForm({
           </label>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8B5BF] bg-[#FDF5F6] p-4 text-sm leading-6 text-slate-800">
             <input type="checkbox" checked={brokerageAccepted} onChange={(event) => setBrokerageAccepted(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
-            <span>{category === "Resale" ? "I acknowledge seller brokerage of 2% of the final sale value, plus applicable GST, payable on a successful sale facilitated by NAREN REALTY." : category === "Rental" ? "I acknowledge that no owner brokerage is payable for flat rental." : category === "PG" ? "I acknowledge owner commission of 10% of accommodation rent for each successful PG / Hostel booking introduced or facilitated by NAREN REALTY, plus applicable GST." : "I acknowledge host commission of 10% of accommodation rent for each successful Airbnb / Short-Stay booking introduced or facilitated by NAREN REALTY, plus applicable GST."} I have read and accept the applicable owner-side terms.</span>
+            <span>{category === "Resale" ? "I acknowledge seller brokerage of 1% of the final agreed sale value if the completed transaction value is above ₹1 crore. For a transaction of ₹1 crore or below, the rate will be separately agreed in writing. Applicable GST, if any, is additional." : category === "Rental" ? "I acknowledge that no owner brokerage is payable for flat rental." : category === "PG" ? "I acknowledge owner commission of 10% of accommodation rent for each successful PG / Hostel booking introduced or facilitated by NAREN REALTY, plus applicable GST." : "I acknowledge host commission of 10% of accommodation rent for each successful Airbnb / Short-Stay booking introduced or facilitated by NAREN REALTY, plus applicable GST."} I have read and accept the applicable owner-side terms.</span>
           </label>
           <div className="rounded-xl bg-[#F4F1EF] p-4 text-sm">
             <p className="font-semibold text-[#A71930]">Ready to submit?</p>
