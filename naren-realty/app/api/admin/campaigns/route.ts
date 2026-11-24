@@ -21,6 +21,21 @@ function safeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+function renderCampaignEmail(content: string, footer: string) {
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#172033">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f5f7;padding:32px 12px"><tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e8e8e8">
+        <tr><td style="background:#10243A;padding:26px 32px;border-bottom:3px solid #C7A66A">
+          <div style="font-size:22px;line-height:1.2;font-weight:700;letter-spacing:2px;color:#ffffff">NAREN REALTY</div>
+          <div style="margin-top:7px;font-size:10px;letter-spacing:3px;color:#D8C39A">PROPERTY · PEOPLE · POSSIBILITIES</div>
+        </td></tr>
+        <tr><td style="padding:34px 32px 38px;font-size:15px;line-height:1.8;color:#263445">${content}</td></tr>
+        <tr><td style="padding:20px 32px;background:#f8f8f6;border-top:1px solid #ece8df;font-size:11px;line-height:1.7;color:#697586">${footer}<div style="margin-top:12px;color:#10243A;font-weight:700;letter-spacing:1px">NAREN REALTY</div><div style="margin-top:4px">narenrealty.co</div></td></tr>
+      </table>
+    </td></tr></table>
+  </body></html>`;
+}
+
 async function sendResendEmail(to: string, subject: string, html: string) {
   const key = process.env.RESEND_API_KEY;
   if (!key) throw new Error("Resend is not configured for this deployment. Add RESEND_API_KEY to the Preview environment.");
@@ -98,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     if (body.action === "test") {
       if (!user.email) return jsonError("Your admin account does not have an email address.");
-      const html = `<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#172033"><div style="background:#10243A;color:white;padding:20px 24px;font-weight:bold;letter-spacing:2px">NAREN REALTY</div><div style="padding:28px 24px;line-height:1.7">${bodyHtml}</div><p style="padding:0 24px 24px;color:#64748b;font-size:12px">Preview email sent only to the signed-in admin.</p></div>`;
+      const html = renderCampaignEmail(bodyHtml, "Preview email sent only to the signed-in admin. This test message is not sent to customers.");
       try { const resendId = await sendResendEmail(user.email, `[TEST] ${subject}`, html); return NextResponse.json({ ok: true, resendId, sentTo: user.email }); }
       catch (error) { return jsonError(error instanceof Error ? error.message : "Test email failed.", 502); }
     }
@@ -132,7 +147,7 @@ export async function POST(request: NextRequest) {
       const byEmail = new Map(insertedRecipients.map((row) => [row.email.toLowerCase(), row]));
       const messages = recipients.map((recipient) => {
         const personalized = bodyHtml.replace(/\{\{\s*name\s*\}\}/gi, safeHtml(recipient.full_name || "there"));
-        const html = `<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#172033"><div style="background:#10243A;color:white;padding:20px 24px;font-weight:bold;letter-spacing:2px">NAREN REALTY</div><div style="padding:28px 24px;line-height:1.7">${personalized}</div><div style="padding:18px 24px;background:#f8fafc;color:#64748b;font-size:12px">You are receiving this because you opted in to NAREN REALTY email updates. <a href="${origin}/api/email/unsubscribe?token=${recipient.unsubscribe_token}" style="color:#10243A">Unsubscribe</a></div></div>`;
+        const html = renderCampaignEmail(personalized, `You are receiving this because you opted in to NAREN REALTY email updates. <a href="${origin}/api/email/unsubscribe?token=${recipient.unsubscribe_token}" style="color:#10243A">Unsubscribe</a>`);
         return { from: "NAREN REALTY <noreply@narenrealty.co>", to: [recipient.email], subject, html };
       });
       let sentCount = 0;
