@@ -8,7 +8,7 @@ import type { AdminDashboardSection, AdminDashboardStats } from "../lib/admin-su
 
 type Tone = "navy" | "amber" | "green" | "red";
 type DashboardMetric = { label: string; value: number; href: string; tone: Tone };
-type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics" | "followups" | "accounts" | "events" | "health";
+type TaskKey = "properties" | "addProperty" | "visits" | "enquiries" | "managers" | "submissions" | "serviceRequests" | "vendors" | "requirements" | "googleLeads" | "loans" | "matches" | "referrals" | "policies" | "analytics" | "followups" | "accounts" | "events" | "health" | "campaigns";
 type TaskItem = { key: TaskKey; label: string; count?: number; href?: string };
 
 const toneStyles: Record<Tone, string> = {
@@ -72,6 +72,7 @@ export default function AdminDashboardPage() {
     { key: "accounts", label: "Customer & Owner Accounts", href: "/admin/accounts" },
     { key: "events", label: "Event Approvals", href: "/admin/events" },
     { key: "health", label: "MFIT Healthcare", href: "/admin/health" },
+    { key: "campaigns", label: "Campaign Marketing", href: "/admin/campaigns" },
     { key: "submissions", label: "Submissions", count: stats?.submissions.state === "available" ? stats.submissions.metrics.totalSubmissions : undefined },
     { key: "serviceRequests", label: "Service Requests", count: stats?.serviceRequests.state === "available" ? stats.serviceRequests.metrics.totalRequests : undefined },
     { key: "vendors", label: "Vendor Management", count: stats?.vendors.state === "available" ? stats.vendors.metrics.totalVendors : undefined },
@@ -199,6 +200,7 @@ export default function AdminDashboardPage() {
               {selectedTask === "followups" && <><SectionHeading href="/admin/tasks">Pending Follow-ups</SectionHeading><p className="mb-4 text-sm text-slate-600">New enquiries automatically create internal follow-up tasks. Mark them completed or dismissed after review.</p><Link href="/admin/tasks" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Pending Follow-ups</Link></>}
               {selectedTask === "health" && <><SectionHeading href="/admin/health">MFIT Healthcare</SectionHeading><p className="mb-4 text-sm text-slate-600">Manage diagnostic packages, individual tests, lab partners, collection slots, bookings and reports. This is a separate healthcare module.</p><Link href="/admin/health" className="inline-flex rounded-lg bg-[#0b7778] px-5 py-3 text-sm font-bold text-white">Open MFIT Healthcare Admin</Link></>}
               {selectedTask === "events" && <><SectionHeading href="/admin/events">Event Approvals</SectionHeading><p className="mb-4 text-sm text-slate-600">Review organiser submissions and approve events before they appear in public category listings.</p><Link href="/admin/events" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Event Management</Link></>}
+              {selectedTask === "campaigns" && <><SectionHeading href="/admin/campaigns">Campaign Marketing</SectionHeading><p className="mb-4 text-sm text-slate-600">Create festival and birthday wishes, property promotions and customer updates. Only opted-in contacts can receive marketing emails.</p><Link href="/admin/campaigns" className="inline-flex rounded-lg bg-[#FBBF24] px-5 py-3 text-sm font-bold text-[#10243A] hover:bg-amber-300">Open Campaign Marketing</Link></>}
             </section>
           </div>
         )}
