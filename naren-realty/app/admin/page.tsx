@@ -146,7 +146,7 @@ export default function AdminDashboardPage() {
       <header className="bg-[#10243A] text-white shadow-sm">
         <div className="mx-auto flex max-w-[88rem] flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-6 sm:py-4">
           <div><p className="text-xs font-bold tracking-[0.18em] text-amber-400">NAREN REALTY</p><h1 className="mt-1 text-xl font-bold">Admin Dashboard</h1></div>
-          <div className="flex items-center gap-2"><Link href="/" className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10">Website</Link><AdminLogoutButton className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10" /></div>
+          <div className="flex items-center gap-2"><Link href="/admin/campaigns" className="rounded-lg border border-amber-400/60 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-400/20">Email Campaigns</Link><Link href="/" className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10">Website</Link><AdminLogoutButton className="rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10" /></div>
         </div>
       </header>
 
