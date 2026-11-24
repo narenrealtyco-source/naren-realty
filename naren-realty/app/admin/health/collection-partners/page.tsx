@@ -8,7 +8,6 @@ import {
   approveCollectionPartnerApplication,
   rejectCollectionPartnerApplication,
   setCollectionPartnerActive,
-  resendCollectionPartnerLogin,
 } from "./actions";
 
 export const metadata = { title: "Collection Partners | MFIT Healthcare Admin" };
@@ -76,7 +75,7 @@ async function CollectionPartnersContent() {
             </div>
             {app.notes && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm"><b>Applicant notes:</b> {app.notes}</p>}
             {app.review_note && <p className="mt-3 rounded-lg bg-rose-50 p-3 text-sm"><b>Review note:</b> {app.review_note}</p>}
-            {app.status === "approved" && app.created_partner_id && <form action={resendCollectionPartnerLogin} className="mt-4 border-t pt-4"><input type="hidden" name="application_id" value={app.id}/><button className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-50">Resend Login Email</button><p className="mt-1 text-xs text-slate-500">Sends a fresh, one-time secure login link to the approved email address.</p></form>}
+            {app.status === "approved" && app.created_partner_id && <ResendLoginForm applicationId={app.id} />}
             {app.status === "pending_review" && <div className="mt-4 flex flex-wrap items-end gap-3 border-t pt-4">
               <form action={approveCollectionPartnerApplication}><input type="hidden" name="application_id" value={app.id}/><button className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">Approve & Send Login Invite</button></form>
               <form action={rejectCollectionPartnerApplication} className="flex min-w-0 flex-1 flex-wrap items-end gap-2"><input type="hidden" name="application_id" value={app.id}/><label className="min-w-48 flex-1 text-xs font-semibold text-slate-500">Rejection / verification note<input name="review_note" maxLength={1000} placeholder="Optional reason" className="mt-1 w-full rounded-lg border p-2 text-sm font-normal"/></label><button className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700">Reject</button></form>
