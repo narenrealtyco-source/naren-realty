@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function CollectionPartnerActivatePage() {
+function CollectionPartnerActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tokenHash = searchParams.get("token_hash") || "";
@@ -98,5 +98,13 @@ export default function CollectionPartnerActivatePage() {
         <p className="mt-5 text-xs text-slate-500">Use at least 12 characters. MFIT Healthcare will never ask you to share your password.</p>
       </section>
     </main>
+  );
+}
+
+export default function CollectionPartnerActivatePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen flex items-center justify-center bg-slate-50 p-4 text-sm text-slate-500">Loading secure setup…</main>}>
+      <CollectionPartnerActivateForm />
+    </Suspense>
   );
 }
