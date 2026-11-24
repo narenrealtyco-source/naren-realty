@@ -27,7 +27,14 @@ export async function GET(request: NextRequest) {
   }
   const { data: profile, error: profileError } = await supabase.from("profiles")
     .select("role,manager_active").eq("id", user.id).maybeSingle();
-  if (profileError || profile?.role !== "manager" || profile.manager_active !== true) {
+  if (profileError || !profile) {
+    await supabase.auth.signOut();
+    return NextResponse.redirect(new URL("/manager/login?setup=unauthorized", origin));
+  }
+  if (profile.role === "collection_partner") {
+    return NextResponse.redirect(new URL("/collection-partner/accept-invite", origin));
+  }
+  if (profile.role !== "manager" || profile.manager_active !== true) {
     await supabase.auth.signOut();
     return NextResponse.redirect(new URL("/manager/login?setup=unauthorized", origin));
   }
