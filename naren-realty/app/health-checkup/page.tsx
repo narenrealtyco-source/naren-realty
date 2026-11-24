@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import HealthCatalogAutocomplete from "./HealthCatalogAutocomplete";
+import AddToCartButton from "../components/health/AddToCartButton";
 
 const quickActions = [
   { title: "Full Body", subtitle: "Packages", symbol: "✚", href: "/health-checkup/packages?category=Full%20Body", tone: "bg-[#eaf8f7] text-[#078b8d]" },
@@ -72,23 +73,82 @@ function Brand() {
 
 export default function HealthPage() {
   const [query] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [mostBookedTab, setMostBookedTab] = useState<"packages" | "tests">("packages");
-  const filtered = useMemo(() => categories.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const [catalogItems, setCatalogItems] = useState<any[]>([]);
+  const [prescriptionName, setPrescriptionName] = useState("");
+  const [prescriptionPhone, setPrescriptionPhone] = useState("");
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
+  const [prescriptionBusy, setPrescriptionBusy] = useState(false);
+  const [prescriptionMessage, setPrescriptionMessage] = useState("");
+  const [prescriptionError, setPrescriptionError] = useState("");
+  const [prescriptionReference, setPrescriptionReference] = useState("");
+  useEffect(() => {
+    let active = true;
+    fetch("/api/health-catalog", { cache: "no-store" })
+      .then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.error || "Catalogue unavailable"); if (active) setCatalogItems(data.items || []); })
+      .catch(() => { if (active) setCatalogItems([]); });
+    return () => { active = false; };
+  }, []);
+  const listedCatalog = useMemo(() => catalogItems.filter((item) => item.is_active), [catalogItems]);
+  const recommendedItems = listedCatalog.slice(0, 3);
+  const catalogPackages = listedCatalog.filter((item) => item.item_type === "package").slice(0, 3);
+  const catalogTests = listedCatalog.filter((item) => item.item_type === "test").slice(0, 3);
+  const filtered = useMemo(() => categories.filter((item) => (item.title + " " + item.subtitle).toLowerCase().includes(query.toLowerCase())), [query]);
+  const submitPrescription = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPrescriptionError("");
+    setPrescriptionMessage("");
+    if (!prescriptionFile) { setPrescriptionError("Please select your prescription file."); return; }
+    const form = new FormData();
+    form.set("name", prescriptionName);
+    form.set("phone", prescriptionPhone);
+    form.set("prescription", prescriptionFile);
+    setPrescriptionBusy(true);
+    try {
+      const response = await fetch("/api/health-prescription/upload", { method: "POST", body: form });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Upload failed.");
+      setPrescriptionReference(data.reference);
+      setPrescriptionMessage(data.message || "Prescription submitted securely.");
+      setPrescriptionFile(null);
+    } catch (error: any) {
+      setPrescriptionError(error.message || "Could not submit prescription.");
+    } finally {
+      setPrescriptionBusy(false);
+    }
+  };
 
   return (
     <main id="top" className="min-h-screen bg-[#f7fafb] pb-24 text-[#172326]">
-      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between px-4 sm:px-6">
+      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 shadow-[0_2px_12px_rgba(15,40,55,0.04)] backdrop-blur">
+        <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Brand />
-          <a href="#contact" className="rounded-full bg-[#e9f8f7] px-4 py-2.5 text-xs font-bold text-[#087f82] sm:text-sm">Need help?</a>
+          <div className="flex items-center gap-2">
+            <a href="/health-checkup/cart" className="rounded-xl px-3 py-2 text-xs font-bold text-[#26383b] hover:bg-[#eff9f8]">Cart</a>
+            <a href="/health-checkup/my-orders" className="hidden rounded-xl px-3 py-2 text-xs font-bold text-[#26383b] transition hover:bg-[#eff9f8] sm:inline-flex">My Orders</a>
+            <a href="#contact" className="rounded-xl bg-[#e9f8f7] px-3.5 py-2.5 text-xs font-bold text-[#087f82] sm:px-4 sm:text-sm">Need help?</a>
+          </div>
         </div>
+        <div className="mx-auto max-w-6xl px-4 pb-3 sm:px-6">
+          <HealthCatalogAutocomplete placeholder="Search for tests, packages and health concerns..." />
+        </div>
+        <nav aria-label="Health categories" className="hidden border-t border-slate-100 bg-[#fbfefe] sm:block">
+          <div className="mx-auto flex max-w-6xl items-center gap-7 overflow-x-auto px-6 py-3 text-xs font-semibold text-[#35484b]">
+            <Link href="/health-checkup/packages?category=Full%20Body" className="whitespace-nowrap hover:text-[#078b8d]">Health Packages</Link>
+            <Link href="/health-checkup/tests" className="whitespace-nowrap hover:text-[#078b8d]">Lab Tests</Link>
+            <Link href="/health-checkup/scans" className="whitespace-nowrap hover:text-[#078b8d]">Scans & Imaging</Link>
+            <Link href="/health-checkup/packages?category=Women" className="whitespace-nowrap hover:text-[#078b8d]">Women’s Health</Link>
+            <Link href="/health-checkup/packages?category=Children" className="whitespace-nowrap hover:text-[#078b8d]">Children’s Health</Link>
+            <a href="#home-collection" className="whitespace-nowrap hover:text-[#078b8d]">Home Collection</a>
+          </div>
+        </nav>
       </header>
 
-      <section className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8">
-        <p className="mb-3 text-sm font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
-        <HealthCatalogAutocomplete placeholder="Search CBC, Thyroid, Vitamin D, health packages..." />
-        <div className="mt-5 grid grid-cols-4 gap-2.5 sm:gap-4">
+      <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-5">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs font-medium text-slate-500">Healthcare services <span className="px-1 text-slate-300">/</span> <strong className="text-[#087f82]">MFIT Healthcare</strong></p>
+          <span className="hidden text-[11px] font-semibold text-[#078b8d] sm:inline">Care that fits your life</span>
+        </div>
+        <div className="grid grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map((action) => (
             <a key={action.subtitle} href={action.href} className={`flex min-h-[112px] flex-col items-center justify-center rounded-2xl px-1.5 py-3 text-center shadow-[0_3px_12px_rgba(15,40,55,0.035)] transition hover:-translate-y-0.5 sm:min-h-[140px] sm:rounded-3xl ${action.tone}`}>
               <span className="mb-2 text-[30px] font-semibold leading-none sm:text-[38px]">{action.symbol}</span>
@@ -99,8 +159,8 @@ export default function HealthPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-7 max-w-6xl px-4 sm:px-6">
-        <div className="relative isolate min-h-[190px] overflow-hidden rounded-[26px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
+      <section className="mx-auto mt-5 max-w-6xl px-4 sm:px-6">
+        <div className="relative isolate min-h-[205px] overflow-hidden rounded-[22px] bg-gradient-to-r from-[#075c78] via-[#087f98] to-[#50c1d0] shadow-[0_12px_28px_rgba(7,89,113,0.17)] sm:min-h-[230px]">
           <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85" alt="Healthcare professional" className="absolute inset-y-0 right-0 -z-10 h-full w-[52%] object-cover object-center opacity-55 sm:w-[42%]" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#075c78] via-[#087f98]/95 to-transparent" />
           <div className="max-w-[72%] px-5 py-6 text-white sm:max-w-[66%] sm:px-8 sm:py-9">
@@ -150,43 +210,45 @@ export default function HealthPage() {
       </section>
 
       <section id="recommended" className="mx-auto mt-9 max-w-6xl px-4 sm:px-6">
-        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended for you</h2></div>
+        <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Picked for your wellbeing</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Recommended MFIT health checks</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {recommendedPackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <div className="relative"><img src={item.image} alt="" loading="lazy" className="h-[190px] w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.label}</span></div>
-            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-bold text-[#172326]">Price on enquiry</p><Link href={item.label === "Lab test" ? "/health-checkup/test/cbc-complete-blood-count" : item.label === "Women's health" ? "/health-checkup/packages?category=Women" : "/health-checkup/packages?category=Full%20Body"} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">VIEW & BOOK</Link></div>
+          {recommendedItems.map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <div className="flex h-[130px] items-end bg-gradient-to-br from-[#dff6f3] via-[#e8f5fb] to-[#dceff2] p-4"><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#087f82]">{item.item_type === "test" ? "MFIT lab test" : "MFIT health package"}</span></div>
+            <div className="p-4"><h3 className="min-h-10 text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{item.description || item.category || "Diagnostic service"}</p><p className="mt-3 text-sm font-bold text-[#172326]">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={item.item_type === "test" ? "/health-checkup/test/" + encodeURIComponent(item.slug) : "/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d] transition hover:bg-[#eaf8f7]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
           </article>)}
         </div>
       </section>
 
       <section id="most-booked" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-        <div className="mb-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Most booked health checkups</h2>
+        <div className="mb-5 flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Popular choices</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Popular health checkup packages</h2></div>
+          <Link href="/health-checkup/packages" className="shrink-0 text-xs font-extrabold text-[#078b8d]">View all →</Link>
         </div>
-        <div className="mb-5 flex gap-2">
-          <button type="button" onClick={() => setMostBookedTab("packages")} aria-pressed={mostBookedTab === "packages"} className={`rounded-full px-6 py-3 text-sm font-bold transition ${mostBookedTab === "packages" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Packages</button>
-          <button type="button" onClick={() => setMostBookedTab("tests")} aria-pressed={mostBookedTab === "tests"} className={`rounded-full px-6 py-3 text-sm font-semibold transition ${mostBookedTab === "tests" ? "bg-[#172326] text-white shadow-sm" : "border border-slate-200 bg-white text-[#172326]"}`}>Tests</button>
-        </div>
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {(mostBookedTab === "packages" ? mostBookedPackages : mostBookedTests).map((item) => (
-            <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-              <div className="relative h-[205px] overflow-hidden bg-[#eaf7f8]">
-                <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
-                <span className="absolute left-3 top-3 rounded-br-xl rounded-tl-xl bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">{item.tag}</span>
-              </div>
-              <div className="p-4">
-                <h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3>
-                <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.detail}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p>
-                <Link href={mostBookedTab === "packages" ? "/health-checkup/packages?category=Full%20Body" : "/health-checkup/test/" + ("slug" in item ? item.slug : "cbc-complete-blood-count")} className="mt-4 flex min-h-[54px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-base font-extrabold text-[#e76558] shadow-[0_5px_12px_rgba(15,40,55,0.08)] transition hover:border-[#08b8bb] hover:text-[#087f82]">VIEW & BOOK</Link>
-              </div>
+        {catalogPackages.length === 0 ? <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 ring-1 ring-slate-100">Health packages will appear here once added to the MFIT catalogue.</p> : <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {catalogPackages.map((item) => (
+            <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+              <div className="flex h-[150px] items-end bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#087f82]">MFIT health package</span></div>
+              <div className="p-4"><h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Health checkup package"}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[50px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-sm font-extrabold text-[#e76558]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
             </article>
           ))}
-        </div>
-        <div className="mx-auto h-1 w-2/3 rounded-full bg-slate-200 sm:hidden"><div className="h-1 w-1/4 rounded-full bg-[#172326]" /></div>
+        </div>}
       </section>
 
+      <section id="individual-tests" className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
+        <div className="mb-5 flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Choose tests individually</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Book Individual Lab Tests</h2><p className="mt-1 text-sm text-slate-500">Book only the tests you need—no package required.</p></div>
+          <Link href="/health-checkup/tests" className="shrink-0 text-xs font-extrabold text-[#078b8d]">View all →</Link>
+        </div>
+        {catalogTests.length === 0 ? <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 ring-1 ring-slate-100">Individual lab tests will appear here once added to the MFIT catalogue.</p> : <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {catalogTests.map((item) => (
+            <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-white shadow-[0_5px_20px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+              <div className="flex h-[120px] items-end bg-gradient-to-br from-[#e7f4ff] via-[#eef8fb] to-[#dff6f3] p-4"><span className="rounded-full bg-white/95 px-3 py-2 text-xs font-extrabold text-[#2476bd]">Single lab test</span></div>
+              <div className="p-4"><h3 className="min-h-[52px] text-[17px] font-extrabold leading-snug text-[#202629]">{item.title}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">{item.description || item.category || "Individual diagnostic test"}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/test/" + encodeURIComponent(item.slug)} className="mt-4 flex min-h-[50px] items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-sm font-extrabold text-[#e76558]">{item.provider_verified && item.price !== null ? "VIEW & BOOK" : "VIEW DETAILS"}</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
+            </article>
+          ))}
+        </div>}
+        <Link href="/health-checkup/tests" className="mt-1 flex min-h-12 items-center justify-center rounded-xl bg-[#078b8d] px-4 text-sm font-extrabold text-white">Explore All Individual Lab Tests →</Link>
+      </section>
 
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl bg-[#fde4e1]">
@@ -209,9 +271,9 @@ export default function HealthPage() {
       <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
         <div className="mb-4"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#078b8d]">Personalised wellness</p><h2 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Packages for lifestyle concerns</h2></div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
-          {lifestylePackages.map((item) => <article key={item.title} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
-            <img src={item.image} alt={item.title} loading="lazy" className="h-[190px] w-full object-cover" />
-            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.detail}</p><p className="mt-3 text-sm font-semibold text-slate-700">Price on enquiry</p><Link href="/health-checkup/packages?category=Lifestyle" className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW PACKAGES</Link></div>
+          {catalogPackages.filter((item) => /lifestyle/i.test(item.category || "")).map((item) => <article key={item.slug} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-[0_4px_18px_rgba(15,40,55,0.07)] ring-1 ring-slate-100 sm:w-auto">
+            <div className="h-[130px] bg-gradient-to-br from-[#e1f7f3] via-[#e8f2fb] to-[#d9eff0]" />
+            <div className="p-4"><h3 className="text-base font-extrabold leading-snug">{item.title}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{item.description || item.category}</p><p className="mt-3 text-sm font-semibold text-slate-700">{item.price === null ? "Price pending" : "₹" + Number(item.price).toLocaleString("en-IN")}</p><Link href={"/health-checkup/package/" + encodeURIComponent(item.slug)} className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#08b8bb] text-sm font-extrabold text-[#078b8d]">VIEW DETAILS</Link><div className="mt-2"><AddToCartButton slug={item.slug} disabled={!item.provider_verified || item.price === null}/></div></div>
           </article>)}
         </div>
       </section>
@@ -256,11 +318,20 @@ export default function HealthPage() {
       </section>
 
       <section id="prescription" className="mx-auto mt-8 max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Choose a file to keep it ready for your enquiry. Online submission will be enabled with the booking workflow.</p></div>
-          <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white transition hover:bg-[#066c70]">Select prescription<input type="file" accept="image/*,.pdf" className="sr-only" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")} /></label>
-          {fileName && <p className="text-xs font-semibold text-[#087f82]" role="status">Selected: {fileName}</p>}
-        </div>
+        <form onSubmit={submitPrescription} className="rounded-2xl border border-dashed border-[#80c9c8] bg-[#effaf9] p-5 sm:p-6">
+          <div><h2 className="font-extrabold">Have a prescription?</h2><p className="mt-1 text-xs leading-5 text-slate-600">Securely submit your doctor’s prescription. Files are stored privately and are not publicly accessible.</p></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-semibold text-slate-700">Your name<input required maxLength={120} value={prescriptionName} onChange={(event) => setPrescriptionName(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label>
+            <label className="text-xs font-semibold text-slate-700">Mobile number<input required inputMode="numeric" maxLength={10} value={prescriptionPhone} onChange={(event) => setPrescriptionPhone(event.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm" /></label>
+          </div>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#087f82] bg-white px-5 text-sm font-bold text-[#087f82]">{prescriptionFile ? prescriptionFile.name : "Choose PDF / image"}<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => setPrescriptionFile(event.target.files?.[0] ?? null)} /></label>
+            <span className="text-[11px] text-slate-500">PDF, JPG, PNG or WEBP · Maximum 10 MB</span>
+            <button type="submit" disabled={prescriptionBusy || !prescriptionFile} className="min-h-11 rounded-xl bg-[#087f82] px-5 text-sm font-bold text-white disabled:opacity-50">{prescriptionBusy ? "Uploading securely…" : "Submit prescription"}</button>
+          </div>
+          {prescriptionError && <p role="alert" className="mt-3 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{prescriptionError}</p>}
+          {prescriptionMessage && <p role="status" className="mt-3 rounded-lg bg-white p-3 text-xs font-semibold text-[#087f82]">{prescriptionMessage} Reference: {prescriptionReference}</p>}
+        </form>
       </section>
 
       <section id="contact" className="mx-auto mt-8 max-w-6xl px-4 pb-8 sm:px-6"><div className="rounded-2xl bg-[#122c31] p-5 text-white sm:p-7"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7fe1dc]">MFIT Healthcare</p><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Need help choosing a health checkup?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Our health services team can guide you through available packages and booking options.</p><p className="mt-4 text-xs text-slate-400">Operated by MFIT HEALTHCARE PRIVATE LIMITED</p></div></section>

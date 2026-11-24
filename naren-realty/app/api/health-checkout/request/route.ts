@@ -72,6 +72,19 @@ export async function POST(request: NextRequest) {
       if (!coupon?.is_active) return NextResponse.json({ error: "Coupon is not currently available. Please check the code." }, { status: 400 });
     }
 
+    let customerId: string | null = null;
+    const authorization = request.headers.get("authorization");
+    if (authorization) {
+      const token = authorization.replace(/^Bearer\s+/i, "").trim();
+      if (!token) return NextResponse.json({ error: "Customer session is invalid. Please sign in again." }, { status: 401 });
+      const { data: authData, error: authError } = await supabase.auth.getUser(token);
+      if (authError || !authData.user) return NextResponse.json({ error: "Customer session is invalid. Please sign in again." }, { status: 401 });
+      const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", authData.user.id).maybeSingle();
+      if (profileError) throw profileError;
+      if (!profile || profile.role !== "customer") return NextResponse.json({ error: "Only a verified MFIT customer account can be linked to this booking." }, { status: 403 });
+      customerId = authData.user.id;
+    }
+
     const snapshots = catalog.map((item:any)=>({
       slug:item.slug,title:item.title,type:item.item_type,category:item.category,
       inclusions:item.inclusions || [],package_tests:(packageTests.get(item.id) || []),
@@ -80,7 +93,7 @@ export async function POST(request: NextRequest) {
     }));
     const reference = "MFIT-" + randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
     const { error: insertError } = await supabase.from("health_booking_requests").insert({
-      reference,customer_name:name,customer_phone:phone,customer_email:email || null,
+      reference,customer_id:customerId,customer_name:name,customer_phone:phone,customer_email:email || null,
       pincode,address,selected_items:snapshots,customer_payable_amount:Number((subtotal===null?0:Math.max(0,subtotal-couponDiscount-familyDiscount)).toFixed(2)),customer_payment_status:"unpaid",
       patient_details:{name:patientName,relation:String(patient.relation || "Self"),age:patient.age ? String(patient.age).slice(0,3) : null,gender:String(patient.gender || "")},
       coupon_code:couponCode,coupon_discount:couponDiscount,family_discount:familyDiscount,
