@@ -1,6 +1,6 @@
 "use server";
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "../lib/supabase-server";
@@ -51,7 +51,7 @@ async function storeOwnerDocuments(userId: string, submissionId: string, formDat
       }
       const digest = createHash("sha256").update(bytes).digest("hex");
       const extension = item.type === "application/pdf" ? "pdf" : item.type === "image/jpeg" ? "jpg" : item.type === "image/png" ? "png" : "webp";
-      const storagePath = `${userId}/${submissionId}/${crypto.randomUUID()}.${extension}`;
+      const storagePath = `${userId}/${submissionId}/${randomUUID()}.${extension}`;
       const { error } = await bucket.upload(storagePath, bytes, { contentType: item.type, upsert: false });
       if (error) throw new Error("An ownership document could not be stored securely. Please retry.");
       uploaded.push(storagePath);
