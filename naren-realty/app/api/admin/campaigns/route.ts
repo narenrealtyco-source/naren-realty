@@ -125,8 +125,15 @@ export async function POST(request: NextRequest) {
 
     if (body.action === "test") {
       if (!user.email) return jsonError("Your admin account does not have an email address.");
-      const html = renderCampaignEmail(bodyHtml, "Preview email sent only to the signed-in admin. This test message is not sent to customers.");
-      try { const resendId = await sendResendEmail(user.email, `[TEST] ${subject}`, html); return NextResponse.json({ ok: true, resendId, sentTo: user.email }); }
+      const { data: adminProfile } = await service.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+      const testName = adminProfile?.full_name?.trim()
+        || user.user_metadata?.full_name?.trim?.()
+        || user.user_metadata?.name?.trim?.()
+        || user.email.split("@")[0]
+        || "there";
+      const personalized = bodyHtml.replace(/\\{\\{\\s*name\\s*\\}\\}/gi, safeHtml(testName));
+      const html = renderCampaignEmail(personalized, "Preview email sent only to the signed-in admin. This test message is not sent to customers.");
+      try { const resendId = await sendResendEmail(user.email, `[TEST] ${subject}`, html); return NextResponse.json({ ok: true, resendId, sentTo: user.email, personalizedName: testName }); }
       catch (error) { return jsonError(error instanceof Error ? error.message : "Test email failed.", 502); }
     }
 
