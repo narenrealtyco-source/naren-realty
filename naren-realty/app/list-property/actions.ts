@@ -15,6 +15,7 @@ import {
 } from "../lib/property-submission-validation";
 import { parseSubmissionDetails } from "../lib/submission-details";
 import { parsePropertyOwnerDetails } from "../lib/property-submission-owner-validation";
+import { POLICY_DOCUMENTS, type PolicyType } from "../lib/policies";
 import { submitStagedAttempt } from "../lib/private-submission-lifecycle";
 import { createPrivateSubmissionClient, lifecycleStore, manifestFingerprint } from "../lib/private-submission-server";
 
@@ -30,6 +31,25 @@ function isSetupError(code: string | undefined): boolean {
 const MAX_OWNER_DOCUMENTS = 5;
 const MAX_OWNER_DOCUMENT_BYTES = 10 * 1024 * 1024;
 const OWNER_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
+function requiredOwnerPolicyType(category: string): PolicyType {
+  return category === "PG" ? "pg_hostel_policy" : category === "Airbnb" ? "airbnb_policy" : "owner_terms";
+}
+
+async function hasCurrentOwnerPolicyAcceptances(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+  category: string,
+): Promise<boolean> {
+  const types: PolicyType[] = [requiredOwnerPolicyType(category), "privacy_policy"];
+  const versions = new Map(types.map((type) => [type, POLICY_DOCUMENTS.find((policy) => policy.type === type)?.version]));
+  if (types.some((type) => !versions.get(type))) return false;
+  const { data, error } = await supabase.from("policy_acceptances")
+    .select("policy_type,policy_version").eq("user_id", userId).in("policy_type", types);
+  if (error || !data) return false;
+  return types.every((type) => data.some((acceptance) =>
+    acceptance.policy_type === type && acceptance.policy_version === versions.get(type)));
+}
 
 type OwnerDocumentManifestItem = { path: string; filename: string; contentType: string; size: number; sha256: string };
 
@@ -248,6 +268,9 @@ export async function submitProperty(
     if (formData.get("owner_confirmed") !== "on" || formData.get("listing_declaration") !== "on" || formData.get("brokerage_acknowledged") !== "on") {
       throw new Error("Confirm your authority to list the property and review the listing declaration.");
     }
+    if (!await hasCurrentOwnerPolicyAcceptances(supabase, user.id, input.category)) {
+      throw new Error("Please review and accept the latest Owner Terms and Privacy Policy in the Owner Portal before submitting.");
+    }
     validateSubmissionPhotoCount(photos.length);
     for (const photo of photos) {
       if (!(photo instanceof File) || photo.size > MAX_SUBMISSION_PHOTO_BYTES) {
@@ -364,6 +387,9 @@ export async function resubmitProperty(_previous: SubmissionState, formData: For
     ownerDetails = parsePropertyOwnerDetails(formData);
     if (formData.get("owner_confirmed") !== "on" || formData.get("listing_declaration") !== "on") {
       throw new Error("Confirm your authority to list the property and review the listing declaration.");
+    }
+    if (!await hasCurrentOwnerPolicyAcceptances(supabase, user.id, input.category)) {
+      throw new Error("Please review and accept the latest Owner Terms and Privacy Policy in the Owner Portal before resubmitting.");
     }
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "Property details are invalid." };
