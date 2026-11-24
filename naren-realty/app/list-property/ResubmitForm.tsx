@@ -16,6 +16,9 @@ type Values = {
 
 const initialState: SubmissionState = { status: "idle", message: "" };
 const inputClass = "mt-1 block min-w-0 w-full max-w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-base font-normal";
+const MAX_OWNER_DOCUMENTS = 5;
+const MAX_OWNER_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const OWNER_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
 function ownerDefaults(value: unknown): { values: OwnerValues | null; invalid: boolean } {
   if (value === null || value === undefined) return { values: null, invalid: false };
@@ -70,6 +73,8 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
     try {
       validatePropertyOwnerDetails({ version: 1, ...owner });
       if (!ownerConfirmed || !listingDeclaration || !brokerageAccepted) throw new Error("Confirm your authority, listing declaration and applicable brokerage terms.");
+      const documents = data.getAll("owner_documents");
+      if (documents.length < 1 || documents.length > MAX_OWNER_DOCUMENTS || documents.some((item) => !(item instanceof File) || item.size < 1 || item.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(item.type))) throw new Error("Upload between 1 and 5 valid ownership / authority documents (PDF, JPEG, PNG or WebP, up to 10 MB each).");
       data.set("brokerage_acknowledged", "on");
     } catch (error) {
       setDetailError(error instanceof Error ? error.message : "Owner contact details are invalid.");
@@ -98,6 +103,12 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
           <label className="block text-sm font-semibold">Relationship to property<select value={owner.relationship} onChange={(event) => { setOwnerDetailsInvalid(false); setOwner((current) => ({ ...current, relationship: event.target.value as OwnerValues["relationship"] })); }} className={inputClass}><option>Owner</option><option>Power of Attorney</option><option>Authorized Representative</option></select></label>
         </div>
         {owner.relationship !== "Owner" && <label className="block text-sm font-semibold">Authorization details<textarea rows={3} value={owner.authorizationDetails} onChange={(event) => { setOwnerDetailsInvalid(false); setOwner((current) => ({ ...current, authorizationDetails: event.target.value })); }} maxLength={1000} className={inputClass} /></label>}
+        <section className="rounded-xl border border-[#E8B5BF] bg-[#FDF5F6] p-4">
+          <h3 className="font-bold text-[#A71930]">Ownership / authority documents (Required)</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-700">Upload at least one supporting ownership or authority document. Documents remain private and are visible only to authorised Admin reviewers.</p>
+          <input type="file" name="owner_documents" multiple required accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" className="mt-3 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#A71930] file:px-3 file:py-2 file:font-semibold file:text-white" />
+          <p className="mt-2 text-xs text-slate-600">PDF / JPG / PNG / WebP · Maximum 5 files · 10 MB each</p>
+        </section>
         <input type="hidden" name="owner_details" value={JSON.stringify({ version: 1, ...owner })} />
         {ownerDetailsInvalid && <p role="alert" className="text-sm text-rose-700">Saved owner contact details could not be read. Review and re-enter them before resubmitting.</p>}
         <label className="flex items-start gap-3 text-sm leading-6"><input name="owner_confirmed" type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 accent-[#A71930]" /><span>{category === "Resale" ? "I confirm this is a genuine resale property offered by its existing owner, that I am the owner or duly authorised representative, and that it is not builder / promoter unsold inventory or a new project sale. I can provide ownership / authority documents for Admin verification." : "I confirm that I am the owner or am authorized to list this property and that the information is accurate."}</span></label>
