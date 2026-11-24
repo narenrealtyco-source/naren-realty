@@ -33,6 +33,23 @@ export async function propertySubmissionUploadsReady(): Promise<boolean> {
       configuredTypes.length === supportedTypes.length &&
       configuredTypes.every((type, index) => type === supportedTypes[index]);
 
+    const { data: documentBucket, error: documentBucketError } = await createPrivateSubmissionClient().storage.getBucket("private-property-owner-documents");
+    const documentTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"].sort();
+    const configuredDocumentTypes = Array.isArray(documentBucket?.allowed_mime_types) ? [...documentBucket.allowed_mime_types].sort() : [];
+    const documentsReady = !documentBucketError && documentBucket?.public === false &&
+      documentBucket.file_size_limit === 10 * 1024 * 1024 &&
+      configuredDocumentTypes.length === documentTypes.length &&
+      configuredDocumentTypes.every((type, index) => type === documentTypes[index]);
+
+    if (!documentsReady) {
+      console.error("[property-submission] Private owner document bucket is not ready", {
+        private: documentBucket?.public === false,
+        sizeLimitMatches: documentBucket?.file_size_limit === 10 * 1024 * 1024,
+        mimeTypesMatch: configuredDocumentTypes.length === documentTypes.length &&
+          configuredDocumentTypes.every((type, index) => type === documentTypes[index]),
+      });
+    }
+
     if (!ready) {
       console.error("[property-submission] Private storage bucket configuration is not ready", {
         private: data.public === false,
@@ -41,7 +58,7 @@ export async function propertySubmissionUploadsReady(): Promise<boolean> {
           configuredTypes.every((type, index) => type === supportedTypes[index]),
       });
     }
-    return ready;
+    return ready && documentsReady;
   } catch (error) {
     console.error("[property-submission] Private storage bucket readiness check failed", {
       errorType: error instanceof Error ? error.name : typeof error,
