@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../lib/supabase-server";
 
-const allowedTypes = new Set(["invite", "recovery", "email"]);
+const allowedTypes = new Set(["invite", "recovery", "email", "magiclink"]);
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get("token_hash");
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
-    type: type as "invite" | "recovery" | "email",
+    type: type as "invite" | "recovery" | "email" | "magiclink",
   });
   if (error) {
     return NextResponse.redirect(new URL("/manager/login?setup=expired", origin));
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       await supabase.auth.signOut();
       return NextResponse.redirect(new URL("/collection-partner/login?setup=unauthorized", origin));
     }
-    return NextResponse.redirect(new URL("/collection-partner/set-password", origin));
+    return NextResponse.redirect(new URL("/collection-partner", origin));
   }
   if (profile.role !== "manager" || profile.manager_active !== true) {
     await supabase.auth.signOut();
