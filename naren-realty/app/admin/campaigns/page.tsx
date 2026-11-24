@@ -24,6 +24,16 @@ export default function CampaignCentrePage() {
   const [consentEmail,setConsentEmail]=useState("");
   const [consentSource,setConsentSource]=useState("");
   const [busy,setBusy]=useState(false);
+  const [bannerUrl,setBannerUrl]=useState("");
+  const [bannerAspect,setBannerAspect]=useState<"16:9"|"9:16">("16:9");
+  const [bannerBusy,setBannerBusy]=useState(false);
+  const campaignBody=()=>bannerUrl?'<div style="margin:0 0 24px;text-align:center"><img src="'+bannerUrl+'" alt="NAREN REALTY campaign banner" style="display:block;width:100%;max-width:576px;height:auto;margin:0 auto;border:0;border-radius:10px" /></div>'+bodyHtml:bodyHtml;
+  async function uploadBanner(file:File){
+    setBannerBusy(true);setError("");setNotice("");
+    try{const form=new FormData();form.append("file",file);form.append("aspect",bannerAspect);const r=await fetch("/api/admin/campaigns/banner",{method:"POST",body:form});const j=await r.json();if(!r.ok)throw new Error(j.error||"Banner upload failed.");setBannerUrl(j.url);setNotice("Banner uploaded ("+j.width+" × "+j.height+"px).");}
+    catch(e){setError(e instanceof Error?e.message:"Banner upload failed.");}
+    finally{setBannerBusy(false);}
+  }
 
   const load=useCallback(async()=>{try{const r=await fetch("/api/admin/campaigns",{cache:"no-store"});const j=await r.json();if(!r.ok)throw new Error(j.error||"Could not load campaigns.");setData(j);setError("");}catch(e){setError(e instanceof Error?e.message:"Could not load campaigns.");}finally{setLoading(false);}},[]);
   useEffect(()=>{let active=true;fetch("/api/admin/campaigns",{cache:"no-store"}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||"Could not load campaigns.");if(active){setData(j);setError("");}}).catch(e=>{if(active)setError(e instanceof Error?e.message:"Could not load campaigns.");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
@@ -33,9 +43,9 @@ export default function CampaignCentrePage() {
     try{const r=await fetch("/api/admin/campaigns",{method:"POST",headers:{"Content-Type":"application/json",...(approved?{"x-campaign-approved":"yes"}:{})},body:JSON.stringify(payload)});const j=await r.json();if(!r.ok)throw new Error(j.error||"Action failed.");setNotice(j.sent!==undefined?`Campaign finished: ${j.sent} sent, ${j.failed} failed out of ${j.audience} opted-in contacts.`:j.sentTo?`Test email sent to ${j.sentTo}.`:"Saved successfully.");await load();return true;}catch(e){setError(e instanceof Error?e.message:"Action failed.");return false;}finally{setBusy(false);}
   }
   async function submitConsent(e:FormEvent){e.preventDefault();if(!confirm("Confirm that this contact has explicitly agreed to receive NAREN REALTY marketing emails?"))return;const ok=await action({action:"consent",email:consentEmail,consentSource});if(ok){setConsentEmail("");setConsentSource("");}}
-  async function submitDraft(e:FormEvent){e.preventDefault();await action({action:"save",name,subject,bodyHtml,campaignType});}
-  async function test(){await action({action:"test",name,subject,bodyHtml,campaignType});}
-  async function send(){if(!confirm("FINAL APPROVAL: Send this campaign to every contact with recorded marketing opt-in (maximum 100 recipients)? This action sends real emails and cannot be undone."))return;await action({action:"send",name,subject,bodyHtml,campaignType},true);}
+  async function submitDraft(e:FormEvent){e.preventDefault();await action({action:"save",name,subject,bodyHtml:campaignBody(),campaignType});}
+  async function test(){await action({action:"test",name,subject,bodyHtml:campaignBody(),campaignType});}
+  async function send(){if(!confirm("FINAL APPROVAL: Send this campaign to every contact with recorded marketing opt-in (maximum 100 recipients)? This action sends real emails and cannot be undone."))return;await action({action:"send",name,subject,bodyHtml:campaignBody(),campaignType},true);}
 
   const consentMap=new Map((data?.consents??[]).map(c=>[c.email.toLowerCase(),c]));
   const subscribed=(data?.consents??[]).filter(c=>c.consent_status==="subscribed").length;
@@ -56,6 +66,14 @@ export default function CampaignCentrePage() {
           <label className="block text-sm font-semibold">Campaign name<input className={inputClass} value={name} onChange={e=>setName(e.target.value)} required placeholder="e.g. Diwali wishes 2026"/></label>
           <label className="block text-sm font-semibold">Campaign type<select className={inputClass} value={campaignType} onChange={e=>setCampaignType(e.target.value as typeof campaignType)}><option value="greeting">Festival / Birthday Wishes</option><option value="promotion">Property Promotion</option><option value="update">Property / Service Update</option></select></label>
           <label className="block text-sm font-semibold">Email subject<input className={inputClass} value={subject} onChange={e=>setSubject(e.target.value)} required placeholder="A warm festive wish from NAREN REALTY"/></label>
+          <div className="rounded-xl border border-slate-200 bg-[#F4F1EF] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-bold text-[#252525]">Email poster / banner</p><p className="mt-1 text-xs text-slate-600">Optional · JPG, PNG or WebP · Max 5 MB</p></div>
+              <div className="flex gap-2"><button type="button" onClick={()=>setBannerAspect("16:9")} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${bannerAspect==="16:9"?"border-[#A71930] bg-[#A71930] text-white":"border-slate-300 bg-white text-slate-700"}`}>16:9 Landscape</button><button type="button" onClick={()=>setBannerAspect("9:16")} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${bannerAspect==="9:16"?"border-[#A71930] bg-[#A71930] text-white":"border-slate-300 bg-white text-slate-700"}`}>9:16 Portrait</button></div>
+            </div>
+            <label className="mt-3 flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-400 bg-white px-4 py-4 text-sm font-semibold text-[#A71930] hover:bg-rose-50">{bannerBusy?"Uploading banner…":"Choose banner image"}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={bannerBusy} onChange={e=>{const file=e.target.files?.[0];if(file)void uploadBanner(file);e.currentTarget.value="";}} /></label>
+            {bannerUrl&&<div className="mt-3"><img src={bannerUrl} alt="Campaign banner preview" className="max-h-72 w-full rounded-lg border border-slate-200 bg-white object-contain" /><div className="mt-2 flex items-center justify-between gap-2"><span className="text-xs font-semibold text-emerald-700">Banner ready for email</span><button type="button" onClick={()=>setBannerUrl("")} className="text-xs font-semibold text-rose-700 underline">Remove banner</button></div></div>}
+            <p className="mt-2 text-xs text-slate-500">Image appears above the email message. Select the matching aspect ratio before upload.</p>
+          </div>
           <label className="block text-sm font-semibold">Email message (HTML supported)<textarea className={inputClass+" min-h-48 font-mono text-xs"} value={bodyHtml} onChange={e=>setBodyHtml(e.target.value)} required maxLength={30000}/></label>
           <p className="text-xs text-slate-500">Use simple HTML tags. The system adds NAREN REALTY branding and an unsubscribe link automatically.</p>
           <div className="flex flex-wrap gap-2"><button className={buttonClass} type="submit" disabled={busy}>{busy?"Working…":"Save draft"}</button><button className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold" type="button" onClick={test} disabled={busy||!subject||!bodyHtml}>Send test to my admin email</button><button className="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-50" type="button" onClick={send} disabled={busy||!subject||!bodyHtml||subscribed===0}>Approve & send campaign</button></div>
