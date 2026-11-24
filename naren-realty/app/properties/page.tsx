@@ -93,7 +93,7 @@ export default function BrowsePropertiesPage() {
         {storageError && <p role="alert" className="mt-5 text-sm text-rose-700">{storageError}</p>}
         {loading && <p role="status" className="mt-6 text-sm text-slate-600">Loading approved properties...</p>}
         {!loading && !storageError && <p className="mt-6 text-sm text-slate-600">{filtered.length} approved {filtered.length === 1 ? "property" : "properties"}</p>}
-        {!loading && !storageError && (filtered.length ? <div className="mt-4 grid gap-5 md:grid-cols-2">{filtered.map((listing) => <PropertyCard key={listing.id} listing={listing} listings={listings} visitsReady={visitsReady} />)}</div> : <div className="mt-8 rounded-xl border border-slate-200 bg-white py-14 text-center"><h2 className="font-bold text-[#A71930]">{listings.length ? "No matching properties" : "No properties available right now. Check back soon."}</h2>{listings.length > 0 && <p className="mt-2 text-sm text-slate-600">Adjust the filters to see more listings.</p>}</div>)}
+        {!loading && !storageError && (filtered.length ? <div className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{filtered.map((listing) => <PropertyCard key={listing.id} listing={listing} listings={listings} visitsReady={visitsReady} />)}</div> : <div className="mt-8 rounded-xl border border-slate-200 bg-white py-14 text-center"><h2 className="font-bold text-[#A71930]">{listings.length ? "No matching properties" : "No properties available right now. Check back soon."}</h2>{listings.length > 0 && <p className="mt-2 text-sm text-slate-600">Adjust the filters to see more listings.</p>}</div>)}
       </section>
     </main>
   );
