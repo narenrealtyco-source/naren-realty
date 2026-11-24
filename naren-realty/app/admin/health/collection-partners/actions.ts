@@ -171,7 +171,7 @@ export async function resendCollectionPartnerLogin(formData: FormData) {
     options: { redirectTo: `${siteUrl}/auth/confirm` },
   });
   const actionLink = linkData?.properties?.action_link;
-  if (linkError || !actionLink) throw new Error("A secure password setup link could not be generated.");
+  if (linkError || !actionLink) throw new Error("A secure login link could not be generated.");
 
   const from = process.env.MFIT_RESEND_FROM_EMAIL || "MFIT Healthcare <mfit.support@narenrealty.co>";
   const name = String(partner.contact_name || application.contact_name || partner.display_name || application.business_name || "Partner");
