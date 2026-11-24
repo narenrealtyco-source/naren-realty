@@ -20,7 +20,7 @@ export default function CampaignCentrePage() {
   const [name,setName]=useState("");
   const [subject,setSubject]=useState("");
   const [bodyHtml,setBodyHtml]=useState("<h2>Namaste {{name}},</h2><p>We have an update for you from NAREN REALTY.</p><p>Thank you for staying connected with us.</p>");
-  const [campaignType,setCampaignType]=useState<"greeting"|"promotion"|"update">("greeting");
+  const [campaignType,setCampaignType]=useState<"greeting"|"promotion"|"update"|"event">("greeting");
   const [consentEmail,setConsentEmail]=useState("");
   const [consentSource,setConsentSource]=useState("");
   const [busy,setBusy]=useState(false);
@@ -50,7 +50,7 @@ export default function CampaignCentrePage() {
   const consentMap=new Map((data?.consents??[]).map(c=>[c.email.toLowerCase(),c]));
   const subscribed=(data?.consents??[]).filter(c=>c.consent_status==="subscribed").length;
   return <main className="min-h-screen bg-slate-50 text-slate-900">
-    <header className="bg-[#10243A] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6"><div><Link href="/admin" className="text-xs font-semibold text-amber-300 hover:underline">← Admin Dashboard</Link><p className="mt-2 text-xs font-bold tracking-[.2em] text-amber-400">NAREN REALTY</p><h1 className="text-2xl font-bold">Email & Campaign Centre</h1><p className="mt-1 text-sm text-slate-300">Wishes, property updates and customer promotions</p></div><AdminLogoutButton className="rounded-lg border border-white/25 px-3 py-2 text-sm"/> </div></header>
+    <header className="bg-[#10243A] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6"><div><Link href="/admin" className="text-xs font-semibold text-amber-300 hover:underline">← Admin Dashboard</Link><p className="mt-2 text-xs font-bold tracking-[.2em] text-amber-400">NAREN REALTY</p><h1 className="text-2xl font-bold">Email & Campaign Centre</h1><p className="mt-1 text-sm text-slate-300">Wishes, property updates, promotions and event invitations</p></div><AdminLogoutButton className="rounded-lg border border-white/25 px-3 py-2 text-sm"/> </div></header>
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
       {error&&<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       {notice&&<p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}
@@ -64,7 +64,7 @@ export default function CampaignCentrePage() {
         <form onSubmit={submitDraft} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div><p className="text-xs font-bold tracking-widest text-amber-700">CAMPAIGN COMPOSER</p><h2 className="mt-1 text-xl font-bold text-[#10243A]">Create an email</h2><p className="mt-1 text-xs text-slate-500">Sender: noreply@narenrealty.co · Resend</p></div>
           <label className="block text-sm font-semibold">Campaign name<input className={inputClass} value={name} onChange={e=>setName(e.target.value)} required placeholder="e.g. Diwali wishes 2026"/></label>
-          <label className="block text-sm font-semibold">Campaign type<select className={inputClass} value={campaignType} onChange={e=>setCampaignType(e.target.value as typeof campaignType)}><option value="greeting">Festival / Birthday Wishes</option><option value="promotion">Property Promotion</option><option value="update">Property / Service Update</option></select></label>
+          <label className="block text-sm font-semibold">Campaign type<select className={inputClass} value={campaignType} onChange={e=>setCampaignType(e.target.value as typeof campaignType)}><option value="greeting">Festival / Birthday Wishes</option><option value="promotion">Property Promotion</option><option value="update">Property / Service Update</option><option value="event">Event Email / Invitation</option></select></label>
           <label className="block text-sm font-semibold">Email subject<input className={inputClass} value={subject} onChange={e=>setSubject(e.target.value)} required placeholder="A warm festive wish from NAREN REALTY"/></label>
           <div className="rounded-xl border border-slate-200 bg-[#F4F1EF] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-bold text-[#252525]">Email poster / banner</p><p className="mt-1 text-xs text-slate-600">Optional · JPG, PNG or WebP · Max 5 MB</p></div>
