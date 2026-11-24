@@ -31,44 +31,66 @@ const MAX_OWNER_DOCUMENTS = 5;
 const MAX_OWNER_DOCUMENT_BYTES = 10 * 1024 * 1024;
 const OWNER_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
+type OwnerDocumentManifestItem = { path: string; filename: string; contentType: string; size: number; sha256: string };
+
+function parseOwnerDocumentManifest(formData: FormData, userId: string, submissionId: string): OwnerDocumentManifestItem[] {
+  const raw = formData.get("owner_document_manifest");
+  if (typeof raw !== "string" || raw.length > 4000) throw new Error("Upload your ownership / authority documents before submitting.");
+  let value: unknown;
+  try { value = JSON.parse(raw); } catch { throw new Error("The ownership document upload details are invalid."); }
+  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_OWNER_DOCUMENTS) throw new Error("Upload between 1 and 5 ownership / authority documents.");
+  const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+  return value.map((item): OwnerDocumentManifestItem => {
+    if (!item || typeof item !== "object") throw new Error("Invalid ownership document details.");
+    const row = item as Record<string, unknown>;
+    if (typeof row.path !== "string" || !new RegExp("^" + userId + "/" + submissionId + "/" + uuid + "\\.(pdf|jpg|png|webp)$", "i").test(row.path) ||
+        typeof row.filename !== "string" || !row.filename.trim() || row.filename.length > 180 ||
+        typeof row.contentType !== "string" || !OWNER_DOCUMENT_TYPES.includes(row.contentType) ||
+        typeof row.size !== "number" || !Number.isInteger(row.size) || row.size < 1 || row.size > MAX_OWNER_DOCUMENT_BYTES ||
+        typeof row.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(row.sha256)) {
+      throw new Error("An ownership document failed security validation. Please upload it again.");
+    }
+    return { path: row.path, filename: row.filename, contentType: row.contentType, size: row.size, sha256: row.sha256 };
+  });
+}
+
 async function storeOwnerDocuments(userId: string, submissionId: string, formData: FormData): Promise<string[]> {
-  const files = formData.getAll("owner_documents");
-  if (files.length < 1 || files.length > MAX_OWNER_DOCUMENTS) throw new Error("Upload between 1 and 5 ownership / authority documents.");
+  const manifest = parseOwnerDocumentManifest(formData, userId, submissionId);
   const client = createPrivateSubmissionClient();
   const bucket = client.storage.from("private-property-owner-documents");
   const uploaded: string[] = [];
   const records: Array<{ submission_id: string; user_id: string; storage_path: string; original_filename: string; content_type: string; file_size_bytes: number; sha256: string }> = [];
   try {
-    for (const item of files) {
-      if (!(item instanceof File) || item.size < 1 || item.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(item.type)) {
-        throw new Error("Each ownership document must be a PDF, JPEG, PNG or WebP file up to 10 MB.");
+    for (const item of manifest) {
+      const { data: file, error: downloadError } = await bucket.download(item.path);
+      if (downloadError || !file || file.size !== item.size || file.type !== item.contentType) {
+        throw new Error("An ownership document upload could not be verified. Please upload it again.");
       }
-      const bytes = new Uint8Array(await item.arrayBuffer());
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (createHash("sha256").update(bytes).digest("hex") !== item.sha256) throw new Error("An ownership document failed its integrity check. Please upload it again.");
       let storedBytes = Buffer.from(bytes);
-      if (item.type === "application/pdf") {
+      if (item.contentType === "application/pdf") {
         if (bytes.length < 5 || new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-") throw new Error("A document is not a valid PDF file.");
       } else {
         try {
           const image = sharp(bytes, { failOn: "warning", limitInputPixels: 40_000_000, animated: false });
           const metadata = await image.metadata();
-          const expected = { "image/jpeg": "jpeg", "image/png": "png", "image/webp": "webp" }[item.type];
+          const expected = { "image/jpeg": "jpeg", "image/png": "png", "image/webp": "webp" }[item.contentType];
           if (metadata.format !== expected || (metadata.pages ?? 1) !== 1) throw new Error("Invalid image format.");
           storedBytes = await image.rotate().toBuffer();
           if (!storedBytes.length || storedBytes.length > MAX_OWNER_DOCUMENT_BYTES) throw new Error("The processed document image is too large.");
+          const { error: replaceError } = await bucket.upload(item.path, storedBytes, { contentType: item.contentType, upsert: true });
+          if (replaceError) throw new Error("A document image could not be securely processed.");
         } catch {
           throw new Error("An ownership document image is corrupt, unsupported or too large to process.");
         }
       }
-      const digest = createHash("sha256").update(storedBytes).digest("hex");
-      const extension = item.type === "application/pdf" ? "pdf" : item.type === "image/jpeg" ? "jpg" : item.type === "image/png" ? "png" : "webp";
-      const storagePath = `${userId}/${submissionId}/${randomUUID()}.${extension}`;
-      const { error } = await bucket.upload(storagePath, storedBytes, { contentType: item.type, upsert: false });
-      if (error) throw new Error("An ownership document could not be stored securely. Please retry.");
-      uploaded.push(storagePath);
+      uploaded.push(item.path);
       records.push({
-        submission_id: submissionId, user_id: userId, storage_path: storagePath,
-        original_filename: item.name.replace(/[\\/\\\\\\x00-\\x1f]/g, "_").slice(0, 180) || `ownership-document.${extension}`,
-        content_type: item.type, file_size_bytes: storedBytes.length, sha256: digest,
+        submission_id: submissionId, user_id: userId, storage_path: item.path,
+        original_filename: item.filename.replace(/[\\/\\\\\\x00-\\x1f]/g, "_").slice(0, 180),
+        content_type: item.contentType, file_size_bytes: storedBytes.length,
+        sha256: createHash("sha256").update(storedBytes).digest("hex"),
       });
     }
     const { error } = await client.from("property_submission_documents").insert(records);
@@ -84,12 +106,24 @@ async function removeOwnerDocuments(userId: string, submissionId: string, paths:
   const client = createPrivateSubmissionClient();
   const { data } = await client.from("property_submission_documents").select("id,storage_path")
     .eq("user_id", userId).eq("submission_id", submissionId).in("storage_path", paths);
-  if (data?.length) {
-    await client.from("property_submission_documents").delete().in("id", data.map((item) => item.id));
-    await client.storage.from("private-property-owner-documents").remove(paths);
-  }
+  if (data?.length) await client.from("property_submission_documents").delete().in("id", data.map((item) => item.id));
+  if (paths.length) await client.storage.from("private-property-owner-documents").remove(paths);
 }
 
+async function cleanupUnlinkedOwnerDocuments(userId: string, submissionId: string, formData: FormData): Promise<void> {
+  try {
+    const manifest = parseOwnerDocumentManifest(formData, userId, submissionId);
+    const client = createPrivateSubmissionClient();
+    const paths = manifest.map((item) => item.path);
+    const { data } = await client.from("property_submission_documents").select("storage_path")
+      .eq("user_id", userId).eq("submission_id", submissionId).in("storage_path", paths);
+    const linked = new Set((data ?? []).map((item) => item.storage_path));
+    const unlinked = paths.filter((path) => !linked.has(path));
+    if (unlinked.length) await client.storage.from("private-property-owner-documents").remove(unlinked);
+  } catch (error) {
+    console.error("[property-submission] Unlinked owner document cleanup failed", { errorType: error instanceof Error ? error.name : typeof error });
+  }
+}
 
 export async function createPropertyVideoUpload(formData: FormData): Promise<{ path?: string; token?: string; error?: string }> {
   const supabase = await createSupabaseServerClient();
@@ -110,6 +144,34 @@ export async function createPropertyVideoUpload(formData: FormData): Promise<{ p
     console.error("[property-submission] Signed video upload URL failed", { name: error?.name });
     return { error: "A secure video upload could not be prepared. Please try again." };
   }
+  return { path, token: data.token };
+}
+
+export async function createOwnerDocumentUpload(formData: FormData): Promise<{ path?: string; token?: string; error?: string }> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { error: "Your session has expired. Please sign in again." };
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (profileError || profile?.role !== "customer") return { error: "A Customer account is required to upload ownership documents." };
+  const { data: ownerCapability, error: capabilityError } = await supabase.from("profile_capabilities")
+    .select("capability").eq("user_id", user.id).eq("capability", "owner").maybeSingle();
+  if (capabilityError || !ownerCapability) return { error: "Owner access could not be verified." };
+  if (!propertySubmissionsEnabled() || !await propertySubmissionUploadsReady()) return { error: "Private ownership document storage is not ready yet." };
+  const id = formData.get("submission_id");
+  const filename = formData.get("filename");
+  const contentType = formData.get("content_type");
+  const size = Number(formData.get("size"));
+  const digest = formData.get("digest");
+  if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ||
+      typeof filename !== "string" || !filename.trim() || filename.length > 180 ||
+      typeof contentType !== "string" || !OWNER_DOCUMENT_TYPES.includes(contentType) ||
+      !Number.isInteger(size) || size < 1 || size > MAX_OWNER_DOCUMENT_BYTES ||
+      typeof digest !== "string" || !/^[0-9a-f]{64}$/.test(digest)) return { error: "Invalid ownership document upload request." };
+  const extension = contentType === "application/pdf" ? "pdf" : contentType === "image/jpeg" ? "jpg" : contentType === "image/png" ? "png" : "webp";
+  const path = `${user.id}/${id}/${randomUUID()}.${extension}`;
+  const { data, error } = await createPrivateSubmissionClient().storage.from("private-property-owner-documents")
+    .createSignedUploadUrl(path, { upsert: false });
+  if (error || !data?.token) return { error: "A secure ownership document upload could not be prepared. Please try again." };
   return { path, token: data.token };
 }
 
@@ -258,6 +320,7 @@ export async function submitProperty(
     revalidatePath("/list-property");
     return { status: "success", message: "Your property was submitted for review." };
   } catch (error) {
+    await cleanupUnlinkedOwnerDocuments(user.id, submissionId, formData);
     console.error("[property-submission] Submission failed", {
       errorType: error instanceof Error ? error.name : typeof error,
     });
@@ -299,10 +362,6 @@ export async function resubmitProperty(_previous: SubmissionState, formData: For
     if (hasUnsupportedSubmissionDetails(formData.entries())) throw new Error("Unsupported property details were provided.");
     details = parseSubmissionDetails(formData);
     ownerDetails = parsePropertyOwnerDetails(formData);
-    const ownerDocuments = formData.getAll("owner_documents");
-    if (ownerDocuments.length < 1 || ownerDocuments.length > MAX_OWNER_DOCUMENTS || ownerDocuments.some((item) => !(item instanceof File) || item.size < 1 || item.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(item.type))) {
-      throw new Error("Upload between 1 and 5 valid ownership / authority documents (PDF, JPEG, PNG or WebP, up to 10 MB each).");
-    }
     if (formData.get("owner_confirmed") !== "on" || formData.get("listing_declaration") !== "on") {
       throw new Error("Confirm your authority to list the property and review the listing declaration.");
     }
