@@ -70,13 +70,13 @@ async function storeOwnerDocuments(userId: string, submissionId: string, formDat
   }
 }
 
-async function removeOwnerDocuments(userId: string, submissionId: string): Promise<void> {
+async function removeOwnerDocuments(userId: string, submissionId: string, paths: string[]): Promise<void> {
   const client = createPrivateSubmissionClient();
   const { data } = await client.from("property_submission_documents").select("id,storage_path")
-    .eq("user_id", userId).eq("submission_id", submissionId);
+    .eq("user_id", userId).eq("submission_id", submissionId).in("storage_path", paths);
   if (data?.length) {
     await client.from("property_submission_documents").delete().in("id", data.map((item) => item.id));
-    await client.storage.from("private-property-owner-documents").remove(data.map((item) => item.storage_path));
+    await client.storage.from("private-property-owner-documents").remove(paths);
   }
 }
 
@@ -308,7 +308,7 @@ export async function resubmitProperty(_previous: SubmissionState, formData: For
     p_details: details, p_owner_details: ownerDetails,
   });
   if (error) {
-    await removeOwnerDocuments(user.id, id);
+    await removeOwnerDocuments(user.id, id, storedPaths);
     console.error("[property-submission] Resubmission failed", { code: error.code });
     return { status: "error", message: "Resubmission could not be confirmed. Refresh your submissions before retrying." };
   }
