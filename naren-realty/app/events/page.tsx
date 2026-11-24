@@ -9,6 +9,11 @@ import { EVENT_CATEGORIES, getEventCategoryKey } from "../components/eventCatego
 
 const categories = EVENT_CATEGORIES;
 
+function isProhibitedEvent(event: { title?: string | null; category?: string | null; subcategory?: string | null; custom_event_type?: string | null; description?: string | null }) {
+  const text = [event.title, event.category, event.subcategory, event.custom_event_type, event.description].filter(Boolean).join(" ");
+  return /\b(beer\s*fest|beer\s*festival|brewery|byob|bring\s*your\s*own\s*bottle|alcohol|liquor|wine\s*tasting|pub\s*crawl|drug\s*party|narcotic|illegal\s*drug)\b/i.test(text);
+}
+
 type EventItem = {
   id: string; title: string; category: string; subcategory: string | null;
   custom_event_type: string | null; venue: string; locality: string | null;
@@ -46,7 +51,7 @@ function EventsContent() {
         .order("starts_at", { ascending: true });
       if (!active) return;
       if (error) console.error("[events] Approved event lookup failed", { code: error.code });
-      setEvents((data ?? []) as EventItem[]);
+      setEvents(((data ?? []) as EventItem[]).filter((event) => !isProhibitedEvent(event)));
       setLoading(false);
     }
     void loadEvents();
