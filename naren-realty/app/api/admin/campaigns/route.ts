@@ -89,10 +89,11 @@ export async function POST(request: NextRequest) {
 
     if (body.action === "consent") {
       const email = clean(body.email, 254).toLowerCase();
+      const contactName = clean(body.name, 120);
       const source = clean(body.consentSource, 160);
-      if (!/^\S+@\S+\.\S+$/.test(email) || source.length < 3) return jsonError("Valid email and recorded consent source are required.");
+      if (!contactName || !/^\S+@\S+\.\S+$/.test(email) || source.length < 3) return jsonError("Contact full name, valid email and recorded consent source are required.");
       const { error } = await service.from("email_marketing_consents").upsert({
-        email, full_name: clean(body.name, 120) || null, consent_status: "subscribed",
+        email, full_name: contactName, consent_status: "subscribed",
         consent_source: source, consented_at: new Date().toISOString(), unsubscribed_at: null, updated_at: new Date().toISOString(),
       }, { onConflict: "email" });
       if (error) return jsonError("Could not save marketing consent.", 500);
