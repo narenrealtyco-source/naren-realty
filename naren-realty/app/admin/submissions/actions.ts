@@ -34,6 +34,14 @@ async function reviewSubmission(
     return { status: "error", message: "Enter a rejection reason of up to 2,000 characters." };
   }
 
+  if (decision === "approved") {
+    const { count, error: documentsError } = await supabase.from("property_submission_documents")
+      .select("id", { count: "exact", head: true }).eq("submission_id", id);
+    if (documentsError || !count || count < 1) {
+      return { status: "error", message: "Approval is blocked: at least one ownership / authority document must be received and reviewed first." };
+    }
+  }
+
   const { data, error } = decision === "approved"
     ? await supabase.rpc("approve_and_publish_property_submission", { p_submission_id: id })
     : await supabase.rpc("review_property_submission", {
