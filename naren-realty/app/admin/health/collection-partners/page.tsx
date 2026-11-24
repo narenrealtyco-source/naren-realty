@@ -58,7 +58,7 @@ async function CollectionPartnersContent() {
 
       <section className="mt-7">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div><h2 className="text-lg font-extrabold">Partner Applications</h2><p className="text-sm text-slate-500">Verify details before approving. An invitation is emailed only after approval.</p></div>
+          <div><h2 className="text-lg font-extrabold">Partner Applications</h2><p className="text-sm text-slate-500">Verify details before approving. A secure password setup email is sent after approval.</p></div>
           <Link href="/collection-partner/apply" target="_blank" className="rounded-lg border border-teal-700 px-3 py-2 text-xs font-bold text-teal-800">Open application form ↗</Link>
         </div>
         <div className="mt-3 space-y-3">
@@ -78,7 +78,7 @@ async function CollectionPartnersContent() {
             {app.review_note && <p className="mt-3 rounded-lg bg-rose-50 p-3 text-sm"><b>Review note:</b> {app.review_note}</p>}
             {app.status === "approved" && app.created_partner_id && <ResendLoginForm applicationId={app.id} />}
             {app.status === "pending_review" && <div className="mt-4 flex flex-wrap items-end gap-3 border-t pt-4">
-              <form action={approveCollectionPartnerApplication}><input type="hidden" name="application_id" value={app.id}/><button className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">Approve & Send Login Invite</button></form>
+              <form action={approveCollectionPartnerApplication}><input type="hidden" name="application_id" value={app.id}/><button className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">Approve & Send Password Setup</button></form>
               <form action={rejectCollectionPartnerApplication} className="flex min-w-0 flex-1 flex-wrap items-end gap-2"><input type="hidden" name="application_id" value={app.id}/><label className="min-w-48 flex-1 text-xs font-semibold text-slate-500">Rejection / verification note<input name="review_note" maxLength={1000} placeholder="Optional reason" className="mt-1 w-full rounded-lg border p-2 text-sm font-normal"/></label><button className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700">Reject</button></form>
             </div>}
           </article>)}
