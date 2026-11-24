@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
-import { requireAdmin } from "../../../lib/supabase-server";
-import { createSupabaseServiceClient } from "../../../lib/supabase-service";
+import { requireAdmin } from "../../../../lib/supabase-server";
+import { createSupabaseServiceClient } from "../../../../lib/supabase-service";
 
 export const runtime = "nodejs";
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const extension = metadata.format === "jpeg" ? "jpg" : metadata.format;
     const path = `email-banners/${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.${extension}`;
     const { data: uploaded, error: uploadError } = await supabase.storage.from(BUCKET).upload(path, input, {
-      contentType: file.type,
+      contentType: metadata.format === "jpeg" ? "image/jpeg" : `image/${metadata.format}`,
       cacheControl: "31536000",
       upsert: false,
     });
