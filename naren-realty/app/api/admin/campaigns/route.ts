@@ -169,8 +169,19 @@ export async function POST(request: NextRequest) {
         return jsonError("Campaign recipients could not be prepared safely.", 500);
       }
       const byEmail = new Map(insertedRecipients.map((row) => [row.email.toLowerCase(), row]));
+      // Use the saved consent name first, then the matching NAREN REALTY account profile.
+      const [{ data: authUsers }, { data: profileNames }] = await Promise.all([
+        service.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+        service.from("profiles").select("id,full_name"),
+      ]);
+      const profileNameByUserId = new Map((profileNames ?? []).map((profile) => [profile.id, profile.full_name]));
+      const accountNameByEmail = new Map((authUsers?.users ?? []).map((account) => [
+        (account.email ?? "").toLowerCase(),
+        profileNameByUserId.get(account.id) || account.user_metadata?.full_name || account.user_metadata?.name || "",
+      ]));
       const messages = recipients.map((recipient) => {
-        const personalized = bodyHtml.replace(/\{\{\s*name\s*\}\}/gi, safeHtml(recipient.full_name || "there"));
+        const displayName = recipient.full_name?.trim() || accountNameByEmail.get(recipient.email.toLowerCase())?.trim() || "there";
+        const personalized = bodyHtml.replace(/\{\{\s*name\s*\}\}/gi, safeHtml(displayName));
         const html = renderCampaignEmail(personalized, `You are receiving this because you opted in to NAREN REALTY email updates. <a href="${origin}/api/email/unsubscribe?token=${recipient.unsubscribe_token}" style="color:#10243A">Unsubscribe</a>`);
         return { from: "NAREN REALTY <noreply@narenrealty.co>", to: [recipient.email], subject, html };
       });
