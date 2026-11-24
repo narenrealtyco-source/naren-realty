@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { requireAdmin } from "../../../lib/supabase-server";
+import ResendLoginForm from "./resend-login-form";
 import {
   approveCollectionPartnerApplication,
   rejectCollectionPartnerApplication,
