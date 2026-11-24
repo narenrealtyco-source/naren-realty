@@ -3,8 +3,6 @@ import sharp from "sharp";
 import { requireAdmin } from "../../../../lib/supabase-server";
 import { createSupabaseServiceClient } from "../../../../lib/supabase-service";
 
-export const runtime = "nodejs";
-
 const BUCKET = "campaign-assets";
 const MAX_BYTES = 5 * 1024 * 1024;
 
