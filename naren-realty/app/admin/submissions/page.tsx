@@ -10,6 +10,8 @@ import OwnerDetailsView from "../../list-property/OwnerDetailsView";
 
 export const instant = false;
 
+type OwnerVerificationDocument = { id: string; submission_id: string; original_filename: string; content_type: string; file_size_bytes: number; storage_path: string; created_at: string; signedUrl: string | null };
+
 type Submission = {
   id: string;
   user_id: string;
@@ -62,6 +64,21 @@ export default async function AdminSubmissionsPage() {
     if (submissions.length >= count) break;
   }
 
+  const documentsBySubmission = new Map<string, OwnerVerificationDocument[]>();
+  const { data: documentRows, error: documentError } = await supabase.from("property_submission_documents")
+    .select("id,submission_id,original_filename,content_type,file_size_bytes,storage_path,created_at")
+    .in("submission_id", submissions.map((submission) => submission.id))
+    .order("created_at", { ascending: true });
+  if (documentError) {
+    console.error("[submission-review] Owner document lookup failed", { code: documentError.code });
+  } else {
+    for (const document of documentRows ?? []) {
+      const { data: signed } = await supabase.storage.from("private-property-owner-documents").createSignedUrl(document.storage_path, 300);
+      const item = { ...document, signedUrl: signed?.signedUrl ?? null } as OwnerVerificationDocument;
+      documentsBySubmission.set(document.submission_id, [...(documentsBySubmission.get(document.submission_id) ?? []), item]);
+    }
+  }
+
   return <main className="min-h-screen bg-slate-50 p-5 text-slate-900">
     <div className="mx-auto max-w-5xl">
       <Link href="/admin/properties" className="text-sm underline">Property management</Link>
@@ -78,13 +95,22 @@ export default async function AdminSubmissionsPage() {
             <p className="mt-2 whitespace-pre-wrap text-sm">{submission.description}</p>
             <SavedDetails value={submission.details} />
             <OwnerDetailsView value={submission.owner_details} />
+            <section className="mt-4 rounded-lg border border-slate-200 p-3">
+              <h3 className="font-semibold">Private ownership / authority documents</h3>
+              {documentError ? <p role="alert" className="mt-2 text-sm text-rose-700">Documents could not be loaded. Do not approve until verified.</p> :
+                (documentsBySubmission.get(submission.id) ?? []).length === 0 ? <p className="mt-2 text-sm font-semibold text-rose-700">No ownership documents attached — approval must remain blocked.</p> :
+                <ul className="mt-2 space-y-2">{(documentsBySubmission.get(submission.id) ?? []).map((document) => <li key={document.id} className="text-sm">
+                  {document.signedUrl ? <a href={document.signedUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline">{document.original_filename}</a> : <span>{document.original_filename} — secure preview unavailable</span>}
+                  <span className="ml-2 text-xs text-slate-500">{(document.file_size_bytes / 1024 / 1024).toFixed(2)} MB · {document.content_type}</span>
+                </li>)}</ul>}
+            </section>
             <p className="mt-2 text-sm font-semibold">Status: {submission.status}{submission.status === "approved" && !submission.published_property_id ? " — not published" : ""}</p>
             {submission.rejection_feedback && <p className="mt-2 whitespace-pre-wrap text-sm">Rejection reason: {submission.rejection_feedback}</p>}
             <p className="mt-2 break-all text-xs text-slate-500">Submission: {submission.id} · Customer: {submission.user_id} · Created: {submission.created_at}</p>
             {submission.reviewed_at && <p className="mt-1 break-all text-xs text-slate-500">Reviewed: {submission.reviewed_at} · Reviewer: {submission.reviewed_by}</p>}
             {Array.isArray(submission.photo_paths) && submission.photo_paths.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{submission.photo_paths.map((_: unknown, index: number) => <a key={index} href={`/admin/submissions/${submission.id}/photos/${index}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold underline">View private photo {index + 1}</a>)}</div>}
             {submission.video_path && <a href={`/admin/submissions/${submission.id}/video`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold underline">Preview submitted property video</a>}
-            {submission.status === "pending" && <><ReviewForms id={submission.id} /><DeleteRejectedButton id={submission.id} retry={false} pendingSubmission /></>}
+            {submission.status === "pending" && (documentsBySubmission.get(submission.id) ?? []).length > 0 && !documentError && <><ReviewForms id={submission.id} /><DeleteRejectedButton id={submission.id} retry={false} pendingSubmission /></>}
             {(submission.status === "rejected" || submission.status === "deleting") && !submission.published_property_id
               && <DeleteRejectedButton id={submission.id} retry={submission.status === "deleting"} />}
           </article>)}</div>}
