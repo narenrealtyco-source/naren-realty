@@ -44,21 +44,31 @@ async function storeOwnerDocuments(userId: string, submissionId: string, formDat
         throw new Error("Each ownership document must be a PDF, JPEG, PNG or WebP file up to 10 MB.");
       }
       const bytes = new Uint8Array(await item.arrayBuffer());
+      let storedBytes = Buffer.from(bytes);
       if (item.type === "application/pdf") {
         if (bytes.length < 5 || new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-") throw new Error("A document is not a valid PDF file.");
       } else {
-        validateSubmissionPhoto(item.type, bytes);
+        try {
+          const image = sharp(bytes, { failOn: "warning", limitInputPixels: 40_000_000, animated: false });
+          const metadata = await image.metadata();
+          const expected = { "image/jpeg": "jpeg", "image/png": "png", "image/webp": "webp" }[item.type];
+          if (metadata.format !== expected || (metadata.pages ?? 1) !== 1) throw new Error("Invalid image format.");
+          storedBytes = await image.rotate().toBuffer();
+          if (!storedBytes.length || storedBytes.length > MAX_OWNER_DOCUMENT_BYTES) throw new Error("The processed document image is too large.");
+        } catch {
+          throw new Error("An ownership document image is corrupt, unsupported or too large to process.");
+        }
       }
-      const digest = createHash("sha256").update(bytes).digest("hex");
+      const digest = createHash("sha256").update(storedBytes).digest("hex");
       const extension = item.type === "application/pdf" ? "pdf" : item.type === "image/jpeg" ? "jpg" : item.type === "image/png" ? "png" : "webp";
       const storagePath = `${userId}/${submissionId}/${randomUUID()}.${extension}`;
-      const { error } = await bucket.upload(storagePath, bytes, { contentType: item.type, upsert: false });
+      const { error } = await bucket.upload(storagePath, storedBytes, { contentType: item.type, upsert: false });
       if (error) throw new Error("An ownership document could not be stored securely. Please retry.");
       uploaded.push(storagePath);
       records.push({
         submission_id: submissionId, user_id: userId, storage_path: storagePath,
         original_filename: item.name.replace(/[\\/\\\\\\x00-\\x1f]/g, "_").slice(0, 180) || `ownership-document.${extension}`,
-        content_type: item.type, file_size_bytes: item.size, sha256: digest,
+        content_type: item.type, file_size_bytes: storedBytes.length, sha256: digest,
       });
     }
     const { error } = await client.from("property_submission_documents").insert(records);
