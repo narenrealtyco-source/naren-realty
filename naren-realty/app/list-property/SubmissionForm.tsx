@@ -38,6 +38,10 @@ type FormValues = {
 type OwnerValues = Omit<PropertyOwnerDetails, "version">;
 type PhotoItem = { id: string; file: File; url: string };
 type VideoItem = { file: File; url: string };
+type OwnerDocumentItem = { id: string; file: File };
+const MAX_OWNER_DOCUMENTS = 5;
+const MAX_OWNER_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const OWNER_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 const initialState: SubmissionState = { status: "idle", message: "" };
 const inputClass = "mt-2 block min-w-0 w-full max-w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-normal text-slate-950 shadow-sm placeholder:text-slate-500 focus:border-[#A71930] focus:outline-none focus:ring-2 focus:ring-[#A71930]/20";
 const labelClass = "block min-w-0 text-sm font-semibold text-slate-900";
@@ -116,6 +120,7 @@ export default function SubmissionForm({
   const [brokerageAccepted, setBrokerageAccepted] = useState(false);
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [videoItem, setVideoItem] = useState<VideoItem | null>(null);
+  const [ownerDocuments, setOwnerDocuments] = useState<OwnerDocumentItem[]>([]);
   const [videoUploading, setVideoUploading] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const [stepError, setStepError] = useState("");
@@ -141,6 +146,7 @@ export default function SubmissionForm({
         setOwnerConfirmed(false);
         setListingDeclaration(false);
         setBrokerageAccepted(false);
+        setOwnerDocuments([]);
         attemptId.current = null;
         if (draftsAvailable && draft?.payload) {
           const deletion = await deletePropertySubmissionDraft();
@@ -267,6 +273,15 @@ export default function SubmissionForm({
   }
 
 
+  function selectOwnerDocuments(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.currentTarget.files ?? []);
+    event.currentTarget.value = "";
+    if (ownerDocuments.length + files.length > MAX_OWNER_DOCUMENTS) { setStepError("Upload up to 5 ownership / authority documents."); return; }
+    if (files.some((file) => file.size < 1 || file.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(file.type))) { setStepError("Choose PDF, JPEG, PNG or WebP documents, each up to 10 MB."); return; }
+    setOwnerDocuments((current) => [...current, ...files.map((file) => ({ id: crypto.randomUUID(), file }))]);
+    setStepError("");
+  }
+
   function selectVideo(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0] ?? null;
     event.currentTarget.value = "";
@@ -349,7 +364,8 @@ export default function SubmissionForm({
     setOwnerConfirmed(false);
     setListingDeclaration(false);
     setBrokerageAccepted(false);
-    setDraftMessage("Draft restored. Select your photos again; image files are not stored in drafts.");
+    setOwnerDocuments([]);
+    setDraftMessage("Draft restored. Select your photos and ownership / authority documents again; files are not stored in drafts.");
     setStepError("");
   }
 
@@ -364,6 +380,7 @@ export default function SubmissionForm({
       const validatedDetails = validateSubmissionDetails(details);
       const validatedOwner = validatePropertyOwnerDetails({ version: 1, ...owner });
       validateSubmissionPhotoCount(photoItems.length);
+      if (ownerDocuments.length < 1 || ownerDocuments.length > MAX_OWNER_DOCUMENTS || ownerDocuments.some(({file}) => file.size < 1 || file.size > MAX_OWNER_DOCUMENT_BYTES || !OWNER_DOCUMENT_TYPES.includes(file.type))) throw new Error("Upload at least one valid ownership / authority document (PDF, JPEG, PNG or WebP, up to 10 MB each).");
       if (!ownerConfirmed || !listingDeclaration || !brokerageAccepted) throw new Error("Confirm your authority, listing declaration and applicable brokerage terms.");
       if (photoItems.some(({ file }) => file.size === 0 || file.size > MAX_SUBMISSION_PHOTO_BYTES ||
         !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
@@ -378,6 +395,7 @@ export default function SubmissionForm({
       data.set("brokerage_acknowledged", "on");
 
       for (const photo of photoItems) data.append("photos", photo.file);
+      for (const document of ownerDocuments) data.append("owner_documents", document.file);
       if (!attemptId.current) attemptId.current = crypto.randomUUID();
       data.set("submission_id", attemptId.current);
       if (videoItem) {
@@ -554,6 +572,14 @@ export default function SubmissionForm({
           {owner.relationship !== "Owner" && <label className={labelClass}>Authorization details
             <textarea rows={3} maxLength={1000} value={owner.authorizationDetails} onChange={(event) => setOwnerField("authorizationDetails", event.target.value)} placeholder="Describe your authority to list this property" className={inputClass} />
           </label>}
+          <section className="rounded-xl border border-[#E8B5BF] bg-[#FDF5F6] p-4">
+            <h3 className="font-bold text-[#A71930]">Ownership / authority documents (Required)</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-700">Upload at least one document supporting ownership or your authority to list this property, such as a recent property record, registered deed extract, property tax record, Power of Attorney or owner authorisation. Admin may request additional documents. Files are stored privately for verification and are not displayed on the public listing.</p>
+            <input type="file" multiple required accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" onChange={selectOwnerDocuments} className="mt-3 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#A71930] file:px-3 file:py-2 file:font-semibold file:text-white" />
+            <p className="mt-2 text-xs text-slate-600">PDF / JPG / PNG / WebP · Maximum 5 files · 10 MB each</p>
+            {ownerDocuments.length > 0 && <ul className="mt-3 space-y-2">{ownerDocuments.map(({id,file}) => <li key={id} className="flex items-center justify-between gap-2 rounded-lg bg-white p-2 text-sm"><span className="min-w-0 break-all">{file.name}</span><button type="button" onClick={() => setOwnerDocuments((current) => current.filter((item) => item.id !== id))} className="shrink-0 font-semibold text-rose-700 underline">Remove</button></li>)}</ul>}
+            {ownerDocuments.length === 0 && <p className="mt-2 text-sm font-semibold text-rose-700">At least one document is required before submission.</p>}
+          </section>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-[#F4F1EF] p-4 text-sm leading-6 text-slate-800">
             <input type="checkbox" checked={ownerConfirmed} onChange={(event) => setOwnerConfirmed(event.target.checked)} className="mt-1 size-4 shrink-0 accent-[#A71930]" />
             <span>{category === "Resale" ? "I confirm this is a genuine resale property offered by its existing owner, that I am the owner or duly authorised representative, and that it is not builder / promoter unsold inventory or a new project sale. I can provide ownership / authority documents for Admin verification." : "I confirm that I am the owner or am authorized to list this property and that the information provided is accurate."}</span>
@@ -588,7 +614,7 @@ export default function SubmissionForm({
             className="min-h-11 rounded-xl border border-[#A71930] px-3 text-sm font-bold text-[#A71930] hover:bg-[#F4F1EF] disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
           {step < STEPS.length - 1
             ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:opacity-50">Continue</button>
-            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:cursor-not-allowed disabled:bg-[#F4F1EF]0">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
+            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted || ownerDocuments.length < 1} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:cursor-not-allowed disabled:bg-[#F4F1EF]0">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
         </div>
       </div>
     </div>
