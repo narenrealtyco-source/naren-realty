@@ -12,6 +12,7 @@ type CampaignInput = {
   campaignType?: "greeting" | "promotion" | "update" | "event";
   email?: string;
   consentSource?: string;
+  recipientIds?: string[];
 };
 
 const clean = (value: unknown, max: number) => typeof value === "string" ? value.trim().slice(0, max) : "";
