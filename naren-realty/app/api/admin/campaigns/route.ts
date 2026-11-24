@@ -132,10 +132,12 @@ export async function POST(request: NextRequest) {
     if (body.action === "send") {
       const confirmed = request.headers.get("x-campaign-approved") === "yes";
       if (!confirmed) return jsonError("Explicit campaign approval is required.", 403);
+      const recipientIds = Array.isArray(body.recipientIds) ? [...new Set(body.recipientIds.filter((id): id is string => typeof id === "string" && id.length <= 80))] : [];
+      if (!recipientIds.length || recipientIds.length > 100) return jsonError("Select between 1 and 100 opted-in recipients.", 400);
       const { data: audience, error: audienceError } = await service.from("email_marketing_consents")
-        .select("id,email,full_name,unsubscribe_token").eq("consent_status", "subscribed").limit(100);
-      if (audienceError) return jsonError("Subscribed audience could not be loaded.", 500);
-      if (!audience?.length) return jsonError("No contacts have recorded marketing consent. Add only contacts with documented opt-in first.", 409);
+        .select("id,email,full_name,unsubscribe_token").eq("consent_status", "subscribed").in("id", recipientIds).limit(100);
+      if (audienceError) return jsonError("Selected audience could not be loaded.", 500);
+      if (!audience?.length || audience.length !== recipientIds.length) return jsonError("One or more selected contacts are no longer subscribed. Refresh the recipient list and try again.", 409);
       let campaign: { id: string } | null = null;
       if (body.id) {
         const { data, error: draftError } = await service.from("email_campaigns").update({
