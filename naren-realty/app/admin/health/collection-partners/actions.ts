@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { requireAdmin } from "../../../lib/supabase-server";
@@ -9,6 +10,46 @@ function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!key || !url) throw new Error("MFIT admin service is not configured.");
   return createClient(url, key, { auth: { persistSession: false } });
+}
+
+
+async function sendPartnerPasswordSetupEmail(
+  db: ReturnType<typeof serviceClient>,
+  email: string,
+  name: string,
+) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("Resend is not configured. Add RESEND_API_KEY to the Production environment.");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co").replace(/\\/$/, "");
+  const { data, error } = await db.auth.admin.generateLink({
+    type: "recovery",
+    email,
+    options: { redirectTo: `${siteUrl}/collection-partner/activate` },
+  });
+  const tokenHash = data?.properties?.hashed_token;
+  if (error || !tokenHash) throw new Error("A secure password setup link could not be generated.");
+  const setupUrl = `${siteUrl}/collection-partner/activate?token_hash=${encodeURIComponent(tokenHash)}`;
+  const from = process.env.MFIT_RESEND_FROM_EMAIL || "MFIT Healthcare <mfit.support@narenrealty.co>";
+  const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
+  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#183044"><div style="background:#0b7778;padding:24px;color:#fff"><h1 style="margin:0;font-size:22px">MFIT Healthcare</h1><p style="margin:8px 0 0">Collection Partner Portal</p></div><div style="padding:24px;border:1px solid #e2e8f0"><p>Hello ${safe(name)},</p><p>Your collection partner account is approved. Set your own password using the secure button below.</p><p><b>Login email:</b> ${safe(email)}</p><p><a href="${setupUrl}" style="display:inline-block;background:#0b7778;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">Set Your Password</a></p><p style="font-size:13px;color:#64748b">This link can be used only once and expires. If the page opens, press Continue to verify your link and create your password. Do not share this email.</p><p>After setup, sign in at <a href="${siteUrl}/collection-partner/login">${siteUrl}/collection-partner/login</a>.</p></div></div>`;
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from,
+      to: [email],
+      subject: "Set Your MFIT Healthcare Collection Partner Password",
+      html,
+      text: `Hello ${name}, your collection partner account is approved. Open ${setupUrl} and press Continue to verify the link and create your password. After setup, sign in at ${siteUrl}/collection-partner/login. Do not share this email.`,
+    }),
+    cache: "no-store",
+  });
+  const result = await response.json().catch(() => ({})) as { id?: string; message?: string };
+  if (!response.ok || !result.id) {
+    console.error("[mfit-partner] Password setup email failed", { status: response.status, message: result.message });
+    throw new Error(`Partner account is approved, but the setup email could not be sent (HTTP ${response.status}). Use Resend Password Setup from the admin page.`);
+  }
+  return result.id;
 }
 
 export async function approveCollectionPartnerApplication(formData: FormData) {
@@ -41,12 +82,19 @@ export async function approveCollectionPartnerApplication(formData: FormData) {
     throw new Error("This email already belongs to an account. To keep customer and partner logins separate, use a different email for this partner.");
   }
 
-  const { data: invitation, error: inviteError } = await db.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: contactName, account_type: "collection_partner" },
+  // Create a confirmed auth identity with a cryptographically random,
+  // undisclosed initial password. The partner sets their own password via
+  // a one-time recovery token delivered through our branded email.
+  const initialPassword = randomBytes(48).toString("base64url");
+  const { data: created, error: createError } = await db.auth.admin.createUser({
+    email,
+    password: initialPassword,
+    email_confirm: true,
+    user_metadata: { full_name: contactName, account_type: "collection_partner", must_change_password: true },
   });
-  if (inviteError || !invitation.user) throw new Error(inviteError?.message || "Partner invitation could not be sent.");
+  if (createError || !created.user) throw new Error(createError?.message || "Partner login account could not be created.");
 
-  const userId = invitation.user.id;
+  const userId = created.user.id;
   let partnerId: string | null = null;
   try {
     const { error: profileError } = await db.from("profiles").upsert({
@@ -87,6 +135,7 @@ export async function approveCollectionPartnerApplication(formData: FormData) {
     throw new Error(error instanceof Error ? error.message : "Partner approval failed.");
   }
 
+  await sendPartnerPasswordSetupEmail(db, email, contactName);
   revalidatePath("/admin/health/collection-partners");
   revalidatePath("/admin/health");
 }
@@ -166,41 +215,14 @@ export async function resendCollectionPartnerLogin(
       throw new Error("This account is not registered as a collection partner.");
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) throw new Error("Resend is not configured. Add RESEND_API_KEY to the Production environment.");
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co").replace(/\/$/, "");
-    const { data: linkData, error: linkError } = await db.auth.admin.generateLink({
-      type: "magiclink",
+    const reference = await sendPartnerPasswordSetupEmail(
+      db,
       email,
-      options: { redirectTo: `${siteUrl}/auth/confirm` },
-    });
-    const actionLink = linkData?.properties?.action_link;
-    if (linkError || !actionLink) throw new Error("A secure login link could not be generated.");
-
-    const from = process.env.MFIT_RESEND_FROM_EMAIL || "MFIT Healthcare <mfit.support@narenrealty.co>";
-    const name = String(partner.contact_name || application.contact_name || partner.display_name || application.business_name || "Partner");
-    const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
-    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#183044"><div style="background:#0b7778;padding:24px;color:#fff"><h1 style="margin:0;font-size:22px">MFIT Healthcare</h1><p style="margin:8px 0 0">Collection Partner Portal</p></div><div style="padding:24px;border:1px solid #e2e8f0"><p>Hello ${safe(name)},</p><p>Your collection partner account is approved. Use the secure one-time login link below to open your Collection Partner Portal.</p><p><b>Login email:</b> ${safe(email)}</p><p><a href="${actionLink}" style="display:inline-block;background:#0b7778;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">Login to Partner Portal</a></p><p style="font-size:13px;color:#64748b">This one-time secure login link expires. Do not share it with anyone. For future access, open <a href="${siteUrl}/collection-partner/login">${siteUrl}/collection-partner/login</a>.</p></div></div>`;
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from,
-        to: [email],
-        subject: "Your MFIT Healthcare Collection Partner Secure Login Link",
-        html,
-        text: `Hello ${name}, use this one-time secure link to sign in to your collection partner portal: ${actionLink}. For future access, open ${siteUrl}/collection-partner/login. Do not share this link.`,
-      }),
-      cache: "no-store",
-    });
-    const result = await response.json().catch(() => ({})) as { id?: string; message?: string };
-    if (!response.ok || !result.id) {
-      console.error("[mfit-partner] Resend login email failed", { status: response.status, message: result.message });
-      throw new Error(`Resend rejected the email (HTTP ${response.status}). Check the API key and verified sender domain.`);
-    }
+      String(partner.contact_name || application.contact_name || partner.display_name || application.business_name || "Partner"),
+    );
 
     revalidatePath("/admin/health/collection-partners");
-    return { status: "success", message: `Resend accepted the email request. Reference: ${result.id}` };
+    return { status: "success", message: `Password setup email sent. Reference: ${reference}` };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Email could not be sent. Please try again.";
     return { status: "error", message };
