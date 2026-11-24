@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { startTransition, useActionState, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { createPropertyVideoUpload, submitProperty, type SubmissionState } from "./actions";
+import { createOwnerDocumentUpload, createPropertyVideoUpload, submitProperty, type SubmissionState } from "./actions";
 import { supabase } from "../lib/supabase";
 import {
   MAX_SUBMISSION_PHOTO_BYTES,
@@ -395,11 +395,27 @@ export default function SubmissionForm({
       data.set("brokerage_acknowledged", "on");
 
       for (const photo of photoItems) data.append("photos", photo.file);
-      for (const document of ownerDocuments) data.append("owner_documents", document.file);
       if (!attemptId.current) attemptId.current = crypto.randomUUID();
       data.set("submission_id", attemptId.current);
+      setVideoUploading(true);
+      const ownerDocumentManifest: { path: string; filename: string; contentType: string; size: number; sha256: string }[] = [];
+      for (const document of ownerDocuments) {
+        const digestBuffer = await crypto.subtle.digest("SHA-256", await document.file.arrayBuffer());
+        const digest = Array.from(new Uint8Array(digestBuffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
+        const uploadRequest = new FormData();
+        uploadRequest.set("submission_id", attemptId.current);
+        uploadRequest.set("filename", document.file.name);
+        uploadRequest.set("content_type", document.file.type);
+        uploadRequest.set("size", String(document.file.size));
+        uploadRequest.set("digest", digest);
+        const signed = await createOwnerDocumentUpload(uploadRequest);
+        if (!signed.path || !signed.token) throw new Error(signed.error || "Could not prepare a secure ownership document upload.");
+        const { error: uploadError } = await supabase.storage.from("private-property-owner-documents").uploadToSignedUrl(signed.path, signed.token, document.file, { contentType: document.file.type, upsert: false });
+        if (uploadError) throw new Error("Ownership document upload failed. Check your connection and try again.");
+        ownerDocumentManifest.push({ path: signed.path, filename: document.file.name, contentType: document.file.type, size: document.file.size, sha256: digest });
+      }
+      data.set("owner_document_manifest", JSON.stringify(ownerDocumentManifest));
       if (videoItem) {
-        setVideoUploading(true);
         const digestBuffer = await crypto.subtle.digest("SHA-256", await videoItem.file.arrayBuffer());
         const digest = Array.from(new Uint8Array(digestBuffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
         const uploadRequest = new FormData();
@@ -614,7 +630,7 @@ export default function SubmissionForm({
             className="min-h-11 rounded-xl border border-[#A71930] px-3 text-sm font-bold text-[#A71930] hover:bg-[#F4F1EF] disabled:cursor-not-allowed disabled:opacity-50">{draftPending ? "Saving…" : "Save draft"}</button>
           {step < STEPS.length - 1
             ? <button type="button" disabled={pending} onClick={nextStep} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:opacity-50">Continue</button>
-            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted || ownerDocuments.length < 1} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:cursor-not-allowed disabled:bg-[#F4F1EF]0">{videoUploading ? "Uploading video…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
+            : <button type="submit" disabled={pending || videoUploading || !available || !ownerConfirmed || !listingDeclaration || !brokerageAccepted || ownerDocuments.length < 1} className="min-h-11 rounded-xl bg-[#A71930] px-5 text-sm font-bold text-white shadow-sm hover:bg-[#861326] disabled:cursor-not-allowed disabled:bg-[#F4F1EF]0">{videoUploading ? "Uploading verification files…" : pending ? "Submitting securely…" : "Submit for Admin review"}</button>}
         </div>
       </div>
     </div>
