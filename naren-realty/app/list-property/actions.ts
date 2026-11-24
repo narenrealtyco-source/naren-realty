@@ -66,6 +66,7 @@ async function storeOwnerDocuments(userId: string, submissionId: string, formDat
       if (downloadError || !file || file.size !== item.size || file.type !== item.contentType) {
         throw new Error("An ownership document upload could not be verified. Please upload it again.");
       }
+      uploaded.push(item.path);
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (createHash("sha256").update(bytes).digest("hex") !== item.sha256) throw new Error("An ownership document failed its integrity check. Please upload it again.");
       let storedBytes = Buffer.from(bytes);
@@ -85,7 +86,6 @@ async function storeOwnerDocuments(userId: string, submissionId: string, formDat
           throw new Error("An ownership document image is corrupt, unsupported or too large to process.");
         }
       }
-      uploaded.push(item.path);
       records.push({
         submission_id: submissionId, user_id: userId, storage_path: item.path,
         original_filename: item.filename.replace(/[\\/\\\\\\x00-\\x1f]/g, "_").slice(0, 180),
