@@ -20,10 +20,10 @@ export default function ResendLoginForm({ applicationId }: { applicationId: stri
         aria-busy={pending}
         className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-50 disabled:cursor-wait disabled:opacity-60"
       >
-        {pending ? "Sending…" : "Resend Login Email"}
+        {pending ? "Sending…" : "Resend Password Setup"}
       </button>
       <p className="mt-1 text-xs text-slate-500">
-        Sends a fresh, one-time secure login link to the approved email address.
+        Sends a one-time password setup link to the approved email address.
       </p>
       {state && (
         <p
