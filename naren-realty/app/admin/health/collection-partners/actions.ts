@@ -20,11 +20,10 @@ async function sendPartnerPasswordSetupEmail(
 ) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) throw new Error("Resend is not configured. Add RESEND_API_KEY to the Production environment.");
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co").replace(/\\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://narenrealty.co").replace(/\/$/, "");
   const { data, error } = await db.auth.admin.generateLink({
     type: "recovery",
     email,
-    options: { redirectTo: `${siteUrl}/collection-partner/activate` },
   });
   const tokenHash = data?.properties?.hashed_token;
   if (error || !tokenHash) throw new Error("A secure password setup link could not be generated.");
