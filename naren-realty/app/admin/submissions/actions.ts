@@ -129,6 +129,17 @@ export async function deleteRejectedSubmission(
       safePaths.push(videoPath);
     }
 
+    const { data: ownerDocuments, error: ownerDocumentsError } = await supabase.from("property_submission_documents")
+      .select("storage_path").eq("submission_id", id).eq("user_id", manifest.user_id);
+    if (ownerDocumentsError) throw new Error("Ownership document cleanup manifest could not be verified.");
+    const ownerDocumentPaths = (ownerDocuments ?? []).map((document) => {
+      const path = document.storage_path;
+      if (typeof path !== "string" || !path.startsWith(`${manifest.user_id}/${id}/`) || path.length > 300) {
+        throw new Error("An ownership document path failed security validation. No files were deleted.");
+      }
+      return path;
+    });
+
     const storage = createPrivateSubmissionClient();
     const { error: storageError } = await storage.storage
       .from("private-property-submissions")
@@ -136,6 +147,13 @@ export async function deleteRejectedSubmission(
     if (storageError) {
       console.error("[submission-delete] Private photo removal failed", { message: storageError.message });
       throw new Error("Photo cleanup failed. The submission is marked Deleting; use Retry to finish cleanup.");
+    }
+    if (ownerDocumentPaths.length) {
+      const { error: ownerStorageError } = await storage.storage.from("private-property-owner-documents").remove(ownerDocumentPaths);
+      if (ownerStorageError) {
+        console.error("[submission-delete] Private owner document removal failed", { message: ownerStorageError.message });
+        throw new Error("Ownership document cleanup failed. The submission is marked Deleting; use Retry to finish cleanup.");
+      }
     }
 
     const { error: finalizeError } = await supabase.rpc("finalize_rejected_property_submission_deletion", {
