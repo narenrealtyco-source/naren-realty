@@ -1,7 +1,8 @@
 "use client";
 
 import { startTransition, useActionState, useState, type FormEvent } from "react";
-import { resubmitProperty, type SubmissionState } from "./actions";
+import { createOwnerDocumentUpload, resubmitProperty, type SubmissionState } from "./actions";
+import { supabase } from "../lib/supabase";
 import { SUBMISSION_CATEGORIES } from "../lib/property-submission-validation";
 import { validateSubmissionDetails, type SubmissionDetails } from "../lib/submission-details";
 import AdditionalDetails from "./AdditionalDetails";
@@ -65,7 +66,7 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
       return { status: "error", message: "Resubmission could not be confirmed. Refresh your submissions before retrying." };
     }
   }, initialState);
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try { validateSubmissionDetails(details); setDetailError(""); }
     catch (error) { setDetailError(error instanceof Error ? error.message : "Additional details are invalid."); return; }
@@ -80,8 +81,31 @@ export default function ResubmitForm({ submission, available, initialOwnerDetail
       setDetailError(error instanceof Error ? error.message : "Owner contact details are invalid.");
       return;
     }
-    setOwnerDetailsInvalid(false);
-    startTransition(() => action(data));
+    try {
+      const manifest: { path: string; filename: string; contentType: string; size: number; sha256: string }[] = [];
+      for (const document of documents as File[]) {
+        const digestBuffer = await crypto.subtle.digest("SHA-256", await document.arrayBuffer());
+        const digest = Array.from(new Uint8Array(digestBuffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
+        const request = new FormData();
+        request.set("submission_id", submission.id);
+        request.set("filename", document.name);
+        request.set("content_type", document.type);
+        request.set("size", String(document.size));
+        request.set("digest", digest);
+        const signed = await createOwnerDocumentUpload(request);
+        if (!signed.path || !signed.token) throw new Error(signed.error || "Could not prepare a secure ownership document upload.");
+        const { error: uploadError } = await supabase.storage.from("private-property-owner-documents")
+          .uploadToSignedUrl(signed.path, signed.token, document, { contentType: document.type, upsert: false });
+        if (uploadError) throw new Error("Ownership document upload failed. Check your connection and try again.");
+        manifest.push({ path: signed.path, filename: document.name, contentType: document.type, size: document.size, sha256: digest });
+      }
+      data.delete("owner_documents");
+      data.set("owner_document_manifest", JSON.stringify(manifest));
+      setOwnerDetailsInvalid(false);
+      startTransition(() => action(data));
+    } catch (error) {
+      setDetailError(error instanceof Error ? error.message : "Ownership documents could not be uploaded.");
+    }
   }
   return <details className="mt-4"><summary className="min-h-11 cursor-pointer py-3 font-semibold">Edit and resubmit</summary>
     <form onSubmit={submit} className="mt-3 space-y-3">
