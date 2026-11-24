@@ -6,7 +6,7 @@ export type PolicySection = { heading: string; paragraphs: string[]; bullets?: s
 export type PolicyDocument = { type: PolicyType; path: string; title: string; version: string; lastUpdated: string; sections: PolicySection[] };
 type SavedPolicyVersion = { version: string; lastUpdated: string };
 
-const LAST_UPDATED = "November 18, 2026";
+const LAST_UPDATED = "November 24, 2026";
 const DEFAULT_VERSION = "1.0";
 const VERSIONS_KEY = "naren-realty-policy-versions-v1";
 const ACCEPTANCES_KEY = "naren-realty-policy-acceptances-v1";
@@ -47,7 +47,7 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
     ],
   },
   {
-    type: "privacy_policy", path: "/privacy-policy", title: "Privacy Policy", version: "1.1", lastUpdated: LAST_UPDATED,
+    type: "privacy_policy", path: "/privacy-policy", title: "Privacy Policy", version: "1.2", lastUpdated: LAST_UPDATED,
     sections: [
       { heading: "Information We Collect", paragraphs: ["Depending on the features you use, NAREN REALTY may collect your name, mobile number, email address, account and authentication details, property requirements, listing information and photographs, enquiries, visit requests, referral information, policy acknowledgements, and communications or follow-up information submitted through the platform."] },
       { heading: "How We Use Information", paragraphs: ["We use information to create and manage accounts, display approved property listings, receive and coordinate enquiries and visit requests, administer referrals, provide customer and owner services, maintain platform security, respond to support requests, and meet applicable legal obligations."] },
@@ -55,6 +55,7 @@ export const POLICY_DOCUMENTS: PolicyDocument[] = [
       { heading: "Access and Sharing", paragraphs: ["Customer contact information is used by authorized NAREN REALTY personnel for enquiry and service coordination and is not intended to be publicly displayed on property pages. Owners can manage their own listings but are not given general access to customer enquiry contact details. Information may be shared with service providers supporting the platform or where required by law, to protect users, or to address security and fraud concerns."] },
       { heading: "Security and Retention", paragraphs: ["We use role-based access controls and the security features available in the services supporting the platform. No internet-based system can be guaranteed to be completely secure. Information is retained for as long as reasonably needed to provide services, maintain business and transaction records, resolve disputes, and comply with applicable legal requirements. Browser Local Storage records remain on the relevant device until cleared or removed by the user or browser."] },
       { heading: "Your Choices and Contact", paragraphs: ["You may contact NAREN REALTY through the official website to request access to, correction of, or deletion of personal information, subject to applicable legal and operational record-keeping requirements. You may also clear browser Local Storage, noting that doing so can remove locally saved account-related preferences or records.", "For privacy-related questions or requests, contact NAREN REALTY through the contact details published on the official website."] },
+      { heading: "Marketing Communications and Consent", paragraphs: ["NAREN REALTY may send property-related updates, relevant property listings, property requirement announcements, promotional posters, event invitations and other real-estate-related communications through email, WhatsApp or other communication channels only where the individual has provided the required consent.", "Marketing consent is voluntary and separate from account registration and essential service-related communications. Individuals may withdraw marketing consent at any time by using the unsubscribe option in emails or by contacting NAREN REALTY. Withdrawal of marketing consent will not affect essential communications required to manage an existing enquiry, property visit or transaction."] },
     ],
   },
   {
