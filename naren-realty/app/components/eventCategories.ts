@@ -13,10 +13,9 @@ export const EVENT_CATEGORIES: EventCategoryRecord[] = [
   { key: "spirituality", title: "Spirituality", aliases: ["spiritual", "bhajan", "bhajan_jamming", "meditation"] },
   { key: "meetups", title: "Meetups", aliases: ["meetup", "social_meetups", "community", "home_gatherings", "outdoor_active"] },
   { key: "talks", title: "Talks", aliases: ["talk", "speaker", "panel_discussion"] },
-  { key: "beer_festival", title: "Beer Festival", aliases: ["beer", "beerfest", "brewery"] },
   { key: "role_play", title: "Role Play", aliases: ["roleplay", "cosplay"] },
   { key: "online_streaming_events", title: "Online Streaming Events", aliases: ["online_streaming", "streaming", "online"] },
-  { key: "food_drinks", title: "Food and Drinks", aliases: ["food", "drinks", "food_drinks", "potluck_dinner", "byob_party", "brunch_meetup", "bbq_bonfire"] },
+  { key: "food_drinks", title: "Food and Drinks", aliases: ["food", "drinks", "food_drinks", "potluck_dinner", "brunch_meetup", "bbq_bonfire"] },
 ];
 
 const normalise = (value: string | null | undefined) =>
@@ -37,12 +36,11 @@ export function getEventCategoryKey(event: {
   const has = (...terms: string[]) => terms.some((term) => details.includes(term));
 
   if (has("new_year")) return "new_year_parties";
-  if (has("beer", "brewery")) return "beer_festival";
   if (has("role_play", "roleplay", "cosplay")) return "role_play";
   if (has("online_stream", "livestream", "streaming")) return "online_streaming_events";
   if (has("screening", "movie", "match")) return "screening";
   if (has("spiritual", "bhajan", "meditation", "yoga")) return "spirituality";
-  if (has("food", "drink", "potluck", "brunch", "bbq", "byob", "cooking", "baking")) return "food_drinks";
+  if (has("food", "drink", "potluck", "brunch", "bbq", "cooking", "baking")) return "food_drinks";
   if (has("comedy", "stand_up", "standup")) return "comedy_shows";
   if (has("music", "concert", "jamming", "dj")) return "music_shows";
   if (has("workshop", "paint_and_sip", "trivia", "quiz")) return "workshops";
