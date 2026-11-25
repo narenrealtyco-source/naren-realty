@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminLogoutButton from "../../components/AdminLogoutButton";
 import AdminRecordDeleteButton from "../../components/AdminRecordDeleteButton";
-import { loadAdminEnquiries, updateAdminEnquiryDetails, updateAdminEnquiryStatus } from "./actions";
+import { loadAdminEnquiries, loadAdminBrokerageAcknowledgements, prepareAdminBrokerageAcknowledgements, updateAdminEnquiryDetails, updateAdminEnquiryStatus, type BrokerageAcknowledgementRecord } from "./actions";
 import {
   ENQUIRY_STATUSES,
   type EnquiryRecord,
   type EnquiryStatus,
 } from "../../lib/enquiries";
-import { areBrokerageAcknowledgementsComplete, createBrokerageAcknowledgements, getTransactionBrokerageAcknowledgements, type BrokerageAcknowledgement } from "../../lib/policies";
-import { getAllListings } from "../../lib/properties";
+
 
 function formatSubmissionDate(value: string) {
   const date = new Date(value);
@@ -27,7 +26,7 @@ export default function AdminEnquiriesPage() {
   const [requirementFilter, setRequirementFilter] = useState("All");
   const [localityFilter, setLocalityFilter] = useState("All");
   const [adminDetails, setAdminDetails] = useState<Record<string, { adminCallNotes: string; nextFollowUpDate: string }>>({});
-  const [brokerageAcknowledgements, setBrokerageAcknowledgements] = useState<BrokerageAcknowledgement[]>([]);
+  const [brokerageAcknowledgements, setBrokerageAcknowledgements] = useState<BrokerageAcknowledgementRecord[]>([]);
   const [storageError, setStorageError] = useState("");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -39,7 +38,7 @@ export default function AdminEnquiriesPage() {
         setLoading(true);
         const records = await loadAdminEnquiries();
         setEnquiries(records);
-        setBrokerageAcknowledgements(records.flatMap((enquiry) => getTransactionBrokerageAcknowledgements(enquiry.id)));
+        setBrokerageAcknowledgements(await loadAdminBrokerageAcknowledgements(records.map((enquiry) => enquiry.id)));
         setAdminDetails(Object.fromEntries(records.map((enquiry) => [enquiry.id, {
           adminCallNotes: enquiry.adminCallNotes ?? "",
           nextFollowUpDate: enquiry.nextFollowUpDate ?? "",
@@ -77,10 +76,7 @@ export default function AdminEnquiriesPage() {
   );
 
   async function updateStatus(id: string, status: EnquiryStatus) {
-    if ((status === "Negotiation" || status === "Deal Closed") && !areBrokerageAcknowledgementsComplete(id)) {
-      setStorageError("Complete every required brokerage acknowledgement before moving an enquiry to Negotiation or Deal Closed.");
-      return;
-    }
+    
     setSavingId(id);
     setStorageError("");
     setSuccess("");
@@ -116,23 +112,32 @@ export default function AdminEnquiriesPage() {
     }
   }
 
-  function prepareBrokerage(enquiry: EnquiryRecord) {
-    if (!enquiry.customerId || !enquiry.listingId) {
-      setStorageError("Brokerage acknowledgements need a signed-in customer enquiry linked to an owner listing. Guest enquiries remain available but cannot provide account-bound acknowledgement records.");
-      return;
-    }
-    const listing = getAllListings().find((item) => item.id === enquiry.listingId);
-    if (!listing) {
-      setStorageError("The owner listing linked to this enquiry could not be found.");
-      return;
-    }
+  async function prepareBrokerage(enquiry: EnquiryRecord) {
+    setSavingId(enquiry.id);
+    setStorageError("");
+    setSuccess("");
     try {
-      createBrokerageAcknowledgements({ enquiryId: enquiry.id, listing, customerId: enquiry.customerId });
-      setBrokerageAcknowledgements(enquiries.flatMap((record) => getTransactionBrokerageAcknowledgements(record.id)));
-      setStorageError("");
+      await prepareAdminBrokerageAcknowledgements(enquiry.id);
+      setBrokerageAcknowledgements(await loadAdminBrokerageAcknowledgements(enquiries.map((record) => record.id)));
+      setSuccess("Current brokerage acknowledgement requests have been saved to Supabase.");
     } catch (error) {
       setStorageError(error instanceof Error ? error.message : "Brokerage acknowledgements could not be prepared.");
+    } finally {
+      setSavingId(null);
     }
+  }
+
+  function areAcknowledgementsComplete(enquiry: EnquiryRecord): boolean {
+    const rows = brokerageAcknowledgements.filter((record) =>
+      record.transactionReference === enquiry.id && record.policyVersion === "1.5",
+    );
+    const requiredParties = enquiry.requirement === "Resale" ? ["Buyer", "Seller"]
+      : enquiry.requirement === "Rental" ? ["Tenant"]
+      : enquiry.requirement === "PG" ? ["Resident"]
+      : enquiry.requirement === "Airbnb" ? ["Host"] : [];
+    return requiredParties.length > 0 && requiredParties.every((party) =>
+      rows.some((record) => record.party === party && Boolean(record.acknowledgedAt)),
+    );
   }
 
   function updateAdminDetail(
@@ -289,7 +294,7 @@ export default function AdminEnquiriesPage() {
 
                 <div className="mt-4 border-t border-slate-100 pt-4">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Brokerage Acknowledgements</p>
-                  {brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.transactionReference === enquiry.id).length ? <div className="space-y-3">{brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.transactionReference === enquiry.id).map((acknowledgement) => <div key={acknowledgement.id} className="rounded-md border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-[#10243A]">{acknowledgement.party} · {acknowledgement.userRole}</p><span className={`rounded px-2 py-1 text-xs font-semibold ${acknowledgement.acknowledgedAt ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>{acknowledgement.acknowledgedAt ? "Acknowledged" : "Pending"}</span></div><p className="mt-2 text-sm leading-6 text-slate-700">{acknowledgement.statement}</p><p className="mt-2 break-all text-xs text-slate-500">User ID {acknowledgement.userId} · Policy {acknowledgement.policyVersion} · Created {formatSubmissionDate(acknowledgement.createdAt)}{acknowledgement.acknowledgedAt ? ` · Accepted ${formatSubmissionDate(acknowledgement.acknowledgedAt)}` : ""}</p></div>)}{!areBrokerageAcknowledgementsComplete(enquiry.id) && <button type="button" onClick={() => prepareBrokerage(enquiry)} className="rounded-md border border-[#10243A] px-3 py-2 text-sm font-semibold text-[#10243A]">Prepare Current-Policy Acknowledgements</button>}</div> : <div><p className="text-sm text-slate-500">No brokerage acknowledgement records.</p><button type="button" onClick={() => prepareBrokerage(enquiry)} className="mt-2 rounded-md border border-[#10243A] px-3 py-2 text-sm font-semibold text-[#10243A]">Prepare Brokerage Acknowledgements</button></div>}
+                  {brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.transactionReference === enquiry.id).length ? <div className="space-y-3">{brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.transactionReference === enquiry.id).map((acknowledgement) => <div key={acknowledgement.id} className="rounded-md border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-[#10243A]">{acknowledgement.party} · {acknowledgement.userRole}</p><span className={`rounded px-2 py-1 text-xs font-semibold ${acknowledgement.acknowledgedAt ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>{acknowledgement.acknowledgedAt ? "Acknowledged" : "Pending"}</span></div><p className="mt-2 text-sm leading-6 text-slate-700">{acknowledgement.statement}</p><p className="mt-2 break-all text-xs text-slate-500">User ID {acknowledgement.userId} · Policy {acknowledgement.policyVersion} · Created {formatSubmissionDate(acknowledgement.createdAt)}{acknowledgement.acknowledgedAt ? ` · Accepted ${formatSubmissionDate(acknowledgement.acknowledgedAt)}` : ""}</p></div>)}{!areAcknowledgementsComplete(enquiry) && <button type="button" onClick={() => void prepareBrokerage(enquiry)} className="rounded-md border border-[#10243A] px-3 py-2 text-sm font-semibold text-[#10243A]">Prepare Current-Policy Acknowledgements</button>}</div> : <div><p className="text-sm text-slate-500">No brokerage acknowledgement records.</p><button type="button" onClick={() => prepareBrokerage(enquiry)} className="mt-2 rounded-md border border-[#10243A] px-3 py-2 text-sm font-semibold text-[#10243A]">Prepare Brokerage Acknowledgements</button></div>}
                 </div>
 
                 <div className="mt-4 border-t border-slate-100 pt-4">
