@@ -14,6 +14,7 @@ function CheckoutContent(){
  const [patient,setPatient]=useState({mode:"self",name:"",relation:"Spouse",age:"",gender:""});
  const [coupon,setCoupon]=useState(""),[couponMessage,setCouponMessage]=useState(""),[couponDiscount,setCouponDiscount]=useState(0),[familyDiscount,setFamilyDiscount]=useState(0),[couponApplied,setCouponApplied]=useState(false),[couponBusy,setCouponBusy]=useState(false);
  const [preferredDate,setPreferredDate]=useState(""),[preferredSlot,setPreferredSlot]=useState(windows[1]);
+ const [policyAccepted,setPolicyAccepted]=useState(false);
  const [submitting,setSubmitting]=useState(false),[error,setError]=useState(""),[success,setSuccess]=useState<{reference:string;message:string;amount:number|null}|null>(null),[paymentSubmitted,setPaymentSubmitted]=useState(false),[paymentBusy,setPaymentBusy]=useState(false),[paymentError,setPaymentError]=useState("");
  useEffect(()=>{fetch("/api/health-catalog",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Catalogue unavailable");const all=d.items||[];setCatalog(all);const initial=params.getAll("item").concat((params.get("items")||"").split(",").filter(Boolean));setSelected([...new Set(initial)].filter(s=>all.some((x:Item)=>x.slug===s)));}).catch(e=>setCatalogError(e.message)).finally(()=>setLoading(false));},[params]);
  const chosen=useMemo(()=>selected.map(s=>catalog.find(x=>x.slug===s)).filter(Boolean) as Item[],[selected,catalog]);
