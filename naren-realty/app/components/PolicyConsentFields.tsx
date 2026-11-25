@@ -20,6 +20,7 @@ const consentCopy: Record<PolicyType, { prefix: string; linkText: string; suffix
   disclaimer_policy: { prefix: "I have read and agree to the ", linkText: "Disclaimer", suffix: "." },
   cookie_policy: { prefix: "I have read and agree to the ", linkText: "Cookie Policy", suffix: "." },
   third_party_policy: { prefix: "I have read and agree to the ", linkText: "Third-Party Services Policy", suffix: "." },
+  other_services_policy: { prefix: "I have read and agree to the ", linkText: "Other Services Policy", suffix: "." },
   event_safety_policy: { prefix: "I have read and agree to the ", linkText: "Event Safety: No Alcohol, No Drugs & Prohibited Items Policy", suffix: "." },
 };
 
