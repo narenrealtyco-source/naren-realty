@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const address = String(customer.address || "").trim();
     const patientName = String(patient.name || name).trim();
     const preferredDate = String(body?.preferredDate || "");
-    const preferredSlot = String(body?.preferredSlot || "").trim();
+    const preferredSlot = String(body?.preferredSlot || "").trim();\n    const policyAccepted = body?.policyAccepted === true;\n    const policyVersion = String(body?.policyVersion || "");
     if (name.length < 2 || !/^[6-9]\d{9}$/.test(phone) || !/^[1-9]\d{5}$/.test(pincode) || address.length < 8 || lines.length < 1 || lines.length > 10 || !patientName || !preferredDate || !preferredSlot) {
       return NextResponse.json({ error: "Please complete contact, address, patient and preferred collection details." }, { status: 400 });
     }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       pincode,address,selected_items:snapshots,customer_payable_amount:Number((subtotal===null?0:Math.max(0,subtotal-couponDiscount-familyDiscount)).toFixed(2)),customer_payment_status:"unpaid",
       patient_details:{name:patientName,relation:String(patient.relation || "Self"),age:patient.age ? String(patient.age).slice(0,3) : null,gender:String(patient.gender || "")},
       coupon_code:couponCode,coupon_discount:couponDiscount,family_discount:familyDiscount,
-      preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation"
+      preferred_date:preferredDate,preferred_slot:preferredSlot,status:"pending_confirmation",customer_policy_accepted:true,customer_policy_version:policyVersion,customer_policy_accepted_at:new Date().toISOString()
     });
     if (insertError) throw insertError;
     return NextResponse.json({
