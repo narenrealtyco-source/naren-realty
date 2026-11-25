@@ -18,6 +18,29 @@ export async function updateAdminEnquiryStatus(
   const normalizedId = enquiryId.trim();
   if (!normalizedId) throw new Error("An enquiry ID is required.");
   if (!ENQUIRY_STATUSES.includes(status)) throw new Error("The enquiry status is invalid.");
+  if (status === "Negotiation" || status === "Deal Closed") {
+    const { data: enquiry, error: enquiryError } = await supabase.from("enquiries")
+      .select("property_id,requirement").eq("id", normalizedId).maybeSingle();
+    if (enquiryError || !enquiry?.property_id) throw new Error("The linked property could not be verified.");
+    const { data: property, error: propertyError } = await supabase.from("properties")
+      .select("category").eq("id", enquiry.property_id).maybeSingle();
+    if (propertyError || !property) throw new Error("The linked property category could not be verified.");
+    const { data: acknowledgements, error: acknowledgementError } = await supabase
+      .from("property_brokerage_acknowledgements")
+      .select("party,acknowledged_at")
+      .eq("enquiry_id", normalizedId)
+      .eq("policy_version", "1.5");
+    if (acknowledgementError) throw new Error("Brokerage acknowledgement status could not be verified.");
+    const requiredParties = property.category === "Resale" ? ["Buyer", "Seller"]
+      : property.category === "Rental" ? ["Tenant"]
+      : property.category === "PG" ? ["Resident"]
+      : property.category === "Airbnb" ? ["Host"] : [];
+    if (!requiredParties.length || !requiredParties.every((party) =>
+      acknowledgements?.some((record) => record.party === party && Boolean(record.acknowledged_at)),
+    )) {
+      throw new Error("Both required parties must acknowledge the current brokerage terms before this enquiry can move to Negotiation or Deal Closed.");
+    }
+  }
   const { data, error } = await supabase
     .from("enquiries")
     .update({ status })
