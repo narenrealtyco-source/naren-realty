@@ -5,7 +5,7 @@ import Link from "next/link";
 import PolicyConsentFields from "../components/PolicyConsentFields";
 import BrokerageAcknowledgementPanel from "../components/BrokerageAcknowledgementPanel";
 import { getEnquiriesLocally, type EnquiryRecord } from "../lib/enquiries";
-import { acknowledgeBrokerage, getMissingPolicies, getUserBrokerageAcknowledgements, recordPolicyAcceptances, type BrokerageAcknowledgement, type PolicyType } from "../lib/policies";
+import { getMissingPolicies, recordPolicyAcceptances, type PolicyType } from "../lib/policies";
 import { createSupabaseBrowserClient } from "../lib/supabase-browser";
 import {
   getCustomerFavorites,
@@ -119,7 +119,6 @@ export default function CustomerAccountPage() {
   const [visitsLoading, setVisitsLoading] = useState(true);
   const [visitsError, setVisitsError] = useState("");
   const [visitsReload, setVisitsReload] = useState(0);
-  const [brokerageAcknowledgements, setBrokerageAcknowledgements] = useState<BrokerageAcknowledgement[]>([]);
   const [dataError, setDataError] = useState("");
 
   useEffect(() => {
@@ -166,7 +165,6 @@ export default function CustomerAccountPage() {
       try {
         setFavorites(getCustomerFavorites(customerId));
         setEnquiries(getEnquiriesLocally().filter((enquiry) => enquiry.customerId === customerId));
-        setBrokerageAcknowledgements(getUserBrokerageAcknowledgements(customerId, "customer"));
         setPendingPolicies(getMissingPolicies(customerId, "customer", CUSTOMER_POLICIES).map((document) => document.type));
         setDataError("");
       } catch {
@@ -398,16 +396,6 @@ export default function CustomerAccountPage() {
     setFavorites(getCustomerFavorites(customer.id));
   }
 
-  function acknowledgeBrokerageRecord(acknowledgementId: string) {
-    if (!customer) return;
-    try {
-      acknowledgeBrokerage(customer.id, "customer", acknowledgementId);
-      setBrokerageAcknowledgements(getUserBrokerageAcknowledgements(customer.id, "customer"));
-      setDataError("");
-    } catch {
-      setDataError("Brokerage acknowledgement could not be recorded.");
-    }
-  }
 
   if (loading) return <main className="min-h-screen bg-slate-50" />;
 
@@ -478,7 +466,7 @@ export default function CustomerAccountPage() {
           {tab === "profile" && <section className="mt-6 max-w-2xl rounded-lg border border-slate-200 bg-white p-5 sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold tracking-wider text-[#A71930]">ACCOUNT DETAILS</p><h2 className="mt-1 text-xl font-bold text-[#A71930]">My Profile</h2></div>{!profileEditing && <button onClick={beginProfileEdit} className="min-h-11 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-[#A71930] hover:border-[#A71930]">Edit Profile</button>}</div>
             {profileEditing ? <form onSubmit={saveProfile} className="mt-5 space-y-4"><label className="block text-sm font-semibold">Full name<input required value={fullName} onChange={(event) => setFullName(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal" /></label><label className="block text-sm font-semibold">Mobile number<input required type="tel" value={mobileNumber} onChange={(event) => setMobileNumber(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal" /></label><label className="block text-sm font-semibold">Email address<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-4 py-3 text-base font-normal" /></label>{profileError && <p role="alert" className="text-sm text-rose-700">{profileError}</p>}<div className="flex flex-wrap gap-3"><button className="rounded-lg bg-[#A71930] px-5 py-3 text-sm font-semibold text-white">Save Profile</button><button type="button" onClick={() => setProfileEditing(false)} className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Cancel</button></div></form> : <><dl className="mt-5 grid gap-4 sm:grid-cols-2"><div><dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Full name</dt><dd className="mt-1 font-semibold text-slate-800">{customer.fullName}</dd></div><div><dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Mobile number</dt><dd className="mt-1 text-slate-800">{customer.mobileNumber}</dd></div><div className="sm:col-span-2"><dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email address</dt><dd className="mt-1 break-all text-slate-800">{customer.email}</dd></div></dl>{profileSaved && <p role="status" className="mt-4 text-sm text-emerald-800">Profile updated.</p>}</>}</section>}
           {tab === "favourites" && <section className="mt-6"><h2 className="sr-only">My Favourite Properties</h2>{favorites.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{favorites.map((favorite) => <article key={favorite.propertyId} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-wider text-[#A71930]">{favorite.type}</p><h3 className="mt-2 text-lg font-bold text-[#A71930]">{favorite.title}</h3><p className="mt-1 text-sm text-slate-600">{favorite.locality}, Pune{favorite.bedrooms ? ` · ${favorite.bedrooms} BHK` : ""}</p><p className="mt-3 font-bold text-[#A71930]">{favorite.price}</p><div className="mt-4 flex flex-wrap gap-2"><Link href={favorite.propertyId.startsWith("demo:") ? "/#properties" : `/properties/${favorite.propertyId}`} className="flex-1 rounded-md bg-[#A71930] px-3 py-2.5 text-center text-sm font-semibold text-white">View Property</Link><button onClick={() => removeFavorite(favorite.propertyId)} aria-label={`Remove ${favorite.title} from favourites`} className="rounded-md border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50">Remove</button></div></article>)}</div> : <div className="border-y border-slate-200 py-14 text-center"><h2 className="font-bold text-[#A71930]">No favourite properties saved</h2><p className="mt-2 text-sm text-slate-600">Use the heart on a property to save it here.</p><Link href="/properties" className="mt-4 inline-flex min-h-11 items-center font-semibold text-[#A71930]">Browse properties</Link></div>}</section>}
-          {tab === "enquiries" && <section className="mt-6"><h2 className="sr-only">My Enquiries</h2>{enquiries.length ? <div className="space-y-3">{[...enquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((enquiry) => <article key={enquiry.id} className="rounded-lg border border-slate-200 bg-white p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-bold text-[#A71930]">{enquiry.propertyName}</h3><p className="mt-1 text-sm text-slate-600">{enquiry.locality}, Pune</p><p className="mt-2 text-xs text-slate-500">Submitted {new Date(enquiry.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p></div><span className={`self-start rounded-md px-3 py-1.5 text-sm font-semibold sm:self-center ${statusStyles[enquiry.status] ?? "bg-slate-100 text-slate-800"}`}>{enquiry.status}</span></div>{brokerageAcknowledgements.filter((acknowledgement) => acknowledgement.transactionReference === enquiry.id && acknowledgement.userRole === "customer").map((acknowledgement) => <div key={acknowledgement.id} className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4"><p className="text-xs font-bold uppercase tracking-wider text-amber-900">Brokerage Acknowledgement · {acknowledgement.party}</p><p className="mt-2 text-sm leading-6 text-slate-700">{acknowledgement.statement}</p><p className="mt-2 text-xs text-slate-600">Policy version {acknowledgement.policyVersion} · {acknowledgement.acknowledgedAt ? `Acknowledged ${new Date(acknowledgement.acknowledgedAt).toLocaleString("en-IN")}` : "Pending acknowledgement"}</p>{!acknowledgement.acknowledgedAt && <button onClick={() => acknowledgeBrokerageRecord(acknowledgement.id)} className="mt-3 min-h-11 rounded-md bg-[#A71930] px-4 py-2 text-sm font-semibold text-white">Acknowledge</button>}</div>)}</article>)}</div> : <div className="border-y border-slate-200 py-14 text-center"><h2 className="font-bold text-[#A71930]">No enquiries on this account yet</h2><p className="mt-2 text-sm text-slate-600">Enquiries you submit while signed in will appear here.</p><Link href="/properties" className="mt-4 inline-flex min-h-11 items-center font-semibold text-[#A71930]">Browse properties</Link></div>}</section>}
+          {tab === "enquiries" && <section className="mt-6"><h2 className="sr-only">My Enquiries</h2>{enquiries.length ? <div className="space-y-3">{[...enquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((enquiry) => <article key={enquiry.id} className="rounded-lg border border-slate-200 bg-white p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-bold text-[#A71930]">{enquiry.propertyName}</h3><p className="mt-1 text-sm text-slate-600">{enquiry.locality}, Pune</p><p className="mt-2 text-xs text-slate-500">Submitted {new Date(enquiry.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p></div><span className={`self-start rounded-md px-3 py-1.5 text-sm font-semibold sm:self-center ${statusStyles[enquiry.status] ?? "bg-slate-100 text-slate-800"}`}>{enquiry.status}</span></div></article>)}</div> : <div className="border-y border-slate-200 py-14 text-center"><h2 className="font-bold text-[#A71930]">No enquiries on this account yet</h2><p className="mt-2 text-sm text-slate-600">Enquiries you submit while signed in will appear here.</p><Link href="/properties" className="mt-4 inline-flex min-h-11 items-center font-semibold text-[#A71930]">Browse properties</Link></div>}</section>}
         </>}
       </section>
     </main>
