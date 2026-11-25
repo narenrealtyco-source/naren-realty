@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import PolicyConsentFields from "../components/PolicyConsentFields";
+import BrokerageAcknowledgementPanel from "../components/BrokerageAcknowledgementPanel";
 import { getEnquiriesLocally, type EnquiryRecord } from "../lib/enquiries";
 import { acknowledgeBrokerage, getMissingPolicies, getUserBrokerageAcknowledgements, recordPolicyAcceptances, type BrokerageAcknowledgement, type PolicyType } from "../lib/policies";
 import { createSupabaseBrowserClient } from "../lib/supabase-browser";
@@ -445,6 +446,7 @@ export default function CustomerAccountPage() {
           <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold tracking-[0.18em] text-[#A71930]">CUSTOMER DASHBOARD</p><h1 className="mt-2 text-3xl font-bold text-[#A71930]">My Account</h1><p className="mt-2 text-sm text-slate-600">Welcome, {customer.fullName}</p></div><div className="flex flex-wrap gap-2"><Link href="/list-property" className="rounded-lg border border-[#A71930] px-5 py-3 text-center text-sm font-bold text-[#A71930]">List Your Property</Link><Link href="/properties" className="rounded-lg bg-white px-5 py-3 text-center text-sm font-bold text-[#A71930] ring-1 ring-[#A71930]">Find a Property</Link></div></div>
           <div className="mt-6 flex flex-wrap border-b border-slate-200">{([["profile", "My Profile"], ["favourites", `Favourites (${favorites.length})`], ["enquiries", `My Enquiries (${enquiries.length})`], ["visits", `My Visits (${visitCount ?? 0})`]] as const).map(([key, label]) => <button key={key} onClick={() => { if (key === "visits") { setVisitsLoading(true); setVisitsError(""); } setTab(key); }} aria-pressed={tab === key} className={`border-b-2 px-4 py-3 text-sm font-semibold ${tab === key ? "border-[#A71930] text-[#A71930]" : "border-transparent text-slate-500 hover:text-slate-800"}`}>{label}</button>)}<Link href="/account/referrals" className="border-b-2 border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800">Refer &amp; Earn</Link></div>
           {dataError && <p role="alert" className="mt-5 text-sm text-rose-700">{dataError}</p>}
+          <BrokerageAcknowledgementPanel userId={customer.id} />
           {tab === "visits" && <section className="mt-6" aria-labelledby="my-visits-heading">
             <h2 id="my-visits-heading" className="sr-only">My Visits</h2>
             {visitsLoading ? <p role="status" className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">Loading your visit requests...</p> :
