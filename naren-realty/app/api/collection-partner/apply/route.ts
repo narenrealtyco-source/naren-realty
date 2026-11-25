@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
     const rawAreas = Array.isArray(body.service_areas) ? body.service_areas : String(body.service_areas || "").split(",");
     const service_areas = Array.from(new Set(rawAreas.map((area: unknown) => String(area).trim().replace(/\s+/g, " ")).filter(Boolean)));
 
+    if (!agreementAccepted || body.agreement_version && body.agreement_version !== agreementVersion) {
+      return NextResponse.json({ error: "Please read and accept the current MFIT Collection Partner Agreement to continue." }, { status: 400 });
+    }
     if (contact_name.length < 2 || !/^[6-9]\d{9}$/.test(phone) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || address.length < 8 || !service_areas.length) {
       return NextResponse.json({ error: "Please enter valid contact name, mobile, email, address and at least one service area." }, { status: 400 });
     }
