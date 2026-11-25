@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase-browser";
 
+const supabase = createSupabaseBrowserClient();
+
 type AcknowledgementRow = {
   id: string;
   enquiry_id: string;
@@ -25,8 +27,6 @@ export default function BrokerageAcknowledgementPanel({ userId }: { userId: stri
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const supabase = createSupabaseBrowserClient();
-
   const refresh = useCallback(async () => {
     setLoading(true);
     const { data, error: queryError } = await supabase
@@ -41,7 +41,7 @@ export default function BrokerageAcknowledgementPanel({ userId }: { userId: stri
       setError("");
     }
     setLoading(false);
-  }, [supabase, userId]);
+  }, [userId]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
