@@ -20,30 +20,25 @@ function CollectionPartnerActivateForm() {
     }
     setBusy(true);
     setError("");
-    const { createSupabaseBrowserClient } = await import("../../lib/supabase-browser");
-    const db = createSupabaseBrowserClient();
-    const { error: verifyError } = await db.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
-    if (verifyError) {
-      setError("This setup link has expired or has already been used. Ask the MFIT admin to send a fresh link.");
+    try {
+      const response = await fetch("/api/collection-partner/activate/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ token_hash: tokenHash }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result?.success !== true) {
+        setError(typeof result?.error === "string" ? result.error : "We could not verify your partner account. Please try again or contact MFIT support.");
+        setBusy(false);
+        return;
+      }
+      setVerified(true);
       setBusy(false);
-      return;
-    }
-    const { data: { user }, error: userError } = await db.auth.getUser();
-    if (userError || !user) {
-      setError("Your email link could not be verified. Please request a new setup link.");
+    } catch {
+      setError("A temporary connection error occurred. Please try again. Your account has not been signed out.");
       setBusy(false);
-      return;
     }
-    const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    const { data: partner } = await db.from("health_collection_partners").select("is_active").eq("user_id", user.id).maybeSingle();
-    if (profile?.role !== "collection_partner" || partner?.is_active !== true) {
-      await db.auth.signOut();
-      setError("This account is not an active collection partner. Contact MFIT Healthcare support.");
-      setBusy(false);
-      return;
-    }
-    setVerified(true);
-    setBusy(false);
   }
 
   async function savePassword(event: FormEvent<HTMLFormElement>) {
