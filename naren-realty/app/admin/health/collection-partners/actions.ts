@@ -59,7 +59,7 @@ export async function approveCollectionPartnerApplication(formData: FormData) {
 
   const { data: application, error: readError } = await db
     .from("health_collection_partner_applications")
-    .select("id,business_name,contact_name,phone,email,address,service_areas,status,created_partner_id")
+    .select("id,business_name,contact_name,phone,email,address,service_areas,status,created_partner_id,agreement_accepted,agreement_version")
     .eq("id", applicationId)
     .single();
   if (readError || !application) throw new Error("Application could not be found.");
@@ -68,6 +68,9 @@ export async function approveCollectionPartnerApplication(formData: FormData) {
     return;
   }
   if (application.status !== "pending_review") throw new Error("Only pending applications can be approved.");
+  if (application.agreement_accepted !== true || application.agreement_version !== "MFIT-COLLECTION-PARTNER-2026-01") {
+    throw new Error("This application has not accepted the current MFIT Collection Partner Agreement. Ask the applicant to submit a fresh application.");
+  }
 
   const email = String(application.email || "").trim().toLowerCase();
   const contactName = String(application.contact_name || "").trim();
