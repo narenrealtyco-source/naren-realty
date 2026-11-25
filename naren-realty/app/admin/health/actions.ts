@@ -185,9 +185,20 @@ export async function updateHealthCollectionSlot(formData: FormData) {
 export async function updateHealthLabPartner(formData: FormData) {
   const id=String(formData.get("partner_id")||"");
   const is_active=formData.get("is_active")==="on";
+  const agreement_signed=formData.get("agreement_signed")==="on";
+  const agreement_document_reference=String(formData.get("agreement_document_reference")||"").trim().slice(0,500);
   if(!id) throw new Error("Partner ID is required.");
   const {supabase}=await requireAdmin();
-  const {error}=await supabase.from("health_lab_partners").update({is_active,verified_at:is_active?new Date().toISOString():null,updated_at:new Date().toISOString()}).eq("id",id);
+  const {data:current,error:readError}=await supabase.from("health_lab_partners").select("agreement_signed,agreement_version,agreement_document_reference").eq("id",id).single();
+  if(readError||!current) throw new Error("Lab partner not found.");
+  const signed = agreement_signed || current.agreement_signed === true;
+  const reference = agreement_document_reference || current.agreement_document_reference || "";
+  if(is_active && (!signed || !reference)) throw new Error("Lab cannot be activated until MFIT Admin verifies the signed Laboratory Partner Agreement and records its secure document reference.");
+  const now=new Date().toISOString();
+  const update:any={is_active,verified_at:is_active?now:null,updated_at:now};
+  if(agreement_signed){update.agreement_signed=true;update.agreement_version="MFIT-LAB-PARTNER-2026-01";update.agreement_signed_at:now;update.agreement_document_reference=agreement_document_reference;}
+  else if(current.agreement_signed){update.agreement_signed=true;update.agreement_version=current.agreement_version;update.agreement_signed_at=current.agreement_signed_at;update.agreement_document_reference=reference;}
+  const {error}=await supabase.from("health_lab_partners").update(update).eq("id",id);
   if(error) throw new Error("Could not update lab partner: "+error.message);
   revalidatePath("/admin/health/labs");
 }
