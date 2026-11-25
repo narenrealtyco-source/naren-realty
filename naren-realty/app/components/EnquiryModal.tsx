@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import { saveEnquiryLocally, type EnquiryRequirement } from "../lib/enquiries";
 import { getCustomerSession } from "../lib/customers";
 import { type PropertyListing } from "../lib/properties";
-import { createBrokerageAcknowledgements } from "../lib/policies";
 
 export default function EnquiryModal({
   propertyId,
@@ -43,7 +42,7 @@ export default function EnquiryModal({
     try {
       const customer = await getCustomerSession();
       const customerId = customer?.id;
-      const savedEnquiry = saveEnquiryLocally({
+      saveEnquiryLocally({
         fullName: fullName.trim(),
         mobileNumber: normalizedMobile,
         requirement,
@@ -53,9 +52,6 @@ export default function EnquiryModal({
         listingId: propertyId,
         customerId,
       });
-      if (customerId) {
-        createBrokerageAcknowledgements({ enquiryId: savedEnquiry.id, listing, customerId });
-      }
       setError("");
       setSubmitted(true);
     } catch {
