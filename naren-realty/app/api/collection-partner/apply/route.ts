@@ -8,6 +8,8 @@ export async function POST(req: NextRequest) {
     const phone = String(body.phone || "").replace(/\D/g, "");
     const email = String(body.email || "").trim().toLowerCase();
     const address = String(body.address || "").trim();
+    const agreementAccepted = body.agreement_accepted === true || body.agreement_accepted === "on" || body.agreement_accepted === "true";
+    const agreementVersion = "MFIT-COLLECTION-PARTNER-2026-01";
     const rawAreas = Array.isArray(body.service_areas) ? body.service_areas : String(body.service_areas || "").split(",");
     const service_areas = Array.from(new Set(rawAreas.map((area: unknown) => String(area).trim().replace(/\s+/g, " ")).filter(Boolean)));
 
@@ -29,6 +31,9 @@ export async function POST(req: NextRequest) {
       gstin: String(body.gstin || "").trim() || null,
       pan: String(body.pan || "").trim().toUpperCase() || null,
       notes: String(body.notes || "").trim() || null,
+      agreement_accepted: true,
+      agreement_version: agreementVersion,
+      agreement_accepted_at: new Date().toISOString(),
     }).select("id").single();
     if (error || !data) throw error || new Error("Application could not be saved.");
 
@@ -40,7 +45,7 @@ export async function POST(req: NextRequest) {
     const mail = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [email], subject: "MFIT Healthcare – Collection Partner Application Received", html: `<p>Dear ${safeName},</p><p>We have received your collection partner application for <b>MFIT Healthcare</b>.</p><p>Application reference: <b>${data.id}</b></p><p>Our team will review your details. Partner login credentials will be shared only after successful verification and approval.</p><p>Regards,<br>MFIT Healthcare</p>` }),
+      body: JSON.stringify({ from, to: [email], subject: "MFIT Healthcare – Collection Partner Application Received", html: `<p>Dear ${safeName},</p><p>We have received your collection partner application for <b>MFIT Healthcare</b>. Our records show acceptance of Collection Partner Agreement version ${agreementVersion}.</p><p>Application reference: <b>${data.id}</b></p><p>Our team will review your details. Partner login credentials will be shared only after successful verification and approval.</p><p>Regards,<br>MFIT Healthcare</p>` }),
     });
     if (!mail.ok) {
       console.error("Partner application acknowledgement email failed", await mail.text());
