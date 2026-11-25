@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase-browser";
 
-const supabase = createSupabaseBrowserClient();
 
 type AcknowledgementRow = {
   id: string;
@@ -23,6 +22,7 @@ function propertyDetails(row: AcknowledgementRow) {
 }
 
 export default function BrokerageAcknowledgementPanel({ userId }: { userId: string }) {
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [records, setRecords] = useState<AcknowledgementRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
