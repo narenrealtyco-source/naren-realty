@@ -55,6 +55,7 @@ export default function CollectionPartnerApplyPage() {
               <label className="grid gap-1 text-sm font-medium">PAN (optional)<input name="pan" className="rounded-lg border p-3 font-normal" /></label>
               <label className="grid gap-1 text-sm font-medium sm:col-span-2">Experience / additional information<textarea name="notes" className="rounded-lg border p-3 font-normal" /></label>
               {error && <p role="alert" className="text-sm text-rose-700 sm:col-span-2">{error}</p>}
+              <label className="flex items-start gap-3 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-slate-700 sm:col-span-2"><input required type="checkbox" name="agreement_accepted" className="mt-1 size-4 shrink-0 accent-teal-700" /><span>I have read and agree to the <a href="/collection-partner-agreement" target="_blank" rel="noreferrer" className="font-bold text-teal-800 underline">MFIT Healthcare Collection Partner Agreement</a>. I confirm that I am authorised to submit this application and accept the Agreement on behalf of the applicant. Version MFIT-COLLECTION-PARTNER-2026-01.</span></label>
               <button disabled={busy} className="rounded-lg bg-teal-700 p-3 font-bold text-white disabled:opacity-60 sm:col-span-2">{busy ? "Submitting…" : "Submit application"}</button>
             </form>
           </>
