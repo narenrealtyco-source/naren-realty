@@ -18,7 +18,9 @@ export async function POST(request: NextRequest) {
     const address = String(customer.address || "").trim();
     const patientName = String(patient.name || name).trim();
     const preferredDate = String(body?.preferredDate || "");
-    const preferredSlot = String(body?.preferredSlot || "").trim();\n    const policyAccepted = body?.policyAccepted === true;\n    const policyVersion = String(body?.policyVersion || "");
+    const preferredSlot = String(body?.preferredSlot || "").trim();
+    const policyAccepted = body?.policyAccepted === true;
+    const policyVersion = String(body?.policyVersion || "");
     if (name.length < 2 || !/^[6-9]\d{9}$/.test(phone) || !/^[1-9]\d{5}$/.test(pincode) || address.length < 8 || lines.length < 1 || lines.length > 10 || !patientName || !preferredDate || !preferredSlot) {
       return NextResponse.json({ error: "Please complete contact, address, patient and preferred collection details." }, { status: 400 });
     }
