@@ -13,6 +13,7 @@ export default function HomeServicesPage() {
         >
           ← Home
         </Link>
+        <div className="mt-2 text-xs text-slate-500">Using our service directory? Please review the <Link href="/other-services-policy" className="font-semibold text-[#A71930] underline underline-offset-2">Other Services Policy</Link> before sending an enquiry.</div>
         <div className="mt-3">
           <ServicesDirectory initialCategory="" />
         </div>
