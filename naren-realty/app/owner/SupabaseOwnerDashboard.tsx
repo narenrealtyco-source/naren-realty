@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import PropertyInformation from "../components/PropertyInformation";
+import BrokerageAcknowledgementPanel from "../components/BrokerageAcknowledgementPanel";
 import PolicyConsentFields from "../components/PolicyConsentFields";
 import { activateOwnerAccount } from "../actions/owner-activation";
 import { POLICY_DOCUMENTS, type PolicyType } from "../lib/policies";
@@ -136,6 +137,7 @@ export default function SupabaseOwnerDashboard({ session }: { session: CustomerO
         </div>
 
         {notice && <p role="status" className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
+        <BrokerageAcknowledgementPanel userId={session.id} />
         {error && <p role="alert" className="mt-5 text-sm text-rose-700">{error}</p>}
         {policyLoading ? <p role="status" className="mt-5 text-sm text-slate-600">Checking current Owner Terms and Privacy Policy acceptance…</p>
           : pendingPolicies.length > 0 ? <form onSubmit={acceptCurrentPolicies} className="mt-5 rounded-xl border border-amber-200 bg-white p-4 sm:p-5">
