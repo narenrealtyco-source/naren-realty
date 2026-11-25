@@ -140,7 +140,7 @@ async function Content({searchParams,activeTab}:{searchParams?:Promise<{q?:strin
 
     <section id="payments" className={`mt-8 scroll-mt-5 ${tab!=="payments"?"hidden":""}`}>
      <h3 className="text-xl font-extrabold">B2B payments</h3>
-     <p className="mt-1 text-xs text-slate-500">Partner-to-MFIT settlement controls report eligibility. Customer payment to partner does not unlock reports.</p>
+     <p className="mt-1 text-xs text-slate-500">Partner-to-MFIT settlement controls report eligibility. Customer payment to partner does not unlock reports.</p><p className="mt-2 text-xs"><a href="/mfit-payment-settlement-policy" className="font-bold text-teal-700 underline">Read MFIT Payment & Settlement Policy →</a></p>
      <div className="mt-3 grid grid-cols-2 gap-3">
       <div className="rounded-xl border bg-white p-4"><p className="text-xs text-slate-500">Outstanding to MFIT</p><p className="mt-2 text-2xl font-extrabold">{money(pending)}</p></div>
       <div className="rounded-xl border bg-white p-4"><p className="text-xs text-slate-500">Paid bookings</p><p className="mt-2 text-2xl font-extrabold">{(allBookings||[]).filter((b:any)=>b.partner_b2b_payment_status==="paid").length}</p></div>
